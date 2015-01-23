@@ -13,3 +13,7 @@
 #alert-change-password {
   display: none;
 }
+
+#alert-login {
+  display: none;
+}

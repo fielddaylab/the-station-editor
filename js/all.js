@@ -13,6 +13,9 @@
             _this.login($('#text-username').val(), $('#text-password').val(), function() {
               if (_this.auth != null) {
                 return _this.selectPage('#page-list');
+              } else {
+                $('#alert-login').text("Incorrect username or password.");
+                return $('#alert-login').show();
               }
             });
             return false;
@@ -28,20 +31,20 @@
             return _this.selectPage('#page-change-password');
           });
           $('#button-create-acct').click(function() {
+            var showAlert;
+            showAlert = function(text) {
+              $('#alert-new-acct').text(text);
+              return $('#alert-new-acct').show();
+            };
             if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
-              $('#alert-new-acct').text("Your email address is not valid.");
-              $('#alert-new-acct').show();
+              showAlert("Your email address is not valid.");
             } else if ($('#text-new-username').val().length < 1) {
-              $('#alert-new-acct').text("Your username must be at least 1 character.");
-              $('#alert-new-acct').show();
+              showAlert("Your username must be at least 1 character.");
             } else if ($('#text-new-password').val() !== $('#text-new-password-2').val()) {
-              $('#alert-new-acct').text("Your passwords do not match.");
-              $('#alert-new-acct').show();
+              showAlert("Your passwords do not match.");
             } else if ($('#text-new-password').val().length < 6) {
-              $('#alert-new-acct').text("Your password must be at least 6 characters.");
-              $('#alert-new-acct').show();
+              showAlert("Your password must be at least 6 characters.");
             } else {
-              $('#alert-new-acct').hide();
               _this.callAris('users.createUser', {
                 user_name: $('#text-new-username').val(),
                 password: $('#text-new-password').val(),
@@ -49,7 +52,10 @@
               }, function(res) {
                 _this.parseLogInResult(res);
                 if (_this.auth != null) {
+                  $('#alert-new-acct').hide();
                   return _this.selectPage('#page-list');
+                } else {
+                  return showAlert("Couldn't create account: " + res.returnCodeDescription);
                 }
               });
             }
@@ -155,7 +161,7 @@
     };
 
     App.prototype.selectPage = function(page) {
-      $('#alert-new-acct').hide();
+      $('.alert').hide();
       $('.page').hide();
       return $(page).show();
     };
