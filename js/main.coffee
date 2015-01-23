@@ -59,12 +59,31 @@ class App
     $.removeCookie 'auth'
 
   selectPage: (page) ->
-    $('.page').addClass 'page-hidden'
-    $(page).removeClass 'page-hidden'
+    $('.page').hide()
+    $(page).show()
 
   getGames: (cb = (->)) ->
-    @callAris 'games.getGamesForUser', {}, ({data: @games}) =>
+    @callAris 'games.getGamesForUser', {}, ({data: games}) =>
+      @games = for game in games
+        game_id: parseInt game.game_id
+        name: game.name
+        description: game.description
+        icon_media_id: parseInt game.icon_media_id
+        map_latitude: parseFloat game.map_latitude
+        map_longitude: parseFloat game.map_longitude
+        map_zoom_level: parseInt game.map_zoom_level
       cb()
+
+  getGameIcons: (cb = (->)) ->
+    for game in @games
+      unless game.icon_media?
+        @callAris 'media.getMedia',
+          media_id: game.icon_media_id
+        , ({data: media}) =>
+          game.icon_media = media
+          @getGameIcons cb
+        return
+    cb()
 
 app = new App
 window.app = app

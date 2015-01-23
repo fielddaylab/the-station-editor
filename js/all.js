@@ -94,8 +94,8 @@
     };
 
     App.prototype.selectPage = function(page) {
-      $('.page').addClass('page-hidden');
-      return $(page).removeClass('page-hidden');
+      $('.page').hide();
+      return $(page).show();
     };
 
     App.prototype.getGames = function(cb) {
@@ -104,10 +104,53 @@
       }
       return this.callAris('games.getGamesForUser', {}, (function(_this) {
         return function(_arg) {
-          _this.games = _arg.data;
+          var game, games;
+          games = _arg.data;
+          _this.games = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = games.length; _i < _len; _i++) {
+              game = games[_i];
+              _results.push({
+                game_id: parseInt(game.game_id),
+                name: game.name,
+                description: game.description,
+                icon_media_id: parseInt(game.icon_media_id),
+                map_latitude: parseFloat(game.map_latitude),
+                map_longitude: parseFloat(game.map_longitude),
+                map_zoom_level: parseInt(game.map_zoom_level)
+              });
+            }
+            return _results;
+          })();
           return cb();
         };
       })(this));
+    };
+
+    App.prototype.getGameIcons = function(cb) {
+      var game, _i, _len, _ref;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      _ref = this.games;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        game = _ref[_i];
+        if (game.icon_media == null) {
+          this.callAris('media.getMedia', {
+            media_id: game.icon_media_id
+          }, (function(_this) {
+            return function(_arg) {
+              var media;
+              media = _arg.data;
+              game.icon_media = media;
+              return _this.getGameIcons(cb);
+            };
+          })(this));
+          return;
+        }
+      }
+      return cb();
     };
 
     return App;
