@@ -50,19 +50,43 @@
                 password: $('#text-new-password').val(),
                 email: $('#text-new-email').val()
               }, function(res) {
-                _this.parseLogInResult(res);
-                if (_this.auth != null) {
-                  $('#alert-new-acct').hide();
-                  return _this.selectPage('#page-list');
-                } else {
+                if (res.returnCode !== 0) {
                   return showAlert("Couldn't create account: " + res.returnCodeDescription);
+                } else {
+                  _this.parseLogInResult(res);
+                  $('.alert').hide();
+                  return _this.startingPage();
                 }
               });
             }
             return false;
           });
           $('#button-change-password').click(function() {
-            return console.log('TODO: change password');
+            var showAlert;
+            showAlert = function(text) {
+              $('#alert-change-password').text(text);
+              return $('#alert-change-password').show();
+            };
+            if ($('#text-change-password').val() !== $('#text-change-password-2').val()) {
+              showAlert("Your new passwords do not match.");
+            } else if ($('#text-change-password').val().length < 6) {
+              showAlert("Your new password must be at least 6 characters.");
+            } else {
+              _this.callAris('users.changePassword', {
+                user_name: _this.auth.username,
+                old_password: $('#text-old-password').val(),
+                new_password: $('#text-change-password').val()
+              }, function(res) {
+                if (res.returnCode !== 0) {
+                  return showAlert("Couldn't change password: " + res.returnCodeDescription);
+                } else {
+                  _this.parseLogInResult(res);
+                  $('.alert').hide();
+                  return _this.startingPage();
+                }
+              });
+            }
+            return false;
           });
           $('#button-cancel-new-acct').click(function() {
             return _this.selectPage('#page-login');

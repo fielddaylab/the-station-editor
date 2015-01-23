@@ -37,15 +37,34 @@ class App
             password: $('#text-new-password').val()
             email: $('#text-new-email').val()
           , (res) =>
-            @parseLogInResult res
-            if @auth?
-              $('#alert-new-acct').hide()
-              @selectPage '#page-list'
-            else
+            if res.returnCode isnt 0
               showAlert "Couldn't create account: #{res.returnCodeDescription}"
+            else
+              @parseLogInResult res
+              $('.alert').hide()
+              @startingPage()
         false
       $('#button-change-password').click =>
-        console.log 'TODO: change password'
+        showAlert = (text) =>
+          $('#alert-change-password').text text
+          $('#alert-change-password').show()
+        if $('#text-change-password').val() isnt $('#text-change-password-2').val()
+          showAlert "Your new passwords do not match."
+        else if $('#text-change-password').val().length < 6
+          showAlert "Your new password must be at least 6 characters."
+        else
+          @callAris 'users.changePassword',
+            user_name: @auth.username
+            old_password: $('#text-old-password').val()
+            new_password: $('#text-change-password').val()
+          , (res) =>
+            if res.returnCode isnt 0
+              showAlert "Couldn't change password: #{res.returnCodeDescription}"
+            else
+              @parseLogInResult res
+              $('.alert').hide()
+              @startingPage()
+        false
       $('#button-cancel-new-acct').click =>
         @selectPage '#page-login'
 
