@@ -22,6 +22,7 @@
             return _this.selectPage('#page-login');
           });
           _this.loadLogin();
+          _this.updateNav();
           if (_this.auth != null) {
             return _this.selectPage('#page-list');
           } else {
@@ -59,6 +60,15 @@
       return req.send(JSON.stringify(json));
     };
 
+    App.prototype.updateNav = function() {
+      if (this.auth != null) {
+        $('#span-username').text(this.auth.username);
+        return $('#dropdown-logged-in').show();
+      } else {
+        return $('#dropdown-logged-in').hide();
+      }
+    };
+
     App.prototype.loadLogin = function() {
       return this.auth = $.cookie('auth');
     };
@@ -79,9 +89,11 @@
             _this.auth = {
               user_id: parseInt(user.user_id),
               permission: 'read_write',
-              key: user.read_write_key
+              key: user.read_write_key,
+              username: username
             };
             $.cookie('auth', _this.auth);
+            _this.updateNav();
           }
           return cb();
         };
@@ -90,7 +102,8 @@
 
     App.prototype.logout = function() {
       this.auth = null;
-      return $.removeCookie('auth');
+      $.removeCookie('auth');
+      return this.updateNav();
     };
 
     App.prototype.selectPage = function(page) {

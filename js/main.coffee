@@ -16,6 +16,7 @@ class App
         @selectPage '#page-login'
 
       @loadLogin()
+      @updateNav()
       if @auth?
         @selectPage '#page-list'
       else
@@ -37,6 +38,13 @@ class App
     req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded'
     req.send JSON.stringify json
 
+  updateNav: ->
+    if @auth?
+      $('#span-username').text @auth.username
+      $('#dropdown-logged-in').show()
+    else
+      $('#dropdown-logged-in').hide()
+
   loadLogin: ->
     @auth = $.cookie 'auth'
 
@@ -51,12 +59,15 @@ class App
           user_id:    parseInt user.user_id
           permission: 'read_write'
           key:        user.read_write_key
+          username:   username
         $.cookie 'auth', @auth
+        @updateNav()
       cb()
 
   logout: ->
     @auth = null
     $.removeCookie 'auth'
+    @updateNav()
 
   selectPage: (page) ->
     $('.page').hide()
@@ -65,12 +76,12 @@ class App
   getGames: (cb = (->)) ->
     @callAris 'games.getGamesForUser', {}, ({data: games}) =>
       @games = for game in games
-        game_id: parseInt game.game_id
-        name: game.name
-        description: game.description
-        icon_media_id: parseInt game.icon_media_id
-        map_latitude: parseFloat game.map_latitude
-        map_longitude: parseFloat game.map_longitude
+        game_id:        parseInt game.game_id
+        name:           game.name
+        description:    game.description
+        icon_media_id:  parseInt game.icon_media_id
+        map_latitude:   parseFloat game.map_latitude
+        map_longitude:  parseFloat game.map_longitude
         map_zoom_level: parseInt game.map_zoom_level
       cb()
 
