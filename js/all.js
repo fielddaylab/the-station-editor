@@ -20,9 +20,12 @@
           $('#button-new-acct').click(function() {
             return _this.selectPage('#page-new-acct');
           });
-          $('#button-logout').click(function() {
+          $('#menu-logout').click(function() {
             _this.logout();
             return _this.selectPage('#page-login');
+          });
+          $('#menu-change-password').click(function() {
+            return _this.selectPage('#page-change-password');
           });
           $('#button-create-acct').click(function() {
             if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
@@ -51,6 +54,9 @@
               });
             }
             return false;
+          });
+          $('#button-change-password').click(function() {
+            return console.log('TODO: change password');
           });
           $('#button-cancel-new-acct').click(function() {
             return _this.selectPage('#page-login');

@@ -9,3 +9,7 @@
 #alert-new-acct {
   display: none;
 }
+
+#alert-change-password {
+  display: none;
+}

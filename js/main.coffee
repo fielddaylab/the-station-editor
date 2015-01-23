@@ -11,9 +11,11 @@ class App
         false
       $('#button-new-acct').click =>
         @selectPage '#page-new-acct'
-      $('#button-logout').click =>
+      $('#menu-logout').click =>
         @logout()
         @selectPage '#page-login'
+      $('#menu-change-password').click =>
+        @selectPage '#page-change-password'
       $('#button-create-acct').click =>
         if '@' not in $('#text-new-email').val()
           $('#alert-new-acct').text "Your email address is not valid."
@@ -38,6 +40,8 @@ class App
             if @auth?
               @selectPage '#page-list'
         false
+      $('#button-change-password').click =>
+        console.log 'TODO: change password'
       $('#button-cancel-new-acct').click =>
         @selectPage '#page-login'
 
