@@ -202,34 +202,40 @@
       gameList.text('');
       updateDom = (function(_this) {
         return function() {
-          var game, media, mediaBody, mediaHeading, mediaLeft, mediaObject, _i, _len, _ref;
+          var game, media, _fn, _i, _len, _ref;
           _ref = _this.games;
+          _fn = function() {
+            var mediaBody, mediaLeft;
+            mediaLeft = $('<div />', {
+              "class": 'media-left'
+            });
+            (function() {
+              return mediaLeft.append($('<img />', {
+                "class": 'media-object',
+                src: game.icon_media.url,
+                width: '64px',
+                height: '64px'
+              }));
+            })();
+            media.append(mediaLeft);
+            mediaBody = $('<div />', {
+              "class": 'media-body'
+            });
+            (function() {
+              mediaBody.append($('<h4 />', {
+                "class": 'media-heading',
+                text: game.name
+              }));
+              return mediaBody.append(game.description);
+            })();
+            return media.append(mediaBody);
+          };
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             game = _ref[_i];
             media = $('<div />', {
               "class": 'media'
             });
-            mediaLeft = $('<div />', {
-              "class": 'media-left'
-            });
-            mediaObject = $('<img />', {
-              "class": 'media-object',
-              src: game.icon_media.url,
-              width: '64px',
-              height: '64px'
-            });
-            mediaBody = $('<div />', {
-              "class": 'media-body'
-            });
-            mediaHeading = $('<h4 />', {
-              "class": 'media-heading',
-              text: game.name
-            });
-            mediaLeft.append(mediaObject);
-            mediaBody.append(mediaHeading);
-            mediaBody.append(game.description);
-            media.append(mediaLeft);
-            media.append(mediaBody);
+            _fn();
             gameList.append(media);
           }
           return cb();

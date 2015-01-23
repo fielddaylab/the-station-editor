@@ -143,15 +143,16 @@ class App
     updateDom = =>
       for game in @games
         media = $ '<div />', class: 'media'
-        mediaLeft = $ '<div />', class: 'media-left'
-        mediaObject = $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
-        mediaBody = $ '<div />', class: 'media-body'
-        mediaHeading = $ '<h4 />', class: 'media-heading', text: game.name
-        mediaLeft.append mediaObject
-        mediaBody.append mediaHeading
-        mediaBody.append game.description
-        media.append mediaLeft
-        media.append mediaBody
+        do =>
+          mediaLeft = $ '<div />', class: 'media-left'
+          do =>
+            mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
+          media.append mediaLeft
+          mediaBody = $ '<div />', class: 'media-body'
+          do =>
+            mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
+            mediaBody.append game.description
+          media.append mediaBody
         gameList.append media
       cb()
     if @auth?
