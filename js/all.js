@@ -93,7 +93,9 @@
           });
           _this.loadLogin();
           _this.updateNav();
-          return _this.startingPage();
+          return _this.updateGameList(function() {
+            return _this.startingPage();
+          });
         };
       })(this));
     }
@@ -173,7 +175,7 @@
       }, (function(_this) {
         return function(res) {
           _this.parseLogInResult(res);
-          return cb();
+          return _this.updateGameList(cb);
         };
       })(this));
     };
@@ -188,6 +190,62 @@
       $('.alert').hide();
       $('.page').hide();
       return $(page).show();
+    };
+
+    App.prototype.updateGameList = function(cb) {
+      var gameList, updateDom;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      this.games = [];
+      gameList = $('#list-siftrs');
+      gameList.text('');
+      updateDom = (function(_this) {
+        return function() {
+          var game, media, mediaBody, mediaHeading, mediaLeft, mediaObject, _i, _len, _ref;
+          _ref = _this.games;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            game = _ref[_i];
+            media = $('<div />', {
+              "class": 'media'
+            });
+            mediaLeft = $('<div />', {
+              "class": 'media-left'
+            });
+            mediaObject = $('<img />', {
+              "class": 'media-object',
+              src: game.icon_media.url,
+              width: '64px',
+              height: '64px'
+            });
+            mediaBody = $('<div />', {
+              "class": 'media-body'
+            });
+            mediaHeading = $('<h4 />', {
+              "class": 'media-heading',
+              text: game.name
+            });
+            mediaLeft.append(mediaObject);
+            mediaBody.append(mediaHeading);
+            mediaBody.append(game.description);
+            media.append(mediaLeft);
+            media.append(mediaBody);
+            gameList.append(media);
+          }
+          return cb();
+        };
+      })(this);
+      if (this.auth != null) {
+        return this.getGames((function(_this) {
+          return function() {
+            return _this.getGameIcons(function() {
+              return updateDom();
+            });
+          };
+        })(this));
+      } else {
+        return updateDom();
+      }
     };
 
     App.prototype.getGames = function(cb) {

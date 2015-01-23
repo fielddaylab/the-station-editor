@@ -70,7 +70,8 @@ class App
 
       @loadLogin()
       @updateNav()
-      @startingPage()
+      @updateGameList =>
+        @startingPage()
 
   startingPage: ->
     if @auth?
@@ -123,7 +124,7 @@ class App
       permission: 'read_write'
     , (res) =>
       @parseLogInResult res
-      cb()
+      @updateGameList cb
 
   logout: ->
     @auth = null
@@ -134,6 +135,31 @@ class App
     $('.alert').hide()
     $('.page').hide()
     $(page).show()
+
+  updateGameList: (cb = (->)) ->
+    @games = []
+    gameList = $('#list-siftrs')
+    gameList.text ''
+    updateDom = =>
+      for game in @games
+        media = $ '<div />', class: 'media'
+        mediaLeft = $ '<div />', class: 'media-left'
+        mediaObject = $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
+        mediaBody = $ '<div />', class: 'media-body'
+        mediaHeading = $ '<h4 />', class: 'media-heading', text: game.name
+        mediaLeft.append mediaObject
+        mediaBody.append mediaHeading
+        mediaBody.append game.description
+        media.append mediaLeft
+        media.append mediaBody
+        gameList.append media
+      cb()
+    if @auth?
+      @getGames =>
+        @getGameIcons =>
+          updateDom()
+    else
+      updateDom()
 
   getGames: (cb = (->)) ->
     @callAris 'games.getGamesForUser', {}, ({data: games}) =>
