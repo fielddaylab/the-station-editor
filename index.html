@@ -25,7 +25,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Siftr Editor</a>
+          <a class="navbar-brand" href="#" onclick="app.startingPage();">Siftr Editor</a>
         </div>
 
         <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -54,9 +54,43 @@
         <div class="form-group">
           <input id="text-password" type="password" placeholder="Password"></input>
         </div>
-        <button id="button-login" class="btn btn-primary" type="submit">
-          Log in
-        </button>
+        <div class="form-group">
+          <button id="button-login" class="btn btn-primary" type="submit">
+            Log in
+          </button>
+          <button id="button-new-acct" class="btn btn-secondary" type="button">
+            New account
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div id="page-new-acct" class="container page">
+      <div id="alert-new-acct" class="alert alert-danger" role="alert">
+        Account creation alerts go here
+      </div>
+      <h1>Create an account</h1>
+      <form id="form-new-acct">
+        <div class="form-group">
+          <input id="text-new-email" type="text" placeholder="Email"></input>
+        </div>
+        <div class="form-group">
+          <input id="text-new-username" type="text" placeholder="Username"></input>
+        </div>
+        <div class="form-group">
+          <input id="text-new-password" type="password" placeholder="Password"></input>
+        </div>
+        <div class="form-group">
+          <input id="text-new-password-2" type="password" placeholder="Repeat password"></input>
+        </div>
+        <div class="form-group">
+          <button id="button-create-acct" class="btn btn-primary" type="submit">
+            Create account
+          </button>
+          <button id="button-cancel-new-acct" class="btn btn-secondary" type="button">
+            Back to login
+          </button>
+        </div>
       </form>
     </div>
 

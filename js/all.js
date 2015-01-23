@@ -1,15 +1,15 @@
 (function() {
-  var App, app;
-
-  console.log('CoffeeScript loaded.');
-
-  $.cookie.json = true;
+  var App, app,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   App = (function() {
     function App() {
+      this.parseLogInResult = __bind(this.parseLogInResult, this);
       $(document).ready((function(_this) {
         return function() {
-          $('#form-login').submit(function() {
+          $.cookie.json = true;
+          $('#button-login').click(function() {
             _this.login($('#text-username').val(), $('#text-password').val(), function() {
               if (_this.auth != null) {
                 return _this.selectPage('#page-list');
@@ -17,20 +17,58 @@
             });
             return false;
           });
+          $('#button-new-acct').click(function() {
+            return _this.selectPage('#page-new-acct');
+          });
           $('#button-logout').click(function() {
             _this.logout();
             return _this.selectPage('#page-login');
           });
+          $('#button-create-acct').click(function() {
+            if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
+              $('#alert-new-acct').text("Your email address is not valid.");
+              $('#alert-new-acct').show();
+            } else if ($('#text-new-username').val().length < 1) {
+              $('#alert-new-acct').text("Your username must be at least 1 character.");
+              $('#alert-new-acct').show();
+            } else if ($('#text-new-password').val() !== $('#text-new-password-2').val()) {
+              $('#alert-new-acct').text("Your passwords do not match.");
+              $('#alert-new-acct').show();
+            } else if ($('#text-new-password').val().length < 6) {
+              $('#alert-new-acct').text("Your password must be at least 6 characters.");
+              $('#alert-new-acct').show();
+            } else {
+              $('#alert-new-acct').hide();
+              _this.callAris('users.createUser', {
+                user_name: $('#text-new-username').val(),
+                password: $('#text-new-password').val(),
+                email: $('#text-new-email').val()
+              }, function(res) {
+                _this.parseLogInResult(res);
+                if (_this.auth != null) {
+                  return _this.selectPage('#page-list');
+                }
+              });
+            }
+            return false;
+          });
+          $('#button-cancel-new-acct').click(function() {
+            return _this.selectPage('#page-login');
+          });
           _this.loadLogin();
           _this.updateNav();
-          if (_this.auth != null) {
-            return _this.selectPage('#page-list');
-          } else {
-            return _this.selectPage('#page-login');
-          }
+          return _this.startingPage();
         };
       })(this));
     }
+
+    App.prototype.startingPage = function() {
+      if (this.auth != null) {
+        return this.selectPage('#page-list');
+      } else {
+        return this.selectPage('#page-login');
+      }
+    };
 
     App.prototype.callAris = function(func, json, cb) {
       var req;
@@ -73,6 +111,21 @@
       return this.auth = $.cookie('auth');
     };
 
+    App.prototype.parseLogInResult = function(_arg) {
+      var returnCode, user;
+      user = _arg.data, returnCode = _arg.returnCode;
+      if (returnCode === 0) {
+        this.auth = {
+          user_id: parseInt(user.user_id),
+          permission: 'read_write',
+          key: user.read_write_key,
+          username: user.user_name
+        };
+        $.cookie('auth', this.auth);
+        return this.updateNav();
+      }
+    };
+
     App.prototype.login = function(username, password, cb) {
       if (cb == null) {
         cb = (function() {});
@@ -82,19 +135,8 @@
         password: password,
         permission: 'read_write'
       }, (function(_this) {
-        return function(_arg) {
-          var returnCode, user;
-          user = _arg.data, returnCode = _arg.returnCode;
-          if (returnCode === 0) {
-            _this.auth = {
-              user_id: parseInt(user.user_id),
-              permission: 'read_write',
-              key: user.read_write_key,
-              username: username
-            };
-            $.cookie('auth', _this.auth);
-            _this.updateNav();
-          }
+        return function(res) {
+          _this.parseLogInResult(res);
           return cb();
         };
       })(this));
@@ -107,6 +149,7 @@
     };
 
     App.prototype.selectPage = function(page) {
+      $('#alert-new-acct').hide();
       $('.page').hide();
       return $(page).show();
     };

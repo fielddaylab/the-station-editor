@@ -5,3 +5,7 @@
 #dropdown-logged-in {
   display: none;
 }
+
+#alert-new-acct {
+  display: none;
+}
