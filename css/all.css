@@ -17,3 +17,7 @@
 #alert-login {
   display: none;
 }
+
+#spinner-login {
+  display: none;
+}

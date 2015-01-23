@@ -10,7 +10,9 @@
         return function() {
           $.cookie.json = true;
           $('#button-login').click(function() {
+            $('#spinner-login').show();
             _this.login($('#text-username').val(), $('#text-password').val(), function() {
+              $('#spinner-login').hide();
               if (_this.auth != null) {
                 return _this.selectPage('#page-list');
               } else {

@@ -5,20 +5,26 @@ class App
       $.cookie.json = true
 
       $('#button-login').click =>
+        $('#spinner-login').show()
         @login $('#text-username').val(), $('#text-password').val(), =>
+          $('#spinner-login').hide()
           if @auth?
             @selectPage '#page-list'
           else
             $('#alert-login').text "Incorrect username or password."
             $('#alert-login').show()
         false
+
       $('#button-new-acct').click =>
         @selectPage '#page-new-acct'
+
       $('#menu-logout').click =>
         @logout()
         @selectPage '#page-login'
+
       $('#menu-change-password').click =>
         @selectPage '#page-change-password'
+
       $('#button-create-acct').click =>
         showAlert = (text) =>
           $('#alert-new-acct').text text
@@ -44,6 +50,7 @@ class App
               $('.alert').hide()
               @startingPage()
         false
+
       $('#button-change-password').click =>
         showAlert = (text) =>
           $('#alert-change-password').text text
@@ -65,6 +72,7 @@ class App
               $('.alert').hide()
               @startingPage()
         false
+
       $('#button-cancel-new-acct').click =>
         @selectPage '#page-login'
 
