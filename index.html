@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Siftr Editor</title>
 
-    <link href="lib/bootstrap-3.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/all.css" rel="stylesheet">
-    <link href="lib/font-awesome-4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="lib/jquery-2.1.3.min.js"></script>
     <script src="lib/jquery.cookie.js"></script>
+    <link href="lib/bootstrap-3.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="lib/bootstrap-3.3.2-dist/js/bootstrap.min.js"></script>
+    <link href="lib/jasny-bootstrap-3.1.3-dist/css/jasny-bootstrap.min.css" rel="stylesheet">
+    <script src="lib/jasny-bootstrap-3.1.3-dist/js/jasny-bootstrap.min.js"></script>
+    <link href="lib/font-awesome-4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/all.css" rel="stylesheet">
     <script src="js/all.js"></script>
   </head>
 
@@ -54,12 +56,14 @@
 
       <div id="page-login" class="page">
         <h1>Log in</h1>
-        <form id="form-login">
+        <form>
           <div class="form-group">
-            <input id="text-username" type="text" placeholder="Username"></input>
+            <label for="text-username">Username</label>
+            <input id="text-username" class="form-control" type="text" placeholder="Username"></input>
           </div>
           <div class="form-group">
-            <input id="text-password" type="password" placeholder="Password"></input>
+            <label for="text-password">Password</label>
+            <input id="text-password" class="form-control" type="password" placeholder="Password"></input>
           </div>
           <div class="form-group">
             <button id="button-login" class="btn btn-primary" type="submit">
@@ -77,18 +81,22 @@
 
       <div id="page-new-acct" class="page">
         <h1>Create an account</h1>
-        <form id="form-new-acct">
+        <form>
           <div class="form-group">
-            <input id="text-new-email" type="text" placeholder="Email"></input>
+            <label for="text-new-email">Email</label>
+            <input id="text-new-email" class="form-control" type="email" placeholder="Email"></input>
           </div>
           <div class="form-group">
-            <input id="text-new-username" type="text" placeholder="Username"></input>
+            <label for="text-new-username">Username</label>
+            <input id="text-new-username" class="form-control" type="text" placeholder="Username"></input>
           </div>
           <div class="form-group">
-            <input id="text-new-password" type="password" placeholder="Password"></input>
+            <label for="text-new-password">Password</label>
+            <input id="text-new-password" class="form-control" type="password" placeholder="Password"></input>
           </div>
           <div class="form-group">
-            <input id="text-new-password-2" type="password" placeholder="Repeat password"></input>
+            <label for="text-new-password-2">Repeat password</label>
+            <input id="text-new-password-2" class="form-control" type="password" placeholder="Repeat password"></input>
           </div>
           <div class="form-group">
             <button id="button-create-acct" class="btn btn-primary" type="submit">
@@ -103,15 +111,18 @@
 
       <div id="page-change-password" class="page">
         <h1>Change your password</h1>
-        <form id="form-change-password">
+        <form>
           <div class="form-group">
-            <input id="text-old-password" type="password" placeholder="Old password"></input>
+            <label for="text-old-password">Old password</label>
+            <input id="text-old-password" class="form-control" type="password" placeholder="Old password"></input>
           </div>
           <div class="form-group">
-            <input id="text-change-password" type="password" placeholder="New password"></input>
+            <label for="text-change-password">New password</label>
+            <input id="text-change-password" class="form-control" type="password" placeholder="New password"></input>
           </div>
           <div class="form-group">
-            <input id="text-change-password-2" type="password" placeholder="Repeat new password"></input>
+            <label for="text-change-password-2">Repeat new password</label>
+            <input id="text-change-password-2" class="form-control" type="password" placeholder="Repeat new password"></input>
           </div>
           <div class="form-group">
             <button id="button-change-password" class="btn btn-primary" type="submit">
@@ -126,6 +137,28 @@
         <div id="list-siftrs">
           <!-- This gets dynamically filled with Siftrs -->
         </div>
+      </div>
+
+      <div id="page-edit" class="page">
+        <h1>Edit a Siftr</h1>
+        <form>
+          <div class="form-group">
+            <label for="text-siftr-name">Name</label>
+            <input type="text" id="text-siftr-name" class="form-control" placeholder="Name">
+          </div>
+          <div class="form-group">
+            <label for="text-siftr-desc">Description</label>
+            <input type="text" id="text-siftr-desc" class="form-control" placeholder="Description">
+          </div>
+          <div class="fileinput fileinput-new" data-provides="fileinput">
+            <label for="file-siftr-icon">Icon</label><br />
+            <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
+            <div>
+              <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span><input id="file-siftr-icon" type="file" name="..."></span>
+              <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
+            </div>
+          </div>
+        </form>
       </div>
 
     </div>
