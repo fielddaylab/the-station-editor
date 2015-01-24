@@ -6,15 +6,7 @@
   display: none;
 }
 
-#alert-new-acct {
-  display: none;
-}
-
-#alert-change-password {
-  display: none;
-}
-
-#alert-login {
+#the-alert {
   display: none;
 }
 

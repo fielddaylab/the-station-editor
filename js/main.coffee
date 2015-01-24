@@ -11,8 +11,7 @@ class App
           if @auth?
             @selectPage '#page-list'
           else
-            $('#alert-login').text "Incorrect username or password."
-            $('#alert-login').show()
+            @showAlert 'Incorrect username or password.'
         false
 
       $('#button-new-acct').click =>
@@ -26,17 +25,14 @@ class App
         @selectPage '#page-change-password'
 
       $('#button-create-acct').click =>
-        showAlert = (text) =>
-          $('#alert-new-acct').text text
-          $('#alert-new-acct').show()
         if '@' not in $('#text-new-email').val()
-          showAlert "Your email address is not valid."
+          @showAlert "Your email address is not valid."
         else if $('#text-new-username').val().length < 1
-          showAlert "Your username must be at least 1 character."
+          @showAlert "Your username must be at least 1 character."
         else if $('#text-new-password').val() isnt $('#text-new-password-2').val()
-          showAlert "Your passwords do not match."
+          @showAlert "Your passwords do not match."
         else if $('#text-new-password').val().length < 6
-          showAlert "Your password must be at least 6 characters."
+          @showAlert "Your password must be at least 6 characters."
         else
           @callAris 'users.createUser',
             user_name: $('#text-new-username').val()
@@ -44,21 +40,18 @@ class App
             email: $('#text-new-email').val()
           , (res) =>
             if res.returnCode isnt 0
-              showAlert "Couldn't create account: #{res.returnCodeDescription}"
+              @showAlert "Couldn't create account: #{res.returnCodeDescription}"
             else
               @parseLogInResult res
-              $('.alert').hide()
+              $('#the-alert').hide()
               @startingPage()
         false
 
       $('#button-change-password').click =>
-        showAlert = (text) =>
-          $('#alert-change-password').text text
-          $('#alert-change-password').show()
         if $('#text-change-password').val() isnt $('#text-change-password-2').val()
-          showAlert "Your new passwords do not match."
+          @showAlert "Your new passwords do not match."
         else if $('#text-change-password').val().length < 6
-          showAlert "Your new password must be at least 6 characters."
+          @showAlert "Your new password must be at least 6 characters."
         else
           @callAris 'users.changePassword',
             user_name: @auth.username
@@ -66,10 +59,10 @@ class App
             new_password: $('#text-change-password').val()
           , (res) =>
             if res.returnCode isnt 0
-              showAlert "Couldn't change password: #{res.returnCodeDescription}"
+              @showAlert "Couldn't change password: #{res.returnCodeDescription}"
             else
               @parseLogInResult res
-              $('.alert').hide()
+              $('#the-alert').hide()
               @startingPage()
         false
 
@@ -80,6 +73,10 @@ class App
       @updateNav()
       @updateGameList =>
         @startingPage()
+
+  showAlert: (str) ->
+    $('#the-alert').text str
+    $('#the-alert').show()
 
   startingPage: ->
     if @auth?
@@ -140,7 +137,7 @@ class App
     @updateNav()
 
   selectPage: (page) ->
-    $('.alert').hide()
+    $('#the-alert').hide()
     $('.page').hide()
     $(page).show()
 

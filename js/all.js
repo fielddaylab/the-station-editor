@@ -16,8 +16,7 @@
               if (_this.auth != null) {
                 return _this.selectPage('#page-list');
               } else {
-                $('#alert-login').text("Incorrect username or password.");
-                return $('#alert-login').show();
+                return _this.showAlert('Incorrect username or password.');
               }
             });
             return false;
@@ -33,19 +32,14 @@
             return _this.selectPage('#page-change-password');
           });
           $('#button-create-acct').click(function() {
-            var showAlert;
-            showAlert = function(text) {
-              $('#alert-new-acct').text(text);
-              return $('#alert-new-acct').show();
-            };
             if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
-              showAlert("Your email address is not valid.");
+              _this.showAlert("Your email address is not valid.");
             } else if ($('#text-new-username').val().length < 1) {
-              showAlert("Your username must be at least 1 character.");
+              _this.showAlert("Your username must be at least 1 character.");
             } else if ($('#text-new-password').val() !== $('#text-new-password-2').val()) {
-              showAlert("Your passwords do not match.");
+              _this.showAlert("Your passwords do not match.");
             } else if ($('#text-new-password').val().length < 6) {
-              showAlert("Your password must be at least 6 characters.");
+              _this.showAlert("Your password must be at least 6 characters.");
             } else {
               _this.callAris('users.createUser', {
                 user_name: $('#text-new-username').val(),
@@ -53,10 +47,10 @@
                 email: $('#text-new-email').val()
               }, function(res) {
                 if (res.returnCode !== 0) {
-                  return showAlert("Couldn't create account: " + res.returnCodeDescription);
+                  return _this.showAlert("Couldn't create account: " + res.returnCodeDescription);
                 } else {
                   _this.parseLogInResult(res);
-                  $('.alert').hide();
+                  $('#the-alert').hide();
                   return _this.startingPage();
                 }
               });
@@ -64,15 +58,10 @@
             return false;
           });
           $('#button-change-password').click(function() {
-            var showAlert;
-            showAlert = function(text) {
-              $('#alert-change-password').text(text);
-              return $('#alert-change-password').show();
-            };
             if ($('#text-change-password').val() !== $('#text-change-password-2').val()) {
-              showAlert("Your new passwords do not match.");
+              _this.showAlert("Your new passwords do not match.");
             } else if ($('#text-change-password').val().length < 6) {
-              showAlert("Your new password must be at least 6 characters.");
+              _this.showAlert("Your new password must be at least 6 characters.");
             } else {
               _this.callAris('users.changePassword', {
                 user_name: _this.auth.username,
@@ -80,10 +69,10 @@
                 new_password: $('#text-change-password').val()
               }, function(res) {
                 if (res.returnCode !== 0) {
-                  return showAlert("Couldn't change password: " + res.returnCodeDescription);
+                  return _this.showAlert("Couldn't change password: " + res.returnCodeDescription);
                 } else {
                   _this.parseLogInResult(res);
-                  $('.alert').hide();
+                  $('#the-alert').hide();
                   return _this.startingPage();
                 }
               });
@@ -101,6 +90,11 @@
         };
       })(this));
     }
+
+    App.prototype.showAlert = function(str) {
+      $('#the-alert').text(str);
+      return $('#the-alert').show();
+    };
 
     App.prototype.startingPage = function() {
       if (this.auth != null) {
@@ -189,7 +183,7 @@
     };
 
     App.prototype.selectPage = function(page) {
-      $('.alert').hide();
+      $('#the-alert').hide();
       $('.page').hide();
       return $(page).show();
     };

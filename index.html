@@ -46,89 +46,88 @@
       </div>
     </nav>
 
-    <div id="page-login" class="container page">
-      <div id="alert-login" class="alert alert-danger" role="alert">
-        Login alerts go here
-      </div>
-      <h1>Log in</h1>
-      <form id="form-login">
-        <div class="form-group">
-          <input id="text-username" type="text" placeholder="Username"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-password" type="password" placeholder="Password"></input>
-        </div>
-        <div class="form-group">
-          <button id="button-login" class="btn btn-primary" type="submit">
-            Log in
-            <span id="spinner-login">
-              <i class="fa fa-spinner fa-pulse"></i>
-            </span>
-          </button>
-          <button id="button-new-acct" class="btn btn-secondary" type="button">
-            New account
-          </button>
-        </div>
-      </form>
-    </div>
+    <div class="container">
 
-    <div id="page-new-acct" class="container page">
-      <div id="alert-new-acct" class="alert alert-danger" role="alert">
-        Account creation alerts go here
+      <div id="the-alert" class="alert alert-danger" role="alert">
+        Alerts go here
       </div>
-      <h1>Create an account</h1>
-      <form id="form-new-acct">
-        <div class="form-group">
-          <input id="text-new-email" type="text" placeholder="Email"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-new-username" type="text" placeholder="Username"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-new-password" type="password" placeholder="Password"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-new-password-2" type="password" placeholder="Repeat password"></input>
-        </div>
-        <div class="form-group">
-          <button id="button-create-acct" class="btn btn-primary" type="submit">
-            Create account
-          </button>
-          <button id="button-cancel-new-acct" class="btn btn-secondary" type="button">
-            Back to login
-          </button>
-        </div>
-      </form>
-    </div>
 
-    <div id="page-change-password" class="container page">
-      <div id="alert-change-password" class="alert alert-danger" role="alert">
-        Password change alerts go here
+      <div id="page-login" class="page">
+        <h1>Log in</h1>
+        <form id="form-login">
+          <div class="form-group">
+            <input id="text-username" type="text" placeholder="Username"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-password" type="password" placeholder="Password"></input>
+          </div>
+          <div class="form-group">
+            <button id="button-login" class="btn btn-primary" type="submit">
+              Log in
+              <span id="spinner-login">
+                <i class="fa fa-spinner fa-pulse"></i>
+              </span>
+            </button>
+            <button id="button-new-acct" class="btn btn-secondary" type="button">
+              New account
+            </button>
+          </div>
+        </form>
       </div>
-      <h1>Change your password</h1>
-      <form id="form-change-password">
-        <div class="form-group">
-          <input id="text-old-password" type="password" placeholder="Old password"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-change-password" type="password" placeholder="New password"></input>
-        </div>
-        <div class="form-group">
-          <input id="text-change-password-2" type="password" placeholder="Repeat new password"></input>
-        </div>
-        <div class="form-group">
-          <button id="button-change-password" class="btn btn-primary" type="submit">
-            Change password
-          </button>
-        </div>
-      </form>
-    </div>
 
-    <div id="page-list" class="container page">
-      <h1>Your Siftrs</h1>
-      <div id="list-siftrs">
-        <!-- This gets dynamically filled with Siftrs -->
+      <div id="page-new-acct" class="page">
+        <h1>Create an account</h1>
+        <form id="form-new-acct">
+          <div class="form-group">
+            <input id="text-new-email" type="text" placeholder="Email"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-new-username" type="text" placeholder="Username"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-new-password" type="password" placeholder="Password"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-new-password-2" type="password" placeholder="Repeat password"></input>
+          </div>
+          <div class="form-group">
+            <button id="button-create-acct" class="btn btn-primary" type="submit">
+              Create account
+            </button>
+            <button id="button-cancel-new-acct" class="btn btn-secondary" type="button">
+              Back to login
+            </button>
+          </div>
+        </form>
       </div>
+
+      <div id="page-change-password" class="page">
+        <h1>Change your password</h1>
+        <form id="form-change-password">
+          <div class="form-group">
+            <input id="text-old-password" type="password" placeholder="Old password"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-change-password" type="password" placeholder="New password"></input>
+          </div>
+          <div class="form-group">
+            <input id="text-change-password-2" type="password" placeholder="Repeat new password"></input>
+          </div>
+          <div class="form-group">
+            <button id="button-change-password" class="btn btn-primary" type="submit">
+              Change password
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="page-list" class="page">
+        <h1>Your Siftrs</h1>
+        <div id="list-siftrs">
+          <!-- This gets dynamically filled with Siftrs -->
+        </div>
+      </div>
+
     </div>
 
   </body>
