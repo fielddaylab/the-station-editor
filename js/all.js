@@ -198,41 +198,54 @@
       gameList.text('');
       updateDom = (function(_this) {
         return function() {
-          var game, media, _fn, _i, _len, _ref;
+          var game, _fn, _i, _len, _ref;
           _ref = _this.games;
-          _fn = function() {
-            var mediaBody, mediaLeft;
-            mediaLeft = $('<div />', {
-              "class": 'media-left'
-            });
-            (function() {
-              return mediaLeft.append($('<img />', {
-                "class": 'media-object',
-                src: game.icon_media.url,
-                width: '64px',
-                height: '64px'
-              }));
-            })();
-            media.append(mediaLeft);
-            mediaBody = $('<div />', {
-              "class": 'media-body'
-            });
-            (function() {
-              mediaBody.append($('<h4 />', {
-                "class": 'media-heading',
-                text: game.name
-              }));
-              return mediaBody.append(game.description);
-            })();
-            return media.append(mediaBody);
-          };
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            game = _ref[_i];
+          _fn = function(game) {
+            var media;
             media = $('<div />', {
               "class": 'media'
             });
-            _fn();
-            gameList.append(media);
+            (function() {
+              var linkEdit;
+              linkEdit = $('<a />', {
+                href: '#'
+              });
+              (function() {
+                var mediaBody, mediaLeft;
+                mediaLeft = $('<div />', {
+                  "class": 'media-left'
+                });
+                (function() {
+                  return mediaLeft.append($('<img />', {
+                    "class": 'media-object',
+                    src: game.icon_media.url,
+                    width: '64px',
+                    height: '64px'
+                  }));
+                })();
+                linkEdit.append(mediaLeft);
+                mediaBody = $('<div />', {
+                  "class": 'media-body'
+                });
+                (function() {
+                  mediaBody.append($('<h4 />', {
+                    "class": 'media-heading',
+                    text: game.name
+                  }));
+                  return mediaBody.append(game.description);
+                })();
+                return linkEdit.append(mediaBody);
+              })();
+              linkEdit.click(function() {
+                return _this.startEdit(game);
+              });
+              return media.append(linkEdit);
+            })();
+            return gameList.append(media);
+          };
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            game = _ref[_i];
+            _fn(game);
           }
           return cb();
         };
@@ -241,7 +254,9 @@
         return this.getGames((function(_this) {
           return function() {
             return _this.getGameIcons(function() {
-              return updateDom();
+              return _this.getGameTags(function() {
+                return updateDom();
+              });
             });
           };
         })(this));
@@ -293,9 +308,7 @@
             media_id: game.icon_media_id
           }, (function(_this) {
             return function(_arg) {
-              var media;
-              media = _arg.data;
-              game.icon_media = media;
+              game.icon_media = _arg.data;
               return _this.getGameIcons(cb);
             };
           })(this));
@@ -303,6 +316,52 @@
         }
       }
       return cb();
+    };
+
+    App.prototype.getGameTags = function(cb) {
+      var game, _i, _len, _ref;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      _ref = this.games;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        game = _ref[_i];
+        if (game.tags == null) {
+          this.callAris('tags.getTagsForGame', {
+            game_id: game.game_id
+          }, (function(_this) {
+            return function(_arg) {
+              game.tags = _arg.data;
+              return _this.getGameTags(cb);
+            };
+          })(this));
+          return;
+        }
+      }
+      return cb();
+    };
+
+    App.prototype.startEdit = function(game) {
+      var divTags, inputGroup, tag, textBox, _i, _len, _ref;
+      $('#text-siftr-name').val(game.name);
+      $('#text-siftr-desc').val(game.description);
+      divTags = $('#div-edit-tags');
+      divTags.text('');
+      _ref = game.tags;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tag = _ref[_i];
+        inputGroup = $('<div />', {
+          "class": 'form-group'
+        });
+        textBox = $('<input />', {
+          type: 'text',
+          "class": 'form-control'
+        });
+        textBox.val(tag.tag);
+        inputGroup.append(textBox);
+        divTags.append(inputGroup);
+      }
+      return this.selectPage('#page-edit');
     };
 
     return App;

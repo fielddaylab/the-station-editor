@@ -147,28 +147,34 @@ class App
     gameList.text ''
     updateDom = =>
       for game in @games
-        media = $ '<div />', class: 'media'
-        do =>
-          mediaLeft = $ '<div />', class: 'media-left'
+        do (game) =>
+          media = $ '<div />', class: 'media'
           do =>
-            mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
-          media.append mediaLeft
-          mediaBody = $ '<div />', class: 'media-body'
-          do =>
-            mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
-            mediaBody.append game.description
-          media.append mediaBody
-        gameList.append media
+            linkEdit = $ '<a />', href: '#'
+            do =>
+              mediaLeft = $ '<div />', class: 'media-left'
+              do =>
+                mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
+              linkEdit.append mediaLeft
+              mediaBody = $ '<div />', class: 'media-body'
+              do =>
+                mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
+                mediaBody.append game.description
+              linkEdit.append mediaBody
+            linkEdit.click => @startEdit game
+            media.append linkEdit
+          gameList.append media
       cb()
     if @auth?
       @getGames =>
         @getGameIcons =>
-          updateDom()
+          @getGameTags =>
+            updateDom()
     else
       updateDom()
 
   getGames: (cb = (->)) ->
-    @callAris 'games.getGamesForUser', {}, ({data: games}) =>
+    @callAris 'games.getGamesForUser', {}, (data: games) =>
       @games = for game in games
         game_id:        parseInt game.game_id
         name:           game.name
@@ -184,11 +190,36 @@ class App
       unless game.icon_media?
         @callAris 'media.getMedia',
           media_id: game.icon_media_id
-        , ({data: media}) =>
-          game.icon_media = media
+        , (data: game.icon_media) =>
           @getGameIcons cb
         return
     cb()
+
+  getGameTags: (cb = (->)) ->
+    for game in @games
+      unless game.tags?
+        @callAris 'tags.getTagsForGame',
+          game_id: game.game_id
+        , (data: game.tags) =>
+          @getGameTags cb
+        return
+    cb()
+
+  startEdit: (game) ->
+    $('#text-siftr-name').val game.name
+    $('#text-siftr-desc').val game.description
+    divTags = $('#div-edit-tags')
+    divTags.text ''
+    for tag in game.tags
+      inputGroup = $ '<div />', class: 'form-group'
+      textBox = $ '<input />', type: 'text', class: 'form-control'
+      textBox.val tag.tag
+      inputGroup.append textBox
+      divTags.append inputGroup
+    @selectPage '#page-edit'
+
+# window.testfile = ->
+#   $('#file-siftr-icon')[0].files[0].result
 
 app = new App
 window.app = app
