@@ -361,7 +361,40 @@
         inputGroup.append(textBox);
         divTags.append(inputGroup);
       }
+      this.updateTagsMinus();
       return this.selectPage('#page-edit');
+    };
+
+    App.prototype.updateTagsMinus = function() {
+      if ($('#div-edit-tags')[0].children.length === 0) {
+        return $('#button-minus-tag').addClass('disabled');
+      } else {
+        return $('#button-minus-tag').removeClass('disabled');
+      }
+    };
+
+    App.prototype.removeTag = function() {
+      var divTags;
+      divTags = $('#div-edit-tags');
+      if (divTags[0].children.length > 0) {
+        divTags[0].removeChild(divTags[0].lastChild);
+      }
+      return this.updateTagsMinus();
+    };
+
+    App.prototype.addTag = function() {
+      var divTags, inputGroup, textBox;
+      divTags = $('#div-edit-tags');
+      inputGroup = $('<div />', {
+        "class": 'form-group'
+      });
+      textBox = $('<input />', {
+        type: 'text',
+        "class": 'form-control'
+      });
+      inputGroup.append(textBox);
+      divTags.append(inputGroup);
+      return this.updateTagsMinus();
     };
 
     return App;

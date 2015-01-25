@@ -216,7 +216,28 @@ class App
       textBox.val tag.tag
       inputGroup.append textBox
       divTags.append inputGroup
+    @updateTagsMinus()
     @selectPage '#page-edit'
+
+  updateTagsMinus: ->
+    if $('#div-edit-tags')[0].children.length is 0
+      $('#button-minus-tag').addClass    'disabled'
+    else
+      $('#button-minus-tag').removeClass 'disabled'
+
+  removeTag: ->
+    divTags = $('#div-edit-tags')
+    if divTags[0].children.length > 0
+      divTags[0].removeChild divTags[0].lastChild
+    @updateTagsMinus()
+
+  addTag: ->
+    divTags = $('#div-edit-tags')
+    inputGroup = $ '<div />', class: 'form-group'
+    textBox = $ '<input />', type: 'text', class: 'form-control'
+    inputGroup.append textBox
+    divTags.append inputGroup
+    @updateTagsMinus()
 
 # window.testfile = ->
 #   $('#file-siftr-icon')[0].files[0].result
