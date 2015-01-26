@@ -141,48 +141,61 @@ class App
     $('.page').hide()
     $(page).show()
 
-  updateGameList: (cb = (->)) ->
-    @games = []
+  redrawGameList: ->
     gameList = $('#list-siftrs')
     gameList.text ''
-    updateDom = =>
-      for game in @games
-        do (game) =>
-          media = $ '<div />', class: 'media'
+    for game in @games
+      do (game) =>
+        media = $ '<div />', class: 'media'
+        do =>
+          linkEdit = $ '<a />', href: '#'
           do =>
-            linkEdit = $ '<a />', href: '#'
+            mediaLeft = $ '<div />', class: 'media-left'
             do =>
-              mediaLeft = $ '<div />', class: 'media-left'
-              do =>
-                mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
-              linkEdit.append mediaLeft
-              mediaBody = $ '<div />', class: 'media-body'
-              do =>
-                mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
-                mediaBody.append game.description
-              linkEdit.append mediaBody
-            linkEdit.click => @startEdit game
-            media.append linkEdit
-          gameList.append media
-      cb()
+              mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
+            linkEdit.append mediaLeft
+            mediaBody = $ '<div />', class: 'media-body'
+            do =>
+              mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
+              mediaBody.append game.description
+            linkEdit.append mediaBody
+          linkEdit.click => @startEdit game
+          media.append linkEdit
+        gameList.append media
+
+  updateGameList: (cb = (->)) ->
+    @games = []
     if @auth?
       @getGames =>
         @getGameIcons =>
           @getGameTags =>
-            updateDom()
+            @redrawGameList()
+            cb()
     else
-      updateDom()
+      @redrawGameList()
+      cb()
+
+  # Adds or updates a game in our list given a JSON object from Aris.
+  addGameFromJson: (json) ->
+    newGame =
+      game_id:        parseInt json.game_id
+      name:           json.name
+      description:    json.description
+      icon_media_id:  parseInt json.icon_media_id
+      map_latitude:   parseFloat json.map_latitude
+      map_longitude:  parseFloat json.map_longitude
+      map_zoom_level: parseInt json.map_zoom_level
+    for game, i in @games
+      if game.game_id is newGame.game_id
+        @games[i] = newGame
+        return newGame
+    @games.push newGame
+    newGame
 
   getGames: (cb = (->)) ->
     @callAris 'games.getGamesForUser', {}, (data: games) =>
-      @games = for game in games
-        game_id:        parseInt game.game_id
-        name:           game.name
-        description:    game.description
-        icon_media_id:  parseInt game.icon_media_id
-        map_latitude:   parseFloat game.map_latitude
-        map_longitude:  parseFloat game.map_longitude
-        map_zoom_level: parseInt game.map_zoom_level
+      @games = []
+      @addGameFromJson json for json in games
       cb()
 
   getGameIcons: (cb = (->)) ->
@@ -286,6 +299,23 @@ class App
     inputGroup.append textBox
     divTags.append inputGroup
     @updateTagsMinus()
+
+  editSave: (cb = (->)) ->
+    pn = @map.getCenter()
+    @callAris 'games.updateGame',
+      game_id: @currentGame.game_id
+      name: $('#text-siftr-name').val()
+      description: $('#text-siftr-desc').val()
+      map_latitude: pn.lat()
+      map_longitude: pn.lng()
+      map_zoom_level: @map.getZoom()
+    , (data: json) =>
+      newGame = @addGameFromJson json
+      @getGameIcons =>
+        @getGameTags =>
+          @redrawGameList()
+          @startEdit newGame
+          cb newGame
 
 # window.testfile = ->
 #   $('#file-siftr-icon')[0].files[0].result

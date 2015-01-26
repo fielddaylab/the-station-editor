@@ -188,19 +188,16 @@
       return $(page).show();
     };
 
-    App.prototype.updateGameList = function(cb) {
-      var gameList, updateDom;
-      if (cb == null) {
-        cb = (function() {});
-      }
-      this.games = [];
+    App.prototype.redrawGameList = function() {
+      var game, gameList, _i, _len, _ref, _results;
       gameList = $('#list-siftrs');
       gameList.text('');
-      updateDom = (function(_this) {
-        return function() {
-          var game, _fn, _i, _len, _ref;
-          _ref = _this.games;
-          _fn = function(game) {
+      _ref = this.games;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        game = _ref[_i];
+        _results.push((function(_this) {
+          return function(game) {
             var media;
             media = $('<div />', {
               "class": 'media'
@@ -243,26 +240,54 @@
             })();
             return gameList.append(media);
           };
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            game = _ref[_i];
-            _fn(game);
-          }
-          return cb();
-        };
-      })(this);
+        })(this)(game));
+      }
+      return _results;
+    };
+
+    App.prototype.updateGameList = function(cb) {
+      if (cb == null) {
+        cb = (function() {});
+      }
+      this.games = [];
       if (this.auth != null) {
         return this.getGames((function(_this) {
           return function() {
             return _this.getGameIcons(function() {
               return _this.getGameTags(function() {
-                return updateDom();
+                _this.redrawGameList();
+                return cb();
               });
             });
           };
         })(this));
       } else {
-        return updateDom();
+        this.redrawGameList();
+        return cb();
       }
+    };
+
+    App.prototype.addGameFromJson = function(json) {
+      var game, i, newGame, _i, _len, _ref;
+      newGame = {
+        game_id: parseInt(json.game_id),
+        name: json.name,
+        description: json.description,
+        icon_media_id: parseInt(json.icon_media_id),
+        map_latitude: parseFloat(json.map_latitude),
+        map_longitude: parseFloat(json.map_longitude),
+        map_zoom_level: parseInt(json.map_zoom_level)
+      };
+      _ref = this.games;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        game = _ref[i];
+        if (game.game_id === newGame.game_id) {
+          this.games[i] = newGame;
+          return newGame;
+        }
+      }
+      this.games.push(newGame);
+      return newGame;
     };
 
     App.prototype.getGames = function(cb) {
@@ -271,25 +296,13 @@
       }
       return this.callAris('games.getGamesForUser', {}, (function(_this) {
         return function(_arg) {
-          var game, games;
+          var games, json, _i, _len;
           games = _arg.data;
-          _this.games = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = games.length; _i < _len; _i++) {
-              game = games[_i];
-              _results.push({
-                game_id: parseInt(game.game_id),
-                name: game.name,
-                description: game.description,
-                icon_media_id: parseInt(game.icon_media_id),
-                map_latitude: parseFloat(game.map_latitude),
-                map_longitude: parseFloat(game.map_longitude),
-                map_zoom_level: parseInt(game.map_zoom_level)
-              });
-            }
-            return _results;
-          })();
+          _this.games = [];
+          for (_i = 0, _len = games.length; _i < _len; _i++) {
+            json = games[_i];
+            _this.addGameFromJson(json);
+          }
           return cb();
         };
       })(this));
@@ -467,6 +480,35 @@
       inputGroup.append(textBox);
       divTags.append(inputGroup);
       return this.updateTagsMinus();
+    };
+
+    App.prototype.editSave = function(cb) {
+      var pn;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      pn = this.map.getCenter();
+      return this.callAris('games.updateGame', {
+        game_id: this.currentGame.game_id,
+        name: $('#text-siftr-name').val(),
+        description: $('#text-siftr-desc').val(),
+        map_latitude: pn.lat(),
+        map_longitude: pn.lng(),
+        map_zoom_level: this.map.getZoom()
+      }, (function(_this) {
+        return function(_arg) {
+          var json, newGame;
+          json = _arg.data;
+          newGame = _this.addGameFromJson(json);
+          return _this.getGameIcons(function() {
+            return _this.getGameTags(function() {
+              _this.redrawGameList();
+              _this.startEdit(newGame);
+              return cb(newGame);
+            });
+          });
+        };
+      })(this));
     };
 
     return App;
