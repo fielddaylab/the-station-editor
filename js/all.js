@@ -14,22 +14,16 @@
             _this.login($('#text-username').val(), $('#text-password').val(), function() {
               $('#spinner-login').hide();
               if (_this.auth != null) {
-                return _this.selectPage('#page-list');
+                return _this.startingPage();
               } else {
                 return _this.showAlert('Incorrect username or password.');
               }
             });
             return false;
           });
-          $('#button-new-acct').click(function() {
-            return _this.selectPage('#page-new-acct');
-          });
           $('#menu-logout').click(function() {
             _this.logout();
             return _this.selectPage('#page-login');
-          });
-          $('#menu-change-password').click(function() {
-            return _this.selectPage('#page-change-password');
           });
           $('#button-create-acct').click(function() {
             if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
@@ -78,9 +72,6 @@
               });
             }
             return false;
-          });
-          $('#button-cancel-new-acct').click(function() {
-            return _this.selectPage('#page-login');
           });
           _this.loadLogin();
           _this.updateNav();

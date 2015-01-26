@@ -4,26 +4,24 @@ class App
 
       $.cookie.json = true
 
+      # Tries to log in, and then either shows an error message
+      # or loads the game list page.
       $('#button-login').click =>
         $('#spinner-login').show()
         @login $('#text-username').val(), $('#text-password').val(), =>
           $('#spinner-login').hide()
           if @auth?
-            @selectPage '#page-list'
+            @startingPage()
           else
             @showAlert 'Incorrect username or password.'
         false
-
-      $('#button-new-acct').click =>
-        @selectPage '#page-new-acct'
 
       $('#menu-logout').click =>
         @logout()
         @selectPage '#page-login'
 
-      $('#menu-change-password').click =>
-        @selectPage '#page-change-password'
-
+      # Validates account creation info, and then either shows an error message,
+      # or logs in with the new user and shows their game list.
       $('#button-create-acct').click =>
         if '@' not in $('#text-new-email').val()
           @showAlert "Your email address is not valid."
@@ -47,6 +45,8 @@ class App
               @startingPage()
         false
 
+      # Validates password change info, and then either shows an error message,
+      # or updates their authentication info and goes back to the game list.
       $('#button-change-password').click =>
         if $('#text-change-password').val() isnt $('#text-change-password-2').val()
           @showAlert "Your new passwords do not match."
@@ -66,14 +66,13 @@ class App
               @startingPage()
         false
 
-      $('#button-cancel-new-acct').click =>
-        @selectPage '#page-login'
-
       @loadLogin()
       @updateNav()
       @updateGameList =>
         @startingPage()
 
+  # Shows an alert textbox at the top of the page.
+  # The alert is cleared upon calling @selectPage.
   showAlert: (str) ->
     $('#the-alert').text str
     $('#the-alert').show()
@@ -122,6 +121,7 @@ class App
       $.cookie 'auth', @auth
       @updateNav()
 
+  # Tries to log in the user, update the top nav bar, and download their game list.
   login: (username, password, cb = (->)) ->
     @callAris 'users.logIn',
       user_name: username
@@ -131,16 +131,20 @@ class App
       @parseLogInResult res
       @updateGameList cb
 
+  # Removes the user's authentication cookie, and updates the top nav bar.
   logout: ->
     @auth = null
     $.removeCookie 'auth'
     @updateNav()
 
+  # Switch out a new page to show the user.
+  # Clears any alerts currently being shown.
   selectPage: (page) ->
     $('#the-alert').hide()
     $('.page').hide()
     $(page).show()
 
+  # Redraws the main page's list of games.
   redrawGameList: ->
     gameList = $('#list-siftrs')
     gameList.text ''
@@ -152,17 +156,25 @@ class App
           do =>
             mediaLeft = $ '<div />', class: 'media-left'
             do =>
-              mediaLeft.append $ '<img />', class: 'media-object', src: game.icon_media.url, width: '64px', height: '64px'
+              mediaLeft.append $ '<img />',
+                class: 'media-object'
+                src: game.icon_media.url
+                width: '64px'
+                height: '64px'
             linkEdit.append mediaLeft
             mediaBody = $ '<div />', class: 'media-body'
             do =>
-              mediaBody.append $ '<h4 />', class: 'media-heading', text: game.name
+              mediaBody.append $ '<h4 />',
+                class: 'media-heading'
+                text: game.name
               mediaBody.append game.description
             linkEdit.append mediaBody
           linkEdit.click => @startEdit game
           media.append linkEdit
         gameList.append media
 
+  # Downloads all info for the games this user can edit, and then redraws the
+  # game list accordingly.
   updateGameList: (cb = (->)) ->
     @games = []
     if @auth?
@@ -175,7 +187,8 @@ class App
       @redrawGameList()
       cb()
 
-  # Adds or updates a game in our list given a JSON object from Aris.
+  # Adds or updates a game in our list given a JSON object from Aris calls
+  # such as games.getGame.
   addGameFromJson: (json) ->
     newGame =
       game_id:        parseInt json.game_id
@@ -192,12 +205,14 @@ class App
     @games.push newGame
     newGame
 
+  # Downloads the list of games this user can edit.
   getGames: (cb = (->)) ->
     @callAris 'games.getGamesForUser', {}, (data: games) =>
       @games = []
       @addGameFromJson json for json in games
       cb()
 
+  # Downloads icon media info for each game that doesn't already have it.
   getGameIcons: (cb = (->)) ->
     for game in @games
       unless game.icon_media?
@@ -208,6 +223,7 @@ class App
         return
     cb()
 
+  # Downloads the tag list for each game that doesn't already have it.
   getGameTags: (cb = (->)) ->
     for game in @games
       unless game.tags?
@@ -218,9 +234,11 @@ class App
         return
     cb()
 
+  # Called when the user has chosen a new icon.
   selectedIcon: ->
     $('#div-icon-group').removeClass 'has-success'
 
+  # Resets the Siftr icon to its existing state.
   resetIcon: ->
     $('#div-icon-group').addClass 'has-success'
     $('#div-icon-input').fileinput 'clear'
@@ -228,6 +246,7 @@ class App
     newThumb = $ '<img />', src: @currentGame.icon_media.url
     $('#div-icon-thumb').append newThumb
 
+  # Colors the name form group to show if it's changed from its original state.
   updateSiftrName: ->
     box = $('#text-siftr-name')
     if box.val() is @currentGame?.name
@@ -235,6 +254,7 @@ class App
     else
       box.parent().removeClass 'has-success'
 
+  # Colors the description form group to show if it's changed from its original state.
   updateSiftrDesc: ->
     box = $('#text-siftr-desc')
     if box.val() is @currentGame?.description
@@ -242,6 +262,7 @@ class App
     else
       box.parent().removeClass 'has-success'
 
+  # Colors the map form group to show if it's changed from its original state.
   updateSiftrMap: ->
     pn = @map.getCenter()
     equalish = (x, y) -> Math.abs(x - y) < 0.00001
@@ -252,6 +273,7 @@ class App
           return
     $('#div-map-group').removeClass 'has-success'
 
+  # Starts or resets the edit process for a Siftr, and loads the Edit page.
   startEdit: (game = @currentGame) ->
     @currentGame = game
     $('#text-siftr-name').val game.name
@@ -280,6 +302,7 @@ class App
       @map.addListener 'idle', => @updateSiftrMap()
     @selectPage '#page-edit'
 
+  # If there are 0 tags, disables the "remove tag" button.
   updateTagsMinus: ->
     if $('#div-edit-tags')[0].children.length is 0
       $('#button-minus-tag').addClass    'disabled'
@@ -300,6 +323,8 @@ class App
     divTags.append inputGroup
     @updateTagsMinus()
 
+  # If the user chose a new icon, upload it to Aris and get its media ID.
+  # If they didn't, just return the existing ID.
   getIconID: (cb = (->)) ->
     if $('#div-icon-group').hasClass 'has-success'
       cb @currentGame.icon_media_id
@@ -325,6 +350,8 @@ class App
       , (data: media) =>
         cb media.media_id
 
+  # Saves all edits to the name, description, icon, and map center/zoom.
+  # Reloads the game list and refreshes the Edit page accordingly.
   editSave: (cb = (->)) ->
     pn = @map.getCenter()
     @getIconID (media_id) =>
