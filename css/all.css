@@ -17,6 +17,8 @@
 #div-google-map {
   height: 400px;
   width: 400px;
+  max-width: 100%;
+  border: 1px solid #888;
 }
 
 #bottom-padding {
@@ -25,4 +27,8 @@
 
 #div-icon-thumb img {
   height: 100%;
+}
+
+body {
+  background-color: #eee;
 }
