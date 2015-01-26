@@ -205,16 +205,46 @@ class App
         return
     cb()
 
+  selectedIcon: ->
+    $('#div-icon-group').removeClass 'has-success'
+
   resetIcon: ->
+    $('#div-icon-group').addClass 'has-success'
     $('#div-icon-input').fileinput 'clear'
     $('#div-icon-thumb').html ''
     newThumb = $ '<img />', src: @currentGame.icon_media.url
     $('#div-icon-thumb').append newThumb
 
+  updateSiftrName: ->
+    box = $('#text-siftr-name')
+    if box.val() is @currentGame?.name
+      box.parent().addClass 'has-success'
+    else
+      box.parent().removeClass 'has-success'
+
+  updateSiftrDesc: ->
+    box = $('#text-siftr-desc')
+    if box.val() is @currentGame?.description
+      box.parent().addClass 'has-success'
+    else
+      box.parent().removeClass 'has-success'
+
+  updateSiftrMap: ->
+    pn = @map.getCenter()
+    equalish = (x, y) -> Math.abs(x - y) < 0.00001
+    if equalish pn.lat(), @currentGame.map_latitude
+      if equalish pn.lng(), @currentGame.map_longitude
+        if @map.getZoom() is @currentGame.map_zoom_level
+          $('#div-map-group').addClass 'has-success'
+          return
+    $('#div-map-group').removeClass 'has-success'
+
   startEdit: (game = @currentGame) ->
     @currentGame = game
     $('#text-siftr-name').val game.name
+    @updateSiftrName()
     $('#text-siftr-desc').val game.description
+    @updateSiftrDesc()
     @resetIcon()
     $('#div-edit-tags').text ''
     for tag in game.tags
@@ -226,12 +256,15 @@ class App
         lat: game.map_latitude
         lng: game.map_longitude
       @map.setZoom game.map_zoom_level
+      @updateSiftrMap()
     else
       @map = new google.maps.Map $('#div-google-map')[0],
         center:
           lat: game.map_latitude
           lng: game.map_longitude
         zoom: game.map_zoom_level
+      @updateSiftrMap()
+      @map.addListener 'idle', => @updateSiftrMap()
     @selectPage '#page-edit'
 
   updateTagsMinus: ->
