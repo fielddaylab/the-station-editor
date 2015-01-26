@@ -205,7 +205,8 @@ class App
         return
     cb()
 
-  startEdit: (game) ->
+  startEdit: (game = @currentGame) ->
+    @currentGame = game
     $('#text-siftr-name').val game.name
     $('#text-siftr-desc').val game.description
     divTags = $('#div-edit-tags')
@@ -217,6 +218,17 @@ class App
       inputGroup.append textBox
       divTags.append inputGroup
     @updateTagsMinus()
+    if @map?
+      @map.setCenter
+        lat: game.map_latitude
+        lng: game.map_longitude
+      @map.setZoom game.map_zoom_level
+    else
+      @map = new google.maps.Map $('#div-google-map')[0],
+        center:
+          lat: game.map_latitude
+          lng: game.map_longitude
+        zoom: game.map_zoom_level
     @selectPage '#page-edit'
 
   updateTagsMinus: ->

@@ -13,3 +13,12 @@
 #spinner-login {
   display: none;
 }
+
+#div-google-map {
+  height: 400px;
+  width: 400px;
+}
+
+#bottom-padding {
+  height: 50px;
+}

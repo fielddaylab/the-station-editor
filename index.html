@@ -15,6 +15,7 @@
     <link href="lib/font-awesome-4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/all.css" rel="stylesheet">
     <script src="js/all.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&libraries=places"></script>
   </head>
 
   <body>
@@ -143,6 +144,11 @@
         <h1>Edit a Siftr</h1>
         <form>
           <div class="form-group">
+            <a class="btn btn-default" onclick="app.startEdit();">
+              Reset All
+            </a>
+          </div>
+          <div class="form-group">
             <label for="text-siftr-name">Name</label>
             <input type="text" id="text-siftr-name" class="form-control" placeholder="Name">
           </div>
@@ -158,18 +164,28 @@
               <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
             </div>
           </div>
-          <h4>
-            Tags
-            <a id="button-minus-tag" class="btn btn-default" onclick="app.removeTag();">
-              <i class="fa fa-minus"></i>
-            </a>
-            <a class="btn btn-default" onclick="app.addTag();">
-              <i class="fa fa-plus"></i>
-            </a>
-          </h4>
-          <div id="div-edit-tags">
+          <div class="form-group">
+            <h4>
+              Tags
+              <a id="button-minus-tag" class="btn btn-default" onclick="app.removeTag();">
+                <i class="fa fa-minus"></i>
+              </a>
+              <a class="btn btn-default" onclick="app.addTag();">
+                <i class="fa fa-plus"></i>
+              </a>
+            </h4>
+            <div id="div-edit-tags">
+            </div>
+          </div>
+          <div class="form-group">
+            <h4>Map Center</h4>
+            <div id="div-google-map">
+            </div>
           </div>
         </form>
+      </div>
+
+      <div id="bottom-padding">
       </div>
 
     </div>

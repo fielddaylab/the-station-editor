@@ -343,6 +343,10 @@
 
     App.prototype.startEdit = function(game) {
       var divTags, inputGroup, tag, textBox, _i, _len, _ref;
+      if (game == null) {
+        game = this.currentGame;
+      }
+      this.currentGame = game;
       $('#text-siftr-name').val(game.name);
       $('#text-siftr-desc').val(game.description);
       divTags = $('#div-edit-tags');
@@ -362,6 +366,21 @@
         divTags.append(inputGroup);
       }
       this.updateTagsMinus();
+      if (this.map != null) {
+        this.map.setCenter({
+          lat: game.map_latitude,
+          lng: game.map_longitude
+        });
+        this.map.setZoom(game.map_zoom_level);
+      } else {
+        this.map = new google.maps.Map($('#div-google-map')[0], {
+          center: {
+            lat: game.map_latitude,
+            lng: game.map_longitude
+          },
+          zoom: game.map_zoom_level
+        });
+      }
       return this.selectPage('#page-edit');
     };
 
