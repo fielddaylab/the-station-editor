@@ -352,7 +352,7 @@
     };
 
     App.prototype.startEdit = function(game) {
-      var divTags, inputGroup, tag, textBox, _i, _len, _ref;
+      var tag, _i, _len, _ref;
       if (game == null) {
         game = this.currentGame;
       }
@@ -360,21 +360,12 @@
       $('#text-siftr-name').val(game.name);
       $('#text-siftr-desc').val(game.description);
       this.resetIcon();
-      divTags = $('#div-edit-tags');
-      divTags.text('');
+      $('#div-edit-tags').text('');
       _ref = game.tags;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tag = _ref[_i];
-        inputGroup = $('<div />', {
-          "class": 'form-group'
-        });
-        textBox = $('<input />', {
-          type: 'text',
-          "class": 'form-control'
-        });
-        textBox.val(tag.tag);
-        inputGroup.append(textBox);
-        divTags.append(inputGroup);
+        this.addTag();
+        $('#div-edit-tags input:last').val(tag.tag);
       }
       this.updateTagsMinus();
       if (this.map != null) {

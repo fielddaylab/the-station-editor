@@ -216,14 +216,10 @@ class App
     $('#text-siftr-name').val game.name
     $('#text-siftr-desc').val game.description
     @resetIcon()
-    divTags = $('#div-edit-tags')
-    divTags.text ''
+    $('#div-edit-tags').text ''
     for tag in game.tags
-      inputGroup = $ '<div />', class: 'form-group'
-      textBox = $ '<input />', type: 'text', class: 'form-control'
-      textBox.val tag.tag
-      inputGroup.append textBox
-      divTags.append inputGroup
+      @addTag()
+      $('#div-edit-tags input:last').val tag.tag
     @updateTagsMinus()
     if @map?
       @map.setCenter
