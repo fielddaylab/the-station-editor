@@ -154,18 +154,23 @@
           </div>
           <div class="form-group">
             <label for="text-siftr-desc">Description</label>
-            <input type="text" id="text-siftr-desc" class="form-control" placeholder="Description">
+            <textarea id="text-siftr-desc" class="form-control" rows="3" placeholder="Description">
+            </textarea>
           </div>
-          <div id="div-icon-input" class="fileinput fileinput-new" data-provides="fileinput">
-            <label for="file-siftr-icon">Icon</label><br />
-            <div id="div-icon-thumb" class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
+          <div class="form-group">
+            <label for="div-icon-input">Icon</label>
             <div>
-              <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span><input id="file-siftr-icon" type="file" name="..."></span>
-              <a class="btn btn-default fileinput-exists" onclick="app.resetIcon();">Remove</a>
+              <div id="div-icon-input" class="fileinput fileinput-new" data-provides="fileinput">
+                <div id="div-icon-thumb" class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
+                <div>
+                  <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span><input id="file-siftr-icon" type="file" name="..."></span>
+                  <a class="btn btn-default fileinput-exists" onclick="app.resetIcon();">Remove</a>
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-group">
-            <h4>
+            <label for="div-edit-tags">
               Tags
               <a id="button-minus-tag" class="btn btn-default" onclick="app.removeTag();">
                 <i class="fa fa-minus"></i>
@@ -173,12 +178,14 @@
               <a class="btn btn-default" onclick="app.addTag();">
                 <i class="fa fa-plus"></i>
               </a>
-            </h4>
+            </label>
             <div id="div-edit-tags">
             </div>
           </div>
           <div class="form-group">
-            <h4>Map Center</h4>
+            <label for="div-google-map">
+              Map Center
+            </label>
             <div id="div-google-map">
             </div>
           </div>
