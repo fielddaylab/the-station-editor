@@ -205,10 +205,17 @@ class App
         return
     cb()
 
+  resetIcon: ->
+    $('#div-icon-input').fileinput 'clear'
+    $('#div-icon-thumb').html ''
+    newThumb = $ '<img />', src: @currentGame.icon_media.url
+    $('#div-icon-thumb').append newThumb
+
   startEdit: (game = @currentGame) ->
     @currentGame = game
     $('#text-siftr-name').val game.name
     $('#text-siftr-desc').val game.description
+    @resetIcon()
     divTags = $('#div-edit-tags')
     divTags.text ''
     for tag in game.tags

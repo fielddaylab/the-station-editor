@@ -341,6 +341,16 @@
       return cb();
     };
 
+    App.prototype.resetIcon = function() {
+      var newThumb;
+      $('#div-icon-input').fileinput('clear');
+      $('#div-icon-thumb').html('');
+      newThumb = $('<img />', {
+        src: this.currentGame.icon_media.url
+      });
+      return $('#div-icon-thumb').append(newThumb);
+    };
+
     App.prototype.startEdit = function(game) {
       var divTags, inputGroup, tag, textBox, _i, _len, _ref;
       if (game == null) {
@@ -349,6 +359,7 @@
       this.currentGame = game;
       $('#text-siftr-name').val(game.name);
       $('#text-siftr-desc').val(game.description);
+      this.resetIcon();
       divTags = $('#div-edit-tags');
       divTags.text('');
       _ref = game.tags;

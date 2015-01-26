@@ -156,12 +156,12 @@
             <label for="text-siftr-desc">Description</label>
             <input type="text" id="text-siftr-desc" class="form-control" placeholder="Description">
           </div>
-          <div class="fileinput fileinput-new" data-provides="fileinput">
+          <div id="div-icon-input" class="fileinput fileinput-new" data-provides="fileinput">
             <label for="file-siftr-icon">Icon</label><br />
-            <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
+            <div id="div-icon-thumb" class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
             <div>
               <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span><input id="file-siftr-icon" type="file" name="..."></span>
-              <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
+              <a class="btn btn-default fileinput-exists" onclick="app.resetIcon();">Remove</a>
             </div>
           </div>
           <div class="form-group">

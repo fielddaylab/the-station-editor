@@ -22,3 +22,7 @@
 #bottom-padding {
   height: 50px;
 }
+
+#div-icon-thumb img {
+  height: 100%;
+}
