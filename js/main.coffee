@@ -300,25 +300,49 @@ class App
     divTags.append inputGroup
     @updateTagsMinus()
 
+  getIconID: (cb = (->)) ->
+    if $('#div-icon-group').hasClass 'has-success'
+      cb @currentGame.icon_media_id
+    else
+      dataURL = $('#file-siftr-icon')[0].files[0].result
+      extmap =
+        jpg: 'data:image/jpeg;base64,'
+        png: 'data:image/png;base64,'
+        gif: 'data:image/gif;base64,'
+      ext = null
+      base64 = null
+      for k, v of extmap
+        if dataURL.indexOf(v) is 0
+          ext    = k
+          base64 = dataURL.substring v.length
+      unless ext? and base64?
+        cb false
+        return
+      @callAris 'media.createMedia',
+        game_id: @currentGame.game_id
+        file_name: "upload.#{ext}"
+        data: base64
+      , (data: media) =>
+        cb media.media_id
+
   editSave: (cb = (->)) ->
     pn = @map.getCenter()
-    @callAris 'games.updateGame',
-      game_id: @currentGame.game_id
-      name: $('#text-siftr-name').val()
-      description: $('#text-siftr-desc').val()
-      map_latitude: pn.lat()
-      map_longitude: pn.lng()
-      map_zoom_level: @map.getZoom()
-    , (data: json) =>
-      newGame = @addGameFromJson json
-      @getGameIcons =>
-        @getGameTags =>
-          @redrawGameList()
-          @startEdit newGame
-          cb newGame
-
-# window.testfile = ->
-#   $('#file-siftr-icon')[0].files[0].result
+    @getIconID (media_id) =>
+      @callAris 'games.updateGame',
+        game_id: @currentGame.game_id
+        name: $('#text-siftr-name').val()
+        description: $('#text-siftr-desc').val()
+        map_latitude: pn.lat()
+        map_longitude: pn.lng()
+        map_zoom_level: @map.getZoom()
+        icon_media_id: media_id
+      , (data: json) =>
+        newGame = @addGameFromJson json
+        @getGameIcons =>
+          @getGameTags =>
+            @redrawGameList()
+            @startEdit newGame
+            cb newGame
 
 app = new App
 window.app = app
