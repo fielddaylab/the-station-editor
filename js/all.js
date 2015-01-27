@@ -1,5 +1,5 @@
 (function() {
-  var App, app,
+  var App, app, appendTo,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -189,47 +189,55 @@
         game = _ref[_i];
         _results.push((function(_this) {
           return function(game) {
-            var media;
-            media = $('<div />', {
+            return appendTo(gameList, '<div />', {
               "class": 'media'
+            }, function(media) {
+              appendTo(media, '<div />', {
+                "class": 'media-left'
+              }, function(mediaLeft) {
+                return appendTo(mediaLeft, '<img />', {
+                  "class": 'media-object',
+                  src: game.icon_media.url,
+                  width: '64px',
+                  height: '64px'
+                });
+              });
+              return appendTo(media, '<div />', {
+                "class": 'media-body'
+              }, function(mediaBody) {
+                appendTo(mediaBody, '<h4 />', {
+                  "class": 'media-heading',
+                  text: game.name
+                });
+                appendTo(mediaBody, '<p />', {
+                  text: game.description
+                });
+                return appendTo(mediaBody, '<form />', {}, function(form) {
+                  return appendTo(form, '<div />', {
+                    "class": 'form-group'
+                  }, function(formGroup) {
+                    appendTo(formGroup, '<a />', {
+                      "class": 'btn btn-primary',
+                      href: '#',
+                      text: 'Edit Siftr'
+                    }, function(button) {
+                      return button.click(function() {
+                        return _this.startEdit(game);
+                      });
+                    });
+                    return appendTo(formGroup, '<a />', {
+                      "class": 'btn btn-default',
+                      href: '#',
+                      text: 'Edit Tags'
+                    }, function(button) {
+                      return button.click(function() {
+                        return _this.startEdit(game);
+                      });
+                    });
+                  });
+                });
+              });
             });
-            (function() {
-              var linkEdit;
-              linkEdit = $('<a />', {
-                href: '#'
-              });
-              (function() {
-                var mediaBody, mediaLeft;
-                mediaLeft = $('<div />', {
-                  "class": 'media-left'
-                });
-                (function() {
-                  return mediaLeft.append($('<img />', {
-                    "class": 'media-object',
-                    src: game.icon_media.url,
-                    width: '64px',
-                    height: '64px'
-                  }));
-                })();
-                linkEdit.append(mediaLeft);
-                mediaBody = $('<div />', {
-                  "class": 'media-body'
-                });
-                (function() {
-                  mediaBody.append($('<h4 />', {
-                    "class": 'media-heading',
-                    text: game.name
-                  }));
-                  return mediaBody.append(game.description);
-                })();
-                return linkEdit.append(mediaBody);
-              })();
-              linkEdit.click(function() {
-                return _this.startEdit(game);
-              });
-              return media.append(linkEdit);
-            })();
-            return gameList.append(media);
           };
         })(this)(game));
       }
@@ -398,7 +406,6 @@
     };
 
     App.prototype.startEdit = function(game) {
-      var tag, _i, _len, _ref;
       if (game == null) {
         game = this.currentGame;
       }
@@ -408,14 +415,6 @@
       $('#text-siftr-desc').val(game.description);
       this.updateSiftrDesc();
       this.resetIcon();
-      $('#div-edit-tags').text('');
-      _ref = game.tags;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tag = _ref[_i];
-        this.addTag();
-        $('#div-edit-tags input:last').val(tag.tag);
-      }
-      this.updateTagsMinus();
       if (this.map != null) {
         this.map.setCenter({
           lat: game.map_latitude,
@@ -439,38 +438,6 @@
         })(this));
       }
       return this.selectPage('#page-edit');
-    };
-
-    App.prototype.updateTagsMinus = function() {
-      if ($('#div-edit-tags')[0].children.length === 0) {
-        return $('#button-minus-tag').addClass('disabled');
-      } else {
-        return $('#button-minus-tag').removeClass('disabled');
-      }
-    };
-
-    App.prototype.removeTag = function() {
-      var divTags;
-      divTags = $('#div-edit-tags');
-      if (divTags[0].children.length > 0) {
-        divTags[0].removeChild(divTags[0].lastChild);
-      }
-      return this.updateTagsMinus();
-    };
-
-    App.prototype.addTag = function() {
-      var divTags, inputGroup, textBox;
-      divTags = $('#div-edit-tags');
-      inputGroup = $('<div />', {
-        "class": 'form-group'
-      });
-      textBox = $('<input />', {
-        type: 'text',
-        "class": 'form-control'
-      });
-      inputGroup.append(textBox);
-      divTags.append(inputGroup);
-      return this.updateTagsMinus();
     };
 
     App.prototype.getIconID = function(cb) {
@@ -549,6 +516,21 @@
     return App;
 
   })();
+
+  appendTo = (function(_this) {
+    return function(parent, tag, attrs, init) {
+      var child;
+      if (init == null) {
+        init = (function() {});
+      }
+      child = $(tag, attrs);
+      init(child);
+      parent.append(' ');
+      parent.append(child);
+      parent.append(' ');
+      return child;
+    };
+  })(this);
 
   app = new App;
 

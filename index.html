@@ -73,7 +73,7 @@
                 <i class="fa fa-spinner fa-pulse"></i>
               </span>
             </button>
-            <button class="btn" type="button" onclick="app.selectPage('#page-new-acct');">
+            <button class="btn btn-default" type="button" onclick="app.selectPage('#page-new-acct');">
               New account
             </button>
           </div>
@@ -103,7 +103,7 @@
             <button id="button-create-acct" class="btn btn-primary" type="submit">
               Create account
             </button>
-            <button class="btn btn-secondary" type="button" onclick="app.selectPage('#page-login');">
+            <button class="btn btn-default" type="button" onclick="app.selectPage('#page-login');">
               Back to login
             </button>
           </div>
@@ -144,7 +144,7 @@
         <h1>Edit a Siftr</h1>
         <form>
           <div class="form-group">
-            <a class="btn btn-default" onclick="app.startEdit();">
+            <a href="#" class="btn btn-default" onclick="app.startEdit();">
               Reset All
             </a>
           </div>
@@ -174,19 +174,6 @@
               Map Center
             </label>
             <div id="div-google-map">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="div-edit-tags" class="control-label">
-              Tags
-              <a id="button-minus-tag" class="btn btn-default" onclick="app.removeTag();">
-                <i class="fa fa-minus"></i>
-              </a>
-              <a class="btn btn-default" onclick="app.addTag();">
-                <i class="fa fa-plus"></i>
-              </a>
-            </label>
-            <div id="div-edit-tags">
             </div>
           </div>
           <div class="form-group">

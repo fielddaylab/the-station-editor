@@ -150,28 +150,33 @@ class App
     gameList.text ''
     for game in @games
       do (game) =>
-        media = $ '<div />', class: 'media'
-        do =>
-          linkEdit = $ '<a />', href: '#'
-          do =>
-            mediaLeft = $ '<div />', class: 'media-left'
-            do =>
-              mediaLeft.append $ '<img />',
-                class: 'media-object'
-                src: game.icon_media.url
-                width: '64px'
-                height: '64px'
-            linkEdit.append mediaLeft
-            mediaBody = $ '<div />', class: 'media-body'
-            do =>
-              mediaBody.append $ '<h4 />',
-                class: 'media-heading'
-                text: game.name
-              mediaBody.append game.description
-            linkEdit.append mediaBody
-          linkEdit.click => @startEdit game
-          media.append linkEdit
-        gameList.append media
+        appendTo gameList, '<div />', class: 'media', (media) =>
+          appendTo media, '<div />', class: 'media-left', (mediaLeft) =>
+            appendTo mediaLeft, '<img />',
+              class: 'media-object'
+              src: game.icon_media.url
+              width: '64px'
+              height: '64px'
+          appendTo media, '<div />', class: 'media-body', (mediaBody) =>
+            appendTo mediaBody, '<h4 />',
+              class: 'media-heading'
+              text: game.name
+            appendTo mediaBody, '<p />',
+              text: game.description
+            appendTo mediaBody, '<form />', {}, (form) =>
+              appendTo form, '<div />', class: 'form-group', (formGroup) =>
+                appendTo formGroup, '<a />',
+                  class: 'btn btn-primary'
+                  href: '#'
+                  text: 'Edit Siftr'
+                , (button) =>
+                  button.click => @startEdit game
+                appendTo formGroup, '<a />',
+                  class: 'btn btn-default'
+                  href: '#'
+                  text: 'Edit Tags'
+                , (button) =>
+                  button.click => @startEdit game
 
   # Downloads all info for the games this user can edit, and then redraws the
   # game list accordingly.
@@ -281,11 +286,6 @@ class App
     $('#text-siftr-desc').val game.description
     @updateSiftrDesc()
     @resetIcon()
-    $('#div-edit-tags').text ''
-    for tag in game.tags
-      @addTag()
-      $('#div-edit-tags input:last').val tag.tag
-    @updateTagsMinus()
     if @map?
       @map.setCenter
         lat: game.map_latitude
@@ -301,27 +301,6 @@ class App
       @updateSiftrMap()
       @map.addListener 'idle', => @updateSiftrMap()
     @selectPage '#page-edit'
-
-  # If there are 0 tags, disables the "remove tag" button.
-  updateTagsMinus: ->
-    if $('#div-edit-tags')[0].children.length is 0
-      $('#button-minus-tag').addClass    'disabled'
-    else
-      $('#button-minus-tag').removeClass 'disabled'
-
-  removeTag: ->
-    divTags = $('#div-edit-tags')
-    if divTags[0].children.length > 0
-      divTags[0].removeChild divTags[0].lastChild
-    @updateTagsMinus()
-
-  addTag: ->
-    divTags = $('#div-edit-tags')
-    inputGroup = $ '<div />', class: 'form-group'
-    textBox = $ '<input />', type: 'text', class: 'form-control'
-    inputGroup.append textBox
-    divTags.append inputGroup
-    @updateTagsMinus()
 
   # If the user chose a new icon, upload it to Aris and get its media ID.
   # If they didn't, just return the existing ID.
@@ -370,6 +349,14 @@ class App
             @redrawGameList()
             @startEdit newGame
             cb newGame
+
+appendTo = (parent, tag, attrs, init = (->)) =>
+  child = $(tag, attrs)
+  init child
+  parent.append ' '
+  parent.append child
+  parent.append ' '
+  child
 
 app = new App
 window.app = app
