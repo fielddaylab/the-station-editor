@@ -216,7 +216,7 @@
                     });
                     return appendTo(formGroup, 'a.btn.btn-default.disabled', {
                       href: '#',
-                      text: 'Edit Tags'
+                      text: 'Edit tags'
                     }, function(button) {
                       return button.click(function() {});
                     });
@@ -339,59 +339,14 @@
       return cb();
     };
 
-    App.prototype.selectedIcon = function() {
-      return $('#div-icon-group').removeClass('has-success');
-    };
-
     App.prototype.resetIcon = function() {
       var newThumb;
-      $('#div-icon-group').addClass('has-success');
       $('#div-icon-input').fileinput('clear');
       $('#div-icon-thumb').html('');
       newThumb = $('<img />', {
         src: this.currentGame.icon_media.url
       });
       return $('#div-icon-thumb').append(newThumb);
-    };
-
-    App.prototype.updateSiftrName = function() {
-      var box, _ref;
-      box = $('#text-siftr-name');
-      if (box.val() === ((_ref = this.currentGame) != null ? _ref.name : void 0)) {
-        return box.parent().addClass('has-success');
-      } else {
-        return box.parent().removeClass('has-success');
-      }
-    };
-
-    App.prototype.updateSiftrDesc = function() {
-      var box, _ref;
-      box = $('#text-siftr-desc');
-      if (box.val() === ((_ref = this.currentGame) != null ? _ref.description : void 0)) {
-        return box.parent().addClass('has-success');
-      } else {
-        return box.parent().removeClass('has-success');
-      }
-    };
-
-    App.prototype.updateSiftrMap = function() {
-      var equalish, pn;
-      if (this.currentGame == null) {
-        return;
-      }
-      pn = this.map.getCenter();
-      equalish = function(x, y) {
-        return Math.abs(x - y) < 0.00001;
-      };
-      if (equalish(pn.lat(), this.currentGame.map_latitude)) {
-        if (equalish(pn.lng(), this.currentGame.map_longitude)) {
-          if (this.map.getZoom() === this.currentGame.map_zoom_level) {
-            $('#div-map-group').addClass('has-success');
-            return;
-          }
-        }
-      }
-      return $('#div-map-group').removeClass('has-success');
     };
 
     App.prototype.createMap = function(parent, _arg) {
@@ -411,11 +366,6 @@
           },
           zoom: zoom
         });
-        this.map.addListener('idle', (function(_this) {
-          return function() {
-            return _this.updateSiftrMap();
-          };
-        })(this));
       }
       return parent.append(this.map.getDiv());
     };
@@ -426,16 +376,13 @@
       }
       this.currentGame = game;
       $('#text-siftr-name').val(game.name);
-      this.updateSiftrName();
       $('#text-siftr-desc').val(game.description);
-      this.updateSiftrDesc();
       this.resetIcon();
       this.createMap($('#div-google-map'), {
         lat: game.map_latitude,
         lng: game.map_longitude,
         zoom: game.map_zoom_level
       });
-      this.updateSiftrMap();
       return this.selectPage('#page-edit');
     };
 
@@ -444,7 +391,7 @@
       if (cb == null) {
         cb = (function() {});
       }
-      if ($('#div-icon-group').hasClass('has-success')) {
+      if ($('#file-siftr-icon')[0].files.length === 0) {
         return cb(this.currentGame.icon_media_id);
       } else {
         dataURL = $('#file-siftr-icon')[0].files[0].result;

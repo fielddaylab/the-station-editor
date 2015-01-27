@@ -170,7 +170,7 @@ class App
                   button.click => @startEdit game
                 appendTo formGroup, 'a.btn.btn-default.disabled',
                   href: '#'
-                  text: 'Edit Tags'
+                  text: 'Edit tags'
                 , (button) =>
                   button.click => # TODO
 
@@ -235,45 +235,12 @@ class App
         return
     cb()
 
-  # Called when the user has chosen a new icon.
-  selectedIcon: ->
-    $('#div-icon-group').removeClass 'has-success'
-
   # Resets the Siftr icon to its existing state.
   resetIcon: ->
-    $('#div-icon-group').addClass 'has-success'
     $('#div-icon-input').fileinput 'clear'
     $('#div-icon-thumb').html ''
     newThumb = $ '<img />', src: @currentGame.icon_media.url
     $('#div-icon-thumb').append newThumb
-
-  # Colors the name form group to show if it's changed from its original state.
-  updateSiftrName: ->
-    box = $('#text-siftr-name')
-    if box.val() is @currentGame?.name
-      box.parent().addClass 'has-success'
-    else
-      box.parent().removeClass 'has-success'
-
-  # Colors the description form group to show if it's changed from its original state.
-  updateSiftrDesc: ->
-    box = $('#text-siftr-desc')
-    if box.val() is @currentGame?.description
-      box.parent().addClass 'has-success'
-    else
-      box.parent().removeClass 'has-success'
-
-  # Colors the map form group to show if it's changed from its original state.
-  updateSiftrMap: ->
-    return unless @currentGame?
-    pn = @map.getCenter()
-    equalish = (x, y) -> Math.abs(x - y) < 0.00001
-    if equalish pn.lat(), @currentGame.map_latitude
-      if equalish pn.lng(), @currentGame.map_longitude
-        if @map.getZoom() is @currentGame.map_zoom_level
-          $('#div-map-group').addClass 'has-success'
-          return
-    $('#div-map-group').removeClass 'has-success'
 
   # Ensures that the map exists, centers it on the given place, and moves
   # the map object to be a child of the given element.
@@ -285,28 +252,24 @@ class App
       @map = new google.maps.Map $('#the-map')[0],
         center: {lat, lng}
         zoom: zoom
-      @map.addListener 'idle', => @updateSiftrMap()
     parent.append @map.getDiv()
 
   # Starts or resets the edit process for a Siftr, and loads the Edit page.
   startEdit: (game = @currentGame) ->
     @currentGame = game
     $('#text-siftr-name').val game.name
-    @updateSiftrName()
     $('#text-siftr-desc').val game.description
-    @updateSiftrDesc()
     @resetIcon()
     @createMap $('#div-google-map'),
       lat: game.map_latitude
       lng: game.map_longitude
       zoom: game.map_zoom_level
-    @updateSiftrMap()
     @selectPage '#page-edit'
 
   # If the user chose a new icon, upload it to Aris and get its media ID.
   # If they didn't, just return the existing ID.
   getIconID: (cb = (->)) ->
-    if $('#div-icon-group').hasClass 'has-success'
+    if $('#file-siftr-icon')[0].files.length is 0
       cb @currentGame.icon_media_id
     else
       dataURL = $('#file-siftr-icon')[0].files[0].result
