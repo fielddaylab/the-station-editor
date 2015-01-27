@@ -376,6 +376,9 @@
 
     App.prototype.updateSiftrMap = function() {
       var equalish, pn;
+      if (this.currentGame == null) {
+        return;
+      }
       pn = this.map.getCenter();
       equalish = function(x, y) {
         return Math.abs(x - y) < 0.00001;
@@ -391,6 +394,32 @@
       return $('#div-map-group').removeClass('has-success');
     };
 
+    App.prototype.createMap = function(parent, _arg) {
+      var lat, lng, zoom;
+      lat = _arg.lat, lng = _arg.lng, zoom = _arg.zoom;
+      if (this.map != null) {
+        this.map.setCenter({
+          lat: lat,
+          lng: lng
+        });
+        this.map.setZoom(zoom);
+      } else {
+        this.map = new google.maps.Map($('#the-map')[0], {
+          center: {
+            lat: lat,
+            lng: lng
+          },
+          zoom: zoom
+        });
+        this.map.addListener('idle', (function(_this) {
+          return function() {
+            return _this.updateSiftrMap();
+          };
+        })(this));
+      }
+      return parent.append(this.map.getDiv());
+    };
+
     App.prototype.startEdit = function(game) {
       if (game == null) {
         game = this.currentGame;
@@ -401,28 +430,12 @@
       $('#text-siftr-desc').val(game.description);
       this.updateSiftrDesc();
       this.resetIcon();
-      if (this.map != null) {
-        this.map.setCenter({
-          lat: game.map_latitude,
-          lng: game.map_longitude
-        });
-        this.map.setZoom(game.map_zoom_level);
-        this.updateSiftrMap();
-      } else {
-        this.map = new google.maps.Map($('#div-google-map')[0], {
-          center: {
-            lat: game.map_latitude,
-            lng: game.map_longitude
-          },
-          zoom: game.map_zoom_level
-        });
-        this.updateSiftrMap();
-        this.map.addListener('idle', (function(_this) {
-          return function() {
-            return _this.updateSiftrMap();
-          };
-        })(this));
-      }
+      this.createMap($('#div-google-map'), {
+        lat: game.map_latitude,
+        lng: game.map_longitude,
+        zoom: game.map_zoom_level
+      });
+      this.updateSiftrMap();
       return this.selectPage('#page-edit');
     };
 
@@ -499,6 +512,18 @@
           });
         };
       })(this));
+    };
+
+    App.prototype.startNewSiftr = function(cb) {
+      if (cb == null) {
+        cb = (function() {});
+      }
+      this.createMap($('#div-new-google-map'), {
+        lat: 43.071644,
+        lng: -89.400658,
+        zoom: 14
+      });
+      return this.selectPage('#page-new');
     };
 
     return App;

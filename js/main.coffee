@@ -265,6 +265,7 @@ class App
 
   # Colors the map form group to show if it's changed from its original state.
   updateSiftrMap: ->
+    return unless @currentGame?
     pn = @map.getCenter()
     equalish = (x, y) -> Math.abs(x - y) < 0.00001
     if equalish pn.lat(), @currentGame.map_latitude
@@ -274,6 +275,19 @@ class App
           return
     $('#div-map-group').removeClass 'has-success'
 
+  # Ensures that the map exists, centers it on the given place, and moves
+  # the map object to be a child of the given element.
+  createMap: (parent, {lat, lng, zoom}) ->
+    if @map?
+      @map.setCenter {lat, lng}
+      @map.setZoom zoom
+    else
+      @map = new google.maps.Map $('#the-map')[0],
+        center: {lat, lng}
+        zoom: zoom
+      @map.addListener 'idle', => @updateSiftrMap()
+    parent.append @map.getDiv()
+
   # Starts or resets the edit process for a Siftr, and loads the Edit page.
   startEdit: (game = @currentGame) ->
     @currentGame = game
@@ -282,20 +296,11 @@ class App
     $('#text-siftr-desc').val game.description
     @updateSiftrDesc()
     @resetIcon()
-    if @map?
-      @map.setCenter
-        lat: game.map_latitude
-        lng: game.map_longitude
-      @map.setZoom game.map_zoom_level
-      @updateSiftrMap()
-    else
-      @map = new google.maps.Map $('#div-google-map')[0],
-        center:
-          lat: game.map_latitude
-          lng: game.map_longitude
-        zoom: game.map_zoom_level
-      @updateSiftrMap()
-      @map.addListener 'idle', => @updateSiftrMap()
+    @createMap $('#div-google-map'),
+      lat: game.map_latitude
+      lng: game.map_longitude
+      zoom: game.map_zoom_level
+    @updateSiftrMap()
     @selectPage '#page-edit'
 
   # If the user chose a new icon, upload it to Aris and get its media ID.
@@ -347,6 +352,13 @@ class App
             $('#spinner-edit-save').hide()
             @startEdit newGame
             cb newGame
+
+  startNewSiftr: (cb = (->)) ->
+    @createMap $('#div-new-google-map'),
+      lat: 43.071644
+      lng: -89.400658
+      zoom: 14
+    @selectPage '#page-new'
 
 parseElement = (str) ->
   eatWord = ->

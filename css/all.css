@@ -18,7 +18,15 @@
   display: none;
 }
 
-#div-google-map {
+#spinner-new-save {
+  display: none;
+}
+
+#hidden-map-container {
+  display: none;
+}
+
+#the-map {
   height: 400px;
   width: 400px;
   max-width: 100%;
