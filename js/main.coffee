@@ -332,6 +332,7 @@ class App
   # Saves all edits to the name, description, icon, and map center/zoom.
   # Reloads the game list and refreshes the Edit page accordingly.
   editSave: (cb = (->)) ->
+    $('#spinner-edit-save').show()
     pn = @map.getCenter()
     @getIconID (media_id) =>
       @callAris 'games.updateGame',
@@ -347,6 +348,7 @@ class App
         @getGameIcons =>
           @getGameTags =>
             @redrawGameList()
+            $('#spinner-edit-save').hide()
             @startEdit newGame
             cb newGame
 

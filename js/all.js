@@ -486,6 +486,7 @@
       if (cb == null) {
         cb = (function() {});
       }
+      $('#spinner-edit-save').show();
       pn = this.map.getCenter();
       return this.getIconID((function(_this) {
         return function(media_id) {
@@ -504,6 +505,7 @@
             return _this.getGameIcons(function() {
               return _this.getGameTags(function() {
                 _this.redrawGameList();
+                $('#spinner-edit-save').hide();
                 _this.startEdit(newGame);
                 return cb(newGame);
               });
