@@ -214,13 +214,11 @@
                         return _this.startEdit(game);
                       });
                     });
-                    return appendTo(formGroup, 'a.btn.btn-default', {
+                    return appendTo(formGroup, 'a.btn.btn-default.disabled', {
                       href: '#',
                       text: 'Edit Tags'
                     }, function(button) {
-                      return button.click(function() {
-                        return _this.startEdit(game);
-                      });
+                      return button.click(function() {});
                     });
                   });
                 });

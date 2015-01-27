@@ -168,11 +168,11 @@ class App
                   text: 'Edit Siftr'
                 , (button) =>
                   button.click => @startEdit game
-                appendTo formGroup, 'a.btn.btn-default',
+                appendTo formGroup, 'a.btn.btn-default.disabled',
                   href: '#'
                   text: 'Edit Tags'
                 , (button) =>
-                  button.click => @startEdit game
+                  button.click => # TODO
 
   # Downloads all info for the games this user can edit, and then redraws the
   # game list accordingly.
