@@ -386,33 +386,42 @@
       return this.selectPage('#page-edit');
     };
 
+    App.prototype.getImageBase64 = function(input) {
+      var base64, dataURL, ext, extmap, k, v, _ref, _ref1;
+      dataURL = (_ref = (_ref1 = $(input)[0].files[0]) != null ? _ref1.result : void 0) != null ? _ref : '';
+      extmap = {
+        jpg: 'data:image/jpeg;base64,',
+        png: 'data:image/png;base64,',
+        gif: 'data:image/gif;base64,'
+      };
+      ext = null;
+      base64 = null;
+      for (k in extmap) {
+        v = extmap[k];
+        if (dataURL.indexOf(v) === 0) {
+          ext = k;
+          base64 = dataURL.substring(v.length);
+        }
+      }
+      if ((ext != null) && (base64 != null)) {
+        return {
+          ext: ext,
+          base64: base64
+        };
+      } else {
+        return false;
+      }
+    };
+
     App.prototype.getIconID = function(cb) {
-      var base64, dataURL, ext, extmap, k, v;
+      var base64, ext, _ref;
       if (cb == null) {
         cb = (function() {});
       }
       if ($('#file-siftr-icon')[0].files.length === 0) {
         return cb(this.currentGame.icon_media_id);
       } else {
-        dataURL = $('#file-siftr-icon')[0].files[0].result;
-        extmap = {
-          jpg: 'data:image/jpeg;base64,',
-          png: 'data:image/png;base64,',
-          gif: 'data:image/gif;base64,'
-        };
-        ext = null;
-        base64 = null;
-        for (k in extmap) {
-          v = extmap[k];
-          if (dataURL.indexOf(v) === 0) {
-            ext = k;
-            base64 = dataURL.substring(v.length);
-          }
-        }
-        if (!((ext != null) && (base64 != null))) {
-          cb(false);
-          return;
-        }
+        _ref = this.getImageBase64('#file-siftr-icon'), ext = _ref.ext, base64 = _ref.base64;
         return this.callAris('media.createMedia', {
           game_id: this.currentGame.game_id,
           file_name: "upload." + ext,
@@ -465,6 +474,7 @@
       if (cb == null) {
         cb = (function() {});
       }
+      $('#div-new-icon-input').fileinput('clear');
       this.createMap($('#div-new-google-map'), {
         lat: 43.071644,
         lng: -89.400658,
@@ -493,7 +503,7 @@
                 'data-trigger': 'fileinput',
                 style: 'width: 64px; height: 64px;'
               });
-              return appendTo(fileInput, 'input', {
+              return appendTo(fileInput, 'input.new-tag-icon', {
                 type: 'file',
                 name: '...',
                 style: 'display: none;'
@@ -501,7 +511,7 @@
             });
           });
           return appendTo(media, '.media-body', {}, function(mediaBody) {
-            return appendTo(mediaBody, 'input.form-control', {
+            return appendTo(mediaBody, 'input.form-control.new-tag-text', {
               type: 'text',
               placeholder: 'Tag'
             });
@@ -518,6 +528,84 @@
         tags.removeChild(tags.children[tags.children.length - 1]);
       }
       return this.updateTagMinus();
+    };
+
+    App.prototype.newSave = function() {
+      var pn;
+      $('#spinner-new-save').show();
+      pn = this.map.getCenter();
+      return this.callAris('games.createGame', {
+        name: $('#text-new-siftr-name').val(),
+        description: $('#text-new-siftr-desc').val(),
+        map_latitude: pn.lat(),
+        map_longitude: pn.lng(),
+        map_zoom_level: this.map.getZoom()
+      }, (function(_this) {
+        return function(_arg) {
+          var base64, ext, game, _ref;
+          game = _arg.data;
+          _ref = _this.getImageBase64($('#file-new-siftr-icon')), ext = _ref.ext, base64 = _ref.base64;
+          return _this.callAris('media.createMedia', {
+            game_id: game.game_id,
+            file_name: "upload." + ext,
+            data: base64
+          }, function(_arg1) {
+            var icon;
+            icon = _arg1.data;
+            return _this.callAris('games.updateGame', {
+              game_id: game.game_id,
+              icon_media_id: icon.media_id
+            }, function(_arg2) {
+              var game, tag, tags, uploadTags;
+              game = _arg2.data;
+              tags = (function() {
+                var _i, _len, _ref1, _results;
+                _ref1 = $('#div-new-tags .media');
+                _results = [];
+                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                  tag = _ref1[_i];
+                  _results.push({
+                    icon: this.getImageBase64($(tag).find('.new-tag-icon')),
+                    text: $(tag).find('.new-tag-text').val()
+                  });
+                }
+                return _results;
+              }).call(_this);
+              uploadTags = function() {
+                var text, _ref1, _ref2;
+                if (tags.length === 0) {
+                  _this.addGameFromJson(game);
+                  _this.getGameIcons(function() {
+                    return _this.getGameTags(function() {
+                      _this.redrawGameList();
+                      $('#spinner-new-save').hide();
+                      return _this.startingPage();
+                    });
+                  });
+                  return;
+                }
+                _ref1 = tags.shift(), (_ref2 = _ref1.icon, ext = _ref2.ext, base64 = _ref2.base64), text = _ref1.text;
+                return _this.callAris('media.createMedia', {
+                  game_id: game.game_id,
+                  file_name: "upload." + ext,
+                  data: base64
+                }, function(_arg3) {
+                  var media_id;
+                  media_id = _arg3.data.media_id;
+                  return _this.callAris('tags.createTag', {
+                    game_id: game.game_id,
+                    tag: text,
+                    media_id: media_id
+                  }, function() {
+                    return uploadTags();
+                  });
+                });
+              };
+              return uploadTags();
+            });
+          });
+        };
+      })(this));
     };
 
     return App;

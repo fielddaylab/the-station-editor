@@ -266,26 +266,32 @@ class App
       zoom: game.map_zoom_level
     @selectPage '#page-edit'
 
+  # Given an input element, tries to get the image data from it
+  # as a base-64 string and a file extension.
+  getImageBase64: (input) ->
+    dataURL = $(input)[0].files[0]?.result ? ''
+    extmap =
+      jpg: 'data:image/jpeg;base64,'
+      png: 'data:image/png;base64,'
+      gif: 'data:image/gif;base64,'
+    ext = null
+    base64 = null
+    for k, v of extmap
+      if dataURL.indexOf(v) is 0
+        ext    = k
+        base64 = dataURL.substring v.length
+    if ext? and base64?
+      {ext, base64}
+    else
+      false
+
   # If the user chose a new icon, upload it to Aris and get its media ID.
   # If they didn't, just return the existing ID.
   getIconID: (cb = (->)) ->
     if $('#file-siftr-icon')[0].files.length is 0
       cb @currentGame.icon_media_id
     else
-      dataURL = $('#file-siftr-icon')[0].files[0].result
-      extmap =
-        jpg: 'data:image/jpeg;base64,'
-        png: 'data:image/png;base64,'
-        gif: 'data:image/gif;base64,'
-      ext = null
-      base64 = null
-      for k, v of extmap
-        if dataURL.indexOf(v) is 0
-          ext    = k
-          base64 = dataURL.substring v.length
-      unless ext? and base64?
-        cb false
-        return
+      {ext, base64} = @getImageBase64 '#file-siftr-icon'
       @callAris 'media.createMedia',
         game_id: @currentGame.game_id
         file_name: "upload.#{ext}"
@@ -317,6 +323,7 @@ class App
             cb newGame
 
   startNewSiftr: (cb = (->)) ->
+    $('#div-new-icon-input').fileinput 'clear'
     @createMap $('#div-new-google-map'),
       lat: 43.071644
       lng: -89.400658
@@ -337,9 +344,9 @@ class App
           appendTo fileInput, '.fileinput-preview.thumbnail',
             'data-trigger': 'fileinput'
             style: 'width: 64px; height: 64px;'
-          appendTo fileInput, 'input', type: 'file', name: '...', style: 'display: none;'
+          appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
       appendTo media, '.media-body', {}, (mediaBody) =>
-        appendTo mediaBody, 'input.form-control',
+        appendTo mediaBody, 'input.form-control.new-tag-text',
           type: 'text'
           placeholder: 'Tag'
     @updateTagMinus()
@@ -350,6 +357,55 @@ class App
       tags.removeChild tags.children[tags.children.length - 1]
       # tags.lastChild returns text nodes which don't show up in .children
     @updateTagMinus()
+
+  newSave: ->
+    $('#spinner-new-save').show()
+
+    pn = @map.getCenter()
+    @callAris 'games.createGame',
+      name: $('#text-new-siftr-name').val()
+      description: $('#text-new-siftr-desc').val()
+      map_latitude: pn.lat()
+      map_longitude: pn.lng()
+      map_zoom_level: @map.getZoom()
+    , (data: game) =>
+
+      {ext, base64} = @getImageBase64 $('#file-new-siftr-icon')
+      @callAris 'media.createMedia',
+        game_id: game.game_id
+        file_name: "upload.#{ext}"
+        data: base64
+      , (data: icon) =>
+
+        @callAris 'games.updateGame',
+          game_id: game.game_id
+          icon_media_id: icon.media_id
+        , (data: game) =>
+
+          tags = for tag in $('#div-new-tags .media')
+            icon: @getImageBase64 $(tag).find '.new-tag-icon'
+            text: $(tag).find('.new-tag-text').val()
+          uploadTags = =>
+            if tags.length is 0
+              @addGameFromJson game
+              @getGameIcons =>
+                @getGameTags =>
+                  @redrawGameList()
+                  $('#spinner-new-save').hide()
+                  @startingPage()
+              return
+            {icon: {ext, base64}, text} = tags.shift()
+            @callAris 'media.createMedia',
+              game_id: game.game_id
+              file_name: "upload.#{ext}"
+              data: base64
+            , (data: {media_id}) =>
+              @callAris 'tags.createTag',
+                game_id: game.game_id
+                tag: text
+                media_id: media_id
+              , => uploadTags()
+          uploadTags()
 
 parseElement = (str) ->
   eatWord = ->
