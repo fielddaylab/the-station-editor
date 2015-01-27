@@ -150,29 +150,25 @@ class App
     gameList.text ''
     for game in @games
       do (game) =>
-        appendTo gameList, '<div />', class: 'media', (media) =>
-          appendTo media, '<div />', class: 'media-left', (mediaLeft) =>
-            appendTo mediaLeft, '<img />',
-              class: 'media-object'
+        appendTo gameList, '.media', {}, (media) =>
+          appendTo media, '.media-left', {}, (mediaLeft) =>
+            appendTo mediaLeft, 'img.media-object',
               src: game.icon_media.url
               width: '64px'
               height: '64px'
-          appendTo media, '<div />', class: 'media-body', (mediaBody) =>
-            appendTo mediaBody, '<h4 />',
-              class: 'media-heading'
+          appendTo media, '.media-body', {}, (mediaBody) =>
+            appendTo mediaBody, 'h4.media-heading',
               text: game.name
-            appendTo mediaBody, '<p />',
+            appendTo mediaBody, 'p',
               text: game.description
-            appendTo mediaBody, '<form />', {}, (form) =>
-              appendTo form, '<div />', class: 'form-group', (formGroup) =>
-                appendTo formGroup, '<a />',
-                  class: 'btn btn-primary'
+            appendTo mediaBody, 'form', {}, (form) =>
+              appendTo form, '.form-group', {}, (formGroup) =>
+                appendTo formGroup, 'a.btn.btn-primary',
                   href: '#'
                   text: 'Edit Siftr'
                 , (button) =>
                   button.click => @startEdit game
-                appendTo formGroup, '<a />',
-                  class: 'btn btn-default'
+                appendTo formGroup, 'a.btn.btn-default',
                   href: '#'
                   text: 'Edit Tags'
                 , (button) =>
@@ -352,8 +348,36 @@ class App
             @startEdit newGame
             cb newGame
 
-appendTo = (parent, tag, attrs, init = (->)) =>
-  child = $(tag, attrs)
+parseElement = (str) ->
+  eatWord = ->
+    hash = str.indexOf '#'
+    dot  = str.indexOf '.'
+    hash = 9999 if hash is -1
+    dot  = 9999 if dot  is -1
+    word = str[... Math.min(hash, dot)]
+    str = str[word.length ..]
+    word
+  tag = eatWord() or 'div'
+  classes = []
+  id = null
+  until str is ''
+    if str[0] is '.'
+      str = str[1..]
+      classes.push eatWord()
+    else if str[0] is '#'
+      str = str[1..]
+      id = eatWord()
+    else
+      return false
+  {tag, classes, id}
+
+appendTo = (parent, haml = '', attrs = {}, init = (->)) ->
+  {tag, classes, id} = parseElement haml
+  for c in classes
+    attrs.class ?= ''
+    attrs.class += " #{c}"
+  attrs.id = id if id?
+  child = $("<#{tag} />", attrs)
   init child
   parent.append ' '
   parent.append child
