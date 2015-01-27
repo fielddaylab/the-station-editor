@@ -333,10 +333,11 @@ class App
   addTag: ->
     appendTo $('#div-new-tags'), '.media', {}, (media) =>
       appendTo media, '.media-left', {}, (mediaLeft) =>
-        appendTo mediaLeft, 'img.media-object',
-          src: 'http://dev.arisgames.org/server/gamedata/v2/265/aris998d7b671a704a178bd2611b0f167208.jpg'
-          width: '64px'
-          height: '64px'
+        appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
+          appendTo fileInput, '.fileinput-preview.thumbnail',
+            'data-trigger': 'fileinput'
+            style: 'width: 64px; height: 64px;'
+          appendTo fileInput, 'input', type: 'file', name: '...', style: 'display: none;'
       appendTo media, '.media-body', {}, (mediaBody) =>
         appendTo mediaBody, 'input.form-control',
           type: 'text'

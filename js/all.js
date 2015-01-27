@@ -486,10 +486,18 @@
       appendTo($('#div-new-tags'), '.media', {}, (function(_this) {
         return function(media) {
           appendTo(media, '.media-left', {}, function(mediaLeft) {
-            return appendTo(mediaLeft, 'img.media-object', {
-              src: 'http://dev.arisgames.org/server/gamedata/v2/265/aris998d7b671a704a178bd2611b0f167208.jpg',
-              width: '64px',
-              height: '64px'
+            return appendTo(mediaLeft, '.fileinput.fileinput-new', {
+              'data-provides': 'fileinput'
+            }, function(fileInput) {
+              appendTo(fileInput, '.fileinput-preview.thumbnail', {
+                'data-trigger': 'fileinput',
+                style: 'width: 64px; height: 64px;'
+              });
+              return appendTo(fileInput, 'input', {
+                type: 'file',
+                name: '...',
+                style: 'display: none;'
+              });
             });
           });
           return appendTo(media, '.media-body', {}, function(mediaBody) {
