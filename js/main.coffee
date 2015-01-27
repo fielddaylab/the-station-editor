@@ -358,7 +358,34 @@ class App
       lat: 43.071644
       lng: -89.400658
       zoom: 14
+    @updateTagMinus()
     @selectPage '#page-new'
+
+  updateTagMinus: ->
+    if $('#div-new-tags')[0].children.length is 0
+      $('#button-new-minus-tag').addClass 'disabled'
+    else
+      $('#button-new-minus-tag').removeClass 'disabled'
+
+  addTag: ->
+    appendTo $('#div-new-tags'), '.media', {}, (media) =>
+      appendTo media, '.media-left', {}, (mediaLeft) =>
+        appendTo mediaLeft, 'img.media-object',
+          src: 'http://dev.arisgames.org/server/gamedata/v2/265/aris998d7b671a704a178bd2611b0f167208.jpg'
+          width: '64px'
+          height: '64px'
+      appendTo media, '.media-body', {}, (mediaBody) =>
+        appendTo mediaBody, 'input.form-control',
+          type: 'text'
+          placeholder: 'Tag'
+    @updateTagMinus()
+
+  removeTag: ->
+    tags = $('#div-new-tags')[0]
+    if tags.children.length > 0
+      tags.removeChild tags.children[tags.children.length - 1]
+      # tags.lastChild returns text nodes which don't show up in .children
+    @updateTagMinus()
 
 parseElement = (str) ->
   eatWord = ->

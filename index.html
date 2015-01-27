@@ -232,14 +232,14 @@
           <div class="form-group">
             <label for="div-new-tag-list">
               Tags
-              <a class="btn btn-default">
+              <a class="btn btn-default" id="button-new-minus-tag" onclick="app.removeTag();">
                 <i class="fa fa-minus"></i>
               </a>
-              <a class="btn btn-default">
+              <a class="btn btn-default" onclick="app.addTag();">
                 <i class="fa fa-plus"></i>
               </a>
             </label>
-            <div id="div-new-tag-list">
+            <div id="div-new-tags">
             </div>
           </div>
           <div class="form-group">

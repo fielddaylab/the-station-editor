@@ -523,7 +523,46 @@
         lng: -89.400658,
         zoom: 14
       });
+      this.updateTagMinus();
       return this.selectPage('#page-new');
+    };
+
+    App.prototype.updateTagMinus = function() {
+      if ($('#div-new-tags')[0].children.length === 0) {
+        return $('#button-new-minus-tag').addClass('disabled');
+      } else {
+        return $('#button-new-minus-tag').removeClass('disabled');
+      }
+    };
+
+    App.prototype.addTag = function() {
+      appendTo($('#div-new-tags'), '.media', {}, (function(_this) {
+        return function(media) {
+          appendTo(media, '.media-left', {}, function(mediaLeft) {
+            return appendTo(mediaLeft, 'img.media-object', {
+              src: 'http://dev.arisgames.org/server/gamedata/v2/265/aris998d7b671a704a178bd2611b0f167208.jpg',
+              width: '64px',
+              height: '64px'
+            });
+          });
+          return appendTo(media, '.media-body', {}, function(mediaBody) {
+            return appendTo(mediaBody, 'input.form-control', {
+              type: 'text',
+              placeholder: 'Tag'
+            });
+          });
+        };
+      })(this));
+      return this.updateTagMinus();
+    };
+
+    App.prototype.removeTag = function() {
+      var tags;
+      tags = $('#div-new-tags')[0];
+      if (tags.children.length > 0) {
+        tags.removeChild(tags.children[tags.children.length - 1]);
+      }
+      return this.updateTagMinus();
     };
 
     return App;
