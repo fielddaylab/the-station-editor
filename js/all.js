@@ -617,13 +617,12 @@
     };
 
     App.prototype.startEditTags = function(game) {
-      var tag, _i, _len, _ref;
+      var tag, _fn, _i, _len, _ref;
       $('#div-edit-tags').html('');
       _ref = game.tags;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tag = _ref[_i];
-        appendTo($('#div-edit-tags'), '.media', {}, (function(_this) {
-          return function(media) {
+      _fn = (function(_this) {
+        return function(tag) {
+          return appendTo($('#div-edit-tags'), '.media', {}, function(media) {
             appendTo(media, '.media-left', {}, function(mediaLeft) {
               return appendTo(mediaLeft, '.fileinput.fileinput-new', {
                 'data-provides': 'fileinput'
@@ -641,21 +640,77 @@
             });
             return appendTo(media, '.media-body', {}, function(mediaBody) {
               return appendTo(mediaBody, 'form', {}, function(form) {
-                return appendTo(form, '.form-group', {}, function(formGroup) {
-                  appendTo(formGroup, 'input.form-group.form-control.new-tag-text', {
-                    type: 'text',
-                    placeholder: 'Tag',
-                    val: tag.tag
+                appendTo(form, '.form-group', {}, function(formGroup) {
+                  return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
+                    var edited, input, lastEdited, lastUploaded, onEdit, saved, uploading;
+                    lastEdited = Date.now();
+                    lastUploaded = Date.now();
+                    input = appendTo(inputGroup, 'input.form-control', {
+                      type: 'text',
+                      placeholder: 'Tag',
+                      val: tag.tag
+                    });
+                    saved = edited = uploading = null;
+                    appendTo(inputGroup, 'span.input-group-addon', {}, function(addon) {
+                      saved = appendTo(addon, 'i.fa.fa-check');
+                      edited = appendTo(addon, 'i.fa.fa-edit', {
+                        style: 'display: none;'
+                      });
+                      return uploading = appendTo(addon, 'i.fa.fa-spinner.fa-pulse', {
+                        style: 'display: none;'
+                      });
+                    });
+                    onEdit = function() {
+                      var thisEdited;
+                      lastEdited = thisEdited = Date.now();
+                      saved.hide();
+                      edited.show();
+                      uploading.hide();
+                      return setTimeout(function() {
+                        var newValue, thisUploaded;
+                        if (lastEdited === thisEdited) {
+                          lastUploaded = thisUploaded = Date.now();
+                          saved.hide();
+                          edited.hide();
+                          uploading.show();
+                          newValue = input.val();
+                          return _this.callAris('tags.updateTag', {
+                            tag_id: tag.tag_id,
+                            tag: newValue
+                          }, function() {
+                            tag.tag = newValue;
+                            if (lastUploaded === thisUploaded) {
+                              if (lastEdited < thisUploaded) {
+                                saved.show();
+                                edited.hide();
+                                return uploading.hide();
+                              } else {
+
+                              }
+                            } else {
+
+                            }
+                          });
+                        }
+                      }, 500);
+                    };
+                    return input.keydown(onEdit);
                   });
-                  return appendTo(formGroup, 'button.form-group.btn.btn-danger', {
+                });
+                return appendTo(form, '.form-group', {}, function(formGroup) {
+                  return appendTo(formGroup, 'button.btn.btn-danger', {
                     type: 'button',
                     html: '<i class="fa fa-remove"></i> Delete tag'
                   });
                 });
               });
             });
-          };
-        })(this));
+          });
+        };
+      })(this);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tag = _ref[_i];
+        _fn(tag);
       }
       return this.selectPage('#page-edit-tags');
     };
