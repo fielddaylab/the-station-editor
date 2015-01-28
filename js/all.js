@@ -214,9 +214,17 @@
                         return _this.startEdit(game);
                       });
                     });
-                    return appendTo(formGroup, 'a.btn.btn-default.disabled', {
+                    appendTo(formGroup, 'a.btn.btn-default', {
                       href: '#',
                       text: 'Edit tags'
+                    }, function(button) {
+                      return button.click(function() {
+                        return _this.startEditTags(game);
+                      });
+                    });
+                    return appendTo(formGroup, 'a.btn.btn-danger.disabled', {
+                      href: '#',
+                      html: '<i class="fa fa-remove"></i> Delete Siftr'
                     }, function(button) {
                       return button.click(function() {});
                     });
@@ -606,6 +614,50 @@
           });
         };
       })(this));
+    };
+
+    App.prototype.startEditTags = function(game) {
+      var tag, _i, _len, _ref;
+      $('#div-edit-tags').html('');
+      _ref = game.tags;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tag = _ref[_i];
+        appendTo($('#div-edit-tags'), '.media', {}, (function(_this) {
+          return function(media) {
+            appendTo(media, '.media-left', {}, function(mediaLeft) {
+              return appendTo(mediaLeft, '.fileinput.fileinput-new', {
+                'data-provides': 'fileinput'
+              }, function(fileInput) {
+                appendTo(fileInput, '.fileinput-preview.thumbnail', {
+                  'data-trigger': 'fileinput',
+                  style: 'width: 64px; height: 64px;'
+                });
+                return appendTo(fileInput, 'input.new-tag-icon', {
+                  type: 'file',
+                  name: '...',
+                  style: 'display: none;'
+                });
+              });
+            });
+            return appendTo(media, '.media-body', {}, function(mediaBody) {
+              return appendTo(mediaBody, 'form', {}, function(form) {
+                return appendTo(form, '.form-group', {}, function(formGroup) {
+                  appendTo(formGroup, 'input.form-group.form-control.new-tag-text', {
+                    type: 'text',
+                    placeholder: 'Tag',
+                    val: tag.tag
+                  });
+                  return appendTo(formGroup, 'button.form-group.btn.btn-danger', {
+                    type: 'button',
+                    html: '<i class="fa fa-remove"></i> Delete tag'
+                  });
+                });
+              });
+            });
+          };
+        })(this));
+      }
+      return this.selectPage('#page-edit-tags');
     };
 
     return App;

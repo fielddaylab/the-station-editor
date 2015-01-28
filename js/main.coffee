@@ -168,9 +168,14 @@ class App
                   text: 'Edit Siftr'
                 , (button) =>
                   button.click => @startEdit game
-                appendTo formGroup, 'a.btn.btn-default.disabled',
+                appendTo formGroup, 'a.btn.btn-default',
                   href: '#'
                   text: 'Edit tags'
+                , (button) =>
+                  button.click => @startEditTags game
+                appendTo formGroup, 'a.btn.btn-danger.disabled',
+                  href: '#'
+                  html: '<i class="fa fa-remove"></i> Delete Siftr'
                 , (button) =>
                   button.click => # TODO
 
@@ -407,6 +412,29 @@ class App
               , => uploadTags()
           uploadTags()
 
+  startEditTags: (game) ->
+    $('#div-edit-tags').html ''
+    for tag in game.tags
+      appendTo $('#div-edit-tags'), '.media', {}, (media) =>
+        appendTo media, '.media-left', {}, (mediaLeft) =>
+          appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
+            appendTo fileInput, '.fileinput-preview.thumbnail',
+              'data-trigger': 'fileinput'
+              style: 'width: 64px; height: 64px;'
+            appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
+        appendTo media, '.media-body', {}, (mediaBody) =>
+          appendTo mediaBody, 'form', {}, (form) =>
+            appendTo form, '.form-group', {}, (formGroup) =>
+              appendTo formGroup, 'input.form-group.form-control.new-tag-text',
+                type: 'text'
+                placeholder: 'Tag'
+                val: tag.tag
+              appendTo formGroup, 'button.form-group.btn.btn-danger',
+                type: 'button'
+                html: '<i class="fa fa-remove"></i> Delete tag'
+    @selectPage '#page-edit-tags'
+
+# Parses a string like "tag#id.class1.class2" into its separate parts.
 parseElement = (str) ->
   eatWord = ->
     hash = str.indexOf '#'
