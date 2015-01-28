@@ -425,7 +425,7 @@ class App
               appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'form', {}, (form) =>
-              appendTo form, '.form-group', {}, (formGroup) =>
+              appendTo form, '.form-group.has-success', {}, (formGroup) =>
                 appendTo formGroup, '.input-group', {}, (inputGroup) =>
                   lastEdited = Date.now()
                   lastUploaded = Date.now()
@@ -443,6 +443,7 @@ class App
                     saved.hide()
                     edited.show()
                     uploading.hide()
+                    formGroup.removeClass 'has-success'
                     setTimeout =>
                       if lastEdited is thisEdited
                         lastUploaded = thisUploaded = Date.now()
@@ -460,6 +461,7 @@ class App
                               saved.show()
                               edited.hide()
                               uploading.hide()
+                              formGroup.addClass 'has-success'
                             else
                               # there was an edit while we were uploading,
                               # so it will finish and then change icons

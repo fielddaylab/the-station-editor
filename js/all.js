@@ -640,7 +640,7 @@
             });
             return appendTo(media, '.media-body', {}, function(mediaBody) {
               return appendTo(mediaBody, 'form', {}, function(form) {
-                appendTo(form, '.form-group', {}, function(formGroup) {
+                appendTo(form, '.form-group.has-success', {}, function(formGroup) {
                   return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
                     var edited, input, lastEdited, lastUploaded, onEdit, saved, uploading;
                     lastEdited = Date.now();
@@ -666,6 +666,7 @@
                       saved.hide();
                       edited.show();
                       uploading.hide();
+                      formGroup.removeClass('has-success');
                       return setTimeout(function() {
                         var newValue, thisUploaded;
                         if (lastEdited === thisEdited) {
@@ -683,7 +684,8 @@
                               if (lastEdited < thisUploaded) {
                                 saved.show();
                                 edited.hide();
-                                return uploading.hide();
+                                uploading.hide();
+                                return formGroup.addClass('has-success');
                               } else {
 
                               }
