@@ -173,11 +173,14 @@ class App
                   text: 'Edit tags'
                 , (button) =>
                   button.click => @startEditTags game
-                appendTo formGroup, 'a.btn.btn-danger.disabled',
+                appendTo formGroup, 'a.btn.btn-danger',
                   href: '#'
                   html: '<i class="fa fa-remove"></i> Delete Siftr'
                 , (button) =>
-                  button.click => # TODO
+                  button.click =>
+                    @deleteGame = game
+                    $('#modal-delete-siftr .modal-body').text "Are you sure you want to delete \"#{game.name}\"?"
+                    $('#modal-delete-siftr').modal()
 
   # Downloads all info for the games this user can edit, and then redraws the
   # game list accordingly.
@@ -475,6 +478,14 @@ class App
                   type: 'button'
                   html: '<i class="fa fa-remove"></i> Delete tag'
     @selectPage '#page-edit-tags'
+
+  deleteSiftr: ->
+    @callAris 'games.deleteGame',
+      game_id: @deleteGame.game_id
+    , =>
+      $('#modal-delete-siftr').modal 'hide'
+      @updateGameList()
+      @startingPage()
 
 # Parses a string like "tag#id.class1.class2" into its separate parts.
 parseElement = (str) ->

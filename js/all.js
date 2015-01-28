@@ -222,11 +222,15 @@
                         return _this.startEditTags(game);
                       });
                     });
-                    return appendTo(formGroup, 'a.btn.btn-danger.disabled', {
+                    return appendTo(formGroup, 'a.btn.btn-danger', {
                       href: '#',
                       html: '<i class="fa fa-remove"></i> Delete Siftr'
                     }, function(button) {
-                      return button.click(function() {});
+                      return button.click(function() {
+                        _this.deleteGame = game;
+                        $('#modal-delete-siftr .modal-body').text("Are you sure you want to delete \"" + game.name + "\"?");
+                        return $('#modal-delete-siftr').modal();
+                      });
                     });
                   });
                 });
@@ -715,6 +719,18 @@
         _fn(tag);
       }
       return this.selectPage('#page-edit-tags');
+    };
+
+    App.prototype.deleteSiftr = function() {
+      return this.callAris('games.deleteGame', {
+        game_id: this.deleteGame.game_id
+      }, (function(_this) {
+        return function() {
+          $('#modal-delete-siftr').modal('hide');
+          _this.updateGameList();
+          return _this.startingPage();
+        };
+      })(this));
     };
 
     return App;
