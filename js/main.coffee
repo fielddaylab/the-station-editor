@@ -475,9 +475,11 @@ class App
     @callAris 'games.deleteGame',
       game_id: @deleteGame.game_id
     , =>
+      @games =
+        g for g in @games when g isnt @deleteGame
+      @redrawGameList()
       $('#modal-delete-siftr').modal 'hide'
       $('#spinner-delete-siftr').hide()
-      @updateGameList()
 
 # Parses a string like "tag#id.class1.class2" into its separate parts.
 parseElement = (str) ->

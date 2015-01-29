@@ -696,9 +696,22 @@
         game_id: this.deleteGame.game_id
       }, (function(_this) {
         return function() {
+          var g;
+          _this.games = (function() {
+            var _i, _len, _ref, _results;
+            _ref = this.games;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              g = _ref[_i];
+              if (g !== this.deleteGame) {
+                _results.push(g);
+              }
+            }
+            return _results;
+          }).call(_this);
+          _this.redrawGameList();
           $('#modal-delete-siftr').modal('hide');
-          $('#spinner-delete-siftr').hide();
-          return _this.updateGameList();
+          return $('#spinner-delete-siftr').hide();
         };
       })(this));
     };
