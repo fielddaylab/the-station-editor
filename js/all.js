@@ -620,105 +620,141 @@
       })(this));
     };
 
-    App.prototype.startEditTags = function(game) {
-      var tag, _fn, _i, _len, _ref;
-      $('#div-edit-tags').html('');
-      _ref = game.tags;
-      _fn = (function(_this) {
-        return function(tag) {
-          return appendTo($('#div-edit-tags'), '.media', {}, function(media) {
-            appendTo(media, '.media-left', {}, function(mediaLeft) {
-              return appendTo(mediaLeft, '.fileinput.fileinput-new', {
-                'data-provides': 'fileinput'
-              }, function(fileInput) {
-                appendTo(fileInput, '.fileinput-preview.thumbnail', {
-                  'data-trigger': 'fileinput',
-                  style: 'width: 64px; height: 64px;'
-                });
-                return appendTo(fileInput, 'input.new-tag-icon', {
-                  type: 'file',
-                  name: '...',
-                  style: 'display: none;'
-                });
+    App.prototype.addTagEditor = function(tag) {
+      return appendTo($('#div-edit-tags'), '.media', {}, (function(_this) {
+        return function(media) {
+          appendTo(media, '.media-left', {}, function(mediaLeft) {
+            return appendTo(mediaLeft, '.fileinput.fileinput-new', {
+              'data-provides': 'fileinput'
+            }, function(fileInput) {
+              appendTo(fileInput, '.fileinput-preview.thumbnail', {
+                'data-trigger': 'fileinput',
+                style: 'width: 64px; height: 64px;'
+              });
+              return appendTo(fileInput, 'input.new-tag-icon', {
+                type: 'file',
+                name: '...',
+                style: 'display: none;'
               });
             });
-            return appendTo(media, '.media-body', {}, function(mediaBody) {
-              return appendTo(mediaBody, 'form', {}, function(form) {
-                appendTo(form, '.form-group.has-success', {}, function(formGroup) {
-                  return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
-                    var edited, input, lastEdited, lastUploaded, onEdit, saved, uploading;
-                    lastEdited = Date.now();
-                    lastUploaded = Date.now();
-                    input = appendTo(inputGroup, 'input.form-control', {
-                      type: 'text',
-                      placeholder: 'Tag',
-                      val: tag.tag
+          });
+          return appendTo(media, '.media-body', {}, function(mediaBody) {
+            return appendTo(mediaBody, 'form', {}, function(form) {
+              appendTo(form, '.form-group.has-success', {}, function(formGroup) {
+                return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
+                  var edited, input, lastEdited, lastUploaded, onEdit, saved, uploading;
+                  lastEdited = Date.now();
+                  lastUploaded = Date.now();
+                  input = appendTo(inputGroup, 'input.form-control', {
+                    type: 'text',
+                    placeholder: 'Tag',
+                    val: tag.tag
+                  });
+                  saved = edited = uploading = null;
+                  appendTo(inputGroup, 'span.input-group-addon', {}, function(addon) {
+                    saved = appendTo(addon, 'i.fa.fa-check');
+                    edited = appendTo(addon, 'i.fa.fa-edit', {
+                      style: 'display: none;'
                     });
-                    saved = edited = uploading = null;
-                    appendTo(inputGroup, 'span.input-group-addon', {}, function(addon) {
-                      saved = appendTo(addon, 'i.fa.fa-check');
-                      edited = appendTo(addon, 'i.fa.fa-edit', {
-                        style: 'display: none;'
-                      });
-                      return uploading = appendTo(addon, 'i.fa.fa-spinner.fa-pulse', {
-                        style: 'display: none;'
-                      });
+                    return uploading = appendTo(addon, 'i.fa.fa-spinner.fa-pulse', {
+                      style: 'display: none;'
                     });
-                    onEdit = function() {
-                      var thisEdited;
-                      lastEdited = thisEdited = Date.now();
-                      saved.hide();
-                      edited.show();
-                      uploading.hide();
-                      formGroup.removeClass('has-success');
-                      return setTimeout(function() {
-                        var newValue, thisUploaded;
-                        if (lastEdited === thisEdited) {
-                          lastUploaded = thisUploaded = Date.now();
-                          saved.hide();
-                          edited.hide();
-                          uploading.show();
-                          newValue = input.val();
-                          return _this.callAris('tags.updateTag', {
-                            tag_id: tag.tag_id,
-                            tag: newValue
-                          }, function() {
-                            tag.tag = newValue;
-                            if (lastUploaded === thisUploaded) {
-                              if (lastEdited < thisUploaded) {
-                                saved.show();
-                                edited.hide();
-                                uploading.hide();
-                                return formGroup.addClass('has-success');
-                              } else {
-
-                              }
+                  });
+                  onEdit = function() {
+                    var thisEdited;
+                    lastEdited = thisEdited = Date.now();
+                    saved.hide();
+                    edited.show();
+                    uploading.hide();
+                    formGroup.removeClass('has-success');
+                    return setTimeout(function() {
+                      var newValue, thisUploaded;
+                      if (lastEdited === thisEdited) {
+                        lastUploaded = thisUploaded = Date.now();
+                        saved.hide();
+                        edited.hide();
+                        uploading.show();
+                        newValue = input.val();
+                        return _this.callAris('tags.updateTag', {
+                          tag_id: tag.tag_id,
+                          tag: newValue
+                        }, function() {
+                          tag.tag = newValue;
+                          if (lastUploaded === thisUploaded) {
+                            if (lastEdited < thisUploaded) {
+                              saved.show();
+                              edited.hide();
+                              uploading.hide();
+                              return formGroup.addClass('has-success');
                             } else {
 
                             }
-                          });
-                        }
-                      }, 500);
-                    };
-                    return input.keydown(onEdit);
-                  });
+                          } else {
+
+                          }
+                        });
+                      }
+                    }, 500);
+                  };
+                  return input.keydown(onEdit);
                 });
-                return appendTo(form, '.form-group', {}, function(formGroup) {
-                  return appendTo(formGroup, 'button.btn.btn-danger', {
-                    type: 'button',
-                    html: '<i class="fa fa-remove"></i> Delete tag'
+              });
+              return appendTo(form, '.form-group', {}, function(formGroup) {
+                return appendTo(formGroup, 'button.btn.btn-danger', {
+                  type: 'button',
+                  html: '<i class="fa fa-remove"></i> Delete tag'
+                }, function(btn) {
+                  return btn.click(function() {
+                    return _this.callAris('tags.deleteTag', {
+                      tag_id: tag.tag_id
+                    }, function() {
+                      var t;
+                      media.remove();
+                      return _this.currentGame.tags = (function() {
+                        var _i, _len, _ref, _results;
+                        _ref = this.currentGame.tags;
+                        _results = [];
+                        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                          t = _ref[_i];
+                          if (t !== tag) {
+                            _results.push(t);
+                          }
+                        }
+                        return _results;
+                      }).call(_this);
+                    });
                   });
                 });
               });
             });
           });
         };
-      })(this);
+      })(this));
+    };
+
+    App.prototype.startEditTags = function(game) {
+      var tag, _i, _len, _ref;
+      this.currentGame = game;
+      $('#div-edit-tags').html('');
+      _ref = game.tags;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tag = _ref[_i];
-        _fn(tag);
+        this.addTagEditor(tag);
       }
       return this.selectPage('#page-edit-tags');
+    };
+
+    App.prototype.editAddTag = function() {
+      return this.callAris('tags.createTag', {
+        game_id: this.currentGame.game_id
+      }, (function(_this) {
+        return function(_arg) {
+          var tag;
+          tag = _arg.data;
+          _this.currentGame.tags.push(tag);
+          return _this.addTagEditor(tag);
+        };
+      })(this));
     };
 
     App.prototype.deleteSiftr = function() {

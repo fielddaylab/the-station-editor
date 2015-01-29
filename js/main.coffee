@@ -415,69 +415,86 @@ class App
               , => uploadTags()
           uploadTags()
 
-  startEditTags: (game) ->
-    $('#div-edit-tags').html ''
-    for tag in game.tags
-      do (tag) =>
-        appendTo $('#div-edit-tags'), '.media', {}, (media) =>
-          appendTo media, '.media-left', {}, (mediaLeft) =>
-            appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
-              appendTo fileInput, '.fileinput-preview.thumbnail',
-                'data-trigger': 'fileinput'
-                style: 'width: 64px; height: 64px;'
-              appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
-          appendTo media, '.media-body', {}, (mediaBody) =>
-            appendTo mediaBody, 'form', {}, (form) =>
-              appendTo form, '.form-group.has-success', {}, (formGroup) =>
-                appendTo formGroup, '.input-group', {}, (inputGroup) =>
-                  lastEdited = Date.now()
-                  lastUploaded = Date.now()
-                  input = appendTo inputGroup, 'input.form-control',
-                    type: 'text'
-                    placeholder: 'Tag'
-                    val: tag.tag
-                  saved = edited = uploading = null
-                  appendTo inputGroup, 'span.input-group-addon', {}, (addon) =>
-                    saved     = appendTo addon, 'i.fa.fa-check'
-                    edited    = appendTo addon, 'i.fa.fa-edit', style: 'display: none;'
-                    uploading = appendTo addon, 'i.fa.fa-spinner.fa-pulse', style: 'display: none;'
-                  onEdit = =>
-                    lastEdited = thisEdited = Date.now()
+  addTagEditor: (tag) ->
+    appendTo $('#div-edit-tags'), '.media', {}, (media) =>
+      appendTo media, '.media-left', {}, (mediaLeft) =>
+        appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
+          appendTo fileInput, '.fileinput-preview.thumbnail',
+            'data-trigger': 'fileinput'
+            style: 'width: 64px; height: 64px;'
+          appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
+      appendTo media, '.media-body', {}, (mediaBody) =>
+        appendTo mediaBody, 'form', {}, (form) =>
+          appendTo form, '.form-group.has-success', {}, (formGroup) =>
+            appendTo formGroup, '.input-group', {}, (inputGroup) =>
+              lastEdited = Date.now()
+              lastUploaded = Date.now()
+              input = appendTo inputGroup, 'input.form-control',
+                type: 'text'
+                placeholder: 'Tag'
+                val: tag.tag
+              saved = edited = uploading = null
+              appendTo inputGroup, 'span.input-group-addon', {}, (addon) =>
+                saved     = appendTo addon, 'i.fa.fa-check'
+                edited    = appendTo addon, 'i.fa.fa-edit', style: 'display: none;'
+                uploading = appendTo addon, 'i.fa.fa-spinner.fa-pulse', style: 'display: none;'
+              onEdit = =>
+                lastEdited = thisEdited = Date.now()
+                saved.hide()
+                edited.show()
+                uploading.hide()
+                formGroup.removeClass 'has-success'
+                setTimeout =>
+                  if lastEdited is thisEdited
+                    lastUploaded = thisUploaded = Date.now()
                     saved.hide()
-                    edited.show()
-                    uploading.hide()
-                    formGroup.removeClass 'has-success'
-                    setTimeout =>
-                      if lastEdited is thisEdited
-                        lastUploaded = thisUploaded = Date.now()
-                        saved.hide()
-                        edited.hide()
-                        uploading.show()
-                        newValue = input.val()
-                        @callAris 'tags.updateTag',
-                          tag_id: tag.tag_id
-                          tag: newValue
-                        , =>
-                          tag.tag = newValue
-                          if lastUploaded is thisUploaded
-                            if lastEdited < thisUploaded
-                              saved.show()
-                              edited.hide()
-                              uploading.hide()
-                              formGroup.addClass 'has-success'
-                            else
-                              # there was an edit while we were uploading,
-                              # so it will finish and then change icons
-                          else
-                            # there was an upload while we were uploading,
-                            # so it will finish and then change icons
-                    , 500
-                  input.keydown onEdit
-              appendTo form, '.form-group', {}, (formGroup) =>
-                appendTo formGroup, 'button.btn.btn-danger',
-                  type: 'button'
-                  html: '<i class="fa fa-remove"></i> Delete tag'
+                    edited.hide()
+                    uploading.show()
+                    newValue = input.val()
+                    @callAris 'tags.updateTag',
+                      tag_id: tag.tag_id
+                      tag: newValue
+                    , =>
+                      tag.tag = newValue
+                      if lastUploaded is thisUploaded
+                        if lastEdited < thisUploaded
+                          saved.show()
+                          edited.hide()
+                          uploading.hide()
+                          formGroup.addClass 'has-success'
+                        else
+                          # there was an edit while we were uploading,
+                          # so it will finish and then change icons
+                      else
+                        # there was an upload while we were uploading,
+                        # so it will finish and then change icons
+                , 500
+              input.keydown onEdit
+          appendTo form, '.form-group', {}, (formGroup) =>
+            appendTo formGroup, 'button.btn.btn-danger',
+              type: 'button'
+              html: '<i class="fa fa-remove"></i> Delete tag'
+            , (btn) =>
+              btn.click =>
+                @callAris 'tags.deleteTag',
+                  tag_id: tag.tag_id
+                , =>
+                  media.remove()
+                  @currentGame.tags =
+                    t for t in @currentGame.tags when t isnt tag
+
+  startEditTags: (game) ->
+    @currentGame = game
+    $('#div-edit-tags').html ''
+    @addTagEditor tag for tag in game.tags
     @selectPage '#page-edit-tags'
+
+  editAddTag: ->
+    @callAris 'tags.createTag',
+      game_id: @currentGame.game_id
+    , (data: tag) =>
+      @currentGame.tags.push tag
+      @addTagEditor tag
 
   deleteSiftr: ->
     @callAris 'games.deleteGame',
