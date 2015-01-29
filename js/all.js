@@ -352,13 +352,11 @@
     };
 
     App.prototype.resetIcon = function() {
-      var newThumb;
       $('#div-icon-input').fileinput('clear');
       $('#div-icon-thumb').html('');
-      newThumb = $('<img />', {
+      return appendTo($('#div-icon-thumb'), 'img', {
         src: this.currentGame.icon_media.url
       });
-      return $('#div-icon-thumb').append(newThumb);
     };
 
     App.prototype.createMap = function(parent, _arg) {
@@ -540,9 +538,9 @@
 
     App.prototype.removeTag = function() {
       var tags;
-      tags = $('#div-new-tags')[0];
-      if (tags.children.length > 0) {
-        tags.removeChild(tags.children[tags.children.length - 1]);
+      tags = $('#div-new-tags').children();
+      if (tags.length > 0) {
+        tags.slice(-1).remove();
       }
       return this.updateTagMinus();
     };
@@ -626,6 +624,11 @@
               appendTo(fileInput, '.fileinput-preview.thumbnail', {
                 'data-trigger': 'fileinput',
                 style: 'width: 64px; height: 64px;'
+              }, function(thumb) {
+                var _ref, _ref1;
+                return appendTo(thumb, 'img', {
+                  src: tag != null ? (_ref = tag.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0 : void 0
+                });
               });
               return appendTo(fileInput, 'input.new-tag-icon', {
                 type: 'file',

@@ -247,8 +247,7 @@ class App
   resetIcon: ->
     $('#div-icon-input').fileinput 'clear'
     $('#div-icon-thumb').html ''
-    newThumb = $ '<img />', src: @currentGame.icon_media.url
-    $('#div-icon-thumb').append newThumb
+    appendTo $('#div-icon-thumb'), 'img', src: @currentGame.icon_media.url
 
   # Ensures that the map exists, centers it on the given place, and moves
   # the map object to be a child of the given element.
@@ -366,10 +365,9 @@ class App
     @updateTagMinus()
 
   removeTag: ->
-    tags = $('#div-new-tags')[0]
-    if tags.children.length > 0
-      tags.removeChild tags.children[tags.children.length - 1]
-      # tags.lastChild returns text nodes which don't show up in .children
+    tags = $('#div-new-tags').children()
+    if tags.length > 0
+      tags[-1..-1].remove()
     @updateTagMinus()
 
   newSave: ->
@@ -420,6 +418,7 @@ class App
           appendTo fileInput, '.fileinput-preview.thumbnail',
             'data-trigger': 'fileinput'
             style: 'width: 64px; height: 64px;'
+          , (thumb) => appendTo thumb, 'img', src: tag?.media?.data?.url
           appendTo fileInput, 'input.new-tag-icon',
             type: 'file'
             name: '...'

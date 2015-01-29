@@ -41,6 +41,14 @@
   height: 100%;
 }
 
+#div-new-tags img {
+  height: 100%;
+}
+
+#div-edit-tags img {
+  height: 100%;
+}
+
 body {
   background-color: #e3e3ee;
 }
