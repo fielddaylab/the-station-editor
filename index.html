@@ -145,7 +145,7 @@
         </div>
         <form>
           <div class="form-group">
-            <a href="#" class="btn btn-success" onclick="app.startNewSiftr();">
+            <a href="#" class="btn btn-success" onclick="app.makeNewSiftr();">
               <i class="fa fa-plus"></i>
               New Siftr
             </a>
@@ -219,64 +219,6 @@
             <a onclick="app.editSave();" class="btn btn-primary">
               Save changes
               <span id="spinner-edit-save">
-                <i class="fa fa-spinner fa-pulse"></i>
-              </span>
-            </a>
-          </div>
-        </form>
-      </div>
-
-      <div id="page-new" class="page">
-        <h1>Create a Siftr</h1>
-        <form>
-          <div class="form-group">
-            <label for="text-new-siftr-name" class="control-label">Name</label>
-            <input type="text" id="text-new-siftr-name" class="form-control" placeholder="Name"></input>
-          </div>
-          <div class="form-group">
-            <label for="text-new-siftr-desc" class="control-label">Description</label>
-            <textarea id="text-new-siftr-desc" class="form-control" rows="3" placeholder="Description"></textarea>
-          </div>
-          <div class="form-group" id="div-new-icon-group">
-            <label for="div-new-icon-input" class="control-label">Icon</label>
-            <div>
-              <div id="div-new-icon-input" class="fileinput fileinput-new" data-provides="fileinput">
-                <div id="div-new-icon-thumb" class="fileinput-preview thumbnail" data-trigger="fileinput" style="min-width: 100px; height: 100px;"></div>
-                <div>
-                  <span class="btn btn-default btn-file">
-                    <span class="fileinput-new">Select image</span>
-                    <span class="fileinput-exists">Change</span>
-                    <input id="file-new-siftr-icon" type="file" name="..."></input>
-                  </span>
-                  <a class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="form-group" id="div-new-map-group">
-            <label for="div-new-google-map" class="control-label">
-              Map Center
-            </label>
-            <div id="div-new-google-map">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="div-new-tag-list">
-              Tags
-              <a class="btn btn-default" id="button-new-minus-tag" onclick="app.removeTag();">
-                <i class="fa fa-minus"></i>
-              </a>
-              <a class="btn btn-default" onclick="app.addTag();">
-                <i class="fa fa-plus"></i>
-              </a>
-            </label>
-            <div id="div-new-tags">
-            </div>
-          </div>
-          <div class="form-group">
-            <a onclick="app.newSave();" class="btn btn-primary">
-              Create Siftr
-              <span id="spinner-new-save">
                 <i class="fa fa-spinner fa-pulse"></i>
               </span>
             </a>

@@ -191,10 +191,13 @@
           return function(game) {
             return appendTo(gameList, '.media', {}, function(media) {
               appendTo(media, '.media-left', {}, function(mediaLeft) {
-                return appendTo(mediaLeft, 'img.media-object', {
-                  src: game.icon_media.url,
-                  width: '64px',
-                  height: '64px'
+                return appendTo(mediaLeft, '.media-object', {
+                  style: 'width: 64px; height: 64px; text-align: center;'
+                }, function(box) {
+                  return appendTo(box, 'img', {
+                    src: game.icon_media.url,
+                    style: 'height: 100%; max-width: 100%;'
+                  });
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
@@ -319,14 +322,21 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         game = _ref[_i];
         if (game.icon_media == null) {
-          this.callAris('media.getMedia', {
-            media_id: game.icon_media_id
-          }, (function(_this) {
-            return function(_arg) {
-              game.icon_media = _arg.data;
-              return _this.getGameIcons(cb);
+          if (parseInt(game.icon_media_id) === 0) {
+            game.icon_media = {
+              url: 'img/uw_shield.png'
             };
-          })(this));
+            this.getGameIcons(cb);
+          } else {
+            this.callAris('media.getMedia', {
+              media_id: game.icon_media_id
+            }, (function(_this) {
+              return function(_arg) {
+                game.icon_media = _arg.data;
+                return _this.getGameIcons(cb);
+              };
+            })(this));
+          }
           return;
         }
       }
@@ -487,132 +497,21 @@
       })(this));
     };
 
-    App.prototype.startNewSiftr = function(cb) {
-      if (cb == null) {
-        cb = (function() {});
-      }
-      $('#text-new-siftr-name').val('');
-      $('#text-new-siftr-desc').val('');
-      $('#div-new-icon-input').fileinput('clear');
-      this.createMap($('#div-new-google-map'), {
-        lat: 43.071644,
-        lng: -89.400658,
-        zoom: 14
-      });
-      $('#div-new-tags').html('');
-      this.updateTagMinus();
-      return this.selectPage('#page-new');
-    };
-
-    App.prototype.updateTagMinus = function() {
-      if ($('#div-new-tags')[0].children.length === 0) {
-        return $('#button-new-minus-tag').addClass('disabled');
-      } else {
-        return $('#button-new-minus-tag').removeClass('disabled');
-      }
-    };
-
-    App.prototype.addTag = function() {
-      appendTo($('#div-new-tags'), '.media', {}, (function(_this) {
-        return function(media) {
-          appendTo(media, '.media-left', {}, function(mediaLeft) {
-            return appendTo(mediaLeft, '.fileinput.fileinput-new', {
-              'data-provides': 'fileinput'
-            }, function(fileInput) {
-              appendTo(fileInput, '.fileinput-preview.thumbnail', {
-                'data-trigger': 'fileinput',
-                style: 'width: 64px; height: 64px;'
-              });
-              return appendTo(fileInput, 'input.new-tag-icon', {
-                type: 'file',
-                name: '...',
-                style: 'display: none;'
-              });
-            });
-          });
-          return appendTo(media, '.media-body', {}, function(mediaBody) {
-            return appendTo(mediaBody, 'input.form-control.new-tag-text', {
-              type: 'text',
-              placeholder: 'Tag'
-            });
-          });
-        };
-      })(this));
-      return this.updateTagMinus();
-    };
-
-    App.prototype.removeTag = function() {
-      var tags;
-      tags = $('#div-new-tags').children();
-      if (tags.length > 0) {
-        tags.slice(-1).remove();
-      }
-      return this.updateTagMinus();
-    };
-
-    App.prototype.newSave = function() {
-      var pn;
-      $('#spinner-new-save').show();
-      pn = this.map.getCenter();
+    App.prototype.makeNewSiftr = function() {
       return this.callAris('games.createGame', {
-        name: $('#text-new-siftr-name').val(),
-        description: $('#text-new-siftr-desc').val(),
-        map_latitude: pn.lat(),
-        map_longitude: pn.lng(),
-        map_zoom_level: this.map.getZoom()
+        name: 'Your New Siftr',
+        description: 'Click "Edit Siftr" to get started.',
+        map_latitude: 43.071644,
+        map_longitude: -89.400658,
+        map_zoom_level: 14
       }, (function(_this) {
         return function(_arg) {
           var game;
           game = _arg.data;
-          return _this.uploadMediaFromInput($('#file-new-siftr-icon'), game, function(_arg1) {
-            var icon;
-            icon = _arg1.data;
-            return _this.callAris('games.updateGame', {
-              game_id: game.game_id,
-              icon_media_id: icon.media_id
-            }, function(_arg2) {
-              var game, tag, tags, uploadTags;
-              game = _arg2.data;
-              tags = (function() {
-                var _i, _len, _ref, _results;
-                _ref = $('#div-new-tags .media');
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  tag = _ref[_i];
-                  _results.push({
-                    iconInput: $(tag).find('.new-tag-icon'),
-                    text: $(tag).find('.new-tag-text').val()
-                  });
-                }
-                return _results;
-              })();
-              uploadTags = function() {
-                var iconInput, text, _ref;
-                if (tags.length === 0) {
-                  _this.addGameFromJson(game);
-                  _this.getGameIcons(function() {
-                    return _this.getGameTags(function() {
-                      _this.redrawGameList();
-                      $('#spinner-new-save').hide();
-                      return _this.startingPage();
-                    });
-                  });
-                  return;
-                }
-                _ref = tags.shift(), iconInput = _ref.iconInput, text = _ref.text;
-                return _this.uploadMediaFromInput(iconInput, game, function(_arg3) {
-                  var media_id;
-                  media_id = _arg3.data.media_id;
-                  return _this.callAris('tags.createTag', {
-                    game_id: game.game_id,
-                    tag: text,
-                    media_id: media_id
-                  }, function() {
-                    return uploadTags();
-                  });
-                });
-              };
-              return uploadTags();
+          _this.addGameFromJson(game);
+          return _this.getGameIcons(function() {
+            return _this.getGameTags(function() {
+              return _this.redrawGameList();
             });
           });
         };

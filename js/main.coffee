@@ -152,10 +152,12 @@ class App
       do (game) =>
         appendTo gameList, '.media', {}, (media) =>
           appendTo media, '.media-left', {}, (mediaLeft) =>
-            appendTo mediaLeft, 'img.media-object',
-              src: game.icon_media.url
-              width: '64px'
-              height: '64px'
+            appendTo mediaLeft, '.media-object',
+              style: 'width: 64px; height: 64px; text-align: center;'
+            , (box) =>
+              appendTo box, 'img',
+                src: game.icon_media.url
+                style: 'height: 100%; max-width: 100%;'
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'a',
               href: "http://siftr.org/v2/?#{game.game_id}"
@@ -229,10 +231,15 @@ class App
   getGameIcons: (cb = (->)) ->
     for game in @games
       unless game.icon_media?
-        @callAris 'media.getMedia',
-          media_id: game.icon_media_id
-        , (data: game.icon_media) =>
+        if parseInt(game.icon_media_id) is 0
+          game.icon_media =
+            url: 'img/uw_shield.png'
           @getGameIcons cb
+        else
+          @callAris 'media.getMedia',
+            media_id: game.icon_media_id
+          , (data: game.icon_media) =>
+            @getGameIcons cb
         return
     cb()
 
@@ -336,84 +343,18 @@ class App
             @startEdit newGame
             cb newGame
 
-  startNewSiftr: (cb = (->)) ->
-    $('#text-new-siftr-name').val ''
-    $('#text-new-siftr-desc').val ''
-    $('#div-new-icon-input').fileinput 'clear'
-    @createMap $('#div-new-google-map'),
-      lat: 43.071644
-      lng: -89.400658
-      zoom: 14
-    $('#div-new-tags').html ''
-    @updateTagMinus()
-    @selectPage '#page-new'
-
-  updateTagMinus: ->
-    if $('#div-new-tags')[0].children.length is 0
-      $('#button-new-minus-tag').addClass 'disabled'
-    else
-      $('#button-new-minus-tag').removeClass 'disabled'
-
-  addTag: ->
-    appendTo $('#div-new-tags'), '.media', {}, (media) =>
-      appendTo media, '.media-left', {}, (mediaLeft) =>
-        appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
-          appendTo fileInput, '.fileinput-preview.thumbnail',
-            'data-trigger': 'fileinput'
-            style: 'width: 64px; height: 64px;'
-          appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
-      appendTo media, '.media-body', {}, (mediaBody) =>
-        appendTo mediaBody, 'input.form-control.new-tag-text',
-          type: 'text'
-          placeholder: 'Tag'
-    @updateTagMinus()
-
-  removeTag: ->
-    tags = $('#div-new-tags').children()
-    if tags.length > 0
-      tags[-1..-1].remove()
-    @updateTagMinus()
-
-  newSave: ->
-    $('#spinner-new-save').show()
-
-    pn = @map.getCenter()
+  makeNewSiftr: ->
     @callAris 'games.createGame',
-      name: $('#text-new-siftr-name').val()
-      description: $('#text-new-siftr-desc').val()
-      map_latitude: pn.lat()
-      map_longitude: pn.lng()
-      map_zoom_level: @map.getZoom()
+      name: 'Your New Siftr'
+      description: 'Click "Edit Siftr" to get started.'
+      map_latitude: 43.071644
+      map_longitude: -89.400658
+      map_zoom_level: 14
     , (data: game) =>
-
-      @uploadMediaFromInput $('#file-new-siftr-icon'), game
-      , (data: icon) =>
-
-        @callAris 'games.updateGame',
-          game_id: game.game_id
-          icon_media_id: icon.media_id
-        , (data: game) =>
-
-          tags = for tag in $('#div-new-tags .media')
-            iconInput: $(tag).find '.new-tag-icon'
-            text: $(tag).find('.new-tag-text').val()
-          uploadTags = =>
-            if tags.length is 0
-              @addGameFromJson game
-              @getGameIcons =>
-                @getGameTags =>
-                  @redrawGameList()
-                  $('#spinner-new-save').hide()
-                  @startingPage()
-              return
-            {iconInput, text} = tags.shift()
-            @uploadMediaFromInput iconInput, game, (data: {media_id}) =>
-              @callAris 'tags.createTag',
-                game_id: game.game_id
-                tag: text
-                media_id: media_id
-              , => uploadTags()
-          uploadTags()
+      @addGameFromJson game
+      @getGameIcons =>
+        @getGameTags =>
+          @redrawGameList()
 
   addTagEditor: (tag) ->
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
