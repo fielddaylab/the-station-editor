@@ -274,24 +274,31 @@ class App
       zoom: game.map_zoom_level
     @selectPage '#page-edit'
 
-  # Given an input element, tries to get the image data from it
-  # as a base-64 string and a file extension.
-  getImageBase64: (input) ->
-    dataURL = $(input)[0].files[0]?.result ? ''
-    extmap =
-      jpg: 'data:image/jpeg;base64,'
-      png: 'data:image/png;base64,'
-      gif: 'data:image/gif;base64,'
-    ext = null
-    base64 = null
-    for k, v of extmap
-      if dataURL.indexOf(v) is 0
-        ext    = k
-        base64 = dataURL.substring v.length
-    if ext? and base64?
-      {ext, base64}
-    else
-      false
+  # Given a file <input> element, gets the base-64 data from it
+  # and creates a new media object inside the given game.
+  uploadMediaFromInput: (input, game, cb) ->
+    reader = new FileReader
+    reader.onload = (e) =>
+      dataURL = e.target.result
+      extmap =
+        jpg: 'data:image/jpeg;base64,'
+        png: 'data:image/png;base64,'
+        gif: 'data:image/gif;base64,'
+      ext = null
+      base64 = null
+      for k, v of extmap
+        if dataURL.indexOf(v) is 0
+          ext    = k
+          base64 = dataURL.substring v.length
+      if ext? and base64?
+        @callAris 'media.createMedia',
+          game_id: game.game_id
+          file_name: "upload.#{ext}"
+          data: base64
+        , cb
+      else
+        cb false
+    reader.readAsDataURL $(input)[0].files[0]
 
   # If the user chose a new icon, upload it to Aris and get its media ID.
   # If they didn't, just return the existing ID.
@@ -299,11 +306,7 @@ class App
     if $('#file-siftr-icon')[0].files.length is 0
       cb @currentGame.icon_media_id
     else
-      {ext, base64} = @getImageBase64 '#file-siftr-icon'
-      @callAris 'media.createMedia',
-        game_id: @currentGame.game_id
-        file_name: "upload.#{ext}"
-        data: base64
+      @uploadMediaFromInput '#file-siftr-icon', @currentGame
       , (data: media) =>
         cb media.media_id
 
@@ -331,11 +334,14 @@ class App
             cb newGame
 
   startNewSiftr: (cb = (->)) ->
+    $('#text-new-siftr-name').val ''
+    $('#text-new-siftr-desc').val ''
     $('#div-new-icon-input').fileinput 'clear'
     @createMap $('#div-new-google-map'),
       lat: 43.071644
       lng: -89.400658
       zoom: 14
+    $('#div-new-tags').html ''
     @updateTagMinus()
     @selectPage '#page-new'
 
@@ -378,11 +384,7 @@ class App
       map_zoom_level: @map.getZoom()
     , (data: game) =>
 
-      {ext, base64} = @getImageBase64 $('#file-new-siftr-icon')
-      @callAris 'media.createMedia',
-        game_id: game.game_id
-        file_name: "upload.#{ext}"
-        data: base64
+      @uploadMediaFromInput $('#file-new-siftr-icon'), game
       , (data: icon) =>
 
         @callAris 'games.updateGame',
@@ -391,7 +393,7 @@ class App
         , (data: game) =>
 
           tags = for tag in $('#div-new-tags .media')
-            icon: @getImageBase64 $(tag).find '.new-tag-icon'
+            iconInput: $(tag).find '.new-tag-icon'
             text: $(tag).find('.new-tag-text').val()
           uploadTags = =>
             if tags.length is 0
@@ -402,12 +404,8 @@ class App
                   $('#spinner-new-save').hide()
                   @startingPage()
               return
-            {icon: {ext, base64}, text} = tags.shift()
-            @callAris 'media.createMedia',
-              game_id: game.game_id
-              file_name: "upload.#{ext}"
-              data: base64
-            , (data: {media_id}) =>
+            {iconInput, text} = tags.shift()
+            @uploadMediaFromInput iconInput, game, (data: {media_id}) =>
               @callAris 'tags.createTag',
                 game_id: game.game_id
                 tag: text
@@ -422,7 +420,19 @@ class App
           appendTo fileInput, '.fileinput-preview.thumbnail',
             'data-trigger': 'fileinput'
             style: 'width: 64px; height: 64px;'
-          appendTo fileInput, 'input.new-tag-icon', type: 'file', name: '...', style: 'display: none;'
+          appendTo fileInput, 'input.new-tag-icon',
+            type: 'file'
+            name: '...'
+            style: 'display: none;'
+          , (iconInput) =>
+            iconInput.change =>
+              @uploadMediaFromInput iconInput, @currentGame, (data: media) =>
+                @callAris 'tags.updateTag',
+                  tag_id: tag.tag_id
+                  media_id: media.media_id
+                , (data: newTag) =>
+                  tag.media = newTag.media
+                  tag.media_id = newTag.media_id
       appendTo media, '.media-body', {}, (mediaBody) =>
         appendTo mediaBody, 'form', {}, (form) =>
           appendTo form, '.form-group.has-success', {}, (formGroup) =>

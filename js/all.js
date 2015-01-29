@@ -398,47 +398,49 @@
       return this.selectPage('#page-edit');
     };
 
-    App.prototype.getImageBase64 = function(input) {
-      var base64, dataURL, ext, extmap, k, v, _ref, _ref1;
-      dataURL = (_ref = (_ref1 = $(input)[0].files[0]) != null ? _ref1.result : void 0) != null ? _ref : '';
-      extmap = {
-        jpg: 'data:image/jpeg;base64,',
-        png: 'data:image/png;base64,',
-        gif: 'data:image/gif;base64,'
-      };
-      ext = null;
-      base64 = null;
-      for (k in extmap) {
-        v = extmap[k];
-        if (dataURL.indexOf(v) === 0) {
-          ext = k;
-          base64 = dataURL.substring(v.length);
-        }
-      }
-      if ((ext != null) && (base64 != null)) {
-        return {
-          ext: ext,
-          base64: base64
+    App.prototype.uploadMediaFromInput = function(input, game, cb) {
+      var reader;
+      reader = new FileReader;
+      reader.onload = (function(_this) {
+        return function(e) {
+          var base64, dataURL, ext, extmap, k, v;
+          dataURL = e.target.result;
+          extmap = {
+            jpg: 'data:image/jpeg;base64,',
+            png: 'data:image/png;base64,',
+            gif: 'data:image/gif;base64,'
+          };
+          ext = null;
+          base64 = null;
+          for (k in extmap) {
+            v = extmap[k];
+            if (dataURL.indexOf(v) === 0) {
+              ext = k;
+              base64 = dataURL.substring(v.length);
+            }
+          }
+          if ((ext != null) && (base64 != null)) {
+            return _this.callAris('media.createMedia', {
+              game_id: game.game_id,
+              file_name: "upload." + ext,
+              data: base64
+            }, cb);
+          } else {
+            return cb(false);
+          }
         };
-      } else {
-        return false;
-      }
+      })(this);
+      return reader.readAsDataURL($(input)[0].files[0]);
     };
 
     App.prototype.getIconID = function(cb) {
-      var base64, ext, _ref;
       if (cb == null) {
         cb = (function() {});
       }
       if ($('#file-siftr-icon')[0].files.length === 0) {
         return cb(this.currentGame.icon_media_id);
       } else {
-        _ref = this.getImageBase64('#file-siftr-icon'), ext = _ref.ext, base64 = _ref.base64;
-        return this.callAris('media.createMedia', {
-          game_id: this.currentGame.game_id,
-          file_name: "upload." + ext,
-          data: base64
-        }, (function(_this) {
+        return this.uploadMediaFromInput('#file-siftr-icon', this.currentGame, (function(_this) {
           return function(_arg) {
             var media;
             media = _arg.data;
@@ -486,12 +488,15 @@
       if (cb == null) {
         cb = (function() {});
       }
+      $('#text-new-siftr-name').val('');
+      $('#text-new-siftr-desc').val('');
       $('#div-new-icon-input').fileinput('clear');
       this.createMap($('#div-new-google-map'), {
         lat: 43.071644,
         lng: -89.400658,
         zoom: 14
       });
+      $('#div-new-tags').html('');
       this.updateTagMinus();
       return this.selectPage('#page-new');
     };
@@ -554,14 +559,9 @@
         map_zoom_level: this.map.getZoom()
       }, (function(_this) {
         return function(_arg) {
-          var base64, ext, game, _ref;
+          var game;
           game = _arg.data;
-          _ref = _this.getImageBase64($('#file-new-siftr-icon')), ext = _ref.ext, base64 = _ref.base64;
-          return _this.callAris('media.createMedia', {
-            game_id: game.game_id,
-            file_name: "upload." + ext,
-            data: base64
-          }, function(_arg1) {
+          return _this.uploadMediaFromInput($('#file-new-siftr-icon'), game, function(_arg1) {
             var icon;
             icon = _arg1.data;
             return _this.callAris('games.updateGame', {
@@ -571,20 +571,20 @@
               var game, tag, tags, uploadTags;
               game = _arg2.data;
               tags = (function() {
-                var _i, _len, _ref1, _results;
-                _ref1 = $('#div-new-tags .media');
+                var _i, _len, _ref, _results;
+                _ref = $('#div-new-tags .media');
                 _results = [];
-                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                  tag = _ref1[_i];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  tag = _ref[_i];
                   _results.push({
-                    icon: this.getImageBase64($(tag).find('.new-tag-icon')),
+                    iconInput: $(tag).find('.new-tag-icon'),
                     text: $(tag).find('.new-tag-text').val()
                   });
                 }
                 return _results;
-              }).call(_this);
+              })();
               uploadTags = function() {
-                var text, _ref1, _ref2;
+                var iconInput, text, _ref;
                 if (tags.length === 0) {
                   _this.addGameFromJson(game);
                   _this.getGameIcons(function() {
@@ -596,12 +596,8 @@
                   });
                   return;
                 }
-                _ref1 = tags.shift(), (_ref2 = _ref1.icon, ext = _ref2.ext, base64 = _ref2.base64), text = _ref1.text;
-                return _this.callAris('media.createMedia', {
-                  game_id: game.game_id,
-                  file_name: "upload." + ext,
-                  data: base64
-                }, function(_arg3) {
+                _ref = tags.shift(), iconInput = _ref.iconInput, text = _ref.text;
+                return _this.uploadMediaFromInput(iconInput, game, function(_arg3) {
                   var media_id;
                   media_id = _arg3.data.media_id;
                   return _this.callAris('tags.createTag', {
@@ -635,6 +631,22 @@
                 type: 'file',
                 name: '...',
                 style: 'display: none;'
+              }, function(iconInput) {
+                return iconInput.change(function() {
+                  return _this.uploadMediaFromInput(iconInput, _this.currentGame, function(_arg) {
+                    var media;
+                    media = _arg.data;
+                    return _this.callAris('tags.updateTag', {
+                      tag_id: tag.tag_id,
+                      media_id: media.media_id
+                    }, function(_arg1) {
+                      var newTag;
+                      newTag = _arg1.data;
+                      tag.media = newTag.media;
+                      return tag.media_id = newTag.media_id;
+                    });
+                  });
+                });
               });
             });
           });
