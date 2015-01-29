@@ -157,8 +157,12 @@ class App
               width: '64px'
               height: '64px'
           appendTo media, '.media-body', {}, (mediaBody) =>
-            appendTo mediaBody, 'h4.media-heading',
-              text: game.name
+            appendTo mediaBody, 'a',
+              href: "http://siftr.org/v2/?#{game.game_id}"
+              target: '_blank'
+            , (siftrLink) =>
+              appendTo siftrLink, 'h4.media-heading',
+                text: game.name
             appendTo mediaBody, 'p',
               text: game.description
             appendTo mediaBody, 'form', {}, (form) =>

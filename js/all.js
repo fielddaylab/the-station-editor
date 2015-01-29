@@ -198,8 +198,13 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
-                appendTo(mediaBody, 'h4.media-heading', {
-                  text: game.name
+                appendTo(mediaBody, 'a', {
+                  href: "http://siftr.org/v2/?" + game.game_id,
+                  target: '_blank'
+                }, function(siftrLink) {
+                  return appendTo(siftrLink, 'h4.media-heading', {
+                    text: game.name
+                  });
                 });
                 appendTo(mediaBody, 'p', {
                   text: game.description
