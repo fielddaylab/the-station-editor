@@ -192,12 +192,7 @@
             return appendTo(gameList, '.media', {}, function(media) {
               appendTo(media, '.media-left', {}, function(mediaLeft) {
                 return appendTo(mediaLeft, '.media-object', {
-                  style: 'width: 64px; height: 64px; text-align: center;'
-                }, function(box) {
-                  return appendTo(box, 'img', {
-                    src: game.icon_media.url,
-                    style: 'height: 100%; max-width: 100%;'
-                  });
+                  style: "width: 64px;\nheight: 64px;\nbackground-image: url(" + game.icon_media.url + ");\nbackground-size: contain;\nbackground-repeat: no-repeat;\nbackground-position: center;"
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {

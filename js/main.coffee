@@ -153,11 +153,15 @@ class App
         appendTo gameList, '.media', {}, (media) =>
           appendTo media, '.media-left', {}, (mediaLeft) =>
             appendTo mediaLeft, '.media-object',
-              style: 'width: 64px; height: 64px; text-align: center;'
-            , (box) =>
-              appendTo box, 'img',
-                src: game.icon_media.url
-                style: 'height: 100%; max-width: 100%;'
+              style:
+                """
+                width: 64px;
+                height: 64px;
+                background-image: url(#{game.icon_media.url});
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                """
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'a',
               href: "http://siftr.org/v2/?#{game.game_id}"
