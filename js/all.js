@@ -493,6 +493,7 @@
     };
 
     App.prototype.makeNewSiftr = function() {
+      $('#spinner-new-siftr').show();
       return this.callAris('games.createGame', {
         name: 'Your New Siftr',
         description: 'Click "Edit Siftr" to get started.',
@@ -506,7 +507,8 @@
           _this.addGameFromJson(game);
           return _this.getGameIcons(function() {
             return _this.getGameTags(function() {
-              return _this.redrawGameList();
+              _this.redrawGameList();
+              return $('#spinner-new-siftr').hide();
             });
           });
         };
@@ -648,6 +650,7 @@
     };
 
     App.prototype.editAddTag = function() {
+      $('#spinner-add-tag').show();
       return this.callAris('tags.createTag', {
         game_id: this.currentGame.game_id
       }, (function(_this) {
@@ -655,12 +658,14 @@
           var tag;
           tag = _arg.data;
           _this.currentGame.tags.push(tag);
-          return _this.addTagEditor(tag);
+          _this.addTagEditor(tag);
+          return $('#spinner-add-tag').hide();
         };
       })(this));
     };
 
     App.prototype.deleteTag = function() {
+      $('#spinner-delete-tag').show();
       return this.callAris('tags.deleteTag', {
         tag_id: this.tagToDelete.tag_id
       }, (function(_this) {
@@ -679,19 +684,21 @@
             }
             return _results;
           }).call(_this);
+          $('#spinner-delete-tag').hide();
           return $('#modal-delete-tag').modal('hide');
         };
       })(this));
     };
 
     App.prototype.deleteSiftr = function() {
+      $('#spinner-delete-siftr').show();
       return this.callAris('games.deleteGame', {
         game_id: this.deleteGame.game_id
       }, (function(_this) {
         return function() {
           $('#modal-delete-siftr').modal('hide');
-          _this.updateGameList();
-          return _this.startingPage();
+          $('#spinner-delete-siftr').hide();
+          return _this.updateGameList();
         };
       })(this));
     };

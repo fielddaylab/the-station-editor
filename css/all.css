@@ -10,15 +10,7 @@
   display: none;
 }
 
-#spinner-login {
-  display: none;
-}
-
-#spinner-edit-save {
-  display: none;
-}
-
-#spinner-new-save {
+.spinner {
   display: none;
 }
 

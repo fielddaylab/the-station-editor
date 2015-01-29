@@ -348,6 +348,7 @@ class App
             cb newGame
 
   makeNewSiftr: ->
+    $('#spinner-new-siftr').show()
     @callAris 'games.createGame',
       name: 'Your New Siftr'
       description: 'Click "Edit Siftr" to get started.'
@@ -359,6 +360,7 @@ class App
       @getGameIcons =>
         @getGameTags =>
           @redrawGameList()
+          $('#spinner-new-siftr').hide()
 
   addTagEditor: (tag) ->
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
@@ -449,28 +451,33 @@ class App
     @selectPage '#page-edit-tags'
 
   editAddTag: ->
+    $('#spinner-add-tag').show()
     @callAris 'tags.createTag',
       game_id: @currentGame.game_id
     , (data: tag) =>
       @currentGame.tags.push tag
       @addTagEditor tag
+      $('#spinner-add-tag').hide()
 
   deleteTag: ->
+    $('#spinner-delete-tag').show()
     @callAris 'tags.deleteTag',
       tag_id: @tagToDelete.tag_id
     , =>
       @tagEditorToDelete.remove()
       @currentGame.tags =
         t for t in @currentGame.tags when t isnt @tagToDelete
+      $('#spinner-delete-tag').hide()
       $('#modal-delete-tag').modal 'hide'
 
   deleteSiftr: ->
+    $('#spinner-delete-siftr').show()
     @callAris 'games.deleteGame',
       game_id: @deleteGame.game_id
     , =>
       $('#modal-delete-siftr').modal 'hide'
+      $('#spinner-delete-siftr').hide()
       @updateGameList()
-      @startingPage()
 
 # Parses a string like "tag#id.class1.class2" into its separate parts.
 parseElement = (str) ->
