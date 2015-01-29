@@ -52,3 +52,7 @@
 body {
   background-color: #e3e3ee;
 }
+
+.icon-uploading img {
+  opacity: 0.5;
+}

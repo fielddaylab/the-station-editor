@@ -621,7 +621,8 @@
             return appendTo(mediaLeft, '.fileinput.fileinput-new', {
               'data-provides': 'fileinput'
             }, function(fileInput) {
-              appendTo(fileInput, '.fileinput-preview.thumbnail', {
+              var thumb;
+              thumb = appendTo(fileInput, '.fileinput-preview.thumbnail', {
                 'data-trigger': 'fileinput',
                 style: 'width: 64px; height: 64px;'
               }, function(thumb) {
@@ -636,6 +637,7 @@
                 style: 'display: none;'
               }, function(iconInput) {
                 return iconInput.change(function() {
+                  thumb.addClass('icon-uploading');
                   return _this.uploadMediaFromInput(iconInput, _this.currentGame, function(_arg) {
                     var media;
                     media = _arg.data;
@@ -645,6 +647,7 @@
                     }, function(_arg1) {
                       var newTag;
                       newTag = _arg1.data;
+                      thumb.removeClass('icon-uploading');
                       tag.media = newTag.media;
                       return tag.media_id = newTag.media_id;
                     });

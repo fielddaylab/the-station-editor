@@ -415,7 +415,7 @@ class App
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
       appendTo media, '.media-left', {}, (mediaLeft) =>
         appendTo mediaLeft, '.fileinput.fileinput-new', 'data-provides': 'fileinput', (fileInput) =>
-          appendTo fileInput, '.fileinput-preview.thumbnail',
+          thumb = appendTo fileInput, '.fileinput-preview.thumbnail',
             'data-trigger': 'fileinput'
             style: 'width: 64px; height: 64px;'
           , (thumb) => appendTo thumb, 'img', src: tag?.media?.data?.url
@@ -425,11 +425,13 @@ class App
             style: 'display: none;'
           , (iconInput) =>
             iconInput.change =>
+              thumb.addClass 'icon-uploading'
               @uploadMediaFromInput iconInput, @currentGame, (data: media) =>
                 @callAris 'tags.updateTag',
                   tag_id: tag.tag_id
                   media_id: media.media_id
                 , (data: newTag) =>
+                  thumb.removeClass 'icon-uploading'
                   tag.media = newTag.media
                   tag.media_id = newTag.media_id
       appendTo media, '.media-body', {}, (mediaBody) =>
