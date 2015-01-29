@@ -705,24 +705,10 @@
                   html: '<i class="fa fa-remove"></i> Delete tag'
                 }, function(btn) {
                   return btn.click(function() {
-                    return _this.callAris('tags.deleteTag', {
-                      tag_id: tag.tag_id
-                    }, function() {
-                      var t;
-                      media.remove();
-                      return _this.currentGame.tags = (function() {
-                        var _i, _len, _ref, _results;
-                        _ref = this.currentGame.tags;
-                        _results = [];
-                        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                          t = _ref[_i];
-                          if (t !== tag) {
-                            _results.push(t);
-                          }
-                        }
-                        return _results;
-                      }).call(_this);
-                    });
+                    _this.tagToDelete = tag;
+                    _this.tagEditorToDelete = media;
+                    $('#modal-delete-tag .modal-body').text("Are you sure you want to delete the tag \"" + tag.tag + "\"?");
+                    return $('#modal-delete-tag').modal();
                   });
                 });
               });
@@ -753,6 +739,30 @@
           tag = _arg.data;
           _this.currentGame.tags.push(tag);
           return _this.addTagEditor(tag);
+        };
+      })(this));
+    };
+
+    App.prototype.deleteTag = function() {
+      return this.callAris('tags.deleteTag', {
+        tag_id: this.tagToDelete.tag_id
+      }, (function(_this) {
+        return function() {
+          var t;
+          _this.tagEditorToDelete.remove();
+          _this.currentGame.tags = (function() {
+            var _i, _len, _ref, _results;
+            _ref = this.currentGame.tags;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              t = _ref[_i];
+              if (t !== this.tagToDelete) {
+                _results.push(t);
+              }
+            }
+            return _results;
+          }).call(_this);
+          return $('#modal-delete-tag').modal('hide');
         };
       })(this));
     };

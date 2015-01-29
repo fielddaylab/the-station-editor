@@ -476,12 +476,11 @@ class App
               html: '<i class="fa fa-remove"></i> Delete tag'
             , (btn) =>
               btn.click =>
-                @callAris 'tags.deleteTag',
-                  tag_id: tag.tag_id
-                , =>
-                  media.remove()
-                  @currentGame.tags =
-                    t for t in @currentGame.tags when t isnt tag
+                @tagToDelete = tag
+                @tagEditorToDelete = media
+                $('#modal-delete-tag .modal-body')
+                  .text "Are you sure you want to delete the tag \"#{tag.tag}\"?"
+                $('#modal-delete-tag').modal()
 
   startEditTags: (game) ->
     @currentGame = game
@@ -495,6 +494,15 @@ class App
     , (data: tag) =>
       @currentGame.tags.push tag
       @addTagEditor tag
+
+  deleteTag: ->
+    @callAris 'tags.deleteTag',
+      tag_id: @tagToDelete.tag_id
+    , =>
+      @tagEditorToDelete.remove()
+      @currentGame.tags =
+        t for t in @currentGame.tags when t isnt @tagToDelete
+      $('#modal-delete-tag').modal 'hide'
 
   deleteSiftr: ->
     @callAris 'games.deleteGame',
