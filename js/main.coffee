@@ -2,6 +2,10 @@ class App
   constructor: ->
     $(document).ready =>
 
+      @isLoading = false
+      @selectPage '#page-loading'
+      @isLoading = true
+
       $.cookie.json = true
 
       # Tries to log in, and then either shows an error message
@@ -69,6 +73,7 @@ class App
       @loadLogin()
       @updateNav()
       @updateGameList =>
+        @isLoading = false
         @startingPage()
 
   # Shows an alert textbox at the top of the page.
@@ -140,6 +145,7 @@ class App
   # Switch out a new page to show the user.
   # Clears any alerts currently being shown.
   selectPage: (page) ->
+    return if @isLoading
     $('#the-alert').hide()
     $('.page').hide()
     $(page).show()

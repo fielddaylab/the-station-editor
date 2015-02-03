@@ -6,6 +6,9 @@
     function App() {
       $(document).ready((function(_this) {
         return function() {
+          _this.isLoading = false;
+          _this.selectPage('#page-loading');
+          _this.isLoading = true;
           $.cookie.json = true;
           $('#button-login').click(function() {
             $('#spinner-login').show();
@@ -74,6 +77,7 @@
           _this.loadLogin();
           _this.updateNav();
           return _this.updateGameList(function() {
+            _this.isLoading = false;
             return _this.startingPage();
           });
         };
@@ -172,6 +176,9 @@
     };
 
     App.prototype.selectPage = function(page) {
+      if (this.isLoading) {
+        return;
+      }
       $('#the-alert').hide();
       $('.page').hide();
       return $(page).show();
