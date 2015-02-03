@@ -465,8 +465,15 @@ class App
               btn.click =>
                 @tagToDelete = tag
                 @tagEditorToDelete = media
-                $('#modal-delete-tag .modal-body')
-                  .text "Are you sure you want to delete the tag \"#{tag.tag}\"?"
+                message = "Are you sure you want to delete the tag \"#{tag.tag}\"?"
+                switch tag.count
+                  when 0
+                    null
+                  when 1
+                    message += " 1 note with this tag will be deleted."
+                  else
+                    message += " #{tag.count} notes with this tag will be deleted."
+                $('#modal-delete-tag .modal-body').text message
                 $('#modal-delete-tag').modal()
 
   startEditTags: (game) ->

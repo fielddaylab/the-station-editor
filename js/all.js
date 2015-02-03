@@ -668,9 +668,21 @@
                   html: '<i class="fa fa-remove"></i> Delete tag'
                 }, function(btn) {
                   return btn.click(function() {
+                    var message;
                     _this.tagToDelete = tag;
                     _this.tagEditorToDelete = media;
-                    $('#modal-delete-tag .modal-body').text("Are you sure you want to delete the tag \"" + tag.tag + "\"?");
+                    message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?";
+                    switch (tag.count) {
+                      case 0:
+                        null;
+                        break;
+                      case 1:
+                        message += " 1 note with this tag will be deleted.";
+                        break;
+                      default:
+                        message += " " + tag.count + " notes with this tag will be deleted.";
+                    }
+                    $('#modal-delete-tag .modal-body').text(message);
                     return $('#modal-delete-tag').modal();
                   });
                 });
