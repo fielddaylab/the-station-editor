@@ -1,11 +1,9 @@
 (function() {
   var App, app, appendTo, parseElement,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   App = (function() {
     function App() {
-      this.parseLogInResult = __bind(this.parseLogInResult, this);
       $(document).ready((function(_this) {
         return function() {
           $.cookie.json = true;
@@ -255,8 +253,10 @@
           return function() {
             return _this.getGameIcons(function() {
               return _this.getGameTags(function() {
-                _this.redrawGameList();
-                return cb();
+                return _this.getGameTagCounts(function() {
+                  _this.redrawGameList();
+                  return cb();
+                });
               });
             });
           };
@@ -356,6 +356,36 @@
             };
           })(this));
           return;
+        }
+      }
+      return cb();
+    };
+
+    App.prototype.getGameTagCounts = function(cb) {
+      var game, tag, _i, _j, _len, _len1, _ref, _ref1;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      _ref = this.games;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        game = _ref[_i];
+        _ref1 = game.tags;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          tag = _ref1[_j];
+          if (tag.count == null) {
+            this.callAris('notes.searchNotes', {
+              game_id: game.game_id,
+              tag_ids: [tag.tag_id]
+            }, (function(_this) {
+              return function(_arg) {
+                var notes;
+                notes = _arg.data;
+                tag.count = notes.length;
+                return _this.getGameTagCounts(cb);
+              };
+            })(this));
+            return;
+          }
         }
       }
       return cb();
@@ -481,10 +511,12 @@
             newGame = _this.addGameFromJson(json);
             return _this.getGameIcons(function() {
               return _this.getGameTags(function() {
-                _this.redrawGameList();
-                $('#spinner-edit-save').hide();
-                _this.startEdit(newGame);
-                return cb(newGame);
+                return _this.getGameTagCounts(function() {
+                  _this.redrawGameList();
+                  $('#spinner-edit-save').hide();
+                  _this.startEdit(newGame);
+                  return cb(newGame);
+                });
               });
             });
           });
@@ -507,8 +539,10 @@
           _this.addGameFromJson(game);
           return _this.getGameIcons(function() {
             return _this.getGameTags(function() {
-              _this.redrawGameList();
-              return $('#spinner-new-siftr').hide();
+              return _this.getGameTagCounts(function() {
+                _this.redrawGameList();
+                return $('#spinner-new-siftr').hide();
+              });
             });
           });
         };
@@ -568,6 +602,9 @@
                     type: 'text',
                     placeholder: 'Tag',
                     val: tag.tag
+                  });
+                  appendTo(inputGroup, 'span.input-group-addon', {
+                    text: tag.count === 1 ? "1 note" : "" + tag.count + " notes"
                   });
                   saved = edited = uploading = null;
                   appendTo(inputGroup, 'span.input-group-addon', {}, function(addon) {
@@ -657,6 +694,7 @@
         return function(_arg) {
           var tag;
           tag = _arg.data;
+          tag.count = 0;
           _this.currentGame.tags.push(tag);
           _this.addTagEditor(tag);
           return $('#spinner-add-tag').hide();

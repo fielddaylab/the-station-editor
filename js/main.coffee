@@ -111,7 +111,7 @@ class App
 
   # Given the JSON result of users.logIn, if it was successful,
   # stores the authentication details and updates the top nav bar.
-  parseLogInResult: ({data: user, returnCode}) =>
+  parseLogInResult: ({data: user, returnCode}) ->
     if returnCode is 0
       @auth =
         user_id:    parseInt user.user_id
@@ -200,8 +200,9 @@ class App
       @getGames =>
         @getGameIcons =>
           @getGameTags =>
-            @redrawGameList()
-            cb()
+            @getGameTagCounts =>
+              @redrawGameList()
+              cb()
     else
       @redrawGameList()
       cb()
@@ -256,6 +257,20 @@ class App
         , (data: game.tags) =>
           @getGameTags cb
         return
+    cb()
+
+  getGameTagCounts: (cb = (->)) ->
+    for game in @games
+      for tag in game.tags
+        unless tag.count?
+          @callAris 'notes.searchNotes',
+            game_id: game.game_id
+            tag_ids: [tag.tag_id]
+            # note_count: 20 # a reasonable limit
+          , (data: notes) =>
+            tag.count = notes.length
+            @getGameTagCounts cb
+          return
     cb()
 
   # Resets the Siftr icon to its existing state.
@@ -342,10 +357,11 @@ class App
         newGame = @addGameFromJson json
         @getGameIcons =>
           @getGameTags =>
-            @redrawGameList()
-            $('#spinner-edit-save').hide()
-            @startEdit newGame
-            cb newGame
+            @getGameTagCounts =>
+              @redrawGameList()
+              $('#spinner-edit-save').hide()
+              @startEdit newGame
+              cb newGame
 
   makeNewSiftr: ->
     $('#spinner-new-siftr').show()
@@ -359,8 +375,9 @@ class App
       @addGameFromJson game
       @getGameIcons =>
         @getGameTags =>
-          @redrawGameList()
-          $('#spinner-new-siftr').hide()
+          @getGameTagCounts =>
+            @redrawGameList()
+            $('#spinner-new-siftr').hide()
 
   addTagEditor: (tag) ->
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
@@ -395,6 +412,8 @@ class App
                 type: 'text'
                 placeholder: 'Tag'
                 val: tag.tag
+              appendTo inputGroup, 'span.input-group-addon',
+                text: if tag.count is 1 then "1 note" else "#{tag.count} notes"
               saved = edited = uploading = null
               appendTo inputGroup, 'span.input-group-addon', {}, (addon) =>
                 saved     = appendTo addon, 'i.fa.fa-check'
@@ -455,6 +474,7 @@ class App
     @callAris 'tags.createTag',
       game_id: @currentGame.game_id
     , (data: tag) =>
+      tag.count = 0
       @currentGame.tags.push tag
       @addTagEditor tag
       $('#spinner-add-tag').hide()
