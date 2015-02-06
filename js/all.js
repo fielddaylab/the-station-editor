@@ -544,11 +544,18 @@
           var game;
           game = _arg.data;
           _this.addGameFromJson(game);
-          return _this.getGameIcons(function() {
-            return _this.getGameTags(function() {
-              return _this.getGameTagCounts(function() {
-                _this.redrawGameList();
-                return $('#spinner-new-siftr').hide();
+          return _this.callAris('tags.createTag', {
+            game_id: game.game_id,
+            tag: 'Your First Tag'
+          }, function(_arg1) {
+            var tag;
+            tag = _arg1.data;
+            return _this.getGameIcons(function() {
+              return _this.getGameTags(function() {
+                return _this.getGameTagCounts(function() {
+                  _this.redrawGameList();
+                  return $('#spinner-new-siftr').hide();
+                });
               });
             });
           });
@@ -556,8 +563,16 @@
       })(this));
     };
 
+    App.prototype.ableDeleteTag = function() {
+      if ($('#div-edit-tags').children().length === 1) {
+        return $('.delete-tag').addClass('disabled');
+      } else {
+        return $('.delete-tag').removeClass('disabled');
+      }
+    };
+
     App.prototype.addTagEditor = function(tag) {
-      return appendTo($('#div-edit-tags'), '.media', {}, (function(_this) {
+      appendTo($('#div-edit-tags'), '.media', {}, (function(_this) {
         return function(media) {
           appendTo(media, '.media-left', {}, function(mediaLeft) {
             return appendTo(mediaLeft, '.fileinput.fileinput-new', {
@@ -663,7 +678,7 @@
                 });
               });
               return appendTo(form, '.form-group', {}, function(formGroup) {
-                return appendTo(formGroup, 'button.btn.btn-danger', {
+                return appendTo(formGroup, 'button.btn.btn-danger.delete-tag', {
                   type: 'button',
                   html: '<i class="fa fa-remove"></i> Delete tag'
                 }, function(btn) {
@@ -691,6 +706,7 @@
           });
         };
       })(this));
+      return this.ableDeleteTag();
     };
 
     App.prototype.startEditTags = function(game) {
@@ -729,6 +745,7 @@
         return function() {
           var t;
           _this.tagEditorToDelete.remove();
+          _this.ableDeleteTag();
           _this.currentGame.tags = (function() {
             var _i, _len, _ref, _results;
             _ref = this.currentGame.tags;

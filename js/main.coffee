@@ -379,11 +379,22 @@ class App
       map_zoom_level: 14
     , (data: game) =>
       @addGameFromJson game
-      @getGameIcons =>
-        @getGameTags =>
-          @getGameTagCounts =>
-            @redrawGameList()
-            $('#spinner-new-siftr').hide()
+      @callAris 'tags.createTag',
+        game_id: game.game_id
+        tag: 'Your First Tag'
+      , (data: tag) =>
+        @getGameIcons =>
+          @getGameTags =>
+            @getGameTagCounts =>
+              @redrawGameList()
+              $('#spinner-new-siftr').hide()
+
+  # Prevents deleting a tag if it's the only one on the Edit Tags screen.
+  ableDeleteTag: ->
+    if $('#div-edit-tags').children().length is 1
+      $('.delete-tag').addClass 'disabled'
+    else
+      $('.delete-tag').removeClass 'disabled'
 
   addTagEditor: (tag) ->
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
@@ -458,7 +469,7 @@ class App
                 , 500
               input.keydown onEdit
           appendTo form, '.form-group', {}, (formGroup) =>
-            appendTo formGroup, 'button.btn.btn-danger',
+            appendTo formGroup, 'button.btn.btn-danger.delete-tag',
               type: 'button'
               html: '<i class="fa fa-remove"></i> Delete tag'
             , (btn) =>
@@ -475,6 +486,7 @@ class App
                     message += " #{tag.count} notes with this tag will be deleted."
                 $('#modal-delete-tag .modal-body').text message
                 $('#modal-delete-tag').modal()
+    @ableDeleteTag()
 
   startEditTags: (game) ->
     @currentGame = game
@@ -498,6 +510,7 @@ class App
       tag_id: @tagToDelete.tag_id
     , =>
       @tagEditorToDelete.remove()
+      @ableDeleteTag()
       @currentGame.tags =
         t for t in @currentGame.tags when t isnt @tagToDelete
       $('#spinner-delete-tag').hide()
