@@ -100,7 +100,7 @@ class App
           cb JSON.parse req.responseText
         else
           cb false
-    req.open 'POST', "http://localhost/aris/json.php/v2.#{func}", true
+    req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
     req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded'
     req.send JSON.stringify json
 
@@ -170,7 +170,7 @@ class App
                 """
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'a',
-              href: "http://siftr.org/v2/?#{game.game_id}"
+              href: "#{SIFTR_URL}?#{game.game_id}"
               target: '_blank'
             , (siftrLink) =>
               appendTo siftrLink, 'h4.media-heading',

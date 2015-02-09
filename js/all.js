@@ -1,4 +1,11 @@
 (function() {
+  window.SIFTR_URL = 'http://localhost:8888/sifter-js/';
+
+  window.ARIS_URL = 'http://localhost/aris/';
+
+}).call(this);
+
+(function() {
   var App, app, appendTo, parseElement,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -120,7 +127,7 @@
           }
         };
       })(this);
-      req.open('POST', "http://localhost/aris/json.php/v2." + func, true);
+      req.open('POST', "" + ARIS_URL + "/json.php/v2." + func, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       return req.send(JSON.stringify(json));
     };
@@ -202,7 +209,7 @@
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
                 appendTo(mediaBody, 'a', {
-                  href: "http://siftr.org/v2/?" + game.game_id,
+                  href: "" + SIFTR_URL + "?" + game.game_id,
                   target: '_blank'
                 }, function(siftrLink) {
                   return appendTo(siftrLink, 'h4.media-heading', {
