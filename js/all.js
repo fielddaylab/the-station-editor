@@ -120,7 +120,7 @@
           }
         };
       })(this);
-      req.open('POST', "http://dev.arisgames.org/server/json.php/v2." + func, true);
+      req.open('POST', "http://localhost/aris/json.php/v2." + func, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       return req.send(JSON.stringify(json));
     };
@@ -380,14 +380,12 @@
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           tag = _ref1[_j];
           if (tag.count == null) {
-            this.callAris('notes.searchNotes', {
-              game_id: game.game_id,
-              tag_ids: [tag.tag_id]
+            this.callAris('tags.countObjectsWithTag', {
+              object_type: 'NOTE',
+              tag_id: tag.tag_id
             }, (function(_this) {
               return function(_arg) {
-                var notes;
-                notes = _arg.data;
-                tag.count = notes.length;
+                tag.count = _arg.data.count;
                 return _this.getGameTagCounts(cb);
               };
             })(this));

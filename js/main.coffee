@@ -100,7 +100,7 @@ class App
           cb JSON.parse req.responseText
         else
           cb false
-    req.open 'POST', "http://dev.arisgames.org/server/json.php/v2.#{func}", true
+    req.open 'POST', "http://localhost/aris/json.php/v2.#{func}", true
     req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded'
     req.send JSON.stringify json
 
@@ -269,12 +269,10 @@ class App
     for game in @games
       for tag in game.tags
         unless tag.count?
-          @callAris 'notes.searchNotes',
-            game_id: game.game_id
-            tag_ids: [tag.tag_id]
-            # note_count: 20 # a reasonable limit
-          , (data: notes) =>
-            tag.count = notes.length
+          @callAris 'tags.countObjectsWithTag',
+            object_type: 'NOTE'
+            tag_id: tag.tag_id
+          , (data: {count: tag.count}) =>
             @getGameTagCounts cb
           return
     cb()
