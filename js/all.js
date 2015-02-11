@@ -570,11 +570,16 @@
       })(this));
     };
 
-    App.prototype.ableDeleteTag = function() {
+    App.prototype.ableEditTags = function() {
       if ($('#div-edit-tags').children().length === 1) {
-        return $('.delete-tag').addClass('disabled');
+        $('.delete-tag').addClass('disabled');
       } else {
-        return $('.delete-tag').removeClass('disabled');
+        $('.delete-tag').removeClass('disabled');
+      }
+      if ($('#div-edit-tags').children().length >= 8) {
+        return $('#button-add-tag').addClass('disabled');
+      } else {
+        return $('#button-add-tag').removeClass('disabled');
       }
     };
 
@@ -713,7 +718,7 @@
           });
         };
       })(this));
-      return this.ableDeleteTag();
+      return this.ableEditTags();
     };
 
     App.prototype.startEditTags = function(game) {
@@ -752,7 +757,7 @@
         return function() {
           var t;
           _this.tagEditorToDelete.remove();
-          _this.ableDeleteTag();
+          _this.ableEditTags();
           _this.currentGame.tags = (function() {
             var _i, _len, _ref, _results;
             _ref = this.currentGame.tags;

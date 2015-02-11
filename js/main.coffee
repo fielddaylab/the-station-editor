@@ -390,11 +390,16 @@ class App
               $('#spinner-new-siftr').hide()
 
   # Prevents deleting a tag if it's the only one on the Edit Tags screen.
-  ableDeleteTag: ->
+  # Prevents adding a tag if there are already 8.
+  ableEditTags: ->
     if $('#div-edit-tags').children().length is 1
       $('.delete-tag').addClass 'disabled'
     else
       $('.delete-tag').removeClass 'disabled'
+    if $('#div-edit-tags').children().length >= 8
+      $('#button-add-tag').addClass 'disabled'
+    else
+      $('#button-add-tag').removeClass 'disabled'
 
   addTagEditor: (tag) ->
     appendTo $('#div-edit-tags'), '.media', {}, (media) =>
@@ -486,7 +491,7 @@ class App
                     message += " #{tag.count} notes with this tag will be deleted."
                 $('#modal-delete-tag .modal-body').text message
                 $('#modal-delete-tag').modal()
-    @ableDeleteTag()
+    @ableEditTags()
 
   startEditTags: (game) ->
     @currentGame = game
@@ -510,7 +515,7 @@ class App
       tag_id: @tagToDelete.tag_id
     , =>
       @tagEditorToDelete.remove()
-      @ableDeleteTag()
+      @ableEditTags()
       @currentGame.tags =
         t for t in @currentGame.tags when t isnt @tagToDelete
       $('#spinner-delete-tag').hide()
