@@ -108,8 +108,10 @@ class App
     if @auth?
       $('#span-username').text @auth.username
       $('#dropdown-logged-in').show()
+      $('#nav-left-logged-in').show()
     else
       $('#dropdown-logged-in').hide()
+      $('#nav-left-logged-in').hide()
 
   loadLogin: ->
     @auth = $.cookie 'auth'

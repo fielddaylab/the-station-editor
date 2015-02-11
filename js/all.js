@@ -1,7 +1,7 @@
 (function() {
-  window.SIFTR_URL = 'http://localhost:8888/sifter-js/';
+  window.SIFTR_URL = 'http://siftr.org/v2/';
 
-  window.ARIS_URL = 'http://localhost/aris/';
+  window.ARIS_URL = 'http://dev.arisgames.org/server/';
 
 }).call(this);
 
@@ -135,9 +135,11 @@
     App.prototype.updateNav = function() {
       if (this.auth != null) {
         $('#span-username').text(this.auth.username);
-        return $('#dropdown-logged-in').show();
+        $('#dropdown-logged-in').show();
+        return $('#nav-left-logged-in').show();
       } else {
-        return $('#dropdown-logged-in').hide();
+        $('#dropdown-logged-in').hide();
+        return $('#nav-left-logged-in').hide();
       }
     };
 
