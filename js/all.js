@@ -394,7 +394,9 @@
               tag_id: tag.tag_id
             }, (function(_this) {
               return function(_arg) {
-                tag.count = _arg.data.count;
+                var count;
+                count = _arg.data.count;
+                tag.count = parseInt(count);
                 return _this.getGameTagCounts(cb);
               };
             })(this));

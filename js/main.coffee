@@ -274,7 +274,8 @@ class App
           @callAris 'tags.countObjectsWithTag',
             object_type: 'NOTE'
             tag_id: tag.tag_id
-          , (data: {count: tag.count}) =>
+          , (data: {count}) =>
+            tag.count = parseInt count
             @getGameTagCounts cb
           return
     cb()
