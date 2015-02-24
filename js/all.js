@@ -106,12 +106,6 @@
 
     App.prototype.callAris = function(func, json, cb) {
       var req;
-      if (cb == null) {
-        cb = function(x) {
-          this.arisResult = x;
-          return console.log(x);
-        };
-      }
       if (this.auth != null) {
         json.auth = this.auth;
       }
@@ -292,7 +286,8 @@
         icon_media_id: parseInt(json.icon_media_id),
         map_latitude: parseFloat(json.map_latitude),
         map_longitude: parseFloat(json.map_longitude),
-        map_zoom_level: parseInt(json.map_zoom_level)
+        map_zoom_level: parseInt(json.map_zoom_level),
+        siftr_url: json.siftr_url || null
       };
       _ref = this.games;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -317,6 +312,9 @@
           _this.games = [];
           for (_i = 0, _len = games.length; _i < _len; _i++) {
             json = games[_i];
+            if ((json.is_siftr != null) && !parseInt(json.is_siftr)) {
+              continue;
+            }
             _this.addGameFromJson(json);
           }
           return cb();
@@ -449,6 +447,7 @@
         lng: game.map_longitude,
         zoom: game.map_zoom_level
       });
+      $('#code-siftr-url-template').text("" + window.SIFTR_URL + "<your-siftr-url>");
       return this.selectPage('#page-edit');
     };
 
@@ -517,6 +516,7 @@
             game_id: _this.currentGame.game_id,
             name: $('#text-siftr-name').val(),
             description: $('#text-siftr-desc').val(),
+            siftr_url: $('#text-siftr-url').val(),
             map_latitude: pn.lat(),
             map_longitude: pn.lng(),
             map_zoom_level: _this.map.getZoom(),
@@ -547,7 +547,8 @@
         description: 'Click "Edit Siftr" to get started.',
         map_latitude: 43.071644,
         map_longitude: -89.400658,
-        map_zoom_level: 14
+        map_zoom_level: 14,
+        is_siftr: 1
       }, (function(_this) {
         return function(_arg) {
           var game;

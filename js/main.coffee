@@ -88,9 +88,9 @@ class App
     else
       @selectPage '#page-login'
 
-  # Calls a function from the Aris v2 API. For debugging purposes,
-  # if no callback is given, the JSON result is logged and saved in @arisResult.
-  callAris: (func, json, cb = (x) -> @arisResult = x; console.log x) ->
+  # Calls a function from the Aris v2 API.
+  # The callback receives the entire JSON-decoded response.
+  callAris: (func, json, cb) ->
     if @auth?
       json.auth = @auth
     req = new XMLHttpRequest
@@ -226,6 +226,7 @@ class App
       map_latitude:   parseFloat json.map_latitude
       map_longitude:  parseFloat json.map_longitude
       map_zoom_level: parseInt json.map_zoom_level
+      siftr_url:      json.siftr_url or null
     for game, i in @games
       if game.game_id is newGame.game_id
         @games[i] = newGame
@@ -237,7 +238,9 @@ class App
   getGames: (cb = (->)) ->
     @callAris 'games.getGamesForUser', {}, (data: games) =>
       @games = []
-      @addGameFromJson json for json in games
+      for json in games
+        continue if json.is_siftr? and not parseInt json.is_siftr
+        @addGameFromJson json
       cb()
 
   # Downloads icon media info for each game that doesn't already have it.
@@ -308,6 +311,7 @@ class App
       lat: game.map_latitude
       lng: game.map_longitude
       zoom: game.map_zoom_level
+    $('#code-siftr-url-template').text "#{window.SIFTR_URL}<your-siftr-url>"
     @selectPage '#page-edit'
 
   # Given a file <input> element, gets the base-64 data from it
@@ -356,6 +360,7 @@ class App
         game_id: @currentGame.game_id
         name: $('#text-siftr-name').val()
         description: $('#text-siftr-desc').val()
+        siftr_url: $('#text-siftr-url').val()
         map_latitude: pn.lat()
         map_longitude: pn.lng()
         map_zoom_level: @map.getZoom()
@@ -378,6 +383,7 @@ class App
       map_latitude: 43.071644
       map_longitude: -89.400658
       map_zoom_level: 14
+      is_siftr: 1
     , (data: game) =>
       @addGameFromJson game
       @callAris 'tags.createTag',
