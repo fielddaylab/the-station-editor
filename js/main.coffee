@@ -72,7 +72,7 @@ class App
 
       @loadLogin()
       @updateNav()
-      @updateGameList =>
+      @login undefined, undefined, =>
         @isLoading = false
         @startingPage()
 
@@ -119,7 +119,7 @@ class App
   # Given the JSON result of users.logIn, if it was successful,
   # stores the authentication details and updates the top nav bar.
   parseLogInResult: ({data: user, returnCode}) ->
-    if returnCode is 0
+    if returnCode is 0 and user.user_id isnt null
       @auth =
         user_id:    parseInt user.user_id
         permission: 'read_write'
@@ -127,6 +127,8 @@ class App
         username:   user.user_name
       $.cookie 'auth', @auth
       @updateNav()
+    else
+      @logout()
 
   # Tries to log in the user, update the top nav bar, and download their game list.
   login: (username, password, cb = (->)) ->

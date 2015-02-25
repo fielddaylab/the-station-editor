@@ -83,7 +83,7 @@
           });
           _this.loadLogin();
           _this.updateNav();
-          return _this.updateGameList(function() {
+          return _this.login(void 0, void 0, function() {
             _this.isLoading = false;
             return _this.startingPage();
           });
@@ -144,7 +144,7 @@
     App.prototype.parseLogInResult = function(_arg) {
       var returnCode, user;
       user = _arg.data, returnCode = _arg.returnCode;
-      if (returnCode === 0) {
+      if (returnCode === 0 && user.user_id !== null) {
         this.auth = {
           user_id: parseInt(user.user_id),
           permission: 'read_write',
@@ -153,6 +153,8 @@
         };
         $.cookie('auth', this.auth);
         return this.updateNav();
+      } else {
+        return this.logout();
       }
     };
 
