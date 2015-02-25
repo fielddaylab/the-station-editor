@@ -306,6 +306,7 @@ class App
     @currentGame = game
     $('#text-siftr-name').val game.name
     $('#text-siftr-desc').val game.description
+    $('#text-siftr-url').val game.siftr_url
     @resetIcon()
     @createMap $('#div-google-map'),
       lat: game.map_latitude
@@ -365,15 +366,19 @@ class App
         map_longitude: pn.lng()
         map_zoom_level: @map.getZoom()
         icon_media_id: media_id
-      , (data: json) =>
-        newGame = @addGameFromJson json
-        @getGameIcons =>
-          @getGameTags =>
-            @getGameTagCounts =>
-              @redrawGameList()
-              $('#spinner-edit-save').hide()
-              @startEdit newGame
-              cb newGame
+      , ({data: json, returnCode, returnCodeDescription}) =>
+        if returnCode isnt 0
+          @showAlert returnCodeDescription
+          $('#spinner-edit-save').hide()
+        else
+          newGame = @addGameFromJson json
+          @getGameIcons =>
+            @getGameTags =>
+              @getGameTagCounts =>
+                @redrawGameList()
+                $('#spinner-edit-save').hide()
+                @startEdit newGame
+                cb newGame
 
   makeNewSiftr: ->
     $('#spinner-new-siftr').show()

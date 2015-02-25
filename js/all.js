@@ -441,6 +441,7 @@
       this.currentGame = game;
       $('#text-siftr-name').val(game.name);
       $('#text-siftr-desc').val(game.description);
+      $('#text-siftr-url').val(game.siftr_url);
       this.resetIcon();
       this.createMap($('#div-google-map'), {
         lat: game.map_latitude,
@@ -522,19 +523,24 @@
             map_zoom_level: _this.map.getZoom(),
             icon_media_id: media_id
           }, function(_arg) {
-            var json, newGame;
-            json = _arg.data;
-            newGame = _this.addGameFromJson(json);
-            return _this.getGameIcons(function() {
-              return _this.getGameTags(function() {
-                return _this.getGameTagCounts(function() {
-                  _this.redrawGameList();
-                  $('#spinner-edit-save').hide();
-                  _this.startEdit(newGame);
-                  return cb(newGame);
+            var json, newGame, returnCode, returnCodeDescription;
+            json = _arg.data, returnCode = _arg.returnCode, returnCodeDescription = _arg.returnCodeDescription;
+            if (returnCode !== 0) {
+              _this.showAlert(returnCodeDescription);
+              return $('#spinner-edit-save').hide();
+            } else {
+              newGame = _this.addGameFromJson(json);
+              return _this.getGameIcons(function() {
+                return _this.getGameTags(function() {
+                  return _this.getGameTagCounts(function() {
+                    _this.redrawGameList();
+                    $('#spinner-edit-save').hide();
+                    _this.startEdit(newGame);
+                    return cb(newGame);
+                  });
                 });
               });
-            });
+            }
           });
         };
       })(this));
