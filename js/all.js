@@ -749,12 +749,16 @@
       return this.callAris('tags.createTag', {
         game_id: this.currentGame.game_id
       }, (function(_this) {
-        return function(_arg) {
+        return function(res) {
           var tag;
-          tag = _arg.data;
-          tag.count = 0;
-          _this.currentGame.tags.push(tag);
-          _this.addTagEditor(tag);
+          if (res.returnCode === 0) {
+            tag = res.data;
+            tag.count = 0;
+            _this.currentGame.tags.push(tag);
+            _this.addTagEditor(tag);
+          } else {
+            _this.showAlert(res.returnCodeDescription);
+          }
           return $('#spinner-add-tag').hide();
         };
       })(this));
@@ -765,22 +769,26 @@
       return this.callAris('tags.deleteTag', {
         tag_id: this.tagToDelete.tag_id
       }, (function(_this) {
-        return function() {
+        return function(res) {
           var t;
-          _this.tagEditorToDelete.remove();
-          _this.ableEditTags();
-          _this.currentGame.tags = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.currentGame.tags;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              t = _ref[_i];
-              if (t !== this.tagToDelete) {
-                _results.push(t);
+          if (res.returnCode === 0) {
+            _this.tagEditorToDelete.remove();
+            _this.ableEditTags();
+            _this.currentGame.tags = (function() {
+              var _i, _len, _ref, _results;
+              _ref = this.currentGame.tags;
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                t = _ref[_i];
+                if (t !== this.tagToDelete) {
+                  _results.push(t);
+                }
               }
-            }
-            return _results;
-          }).call(_this);
+              return _results;
+            }).call(_this);
+          } else {
+            _this.showAlert(res.returnCodeDescription);
+          }
           $('#spinner-delete-tag').hide();
           return $('#modal-delete-tag').modal('hide');
         };
@@ -792,21 +800,25 @@
       return this.callAris('games.deleteGame', {
         game_id: this.deleteGame.game_id
       }, (function(_this) {
-        return function() {
+        return function(res) {
           var g;
-          _this.games = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.games;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              g = _ref[_i];
-              if (g !== this.deleteGame) {
-                _results.push(g);
+          if (res.returnCode === 0) {
+            _this.games = (function() {
+              var _i, _len, _ref, _results;
+              _ref = this.games;
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                g = _ref[_i];
+                if (g !== this.deleteGame) {
+                  _results.push(g);
+                }
               }
-            }
-            return _results;
-          }).call(_this);
-          _this.redrawGameList();
+              return _results;
+            }).call(_this);
+            _this.redrawGameList();
+          } else {
+            _this.showAlert(res.returnCodeDescription);
+          }
           $('#modal-delete-siftr').modal('hide');
           return $('#spinner-delete-siftr').hide();
         };

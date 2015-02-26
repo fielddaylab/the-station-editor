@@ -517,21 +517,28 @@ class App
     $('#spinner-add-tag').show()
     @callAris 'tags.createTag',
       game_id: @currentGame.game_id
-    , (data: tag) =>
-      tag.count = 0
-      @currentGame.tags.push tag
-      @addTagEditor tag
+    , (res) =>
+      if res.returnCode is 0
+        tag = res.data
+        tag.count = 0
+        @currentGame.tags.push tag
+        @addTagEditor tag
+      else
+        @showAlert res.returnCodeDescription
       $('#spinner-add-tag').hide()
 
   deleteTag: ->
     $('#spinner-delete-tag').show()
     @callAris 'tags.deleteTag',
       tag_id: @tagToDelete.tag_id
-    , =>
-      @tagEditorToDelete.remove()
-      @ableEditTags()
-      @currentGame.tags =
-        t for t in @currentGame.tags when t isnt @tagToDelete
+    , (res) =>
+      if res.returnCode is 0
+        @tagEditorToDelete.remove()
+        @ableEditTags()
+        @currentGame.tags =
+          t for t in @currentGame.tags when t isnt @tagToDelete
+      else
+        @showAlert res.returnCodeDescription
       $('#spinner-delete-tag').hide()
       $('#modal-delete-tag').modal 'hide'
 
@@ -539,10 +546,13 @@ class App
     $('#spinner-delete-siftr').show()
     @callAris 'games.deleteGame',
       game_id: @deleteGame.game_id
-    , =>
-      @games =
-        g for g in @games when g isnt @deleteGame
-      @redrawGameList()
+    , (res) =>
+      if res.returnCode is 0
+        @games =
+          g for g in @games when g isnt @deleteGame
+        @redrawGameList()
+      else
+        @showAlert res.returnCodeDescription
       $('#modal-delete-siftr').modal 'hide'
       $('#spinner-delete-siftr').hide()
 
