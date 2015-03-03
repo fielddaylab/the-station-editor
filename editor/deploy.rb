@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Enter login details here
-require '../../fdllogins' # I store mine outside of the repo; edit as necessary
+require "#{ENV['HOME']}/fdllogins" # I store mine outside of the repo; edit as necessary
 url        = $fdl_logins[:siftr_editor][:url]
 username   = $fdl_logins[:siftr_editor][:username]
 password   = $fdl_logins[:siftr_editor][:password]
@@ -42,6 +42,6 @@ end
 Net::SFTP.start(url, username, password: password) do |sftp|
   log " => Connected #{username}@#{url} via SFTP."
   log " => Uploading repo to #{remote_dir}..."
-  upload_rf sftp, '.', remote_dir
+  upload_rf sftp, File.dirname(__FILE__), remote_dir
   log ' => Done!'
 end
