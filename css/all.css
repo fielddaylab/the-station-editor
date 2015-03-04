@@ -8,3 +8,12 @@
   display: block;
   height: 150px;
 }
+
+.jumbotron {
+  background-image: url("../img/Madison_Wisconsin_skyline_night_0855.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-shadow: 2px 2px 1px black;
+  text-align: center;
+}
