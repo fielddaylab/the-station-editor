@@ -44,7 +44,7 @@ class App
             if res.returnCode isnt 0
               @showAlert "Couldn't create account: #{res.returnCodeDescription}"
             else
-              @parseLogInResult res
+              @parseLogin res
               $('#the-alert').hide()
               @startingPage()
         false
@@ -65,7 +65,7 @@ class App
             if res.returnCode isnt 0
               @showAlert "Couldn't change password: #{res.returnCodeDescription}"
             else
-              @parseLogInResult res
+              @parseLogin res
               $('#the-alert').hide()
               @startingPage()
         false
@@ -98,7 +98,7 @@ class App
 
   # Given the JSON result of users.logIn, if it was successful,
   # stores the authentication details and updates the top nav bar.
-  parseLogInResult: (obj) ->
+  parseLogin: (obj) ->
     @aris.parseLogin obj
     @updateNav()
 

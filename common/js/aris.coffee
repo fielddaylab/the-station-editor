@@ -13,7 +13,7 @@ class Aris
         permission: 'read_write'
         key:        user.read_write_key
         username:   user.user_name
-      $.cookie 'aris-auth', @auth
+      $.cookie 'aris-auth', @auth, path: '/'
     else
       @logout()
 
@@ -28,7 +28,7 @@ class Aris
 
   logout: ->
     @auth = null
-    $.removeCookie 'aris-auth'
+    $.removeCookie 'aris-auth', path: '/'
 
   # Calls a function from the Aris v2 API.
   # The callback receives the entire JSON-decoded response.

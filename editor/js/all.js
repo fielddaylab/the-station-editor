@@ -44,7 +44,7 @@
                 if (res.returnCode !== 0) {
                   return _this.showAlert("Couldn't create account: " + res.returnCodeDescription);
                 } else {
-                  _this.parseLogInResult(res);
+                  _this.parseLogin(res);
                   $('#the-alert').hide();
                   return _this.startingPage();
                 }
@@ -66,7 +66,7 @@
                 if (res.returnCode !== 0) {
                   return _this.showAlert("Couldn't change password: " + res.returnCodeDescription);
                 } else {
-                  _this.parseLogInResult(res);
+                  _this.parseLogin(res);
                   $('#the-alert').hide();
                   return _this.startingPage();
                 }
@@ -107,7 +107,7 @@
       }
     };
 
-    App.prototype.parseLogInResult = function(obj) {
+    App.prototype.parseLogin = function(obj) {
       this.aris.parseLogin(obj);
       return this.updateNav();
     };

@@ -17,7 +17,9 @@
           key: user.read_write_key,
           username: user.user_name
         };
-        return $.cookie('aris-auth', this.auth);
+        return $.cookie('aris-auth', this.auth, {
+          path: '/'
+        });
       } else {
         return this.logout();
       }
@@ -41,7 +43,9 @@
 
     Aris.prototype.logout = function() {
       this.auth = null;
-      return $.removeCookie('aris-auth');
+      return $.removeCookie('aris-auth', {
+        path: '/'
+      });
     };
 
     Aris.prototype.call = function(func, json, cb) {
