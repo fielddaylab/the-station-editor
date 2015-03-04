@@ -1,27 +1,20 @@
 (function() {
-  window.SIFTR_URL = 'http://siftr.org/v2/';
-
-  window.ARIS_URL = 'http://dev.arisgames.org/server/';
-
-}).call(this);
-
-(function() {
-  var App, app, appendTo, parseElement,
+  var App, app,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   App = (function() {
     function App() {
       $(document).ready((function(_this) {
         return function() {
+          _this.aris = new Aris;
           _this.isLoading = false;
           _this.selectPage('#page-loading');
           _this.isLoading = true;
-          $.cookie.json = true;
           $('#button-login').click(function() {
             $('#spinner-login').show();
             _this.login($('#text-username').val(), $('#text-password').val(), function() {
               $('#spinner-login').hide();
-              if (_this.auth != null) {
+              if (_this.aris.auth != null) {
                 return _this.startingPage();
               } else {
                 return _this.showAlert('Incorrect username or password.');
@@ -43,7 +36,7 @@
             } else if ($('#text-new-password').val().length < 6) {
               _this.showAlert("Your password must be at least 6 characters.");
             } else {
-              _this.callAris('users.createUser', {
+              _this.aris.call('users.createUser', {
                 user_name: $('#text-new-username').val(),
                 password: $('#text-new-password').val(),
                 email: $('#text-new-email').val()
@@ -65,8 +58,8 @@
             } else if ($('#text-change-password').val().length < 6) {
               _this.showAlert("Your new password must be at least 6 characters.");
             } else {
-              _this.callAris('users.changePassword', {
-                user_name: _this.auth.username,
+              _this.aris.call('users.changePassword', {
+                user_name: _this.aris.auth.username,
                 old_password: $('#text-old-password').val(),
                 new_password: $('#text-change-password').val()
               }, function(res) {
@@ -81,7 +74,6 @@
             }
             return false;
           });
-          _this.loadLogin();
           _this.updateNav();
           return _this.login(void 0, void 0, function() {
             _this.isLoading = false;
@@ -97,38 +89,16 @@
     };
 
     App.prototype.startingPage = function() {
-      if (this.auth != null) {
+      if (this.aris.auth != null) {
         return this.selectPage('#page-list');
       } else {
         return this.selectPage('#page-login');
       }
     };
 
-    App.prototype.callAris = function(func, json, cb) {
-      var req;
-      if (this.auth != null) {
-        json.auth = this.auth;
-      }
-      req = new XMLHttpRequest;
-      req.onreadystatechange = (function(_this) {
-        return function() {
-          if (req.readyState === 4) {
-            if (req.status === 200) {
-              return cb(JSON.parse(req.responseText));
-            } else {
-              return cb(false);
-            }
-          }
-        };
-      })(this);
-      req.open('POST', "" + ARIS_URL + "/json.php/v2." + func, true);
-      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      return req.send(JSON.stringify(json));
-    };
-
     App.prototype.updateNav = function() {
-      if (this.auth != null) {
-        $('#span-username').text(this.auth.username);
+      if (this.aris.auth != null) {
+        $('#span-username').text(this.aris.auth.username);
         $('#dropdown-logged-in').show();
         return $('#nav-left-logged-in').show();
       } else {
@@ -137,46 +107,25 @@
       }
     };
 
-    App.prototype.loadLogin = function() {
-      return this.auth = $.cookie('auth');
-    };
-
-    App.prototype.parseLogInResult = function(_arg) {
-      var returnCode, user;
-      user = _arg.data, returnCode = _arg.returnCode;
-      if (returnCode === 0 && user.user_id !== null) {
-        this.auth = {
-          user_id: parseInt(user.user_id),
-          permission: 'read_write',
-          key: user.read_write_key,
-          username: user.user_name
-        };
-        $.cookie('auth', this.auth);
-        return this.updateNav();
-      } else {
-        return this.logout();
-      }
+    App.prototype.parseLogInResult = function(obj) {
+      this.aris.parseLogin(obj);
+      return this.updateNav();
     };
 
     App.prototype.login = function(username, password, cb) {
       if (cb == null) {
         cb = (function() {});
       }
-      return this.callAris('users.logIn', {
-        user_name: username,
-        password: password,
-        permission: 'read_write'
-      }, (function(_this) {
-        return function(res) {
-          _this.parseLogInResult(res);
+      return this.aris.login(username, password, (function(_this) {
+        return function() {
+          _this.updateNav();
           return _this.updateGameList(cb);
         };
       })(this));
     };
 
     App.prototype.logout = function() {
-      this.auth = null;
-      $.removeCookie('auth');
+      this.aris.logout();
       return this.updateNav();
     };
 
@@ -260,7 +209,7 @@
         cb = (function() {});
       }
       this.games = [];
-      if (this.auth != null) {
+      if (this.aris.auth != null) {
         return this.getGames((function(_this) {
           return function() {
             return _this.getGameIcons(function() {
@@ -307,7 +256,7 @@
       if (cb == null) {
         cb = (function() {});
       }
-      return this.callAris('games.getGamesForUser', {}, (function(_this) {
+      return this.aris.call('games.getGamesForUser', {}, (function(_this) {
         return function(_arg) {
           var games, json, _i, _len;
           games = _arg.data;
@@ -339,7 +288,7 @@
             };
             this.getGameIcons(cb);
           } else {
-            this.callAris('media.getMedia', {
+            this.aris.call('media.getMedia', {
               media_id: game.icon_media_id
             }, (function(_this) {
               return function(_arg) {
@@ -363,7 +312,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         game = _ref[_i];
         if (game.tags == null) {
-          this.callAris('tags.getTagsForGame', {
+          this.aris.call('tags.getTagsForGame', {
             game_id: game.game_id
           }, (function(_this) {
             return function(_arg) {
@@ -389,7 +338,7 @@
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           tag = _ref1[_j];
           if (tag.count == null) {
-            this.callAris('tags.countObjectsWithTag', {
+            this.aris.call('tags.countObjectsWithTag', {
               object_type: 'NOTE',
               tag_id: tag.tag_id
             }, (function(_this) {
@@ -476,7 +425,7 @@
             }
           }
           if ((ext != null) && (base64 != null)) {
-            return _this.callAris('media.createMedia', {
+            return _this.aris.call('media.createMedia', {
               game_id: game.game_id,
               file_name: "upload." + ext,
               data: base64
@@ -515,7 +464,7 @@
       pn = this.map.getCenter();
       return this.getIconID((function(_this) {
         return function(media_id) {
-          return _this.callAris('games.updateGame', {
+          return _this.aris.call('games.updateGame', {
             game_id: _this.currentGame.game_id,
             name: $('#text-siftr-name').val(),
             description: $('#text-siftr-desc').val(),
@@ -550,7 +499,7 @@
 
     App.prototype.makeNewSiftr = function() {
       $('#spinner-new-siftr').show();
-      return this.callAris('games.createGame', {
+      return this.aris.call('games.createGame', {
         name: 'Your New Siftr',
         description: 'Click "Edit Siftr" to get started.',
         map_latitude: 43.071644,
@@ -562,7 +511,7 @@
           var game;
           game = _arg.data;
           _this.addGameFromJson(game);
-          return _this.callAris('tags.createTag', {
+          return _this.aris.call('tags.createTag', {
             game_id: game.game_id,
             tag: 'Your First Tag'
           }, function(_arg1) {
@@ -621,7 +570,7 @@
                   return _this.uploadMediaFromInput(iconInput, _this.currentGame, function(_arg) {
                     var media;
                     media = _arg.data;
-                    return _this.callAris('tags.updateTag', {
+                    return _this.aris.call('tags.updateTag', {
                       tag_id: tag.tag_id,
                       media_id: media.media_id
                     }, function(_arg1) {
@@ -676,7 +625,7 @@
                         edited.hide();
                         uploading.show();
                         newValue = input.val();
-                        return _this.callAris('tags.updateTag', {
+                        return _this.aris.call('tags.updateTag', {
                           tag_id: tag.tag_id,
                           tag: newValue
                         }, function() {
@@ -746,7 +695,7 @@
 
     App.prototype.editAddTag = function() {
       $('#spinner-add-tag').show();
-      return this.callAris('tags.createTag', {
+      return this.aris.call('tags.createTag', {
         game_id: this.currentGame.game_id
       }, (function(_this) {
         return function(res) {
@@ -766,7 +715,7 @@
 
     App.prototype.deleteTag = function() {
       $('#spinner-delete-tag').show();
-      return this.callAris('tags.deleteTag', {
+      return this.aris.call('tags.deleteTag', {
         tag_id: this.tagToDelete.tag_id
       }, (function(_this) {
         return function(res) {
@@ -797,7 +746,7 @@
 
     App.prototype.deleteSiftr = function() {
       $('#spinner-delete-siftr').show();
-      return this.callAris('games.deleteGame', {
+      return this.aris.call('games.deleteGame', {
         game_id: this.deleteGame.game_id
       }, (function(_this) {
         return function(res) {
@@ -828,73 +777,6 @@
     return App;
 
   })();
-
-  parseElement = function(str) {
-    var classes, eatWord, id, tag;
-    eatWord = function() {
-      var dot, hash, word;
-      hash = str.indexOf('#');
-      dot = str.indexOf('.');
-      if (hash === -1) {
-        hash = 9999;
-      }
-      if (dot === -1) {
-        dot = 9999;
-      }
-      word = str.slice(0, Math.min(hash, dot));
-      str = str.slice(word.length);
-      return word;
-    };
-    tag = eatWord() || 'div';
-    classes = [];
-    id = null;
-    while (str !== '') {
-      if (str[0] === '.') {
-        str = str.slice(1);
-        classes.push(eatWord());
-      } else if (str[0] === '#') {
-        str = str.slice(1);
-        id = eatWord();
-      } else {
-        return false;
-      }
-    }
-    return {
-      tag: tag,
-      classes: classes,
-      id: id
-    };
-  };
-
-  appendTo = function(parent, haml, attrs, init) {
-    var c, child, classes, id, tag, _i, _len, _ref;
-    if (haml == null) {
-      haml = '';
-    }
-    if (attrs == null) {
-      attrs = {};
-    }
-    if (init == null) {
-      init = (function() {});
-    }
-    _ref = parseElement(haml), tag = _ref.tag, classes = _ref.classes, id = _ref.id;
-    for (_i = 0, _len = classes.length; _i < _len; _i++) {
-      c = classes[_i];
-      if (attrs["class"] == null) {
-        attrs["class"] = '';
-      }
-      attrs["class"] += " " + c;
-    }
-    if (id != null) {
-      attrs.id = id;
-    }
-    child = $("<" + tag + " />", attrs);
-    init(child);
-    parent.append(' ');
-    parent.append(child);
-    parent.append(' ');
-    return child;
-  };
 
   app = new App;
 

@@ -2,11 +2,11 @@ class App
   constructor: ->
     $(document).ready =>
 
+      @aris = new Aris
+
       @isLoading = false
       @selectPage '#page-loading'
       @isLoading = true
-
-      $.cookie.json = true
 
       # Tries to log in, and then either shows an error message
       # or loads the game list page.
@@ -14,7 +14,7 @@ class App
         $('#spinner-login').show()
         @login $('#text-username').val(), $('#text-password').val(), =>
           $('#spinner-login').hide()
-          if @auth?
+          if @aris.auth?
             @startingPage()
           else
             @showAlert 'Incorrect username or password.'
@@ -36,7 +36,7 @@ class App
         else if $('#text-new-password').val().length < 6
           @showAlert "Your password must be at least 6 characters."
         else
-          @callAris 'users.createUser',
+          @aris.call 'users.createUser',
             user_name: $('#text-new-username').val()
             password: $('#text-new-password').val()
             email: $('#text-new-email').val()
@@ -57,8 +57,8 @@ class App
         else if $('#text-change-password').val().length < 6
           @showAlert "Your new password must be at least 6 characters."
         else
-          @callAris 'users.changePassword',
-            user_name: @auth.username
+          @aris.call 'users.changePassword',
+            user_name: @aris.auth.username
             old_password: $('#text-old-password').val()
             new_password: $('#text-change-password').val()
           , (res) =>
@@ -70,7 +70,6 @@ class App
               @startingPage()
         false
 
-      @loadLogin()
       @updateNav()
       @login undefined, undefined, =>
         @isLoading = false
@@ -83,67 +82,35 @@ class App
     $('#the-alert').show()
 
   startingPage: ->
-    if @auth?
+    if @aris.auth?
       @selectPage '#page-list'
     else
       @selectPage '#page-login'
 
-  # Calls a function from the Aris v2 API.
-  # The callback receives the entire JSON-decoded response.
-  callAris: (func, json, cb) ->
-    if @auth?
-      json.auth = @auth
-    req = new XMLHttpRequest
-    req.onreadystatechange = =>
-      if req.readyState is 4
-        if req.status is 200
-          cb JSON.parse req.responseText
-        else
-          cb false
-    req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
-    req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded'
-    req.send JSON.stringify json
-
   updateNav: ->
-    if @auth?
-      $('#span-username').text @auth.username
+    if @aris.auth?
+      $('#span-username').text @aris.auth.username
       $('#dropdown-logged-in').show()
       $('#nav-left-logged-in').show()
     else
       $('#dropdown-logged-in').hide()
       $('#nav-left-logged-in').hide()
 
-  loadLogin: ->
-    @auth = $.cookie 'auth'
-
   # Given the JSON result of users.logIn, if it was successful,
   # stores the authentication details and updates the top nav bar.
-  parseLogInResult: ({data: user, returnCode}) ->
-    if returnCode is 0 and user.user_id isnt null
-      @auth =
-        user_id:    parseInt user.user_id
-        permission: 'read_write'
-        key:        user.read_write_key
-        username:   user.user_name
-      $.cookie 'auth', @auth
-      @updateNav()
-    else
-      @logout()
+  parseLogInResult: (obj) ->
+    @aris.parseLogin obj
+    @updateNav()
 
   # Tries to log in the user, update the top nav bar, and download their game list.
   login: (username, password, cb = (->)) ->
-    @callAris 'users.logIn',
-      user_name: username
-      password: password
-      permission: 'read_write'
-    , (res) =>
-      @parseLogInResult res
+    @aris.login username, password, =>
+      @updateNav()
       @updateGameList cb
 
   # Removes the user's authentication cookie, and updates the top nav bar.
   logout: ->
-    @auth = null
-    $.removeCookie 'auth'
+    @aris.logout()
     @updateNav()
 
   # Switch out a new page to show the user.
@@ -206,7 +173,7 @@ class App
   # game list accordingly.
   updateGameList: (cb = (->)) ->
     @games = []
-    if @auth?
+    if @aris.auth?
       @getGames =>
         @getGameIcons =>
           @getGameTags =>
@@ -238,7 +205,7 @@ class App
 
   # Downloads the list of games this user can edit.
   getGames: (cb = (->)) ->
-    @callAris 'games.getGamesForUser', {}, (data: games) =>
+    @aris.call 'games.getGamesForUser', {}, (data: games) =>
       @games = []
       for json in games
         continue if json.is_siftr? and not parseInt json.is_siftr
@@ -254,7 +221,7 @@ class App
             url: 'img/uw_shield.png'
           @getGameIcons cb
         else
-          @callAris 'media.getMedia',
+          @aris.call 'media.getMedia',
             media_id: game.icon_media_id
           , (data: game.icon_media) =>
             @getGameIcons cb
@@ -265,7 +232,7 @@ class App
   getGameTags: (cb = (->)) ->
     for game in @games
       unless game.tags?
-        @callAris 'tags.getTagsForGame',
+        @aris.call 'tags.getTagsForGame',
           game_id: game.game_id
         , (data: game.tags) =>
           @getGameTags cb
@@ -276,7 +243,7 @@ class App
     for game in @games
       for tag in game.tags
         unless tag.count?
-          @callAris 'tags.countObjectsWithTag',
+          @aris.call 'tags.countObjectsWithTag',
             object_type: 'NOTE'
             tag_id: tag.tag_id
           , (data: {count}) =>
@@ -334,7 +301,7 @@ class App
           ext    = k
           base64 = dataURL.substring v.length
       if ext? and base64?
-        @callAris 'media.createMedia',
+        @aris.call 'media.createMedia',
           game_id: game.game_id
           file_name: "upload.#{ext}"
           data: base64
@@ -359,7 +326,7 @@ class App
     $('#spinner-edit-save').show()
     pn = @map.getCenter()
     @getIconID (media_id) =>
-      @callAris 'games.updateGame',
+      @aris.call 'games.updateGame',
         game_id: @currentGame.game_id
         name: $('#text-siftr-name').val()
         description: $('#text-siftr-desc').val()
@@ -384,7 +351,7 @@ class App
 
   makeNewSiftr: ->
     $('#spinner-new-siftr').show()
-    @callAris 'games.createGame',
+    @aris.call 'games.createGame',
       name: 'Your New Siftr'
       description: 'Click "Edit Siftr" to get started.'
       map_latitude: 43.071644
@@ -393,7 +360,7 @@ class App
       is_siftr: 1
     , (data: game) =>
       @addGameFromJson game
-      @callAris 'tags.createTag',
+      @aris.call 'tags.createTag',
         game_id: game.game_id
         tag: 'Your First Tag'
       , (data: tag) =>
@@ -431,7 +398,7 @@ class App
             iconInput.change =>
               thumb.addClass 'icon-uploading'
               @uploadMediaFromInput iconInput, @currentGame, (data: media) =>
-                @callAris 'tags.updateTag',
+                @aris.call 'tags.updateTag',
                   tag_id: tag.tag_id
                   media_id: media.media_id
                 , (data: newTag) =>
@@ -468,7 +435,7 @@ class App
                     edited.hide()
                     uploading.show()
                     newValue = input.val()
-                    @callAris 'tags.updateTag',
+                    @aris.call 'tags.updateTag',
                       tag_id: tag.tag_id
                       tag: newValue
                     , =>
@@ -515,7 +482,7 @@ class App
 
   editAddTag: ->
     $('#spinner-add-tag').show()
-    @callAris 'tags.createTag',
+    @aris.call 'tags.createTag',
       game_id: @currentGame.game_id
     , (res) =>
       if res.returnCode is 0
@@ -529,7 +496,7 @@ class App
 
   deleteTag: ->
     $('#spinner-delete-tag').show()
-    @callAris 'tags.deleteTag',
+    @aris.call 'tags.deleteTag',
       tag_id: @tagToDelete.tag_id
     , (res) =>
       if res.returnCode is 0
@@ -544,7 +511,7 @@ class App
 
   deleteSiftr: ->
     $('#spinner-delete-siftr').show()
-    @callAris 'games.deleteGame',
+    @aris.call 'games.deleteGame',
       game_id: @deleteGame.game_id
     , (res) =>
       if res.returnCode is 0
@@ -555,43 +522,6 @@ class App
         @showAlert res.returnCodeDescription
       $('#modal-delete-siftr').modal 'hide'
       $('#spinner-delete-siftr').hide()
-
-# Parses a string like "tag#id.class1.class2" into its separate parts.
-parseElement = (str) ->
-  eatWord = ->
-    hash = str.indexOf '#'
-    dot  = str.indexOf '.'
-    hash = 9999 if hash is -1
-    dot  = 9999 if dot  is -1
-    word = str[... Math.min(hash, dot)]
-    str = str[word.length ..]
-    word
-  tag = eatWord() or 'div'
-  classes = []
-  id = null
-  until str is ''
-    if str[0] is '.'
-      str = str[1..]
-      classes.push eatWord()
-    else if str[0] is '#'
-      str = str[1..]
-      id = eatWord()
-    else
-      return false
-  {tag, classes, id}
-
-appendTo = (parent, haml = '', attrs = {}, init = (->)) ->
-  {tag, classes, id} = parseElement haml
-  for c in classes
-    attrs.class ?= ''
-    attrs.class += " #{c}"
-  attrs.id = id if id?
-  child = $("<#{tag} />", attrs)
-  init child
-  parent.append ' '
-  parent.append child
-  parent.append ' '
-  child
 
 app = new App
 window.app = app
