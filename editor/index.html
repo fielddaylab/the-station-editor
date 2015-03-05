@@ -30,12 +30,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#" onclick="app.startingPage();">Siftr Editor</a>
+          <a class="navbar-brand" href="#">Siftr Editor</a>
         </div>
 
         <div class="collapse navbar-collapse" id="navbar-collapse">
           <ul class="nav navbar-nav navbar-left" id="nav-left-logged-in">
-            <li><a href="#" onclick="app.startingPage();">Your Siftrs</a></li>
+            <li><a href="#">Your Siftrs</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown" id="dropdown-logged-in">
@@ -43,12 +43,12 @@
                 Logged in as <span id="span-username">???</span> <span class="caret"></span>
               </a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#" id="menu-logout">Logout</a></li>
-                <li><a href="#" onclick="app.selectPage('#page-change-password');">Change Password</a></li>
+                <li><a href="#logout">Logout</a></li>
+                <li><a href="#password">Change Password</a></li>
               </ul>
             </li>
             <li><a href="../">Siftr</a></li>
-            <li><a href="#" onclick="app.selectPage('#page-about');">About</a></li>
+            <li><a href="#about">About</a></li>
           </ul>
         </div>
       </div>
@@ -84,9 +84,9 @@
                 <i class="fa fa-spinner fa-pulse"></i>
               </span>
             </button>
-            <button class="btn btn-default" type="button" onclick="app.selectPage('#page-new-acct');">
+            <a class="btn btn-default" type="button" href="#join">
               New account
-            </button>
+            </a>
           </div>
         </form>
       </div>
@@ -114,9 +114,9 @@
             <button id="button-create-acct" class="btn btn-primary" type="submit">
               Create account
             </button>
-            <button class="btn btn-default" type="button" onclick="app.selectPage('#page-login');">
+            <a class="btn btn-default" type="button" href="#">
               Back to login
-            </button>
+            </a>
           </div>
         </form>
       </div>

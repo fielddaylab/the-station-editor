@@ -20,10 +20,6 @@ class App
             @showAlert 'Incorrect username or password.'
         false
 
-      $('#menu-logout').click =>
-        @logout()
-        @selectPage '#page-login'
-
       # Validates account creation info, and then either shows an error message,
       # or logs in with the new user and shows their game list.
       $('#button-create-acct').click =>
@@ -45,7 +41,6 @@ class App
               @showAlert "Couldn't create account: #{res.returnCodeDescription}"
             else
               @parseLogin res
-              $('#the-alert').hide()
               @startingPage()
         false
 
@@ -66,14 +61,16 @@ class App
               @showAlert "Couldn't change password: #{res.returnCodeDescription}"
             else
               @parseLogin res
-              $('#the-alert').hide()
               @startingPage()
         false
+
+      $(window).on 'hashchange', =>
+        @goToHash()
 
       @updateNav()
       @login undefined, undefined, =>
         @isLoading = false
-        @startingPage()
+        @goToHash()
 
   # Shows an alert textbox at the top of the page.
   # The alert is cleared upon calling @selectPage.
@@ -113,6 +110,47 @@ class App
     @aris.logout()
     @updateNav()
 
+  goToHash: ->
+    h = document.location.hash
+    switch h
+      when '#about'
+        @selectPage '#page-about'
+      when '#password'
+        if @aris.auth?
+          @selectPage '#page-change-password'
+        else
+          @startingPage()
+      when '#logout'
+        @logout()
+        document.location.hash = ''
+      when '#join'
+        if @aris.auth?
+          @startingPage()
+        else
+          @selectPage '#page-new-acct'
+      else
+        if @aris.auth?
+          if (res = h.match /^#edit(\d+)$/)?
+            game_id = parseInt(res[1])
+            games =
+              g for g in @games when g.game_id is game_id
+            if games.length isnt 0
+              @startEdit games[0]
+            else
+              @startingPage()
+          else if (res = h.match /^#tags(\d+)$/)?
+            game_id = parseInt(res[1])
+            games =
+              g for g in @games when g.game_id is game_id
+            if games.length isnt 0
+              @startEditTags games[0]
+            else
+              @startingPage()
+          else
+            @startingPage()
+        else
+          @startingPage()
+
   # Switch out a new page to show the user.
   # Clears any alerts currently being shown.
   selectPage: (page) ->
@@ -151,15 +189,11 @@ class App
             appendTo mediaBody, 'form', {}, (form) =>
               appendTo form, '.form-group', {}, (formGroup) =>
                 appendTo formGroup, 'a.btn.btn-primary',
-                  href: '#'
+                  href: '#edit' + game.game_id
                   text: 'Edit Siftr'
-                , (button) =>
-                  button.click => @startEdit game
                 appendTo formGroup, 'a.btn.btn-default',
-                  href: '#'
+                  href: '#tags' + game.game_id
                   text: 'Edit tags'
-                , (button) =>
-                  button.click => @startEditTags game
                 appendTo formGroup, 'a.btn.btn-danger',
                   href: '#'
                   html: '<i class="fa fa-remove"></i> Delete Siftr'

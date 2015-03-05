@@ -5,7 +5,7 @@ class Aris
     @auth = $.cookie 'aris-auth'
 
   # Given the JSON result of users.logIn, if it was successful,
-  # stores the authentication details.
+  # creates and stores the authentication object.
   parseLogin: ({data: user, returnCode}) ->
     if returnCode is 0 and user.user_id isnt null
       @auth =
@@ -17,6 +17,8 @@ class Aris
     else
       @logout()
 
+  # Logs in with a username and password, or logs in with the existing
+  # known `auth` object if you pass `undefined` for the username and password.
   login: (username, password, cb = (->)) ->
     @call 'users.logIn',
       user_name: username

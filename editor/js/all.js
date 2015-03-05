@@ -22,10 +22,6 @@
             });
             return false;
           });
-          $('#menu-logout').click(function() {
-            _this.logout();
-            return _this.selectPage('#page-login');
-          });
           $('#button-create-acct').click(function() {
             if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
               _this.showAlert("Your email address is not valid.");
@@ -45,7 +41,6 @@
                   return _this.showAlert("Couldn't create account: " + res.returnCodeDescription);
                 } else {
                   _this.parseLogin(res);
-                  $('#the-alert').hide();
                   return _this.startingPage();
                 }
               });
@@ -67,17 +62,19 @@
                   return _this.showAlert("Couldn't change password: " + res.returnCodeDescription);
                 } else {
                   _this.parseLogin(res);
-                  $('#the-alert').hide();
                   return _this.startingPage();
                 }
               });
             }
             return false;
           });
+          $(window).on('hashchange', function() {
+            return _this.goToHash();
+          });
           _this.updateNav();
           return _this.login(void 0, void 0, function() {
             _this.isLoading = false;
-            return _this.startingPage();
+            return _this.goToHash();
           });
         };
       })(this));
@@ -129,6 +126,78 @@
       return this.updateNav();
     };
 
+    App.prototype.goToHash = function() {
+      var g, game_id, games, h, res;
+      h = document.location.hash;
+      switch (h) {
+        case '#about':
+          return this.selectPage('#page-about');
+        case '#password':
+          if (this.aris.auth != null) {
+            return this.selectPage('#page-change-password');
+          } else {
+            return this.startingPage();
+          }
+          break;
+        case '#logout':
+          this.logout();
+          return document.location.hash = '';
+        case '#join':
+          if (this.aris.auth != null) {
+            return this.startingPage();
+          } else {
+            return this.selectPage('#page-new-acct');
+          }
+          break;
+        default:
+          if (this.aris.auth != null) {
+            if ((res = h.match(/^#edit(\d+)$/)) != null) {
+              game_id = parseInt(res[1]);
+              games = (function() {
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
+                  if (g.game_id === game_id) {
+                    _results.push(g);
+                  }
+                }
+                return _results;
+              }).call(this);
+              if (games.length !== 0) {
+                return this.startEdit(games[0]);
+              } else {
+                return this.startingPage();
+              }
+            } else if ((res = h.match(/^#tags(\d+)$/)) != null) {
+              game_id = parseInt(res[1]);
+              games = (function() {
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
+                  if (g.game_id === game_id) {
+                    _results.push(g);
+                  }
+                }
+                return _results;
+              }).call(this);
+              if (games.length !== 0) {
+                return this.startEditTags(games[0]);
+              } else {
+                return this.startingPage();
+              }
+            } else {
+              return this.startingPage();
+            }
+          } else {
+            return this.startingPage();
+          }
+      }
+    };
+
     App.prototype.selectPage = function(page) {
       if (this.isLoading) {
         return;
@@ -169,20 +238,12 @@
                 return appendTo(mediaBody, 'form', {}, function(form) {
                   return appendTo(form, '.form-group', {}, function(formGroup) {
                     appendTo(formGroup, 'a.btn.btn-primary', {
-                      href: '#',
+                      href: '#edit' + game.game_id,
                       text: 'Edit Siftr'
-                    }, function(button) {
-                      return button.click(function() {
-                        return _this.startEdit(game);
-                      });
                     });
                     appendTo(formGroup, 'a.btn.btn-default', {
-                      href: '#',
+                      href: '#tags' + game.game_id,
                       text: 'Edit tags'
-                    }, function(button) {
-                      return button.click(function() {
-                        return _this.startEditTags(game);
-                      });
                     });
                     return appendTo(formGroup, 'a.btn.btn-danger', {
                       href: '#',
