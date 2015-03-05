@@ -20,7 +20,7 @@
             }, function(_arg) {
               var game, games;
               games = _arg.data;
-              return async.series((function() {
+              return async.parallel((function() {
                 var _i, _len, _results;
                 _results = [];
                 for (_i = 0, _len = games.length; _i < _len; _i++) {
@@ -45,7 +45,7 @@
             }, function(_arg) {
               var game, games;
               games = _arg.data;
-              return async.series((function() {
+              return async.parallel((function() {
                 var _i, _len, _results;
                 _results = [];
                 for (_i = 0, _len = games.length; _i < _len; _i++) {
@@ -85,7 +85,8 @@
     };
 
     App.prototype.updateCell = function(cell, game) {
-      $(cell).find('a').attr('href', game.siftr_url != null ? "" + SIFTR_URL + game.siftr_url : "" + SIFTR_URL + "?" + game.game_id);
+      var _ref;
+      $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
       return $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
     };
 

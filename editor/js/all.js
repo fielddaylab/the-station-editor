@@ -222,8 +222,9 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
+                var _ref1;
                 appendTo(mediaBody, 'a', {
-                  href: "" + SIFTR_URL + "?" + game.game_id,
+                  href: "" + SIFTR_URL + "?" + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
                   target: '_blank'
                 }, function(siftrLink) {
                   return appendTo(siftrLink, 'h4.media-heading', {
