@@ -1,8 +1,10 @@
 (function() {
-  var App;
+  var App,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   App = (function() {
     function App() {
+      this.updateCell = __bind(this.updateCell, this);
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
@@ -11,11 +13,81 @@
             return _this.updateNav();
           });
           return _this.aris.login(void 0, void 0, function() {
-            return _this.updateNav();
+            _this.updateNav();
+            _this.aris.call('games.searchSiftrs', {
+              count: 4,
+              order_by: 'recent'
+            }, function(_arg) {
+              var game, games;
+              games = _arg.data;
+              return async.series((function() {
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  game = games[_i];
+                  _results.push(this.getIconURL(game));
+                }
+                return _results;
+              }).call(_this), function() {
+                var cells, i, _i, _len, _results;
+                cells = $('#row-recent').children();
+                _results = [];
+                for (i = _i = 0, _len = games.length; _i < _len; i = ++_i) {
+                  game = games[i];
+                  _results.push(_this.updateCell(cells[i], game));
+                }
+                return _results;
+              });
+            });
+            return _this.aris.call('games.searchSiftrs', {
+              count: 4,
+              order_by: 'popular'
+            }, function(_arg) {
+              var game, games;
+              games = _arg.data;
+              return async.series((function() {
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  game = games[_i];
+                  _results.push(this.getIconURL(game));
+                }
+                return _results;
+              }).call(_this), function() {
+                var cells, i, _i, _len, _results;
+                cells = $('#row-popular').children();
+                _results = [];
+                for (i = _i = 0, _len = games.length; _i < _len; i = ++_i) {
+                  game = games[i];
+                  _results.push(_this.updateCell(cells[i], game));
+                }
+                return _results;
+              });
+            });
           });
         };
       })(this));
     }
+
+    App.prototype.getIconURL = function(game) {
+      return (function(_this) {
+        return function(cb) {
+          return _this.aris.call('media.getMedia', {
+            media_id: game.icon_media_id
+          }, function(_arg) {
+            var media;
+            media = _arg.data;
+            game.icon_url = media.url;
+            return cb();
+          });
+        };
+      })(this);
+    };
+
+    App.prototype.updateCell = function(cell, game) {
+      $(cell).find('a').attr('href', game.siftr_url != null ? "" + SIFTR_URL + game.siftr_url : "" + SIFTR_URL + "?" + game.game_id);
+      return $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+    };
 
     App.prototype.updateNav = function() {
       if (this.aris.auth != null) {
