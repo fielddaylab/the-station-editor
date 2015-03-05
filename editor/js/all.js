@@ -130,8 +130,6 @@
       var g, game_id, games, h, res;
       h = document.location.hash;
       switch (h) {
-        case '#about':
-          return this.selectPage('#page-about');
         case '#password':
           if (this.aris.auth != null) {
             return this.selectPage('#page-change-password');

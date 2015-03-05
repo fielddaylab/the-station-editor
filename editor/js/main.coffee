@@ -113,8 +113,6 @@ class App
   goToHash: ->
     h = document.location.hash
     switch h
-      when '#about'
-        @selectPage '#page-about'
       when '#password'
         if @aris.auth?
           @selectPage '#page-change-password'
