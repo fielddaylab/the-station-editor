@@ -7,6 +7,19 @@ class App
         @aris.logout()
         @updateNav()
 
+      $('#search-button').click =>
+        @aris.call 'games.searchSiftrs',
+          count: 4
+          search: $('#search-text').val()
+        , (data: games) =>
+          async.parallel( @getIconURL(game) for game in games
+                        , =>
+                          cells = $('#row-search').children()
+                          for game, i in games
+                            @updateCell cells[i], game
+                          $('#search-results').show()
+                        )
+
       @aris.login undefined, undefined, =>
         @updateNav()
 

@@ -55,6 +55,46 @@
     </div>
 
     <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+          <!-- full-width on xs, otherwise takes half the grid (centered) -->
+          <form>
+            <div class="input-group">
+              <input id="search-text" type="text" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button id="search-button" class="btn btn-default" type="submit" onclick="return false;">
+                  <span class="glyphicon glyphicon-search"></span>
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div id="search-results">
+        <h2>Search Results</h2>
+        <div class="row" id="row-search">
+          <div class="col-xs-6 col-sm-3">
+            <a href="#">
+              <img class="img-responsive img-thumbnail img-siftr-icon">
+            </a>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <a href="#">
+              <img class="img-responsive img-thumbnail img-siftr-icon">
+            </a>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <a href="#">
+              <img class="img-responsive img-thumbnail img-siftr-icon">
+            </a>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <a href="#">
+              <img class="img-responsive img-thumbnail img-siftr-icon">
+            </a>
+          </div>
+        </div>
+      </div>
       <h2>Recent Activity</h2>
       <div class="row" id="row-recent">
         <div class="col-xs-6 col-sm-3">
