@@ -10,6 +10,12 @@
   margin-top: 10px;
 }
 
+.siftr-caption {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 17px;
+}
+
 .jumbotron {
   background-image: url("../img/Madison_Wisconsin_skyline_night_0855.jpg");
   background-size: cover;

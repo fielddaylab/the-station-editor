@@ -114,10 +114,12 @@
       var _ref;
       if (game != null) {
         $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
-        return $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+        $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+        return $(cell).find('.siftr-caption').text(game.name);
       } else {
         $(cell).find('a').attr('href', '#');
-        return $(cell).find('img').removeAttr('src');
+        $(cell).find('img').removeAttr('src');
+        return $(cell).find('.siftr-caption').text('');
       }
     };
 

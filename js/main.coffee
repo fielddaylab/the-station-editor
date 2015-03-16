@@ -61,9 +61,11 @@ class App
           'editor/img/uw_shield.png'
         else
           game.icon_url
+      $(cell).find('.siftr-caption').text game.name
     else
       $(cell).find('a').attr 'href', '#'
       $(cell).find('img').removeAttr 'src'
+      $(cell).find('.siftr-caption').text ''
 
   updateNav: ->
     if @aris.auth?
