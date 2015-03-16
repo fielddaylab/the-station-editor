@@ -8,17 +8,21 @@ class App
         @updateNav()
 
       $('#search-button').click =>
-        @aris.call 'games.searchSiftrs',
-          count: 4
-          search: $('#search-text').val()
-        , (data: games) =>
-          async.parallel( @getIconURL(game) for game in games
-                        , =>
-                          cells = $('#row-search').children()
-                          for cell, i in cells
-                            @updateCell cell, games[i]
-                          $('#search-results').show()
-                        )
+        searchText = $('#search-text').val()
+        if searchText is ''
+          $('#search-results').hide()
+        else
+          @aris.call 'games.searchSiftrs',
+            count: 4
+            search: $('#search-text').val()
+          , (data: games) =>
+            async.parallel( @getIconURL(game) for game in games
+                          , =>
+                            cells = $('#row-search').children()
+                            for cell, i in cells
+                              @updateCell cell, games[i]
+                            $('#search-results').show()
+                          )
 
       @aris.login undefined, undefined, =>
         @updateNav()
@@ -61,10 +65,12 @@ class App
           'editor/img/uw_shield.png'
         else
           game.icon_url
+      $(cell).find('img').show()
       $(cell).find('.siftr-caption').text game.name
     else
       $(cell).find('a').attr 'href', '#'
       $(cell).find('img').removeAttr 'src'
+      $(cell).find('img').hide()
       $(cell).find('.siftr-caption').text ''
 
   updateNav: ->

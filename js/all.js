@@ -13,30 +13,36 @@
             return _this.updateNav();
           });
           $('#search-button').click(function() {
-            return _this.aris.call('games.searchSiftrs', {
-              count: 4,
-              search: $('#search-text').val()
-            }, function(_arg) {
-              var game, games;
-              games = _arg.data;
-              return async.parallel((function() {
-                var _i, _len, _results;
-                _results = [];
-                for (_i = 0, _len = games.length; _i < _len; _i++) {
-                  game = games[_i];
-                  _results.push(this.getIconURL(game));
-                }
-                return _results;
-              }).call(_this), function() {
-                var cell, cells, i, _i, _len;
-                cells = $('#row-search').children();
-                for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
-                  cell = cells[i];
-                  _this.updateCell(cell, games[i]);
-                }
-                return $('#search-results').show();
+            var searchText;
+            searchText = $('#search-text').val();
+            if (searchText === '') {
+              return $('#search-results').hide();
+            } else {
+              return _this.aris.call('games.searchSiftrs', {
+                count: 4,
+                search: $('#search-text').val()
+              }, function(_arg) {
+                var game, games;
+                games = _arg.data;
+                return async.parallel((function() {
+                  var _i, _len, _results;
+                  _results = [];
+                  for (_i = 0, _len = games.length; _i < _len; _i++) {
+                    game = games[_i];
+                    _results.push(this.getIconURL(game));
+                  }
+                  return _results;
+                }).call(_this), function() {
+                  var cell, cells, i, _i, _len;
+                  cells = $('#row-search').children();
+                  for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
+                    cell = cells[i];
+                    _this.updateCell(cell, games[i]);
+                  }
+                  return $('#search-results').show();
+                });
               });
-            });
+            }
           });
           return _this.aris.login(void 0, void 0, function() {
             _this.updateNav();
@@ -115,10 +121,12 @@
       if (game != null) {
         $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
         $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+        $(cell).find('img').show();
         return $(cell).find('.siftr-caption').text(game.name);
       } else {
         $(cell).find('a').attr('href', '#');
         $(cell).find('img').removeAttr('src');
+        $(cell).find('img').hide();
         return $(cell).find('.siftr-caption').text('');
       }
     };
