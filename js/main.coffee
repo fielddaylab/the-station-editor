@@ -15,8 +15,8 @@ class App
           async.parallel( @getIconURL(game) for game in games
                         , =>
                           cells = $('#row-search').children()
-                          for game, i in games
-                            @updateCell cells[i], game
+                          for cell, i in cells
+                            @updateCell cell, games[i]
                           $('#search-results').show()
                         )
 
@@ -30,8 +30,8 @@ class App
           async.parallel( @getIconURL(game) for game in games
                         , =>
                           cells = $('#row-recent').children()
-                          for game, i in games
-                            @updateCell cells[i], game
+                          for cell, i in cells
+                            @updateCell cell, games[i]
                         )
 
         @aris.call 'games.searchSiftrs',
@@ -41,8 +41,8 @@ class App
           async.parallel( @getIconURL(game) for game in games
                         , =>
                           cells = $('#row-popular').children()
-                          for game, i in games
-                            @updateCell cells[i], game
+                          for cell, i in cells
+                            @updateCell cell, games[i]
                         )
 
   getIconURL: (game) -> (cb) =>
@@ -53,13 +53,17 @@ class App
       cb()
 
   updateCell: (cell, game) =>
-    $(cell).find('a').attr 'href',
-      "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
-    $(cell).find('img').attr 'src',
-      if parseInt(game.icon_media_id) is 0
-        'editor/img/uw_shield.png'
-      else
-        game.icon_url
+    if game?
+      $(cell).find('a').attr 'href',
+        "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
+      $(cell).find('img').attr 'src',
+        if parseInt(game.icon_media_id) is 0
+          'editor/img/uw_shield.png'
+        else
+          game.icon_url
+    else
+      $(cell).find('a').attr 'href', '#'
+      $(cell).find('img').removeAttr 'src'
 
   updateNav: ->
     if @aris.auth?

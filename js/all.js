@@ -28,11 +28,11 @@
                 }
                 return _results;
               }).call(_this), function() {
-                var cells, i, _i, _len;
+                var cell, cells, i, _i, _len;
                 cells = $('#row-search').children();
-                for (i = _i = 0, _len = games.length; _i < _len; i = ++_i) {
-                  game = games[i];
-                  _this.updateCell(cells[i], game);
+                for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
+                  cell = cells[i];
+                  _this.updateCell(cell, games[i]);
                 }
                 return $('#search-results').show();
               });
@@ -55,12 +55,12 @@
                 }
                 return _results;
               }).call(_this), function() {
-                var cells, i, _i, _len, _results;
+                var cell, cells, i, _i, _len, _results;
                 cells = $('#row-recent').children();
                 _results = [];
-                for (i = _i = 0, _len = games.length; _i < _len; i = ++_i) {
-                  game = games[i];
-                  _results.push(_this.updateCell(cells[i], game));
+                for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
+                  cell = cells[i];
+                  _results.push(_this.updateCell(cell, games[i]));
                 }
                 return _results;
               });
@@ -80,12 +80,12 @@
                 }
                 return _results;
               }).call(_this), function() {
-                var cells, i, _i, _len, _results;
+                var cell, cells, i, _i, _len, _results;
                 cells = $('#row-popular').children();
                 _results = [];
-                for (i = _i = 0, _len = games.length; _i < _len; i = ++_i) {
-                  game = games[i];
-                  _results.push(_this.updateCell(cells[i], game));
+                for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
+                  cell = cells[i];
+                  _results.push(_this.updateCell(cell, games[i]));
                 }
                 return _results;
               });
@@ -112,8 +112,13 @@
 
     App.prototype.updateCell = function(cell, game) {
       var _ref;
-      $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
-      return $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+      if (game != null) {
+        $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
+        return $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+      } else {
+        $(cell).find('a').attr('href', '#');
+        return $(cell).find('img').removeAttr('src');
+      }
     };
 
     App.prototype.updateNav = function() {
