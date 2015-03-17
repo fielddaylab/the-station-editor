@@ -68,12 +68,15 @@ class App
           cb()
       else
         game.icon_url = notes[0].media.data.url
+        game.go_to_note = parseInt notes[0].note_id
         cb()
 
   updateCell: (cell, game) =>
     if game?
-      $(cell).find('a').attr 'href',
-        "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
+      link = "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
+      if game.go_to_note?
+        link += '#' + game.go_to_note
+      $(cell).find('a').attr 'href', link
       $(cell).find('img').attr 'src',
         if parseInt(game.icon_media_id) is 0
           'editor/img/uw_shield.png'

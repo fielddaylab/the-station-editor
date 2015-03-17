@@ -127,6 +127,7 @@
               });
             } else {
               game.icon_url = notes[0].media.data.url;
+              game.go_to_note = parseInt(notes[0].note_id);
               return cb();
             }
           });
@@ -135,9 +136,13 @@
     };
 
     App.prototype.updateCell = function(cell, game) {
-      var _ref;
+      var link, _ref;
       if (game != null) {
-        $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
+        link = "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id);
+        if (game.go_to_note != null) {
+          link += '#' + game.go_to_note;
+        }
+        $(cell).find('a').attr('href', link);
         $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
         $(cell).find('img').show();
         $(cell).find('.siftr-title').text(game.name);
