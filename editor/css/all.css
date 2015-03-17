@@ -1,3 +1,8 @@
+nav {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
 .page {
   display: none;
 }
