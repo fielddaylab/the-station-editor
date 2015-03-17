@@ -50,11 +50,20 @@ class App
                         )
 
   getIconURL: (game) -> (cb) =>
-    @aris.call 'media.getMedia',
-      media_id: game.icon_media_id
-    , (data: media) =>
-      game.icon_url = media.url
-      cb()
+    @aris.call 'notes.searchNotes',
+      game_id: game.game_id
+      note_count: 1
+      order_by: 'recent'
+    , (data: notes) =>
+      if notes.length is 0
+        @aris.call 'media.getMedia',
+          media_id: game.icon_media_id
+        , (data: media) =>
+          game.icon_url = media.url
+          cb()
+      else
+        game.icon_url = notes[0].media.data.url
+        cb()
 
   updateCell: (cell, game) =>
     if game?

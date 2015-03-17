@@ -104,13 +104,26 @@
     App.prototype.getIconURL = function(game) {
       return (function(_this) {
         return function(cb) {
-          return _this.aris.call('media.getMedia', {
-            media_id: game.icon_media_id
+          return _this.aris.call('notes.searchNotes', {
+            game_id: game.game_id,
+            note_count: 1,
+            order_by: 'recent'
           }, function(_arg) {
-            var media;
-            media = _arg.data;
-            game.icon_url = media.url;
-            return cb();
+            var notes;
+            notes = _arg.data;
+            if (notes.length === 0) {
+              return _this.aris.call('media.getMedia', {
+                media_id: game.icon_media_id
+              }, function(_arg1) {
+                var media;
+                media = _arg1.data;
+                game.icon_url = media.url;
+                return cb();
+              });
+            } else {
+              game.icon_url = notes[0].media.data.url;
+              return cb();
+            }
           });
         };
       })(this);
