@@ -8,6 +8,10 @@
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
+          $('.siftr-description').dotdotdot({
+            watch: 'window',
+            height: 50
+          });
           $('#menu-logout').click(function() {
             _this.aris.logout();
             return _this.updateNav();
@@ -39,7 +43,8 @@
                     cell = cells[i];
                     _this.updateCell(cell, games[i]);
                   }
-                  return $('#search-results').show();
+                  $('#search-results').show();
+                  return $('.siftr-description').trigger('update');
                 });
               });
             }

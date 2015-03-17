@@ -18,14 +18,6 @@
 
 .siftr-description {
   text-align: center;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2; /* number of lines to show */
-  line-height: 15px;        /* fallback */
-  max-height: 32px;       /* fallback */
 }
 
 .jumbotron {

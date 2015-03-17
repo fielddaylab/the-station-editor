@@ -3,6 +3,10 @@ class App
     $(document).ready =>
       @aris = new Aris
 
+      $('.siftr-description').dotdotdot
+        watch: 'window'
+        height: 50
+
       $('#menu-logout').click =>
         @aris.logout()
         @updateNav()
@@ -22,6 +26,7 @@ class App
                             for cell, i in cells
                               @updateCell cell, games[i]
                             $('#search-results').show()
+                            $('.siftr-description').trigger 'update'
                           )
 
       @aris.login undefined, undefined, =>
