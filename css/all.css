@@ -10,10 +10,22 @@
   margin-top: 10px;
 }
 
-.siftr-caption {
+.siftr-title {
   text-align: center;
   margin-top: 10px;
   font-size: 17px;
+}
+
+.siftr-description {
+  text-align: center;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  line-height: 15px;        /* fallback */
+  max-height: 32px;       /* fallback */
 }
 
 .jumbotron {
@@ -27,4 +39,8 @@
 
 #search-results {
   display: none;
+}
+
+#empty-space {
+  height: 75px;
 }

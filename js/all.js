@@ -34,7 +34,7 @@
                   return _results;
                 }).call(_this), function() {
                   var cell, cells, i, _i, _len;
-                  cells = $('#row-search').children();
+                  cells = $('#row-search').children('.siftr-cell');
                   for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
                     cell = cells[i];
                     _this.updateCell(cell, games[i]);
@@ -62,7 +62,7 @@
                 return _results;
               }).call(_this), function() {
                 var cell, cells, i, _i, _len, _results;
-                cells = $('#row-recent').children();
+                cells = $('#row-recent').children('.siftr-cell');
                 _results = [];
                 for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
                   cell = cells[i];
@@ -87,7 +87,7 @@
                 return _results;
               }).call(_this), function() {
                 var cell, cells, i, _i, _len, _results;
-                cells = $('#row-popular').children();
+                cells = $('#row-popular').children('.siftr-cell');
                 _results = [];
                 for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
                   cell = cells[i];
@@ -122,12 +122,14 @@
         $(cell).find('a').attr('href', "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id));
         $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
         $(cell).find('img').show();
-        return $(cell).find('.siftr-caption').text(game.name);
+        $(cell).find('.siftr-title').text(game.name);
+        return $(cell).find('.siftr-description').text(game.description);
       } else {
         $(cell).find('a').attr('href', '#');
         $(cell).find('img').removeAttr('src');
         $(cell).find('img').hide();
-        return $(cell).find('.siftr-caption').text('');
+        $(cell).find('.siftr-title').text('');
+        return $(cell).find('.siftr-description').text('');
       }
     };
 

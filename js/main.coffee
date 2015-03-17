@@ -18,7 +18,7 @@ class App
           , (data: games) =>
             async.parallel( @getIconURL(game) for game in games
                           , =>
-                            cells = $('#row-search').children()
+                            cells = $('#row-search').children('.siftr-cell')
                             for cell, i in cells
                               @updateCell cell, games[i]
                             $('#search-results').show()
@@ -33,7 +33,7 @@ class App
         , (data: games) =>
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          cells = $('#row-recent').children()
+                          cells = $('#row-recent').children('.siftr-cell')
                           for cell, i in cells
                             @updateCell cell, games[i]
                         )
@@ -44,7 +44,7 @@ class App
         , (data: games) =>
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          cells = $('#row-popular').children()
+                          cells = $('#row-popular').children('.siftr-cell')
                           for cell, i in cells
                             @updateCell cell, games[i]
                         )
@@ -66,12 +66,14 @@ class App
         else
           game.icon_url
       $(cell).find('img').show()
-      $(cell).find('.siftr-caption').text game.name
+      $(cell).find('.siftr-title').text game.name
+      $(cell).find('.siftr-description').text game.description
     else
       $(cell).find('a').attr 'href', '#'
       $(cell).find('img').removeAttr 'src'
       $(cell).find('img').hide()
-      $(cell).find('.siftr-caption').text ''
+      $(cell).find('.siftr-title').text ''
+      $(cell).find('.siftr-description').text ''
 
   updateNav: ->
     if @aris.auth?
