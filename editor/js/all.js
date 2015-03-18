@@ -224,7 +224,7 @@
               return appendTo(media, '.media-body', {}, function(mediaBody) {
                 var _ref1;
                 appendTo(mediaBody, 'a', {
-                  href: "" + SIFTR_URL + "?" + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
+                  href: "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
                   target: '_blank'
                 }, function(siftrLink) {
                   return appendTo(siftrLink, 'h4.media-heading', {
@@ -459,7 +459,7 @@
         lng: game.map_longitude,
         zoom: game.map_zoom_level
       });
-      $('#code-siftr-url-template').text("" + window.SIFTR_URL + "<your-siftr-url>");
+      $('#code-siftr-url-template').text("" + SIFTR_URL + "<your-siftr-url>");
       return this.selectPage('#page-edit');
     };
 

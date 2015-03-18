@@ -3,5 +3,5 @@
 #window.ARIS_URL = 'http://localhost/aris/'
 
 # prod
-window.SIFTR_URL = 'http://siftr.org/v2/'
+window.SIFTR_URL = 'http://siftr.org/'
 window.ARIS_URL = 'http://dev.arisgames.org/server/'

@@ -177,7 +177,7 @@ class App
                 """
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'a',
-              href: "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
+              href: "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
               target: '_blank'
             , (siftrLink) =>
               appendTo siftrLink, 'h4.media-heading',
@@ -313,7 +313,7 @@ class App
       lat: game.map_latitude
       lng: game.map_longitude
       zoom: game.map_zoom_level
-    $('#code-siftr-url-template').text "#{window.SIFTR_URL}<your-siftr-url>"
+    $('#code-siftr-url-template').text "#{SIFTR_URL}<your-siftr-url>"
     @selectPage '#page-edit'
 
   # Given a file <input> element, gets the base-64 data from it

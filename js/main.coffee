@@ -73,7 +73,7 @@ class App
 
   updateCell: (cell, game) =>
     if game?
-      link = "#{SIFTR_URL}?#{game.siftr_url ? game.game_id}"
+      link = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
       if game.go_to_note?
         link += '#' + game.go_to_note
       $(cell).find('a').attr 'href', link

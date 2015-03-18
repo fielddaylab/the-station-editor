@@ -138,7 +138,7 @@
     App.prototype.updateCell = function(cell, game) {
       var link, _ref;
       if (game != null) {
-        link = "" + SIFTR_URL + "?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id);
+        link = "" + SIFTR_URL + ((_ref = game.siftr_url) != null ? _ref : game.game_id);
         if (game.go_to_note != null) {
           link += '#' + game.go_to_note;
         }
