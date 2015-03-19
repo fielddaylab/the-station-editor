@@ -117,14 +117,19 @@
             var notes;
             notes = _arg.data;
             if (notes.length === 0) {
-              return _this.aris.call('media.getMedia', {
-                media_id: game.icon_media_id
-              }, function(_arg1) {
-                var media;
-                media = _arg1.data;
-                game.icon_url = media.url;
+              if (parseInt(game.icon_media_id) === 0) {
+                game.icon_url = 'editor/img/uw_shield.png';
                 return cb();
-              });
+              } else {
+                return _this.aris.call('media.getMedia', {
+                  media_id: game.icon_media_id
+                }, function(_arg1) {
+                  var media;
+                  media = _arg1.data;
+                  game.icon_url = media.url;
+                  return cb();
+                });
+              }
             } else {
               game.icon_url = notes[0].media.data.url;
               game.go_to_note = parseInt(notes[0].note_id);
@@ -143,7 +148,7 @@
           link += '#' + game.go_to_note;
         }
         $(cell).find('a').attr('href', link);
-        $(cell).find('img').attr('src', parseInt(game.icon_media_id) === 0 ? 'editor/img/uw_shield.png' : game.icon_url);
+        $(cell).find('img').attr('src', game.icon_url);
         $(cell).find('img').show();
         $(cell).find('.siftr-title').text(game.name);
         return $(cell).find('.siftr-description').text(game.description);

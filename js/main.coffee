@@ -61,11 +61,15 @@ class App
       order_by: 'recent'
     , (data: notes) =>
       if notes.length is 0
-        @aris.call 'media.getMedia',
-          media_id: game.icon_media_id
-        , (data: media) =>
-          game.icon_url = media.url
+        if parseInt(game.icon_media_id) is 0
+          game.icon_url = 'editor/img/uw_shield.png'
           cb()
+        else
+          @aris.call 'media.getMedia',
+            media_id: game.icon_media_id
+          , (data: media) =>
+            game.icon_url = media.url
+            cb()
       else
         game.icon_url = notes[0].media.data.url
         game.go_to_note = parseInt notes[0].note_id
@@ -77,11 +81,7 @@ class App
       if game.go_to_note?
         link += '#' + game.go_to_note
       $(cell).find('a').attr 'href', link
-      $(cell).find('img').attr 'src',
-        if parseInt(game.icon_media_id) is 0
-          'editor/img/uw_shield.png'
-        else
-          game.icon_url
+      $(cell).find('img').attr 'src', game.icon_url
       $(cell).find('img').show()
       $(cell).find('.siftr-title').text game.name
       $(cell).find('.siftr-description').text game.description
