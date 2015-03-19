@@ -64,6 +64,9 @@ class App
               @startingPage()
         false
 
+      $('#text-siftr-url').change => @previewURL()
+      $('#text-siftr-url').keyup => @previewURL()
+
       $(window).on 'hashchange', =>
         @goToHash()
 
@@ -313,8 +316,13 @@ class App
       lat: game.map_latitude
       lng: game.map_longitude
       zoom: game.map_zoom_level
-    $('#code-siftr-url-template').text "#{SIFTR_URL}<your-siftr-url>"
+    @previewURL()
     @selectPage '#page-edit'
+
+  # Updates the URL preview with whatever is in the URL field (or the game ID if empty).
+  previewURL: ->
+    url = SIFTR_URL + ($('#text-siftr-url').val() or @currentGame.game_id)
+    $('#code-siftr-url-template').text url
 
   # Given a file <input> element, gets the base-64 data from it
   # and creates a new media object inside the given game.

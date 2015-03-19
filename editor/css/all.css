@@ -3,6 +3,10 @@ nav {
   border-radius: 0 !important;
 }
 
+#the-alert {
+  margin-top: 20px;
+}
+
 .page {
   display: none;
 }

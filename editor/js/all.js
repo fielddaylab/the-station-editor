@@ -68,6 +68,12 @@
             }
             return false;
           });
+          $('#text-siftr-url').change(function() {
+            return _this.previewURL();
+          });
+          $('#text-siftr-url').keyup(function() {
+            return _this.previewURL();
+          });
           $(window).on('hashchange', function() {
             return _this.goToHash();
           });
@@ -459,8 +465,14 @@
         lng: game.map_longitude,
         zoom: game.map_zoom_level
       });
-      $('#code-siftr-url-template').text("" + SIFTR_URL + "<your-siftr-url>");
+      this.previewURL();
       return this.selectPage('#page-edit');
+    };
+
+    App.prototype.previewURL = function() {
+      var url;
+      url = SIFTR_URL + ($('#text-siftr-url').val() || this.currentGame.game_id);
+      return $('#code-siftr-url-template').text(url);
     };
 
     App.prototype.uploadMediaFromInput = function(input, game, cb) {
