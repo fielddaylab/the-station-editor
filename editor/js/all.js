@@ -558,7 +558,7 @@
                   return _this.getGameTagCounts(function() {
                     _this.redrawGameList();
                     $('#spinner-edit-save').hide();
-                    _this.startEdit(newGame);
+                    window.location.hash = '#';
                     return cb(newGame);
                   });
                 });

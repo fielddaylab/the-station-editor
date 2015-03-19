@@ -386,7 +386,7 @@ class App
               @getGameTagCounts =>
                 @redrawGameList()
                 $('#spinner-edit-save').hide()
-                @startEdit newGame
+                window.location.hash = '#'
                 cb newGame
 
   makeNewSiftr: ->
