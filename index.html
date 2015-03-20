@@ -76,7 +76,15 @@
         </div>
       </div>
       <div id="search-results">
-        <h2>Search Results</h2>
+        <h2>
+          Search Results
+          <a onclick="app.search.moveLeft();" class="results-arrow">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+          </a>
+          <a onclick="app.search.moveRight();" class="results-arrow">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+          </a>
+        </h2>
         <div class="row" id="row-search">
           <div class="siftr-cell col-xs-6 col-sm-3">
             <a href="#">
@@ -109,7 +117,15 @@
           </div>
         </div>
       </div>
-      <h2>Recent Activity</h2>
+      <h2>
+        Recent Activity
+        <a onclick="app.recent.moveLeft();" class="results-arrow">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a onclick="app.recent.moveRight();" class="results-arrow">
+          <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+      </h2>
       <div class="row" id="row-recent">
         <div class="siftr-cell col-xs-6 col-sm-3">
           <a href="#">
@@ -141,7 +157,15 @@
           </a>
         </div>
       </div>
-      <h2>Popular</h2>
+      <h2>
+        Popular
+        <a onclick="app.popular.moveLeft();" class="results-arrow">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a onclick="app.popular.moveRight();" class="results-arrow">
+          <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+      </h2>
       <div class="row" id="row-popular">
         <div class="siftr-cell col-xs-6 col-sm-3">
           <a href="#">

@@ -1,3 +1,39 @@
+class Results
+  constructor: (@cells, @games) ->
+    @index = 0
+    @updateCells()
+
+  moveLeft: ->
+    if @index - 4 >= 0
+      @index -= 4
+      @updateCells()
+
+  moveRight: ->
+    if @index + 4 < @games.length
+      @index += 4
+      @updateCells()
+
+  updateCells: ->
+    for cell, i in @cells
+      @updateCell cell, @games[i + @index]
+
+  updateCell: (cell, game) ->
+    if game?
+      link = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
+      if game.go_to_note?
+        link += '#' + game.go_to_note
+      $(cell).find('a').attr 'href', link
+      $(cell).find('img').attr 'src', game.icon_url
+      $(cell).find('img').show()
+      $(cell).find('.siftr-title').text game.name
+      $(cell).find('.siftr-description').text game.description
+    else
+      $(cell).find('a').attr 'href', '#'
+      $(cell).find('img').removeAttr 'src'
+      $(cell).find('img').hide()
+      $(cell).find('.siftr-title').text ''
+      $(cell).find('.siftr-description').text ''
+
 class App
   constructor: ->
     $(document).ready =>
@@ -17,14 +53,12 @@ class App
           $('#search-results').hide()
         else
           @aris.call 'games.searchSiftrs',
-            count: 4
             search: $('#search-text').val()
           , (data: games) =>
             async.parallel( @getIconURL(game) for game in games
                           , =>
                             cells = $('#row-search').children('.siftr-cell')
-                            for cell, i in cells
-                              @updateCell cell, games[i]
+                            @search = new Results cells, games
                             $('#search-results').show()
                             $('.siftr-description').trigger 'update'
                           )
@@ -33,28 +67,27 @@ class App
         @updateNav()
 
         @aris.call 'games.searchSiftrs',
-          count: 4
           order_by: 'recent'
         , (data: games) =>
           async.parallel( @getIconURL(game) for game in games
                         , =>
                           cells = $('#row-recent').children('.siftr-cell')
-                          for cell, i in cells
-                            @updateCell cell, games[i]
+                          @recent = new Results cells, games
                         )
 
         @aris.call 'games.searchSiftrs',
-          count: 4
           order_by: 'popular'
         , (data: games) =>
           async.parallel( @getIconURL(game) for game in games
                         , =>
                           cells = $('#row-popular').children('.siftr-cell')
-                          for cell, i in cells
-                            @updateCell cell, games[i]
+                          @popular = new Results cells, games
                         )
 
   getIconURL: (game) -> (cb) =>
+    if game.icon_url?
+      cb()
+      return
     @aris.call 'notes.searchNotes',
       game_id: game.game_id
       note_count: 1
@@ -74,23 +107,6 @@ class App
         game.icon_url = notes[0].media.data.url
         game.go_to_note = parseInt notes[0].note_id
         cb()
-
-  updateCell: (cell, game) =>
-    if game?
-      link = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
-      if game.go_to_note?
-        link += '#' + game.go_to_note
-      $(cell).find('a').attr 'href', link
-      $(cell).find('img').attr 'src', game.icon_url
-      $(cell).find('img').show()
-      $(cell).find('.siftr-title').text game.name
-      $(cell).find('.siftr-description').text game.description
-    else
-      $(cell).find('a').attr 'href', '#'
-      $(cell).find('img').removeAttr 'src'
-      $(cell).find('img').hide()
-      $(cell).find('.siftr-title').text ''
-      $(cell).find('.siftr-description').text ''
 
   updateNav: ->
     if @aris.auth?
