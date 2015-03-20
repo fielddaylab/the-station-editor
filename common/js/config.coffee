@@ -4,4 +4,4 @@
 
 # prod
 window.SIFTR_URL = 'http://siftr.org/'
-window.ARIS_URL = 'http://dev.arisgames.org/server/'
+window.ARIS_URL = 'http://arisgames.org/server/'
