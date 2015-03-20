@@ -35,7 +35,7 @@
     };
 
     Results.prototype.updateCell = function(cell, game) {
-      var link, _ref;
+      var link, markdown, _ref;
       if (game != null) {
         link = "" + SIFTR_URL + ((_ref = game.siftr_url) != null ? _ref : game.game_id);
         if (game.go_to_note != null) {
@@ -45,7 +45,8 @@
         $(cell).find('img').attr('src', game.icon_url);
         $(cell).find('img').show();
         $(cell).find('.siftr-title').text(game.name);
-        return $(cell).find('.siftr-description').text(game.description);
+        markdown = new Showdown.converter();
+        return $(cell).find('.siftr-description').html(markdown.makeHtml(game.description));
       } else {
         $(cell).find('a').attr('href', '#');
         $(cell).find('img').removeAttr('src');

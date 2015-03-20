@@ -228,7 +228,7 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
-                var _ref1;
+                var markdown, _ref1;
                 appendTo(mediaBody, 'a', {
                   href: "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
                   target: '_blank'
@@ -237,8 +237,9 @@
                     text: game.name
                   });
                 });
+                markdown = new Showdown.converter();
                 appendTo(mediaBody, 'p', {
-                  text: game.description
+                  html: markdown.makeHtml(game.description)
                 });
                 return appendTo(mediaBody, 'form', {}, function(form) {
                   return appendTo(form, '.form-group', {}, function(formGroup) {

@@ -26,7 +26,8 @@ class Results
       $(cell).find('img').attr 'src', game.icon_url
       $(cell).find('img').show()
       $(cell).find('.siftr-title').text game.name
-      $(cell).find('.siftr-description').text game.description
+      markdown = new Showdown.converter()
+      $(cell).find('.siftr-description').html markdown.makeHtml game.description
     else
       $(cell).find('a').attr 'href', '#'
       $(cell).find('img').removeAttr 'src'
