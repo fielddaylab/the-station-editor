@@ -305,7 +305,8 @@
         map_latitude: parseFloat(json.map_latitude),
         map_longitude: parseFloat(json.map_longitude),
         map_zoom_level: parseInt(json.map_zoom_level),
-        siftr_url: json.siftr_url || null
+        siftr_url: json.siftr_url || null,
+        published: parseInt(json.published) !== 0
       };
       _ref = this.games;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -460,6 +461,7 @@
       $('#text-siftr-name').val(game.name);
       $('#text-siftr-desc').val(game.description);
       $('#text-siftr-url').val(game.siftr_url);
+      $('#checkbox-siftr-published').prop('checked', game.published);
       this.resetIcon();
       this.createMap($('#div-google-map'), {
         lat: game.map_latitude,
@@ -542,6 +544,7 @@
             name: $('#text-siftr-name').val(),
             description: $('#text-siftr-desc').val(),
             siftr_url: $('#text-siftr-url').val(),
+            published: $('#checkbox-siftr-published').prop('checked') ? 1 : 0,
             map_latitude: pn.lat(),
             map_longitude: pn.lng(),
             map_zoom_level: _this.map.getZoom(),
@@ -578,7 +581,8 @@
         map_latitude: 43.071644,
         map_longitude: -89.400658,
         map_zoom_level: 14,
-        is_siftr: 1
+        is_siftr: 1,
+        published: 0
       }, (function(_this) {
         return function(_arg) {
           var game;

@@ -232,6 +232,7 @@ class App
       map_longitude:  parseFloat json.map_longitude
       map_zoom_level: parseInt json.map_zoom_level
       siftr_url:      json.siftr_url or null
+      published:      parseInt(json.published) isnt 0
     for game, i in @games
       if game.game_id is newGame.game_id
         @games[i] = newGame
@@ -312,6 +313,7 @@ class App
     $('#text-siftr-name').val game.name
     $('#text-siftr-desc').val game.description
     $('#text-siftr-url').val game.siftr_url
+    $('#checkbox-siftr-published').prop 'checked', game.published
     @resetIcon()
     @createMap $('#div-google-map'),
       lat: game.map_latitude
@@ -372,6 +374,7 @@ class App
         name: $('#text-siftr-name').val()
         description: $('#text-siftr-desc').val()
         siftr_url: $('#text-siftr-url').val()
+        published: if $('#checkbox-siftr-published').prop('checked') then 1 else 0
         map_latitude: pn.lat()
         map_longitude: pn.lng()
         map_zoom_level: @map.getZoom()
@@ -399,6 +402,7 @@ class App
       map_longitude: -89.400658
       map_zoom_level: 14
       is_siftr: 1
+      published: 0
     , (data: game) =>
       @addGameFromJson game
       @aris.call 'tags.createTag',

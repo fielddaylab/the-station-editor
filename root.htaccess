@@ -3,6 +3,8 @@
 
 RewriteEngine on
 
+RewriteCond $1 !=favicon.ico
+RewriteCond $1 !=index.html
 RewriteRule ^([^/]+)$ /$1/ [R]
 
 RewriteCond %{DOCUMENT_ROOT}/siftr-editor/$1 -f [OR]
