@@ -82,8 +82,19 @@
               return _this.aris.call('games.searchSiftrs', {
                 search: $('#search-text').val()
               }, function(_arg) {
-                var game, games;
+                var g, game, games;
                 games = _arg.data;
+                games = (function() {
+                  var _i, _len, _results;
+                  _results = [];
+                  for (_i = 0, _len = games.length; _i < _len; _i++) {
+                    g = games[_i];
+                    if (parseInt(g.published) !== 0) {
+                      _results.push(g);
+                    }
+                  }
+                  return _results;
+                })();
                 return async.parallel((function() {
                   var _i, _len, _results;
                   _results = [];
@@ -94,7 +105,6 @@
                   return _results;
                 }).call(_this), function() {
                   var cells;
-                  games = _this.cleanGames(games);
                   cells = $('#row-search').children('.siftr-cell');
                   _this.search = new Results(cells, games);
                   $('#search-results').show();
@@ -108,8 +118,19 @@
             _this.aris.call('games.searchSiftrs', {
               order_by: 'recent'
             }, function(_arg) {
-              var game, games;
+              var g, game, games;
               games = _arg.data;
+              games = (function() {
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  g = games[_i];
+                  if (parseInt(g.published) !== 0) {
+                    _results.push(g);
+                  }
+                }
+                return _results;
+              })();
               return async.parallel((function() {
                 var _i, _len, _results;
                 _results = [];
@@ -120,7 +141,6 @@
                 return _results;
               }).call(_this), function() {
                 var cells;
-                games = _this.cleanGames(games);
                 cells = $('#row-recent').children('.siftr-cell');
                 return _this.recent = new Results(cells, games);
               });
@@ -128,8 +148,19 @@
             return _this.aris.call('games.searchSiftrs', {
               order_by: 'popular'
             }, function(_arg) {
-              var game, games;
+              var g, game, games;
               games = _arg.data;
+              games = (function() {
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  g = games[_i];
+                  if (parseInt(g.published) !== 0) {
+                    _results.push(g);
+                  }
+                }
+                return _results;
+              })();
               return async.parallel((function() {
                 var _i, _len, _results;
                 _results = [];
@@ -140,7 +171,6 @@
                 return _results;
               }).call(_this), function() {
                 var cells;
-                games = _this.cleanGames(games);
                 cells = $('#row-popular').children('.siftr-cell');
                 return _this.popular = new Results(cells, games);
               });
@@ -149,18 +179,6 @@
         };
       })(this));
     }
-
-    App.prototype.cleanGames = function(games) {
-      var g, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = games.length; _i < _len; _i++) {
-        g = games[_i];
-        if (g.name !== 'Your New Siftr' || g.icon_url !== 'editor/img/uw_shield.png') {
-          _results.push(g);
-        }
-      }
-      return _results;
-    };
 
     App.prototype.getIconURL = function(game) {
       return (function(_this) {

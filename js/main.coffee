@@ -56,9 +56,10 @@ class App
           @aris.call 'games.searchSiftrs',
             search: $('#search-text').val()
           , (data: games) =>
+            games =
+              g for g in games when parseInt(g.published) isnt 0
             async.parallel( @getIconURL(game) for game in games
                           , =>
-                            games = @cleanGames games
                             cells = $('#row-search').children('.siftr-cell')
                             @search = new Results cells, games
                             $('#search-results').show()
@@ -71,9 +72,10 @@ class App
         @aris.call 'games.searchSiftrs',
           order_by: 'recent'
         , (data: games) =>
+          games =
+            g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          games = @cleanGames games
                           cells = $('#row-recent').children('.siftr-cell')
                           @recent = new Results cells, games
                         )
@@ -81,18 +83,13 @@ class App
         @aris.call 'games.searchSiftrs',
           order_by: 'popular'
         , (data: games) =>
+          games =
+            g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          games = @cleanGames games
                           cells = $('#row-popular').children('.siftr-cell')
                           @popular = new Results cells, games
                         )
-
-  # Removes games from the array which are basically unchanged.
-  # (returns a new array)
-  cleanGames: (games) ->
-    g for g in games when g.name isnt 'Your New Siftr' or
-      g.icon_url isnt 'editor/img/uw_shield.png'
 
   getIconURL: (game) -> (cb) =>
     if game.icon_url?
