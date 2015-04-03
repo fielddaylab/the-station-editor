@@ -258,7 +258,9 @@
                       return button.click(function() {
                         _this.deleteGame = game;
                         $('#modal-delete-siftr .modal-body').text("Are you sure you want to delete \"" + game.name + "\"?");
-                        return $('#modal-delete-siftr').modal();
+                        return $('#modal-delete-siftr').modal({
+                          keyboard: true
+                        });
                       });
                     });
                   });
@@ -747,7 +749,9 @@
                         message += " " + tag.count + " notes with this tag will be deleted.";
                     }
                     $('#modal-delete-tag .modal-body').text(message);
-                    return $('#modal-delete-tag').modal();
+                    return $('#modal-delete-tag').modal({
+                      keyboard: true
+                    });
                   });
                 });
               });

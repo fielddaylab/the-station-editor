@@ -203,7 +203,7 @@ class App
                   button.click =>
                     @deleteGame = game
                     $('#modal-delete-siftr .modal-body').text "Are you sure you want to delete \"#{game.name}\"?"
-                    $('#modal-delete-siftr').modal()
+                    $('#modal-delete-siftr').modal(keyboard: true)
 
   # Downloads all info for the games this user can edit, and then redraws the
   # game list accordingly.
@@ -516,7 +516,7 @@ class App
                   else
                     message += " #{tag.count} notes with this tag will be deleted."
                 $('#modal-delete-tag .modal-body').text message
-                $('#modal-delete-tag').modal()
+                $('#modal-delete-tag').modal(keyboard: true)
     @ableEditTags()
 
   startEditTags: (game) ->
