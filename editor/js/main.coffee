@@ -197,7 +197,6 @@ class App
                   href: '#tags' + game.game_id
                   text: 'Edit tags'
                 appendTo formGroup, 'a.btn.btn-danger',
-                  href: '#'
                   html: '<i class="fa fa-remove"></i> Delete Siftr'
                 , (button) =>
                   button.click =>
@@ -500,8 +499,7 @@ class App
                 , 500
               input.keydown onEdit
           appendTo form, '.form-group', {}, (formGroup) =>
-            appendTo formGroup, 'button.btn.btn-danger.delete-tag',
-              type: 'button'
+            appendTo formGroup, 'a.btn.btn-danger.delete-tag',
               html: '<i class="fa fa-remove"></i> Delete tag'
             , (btn) =>
               btn.click =>

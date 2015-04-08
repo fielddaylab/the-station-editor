@@ -252,7 +252,6 @@
                       text: 'Edit tags'
                     });
                     return appendTo(formGroup, 'a.btn.btn-danger', {
-                      href: '#',
                       html: '<i class="fa fa-remove"></i> Delete Siftr'
                     }, function(button) {
                       return button.click(function() {
@@ -770,8 +769,7 @@
                 });
               });
               return appendTo(form, '.form-group', {}, function(formGroup) {
-                return appendTo(formGroup, 'button.btn.btn-danger.delete-tag', {
-                  type: 'button',
+                return appendTo(formGroup, 'a.btn.btn-danger.delete-tag', {
                   html: '<i class="fa fa-remove"></i> Delete tag'
                 }, function(btn) {
                   return btn.click(function() {
