@@ -15,17 +15,17 @@ class Results
           appendTo row, '.siftr-cell.col-xs-6.col-sm-3', {}, (cell) =>
             if game?
               url = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
-              if game.go_to_note?
-                url += '#' + game.go_to_note
-              appendTo cell, 'a', href: url, (link) =>
+              photo_url = url + '#' + (game.go_to_note ? '')
+              appendTo cell, 'a', href: photo_url, (link) =>
                 appendTo link, 'img.img-responsive.img-thumbnail.img-siftr-icon',
                   src: game.icon_url
+              appendTo cell, 'a', href: url, (link) =>
                 appendTo link, '.siftr-title', text: game.name
-                markdown = new Showdown.converter()
-                desc = appendTo link, '.siftr-description', html: markdown.makeHtml game.description
-                desc.dotdotdot
-                  watch: 'window'
-                  height: 50
+              markdown = new Showdown.converter()
+              desc = appendTo cell, '.siftr-description', html: markdown.makeHtml game.description
+              desc.dotdotdot
+                watch: 'window'
+                height: 50
         appendGame gamesToShow[0]
         appendGame gamesToShow[1]
         appendTo row, '.clearfix.visible-xs-block'

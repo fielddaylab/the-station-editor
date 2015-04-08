@@ -24,30 +24,31 @@
             var appendGame;
             appendGame = function(game) {
               return appendTo(row, '.siftr-cell.col-xs-6.col-sm-3', {}, function(cell) {
-                var url, _ref;
+                var desc, markdown, photo_url, url, _ref, _ref1;
                 if (game != null) {
                   url = "" + SIFTR_URL + ((_ref = game.siftr_url) != null ? _ref : game.game_id);
-                  if (game.go_to_note != null) {
-                    url += '#' + game.go_to_note;
-                  }
-                  return appendTo(cell, 'a', {
-                    href: url
+                  photo_url = url + '#' + ((_ref1 = game.go_to_note) != null ? _ref1 : '');
+                  appendTo(cell, 'a', {
+                    href: photo_url
                   }, function(link) {
-                    var desc, markdown;
-                    appendTo(link, 'img.img-responsive.img-thumbnail.img-siftr-icon', {
+                    return appendTo(link, 'img.img-responsive.img-thumbnail.img-siftr-icon', {
                       src: game.icon_url
                     });
-                    appendTo(link, '.siftr-title', {
+                  });
+                  appendTo(cell, 'a', {
+                    href: url
+                  }, function(link) {
+                    return appendTo(link, '.siftr-title', {
                       text: game.name
                     });
-                    markdown = new Showdown.converter();
-                    desc = appendTo(link, '.siftr-description', {
-                      html: markdown.makeHtml(game.description)
-                    });
-                    return desc.dotdotdot({
-                      watch: 'window',
-                      height: 50
-                    });
+                  });
+                  markdown = new Showdown.converter();
+                  desc = appendTo(cell, '.siftr-description', {
+                    html: markdown.makeHtml(game.description)
+                  });
+                  return desc.dotdotdot({
+                    watch: 'window',
+                    height: 50
                   });
                 }
               });
