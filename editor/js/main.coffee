@@ -251,43 +251,45 @@ class App
 
   # Downloads icon media info for each game that doesn't already have it.
   getGameIcons: (cb = (->)) ->
-    for game in @games
-      unless game.icon_media?
-        if parseInt(game.icon_media_id) is 0
-          game.icon_media =
-            url: 'img/uw_shield.png'
-          @getGameIcons cb
-        else
-          @aris.call 'media.getMedia',
-            media_id: game.icon_media_id
-          , (data: game.icon_media) =>
-            @getGameIcons cb
-        return
-    cb()
+    go = (game) => (cb) =>
+      if game.icon_media?
+        cb()
+      else if parseInt(game.icon_media_id) is 0
+        game.icon_media =
+          url: 'img/uw_shield.png'
+        cb()
+      else
+        @aris.call 'media.getMedia',
+          media_id: game.icon_media_id
+        , (data: game.icon_media) =>
+          cb()
+    async.parallel(go(game) for game in @games, cb)
 
   # Downloads the tag list for each game that doesn't already have it.
   getGameTags: (cb = (->)) ->
-    for game in @games
-      unless game.tags?
+    go = (game) => (cb) =>
+      if game.tags?
+        cb()
+      else
         @aris.call 'tags.getTagsForGame',
           game_id: game.game_id
         , (data: game.tags) =>
-          @getGameTags cb
-        return
-    cb()
+          cb()
+    async.parallel(go(game) for game in @games, cb)
 
   getGameTagCounts: (cb = (->)) ->
-    for game in @games
-      for tag in game.tags
-        unless tag.count?
-          @aris.call 'tags.countObjectsWithTag',
-            object_type: 'NOTE'
-            tag_id: tag.tag_id
-          , (data: {count}) =>
-            tag.count = parseInt count
-            @getGameTagCounts cb
-          return
-    cb()
+    allTags = [].concat(tag for tag in (game.tags for game in @games) ...) # flat list of tags
+    go = (tag) => (cb) =>
+      if tag.count?
+        cb()
+      else
+        @aris.call 'tags.countObjectsWithTag',
+          object_type: 'NOTE'
+          tag_id: tag.tag_id
+        , (data: {count}) =>
+          tag.count = parseInt count
+          cb()
+    async.parallel(go(tag) for tag in allTags, cb)
 
   # Resets the Siftr icon to its existing state.
   resetIcon: ->

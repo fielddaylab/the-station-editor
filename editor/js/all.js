@@ -344,86 +344,128 @@
     };
 
     App.prototype.getGameIcons = function(cb) {
-      var game, _i, _len, _ref;
+      var game, go;
       if (cb == null) {
         cb = (function() {});
       }
-      _ref = this.games;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        game = _ref[_i];
-        if (game.icon_media == null) {
-          if (parseInt(game.icon_media_id) === 0) {
-            game.icon_media = {
-              url: 'img/uw_shield.png'
-            };
-            this.getGameIcons(cb);
-          } else {
-            this.aris.call('media.getMedia', {
-              media_id: game.icon_media_id
-            }, (function(_this) {
-              return function(_arg) {
-                game.icon_media = _arg.data;
-                return _this.getGameIcons(cb);
+      go = (function(_this) {
+        return function(game) {
+          return function(cb) {
+            if (game.icon_media != null) {
+              return cb();
+            } else if (parseInt(game.icon_media_id) === 0) {
+              game.icon_media = {
+                url: 'img/uw_shield.png'
               };
-            })(this));
-          }
-          return;
+              return cb();
+            } else {
+              return _this.aris.call('media.getMedia', {
+                media_id: game.icon_media_id
+              }, function(_arg) {
+                game.icon_media = _arg.data;
+                return cb();
+              });
+            }
+          };
+        };
+      })(this);
+      return async.parallel((function() {
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
         }
-      }
-      return cb();
+        return _results;
+      }).call(this), cb);
     };
 
     App.prototype.getGameTags = function(cb) {
-      var game, _i, _len, _ref;
+      var game, go;
       if (cb == null) {
         cb = (function() {});
       }
-      _ref = this.games;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        game = _ref[_i];
-        if (game.tags == null) {
-          this.aris.call('tags.getTagsForGame', {
-            game_id: game.game_id
-          }, (function(_this) {
-            return function(_arg) {
-              game.tags = _arg.data;
-              return _this.getGameTags(cb);
-            };
-          })(this));
-          return;
+      go = (function(_this) {
+        return function(game) {
+          return function(cb) {
+            if (game.tags != null) {
+              return cb();
+            } else {
+              return _this.aris.call('tags.getTagsForGame', {
+                game_id: game.game_id
+              }, function(_arg) {
+                game.tags = _arg.data;
+                return cb();
+              });
+            }
+          };
+        };
+      })(this);
+      return async.parallel((function() {
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
         }
-      }
-      return cb();
+        return _results;
+      }).call(this), cb);
     };
 
     App.prototype.getGameTagCounts = function(cb) {
-      var game, tag, _i, _j, _len, _len1, _ref, _ref1;
+      var allTags, game, go, tag, _ref;
       if (cb == null) {
         cb = (function() {});
       }
-      _ref = this.games;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        game = _ref[_i];
-        _ref1 = game.tags;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          tag = _ref1[_j];
-          if (tag.count == null) {
-            this.aris.call('tags.countObjectsWithTag', {
-              object_type: 'NOTE',
-              tag_id: tag.tag_id
-            }, (function(_this) {
-              return function(_arg) {
+      allTags = (_ref = []).concat.apply(_ref, (function() {
+        var _i, _len, _ref, _results;
+        _ref = (function() {
+          var _j, _len, _ref, _results1;
+          _ref = this.games;
+          _results1 = [];
+          for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+            game = _ref[_j];
+            _results1.push(game.tags);
+          }
+          return _results1;
+        }).call(this);
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          tag = _ref[_i];
+          _results.push(tag);
+        }
+        return _results;
+      }).call(this));
+      go = (function(_this) {
+        return function(tag) {
+          return function(cb) {
+            if (tag.count != null) {
+              return cb();
+            } else {
+              return _this.aris.call('tags.countObjectsWithTag', {
+                object_type: 'NOTE',
+                tag_id: tag.tag_id
+              }, function(_arg) {
                 var count;
                 count = _arg.data.count;
                 tag.count = parseInt(count);
-                return _this.getGameTagCounts(cb);
-              };
-            })(this));
-            return;
-          }
+                return cb();
+              });
+            }
+          };
+        };
+      })(this);
+      return async.parallel((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = allTags.length; _i < _len; _i++) {
+          tag = allTags[_i];
+          _results.push(go(tag));
         }
-      }
-      return cb();
+        return _results;
+      })(), cb);
     };
 
     App.prototype.resetIcon = function() {
