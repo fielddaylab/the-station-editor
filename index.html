@@ -77,128 +77,45 @@
           </form>
         </div>
       </div>
+
       <div id="search-results">
         <h2>
           Search Results
-          <a onclick="app.search.moveLeft();" class="results-arrow">
-            <span class="glyphicon glyphicon-chevron-left"></span>
-          </a>
-          <a onclick="app.search.moveRight();" class="results-arrow">
-            <span class="glyphicon glyphicon-chevron-right"></span>
-          </a>
         </h2>
-        <div class="row" id="row-search">
-          <div class="siftr-cell col-xs-6 col-sm-3">
-            <a href="#">
-              <img class="img-responsive img-thumbnail img-siftr-icon">
-              <div class="siftr-title"></div>
-              <div class="siftr-description"></div>
-            </a>
-          </div>
-          <div class="siftr-cell col-xs-6 col-sm-3">
-            <a href="#">
-              <img class="img-responsive img-thumbnail img-siftr-icon">
-              <div class="siftr-title"></div>
-              <div class="siftr-description"></div>
-            </a>
-          </div>
-          <div class="clearfix visible-xs-block"></div>
-          <div class="siftr-cell col-xs-6 col-sm-3">
-            <a href="#">
-              <img class="img-responsive img-thumbnail img-siftr-icon">
-              <div class="siftr-title"></div>
-              <div class="siftr-description"></div>
-            </a>
-          </div>
-          <div class="siftr-cell col-xs-6 col-sm-3">
-            <a href="#">
-              <img class="img-responsive img-thumbnail img-siftr-icon">
-              <div class="siftr-title"></div>
-              <div class="siftr-description"></div>
+        <div id="rows-search"></div>
+        <div id="show-more-search" class="show-more row">
+          <div class="col-xs-12 col-sm-4 col-sm-offset-4">
+            <a class="btn btn-default btn-block" onclick="app.search.showMore();">
+              Show More
             </a>
           </div>
         </div>
       </div>
+
       <h2>
         Recent Activity
-        <a onclick="app.recent.moveLeft();" class="results-arrow">
-          <span class="glyphicon glyphicon-chevron-left"></span>
-        </a>
-        <a onclick="app.recent.moveRight();" class="results-arrow">
-          <span class="glyphicon glyphicon-chevron-right"></span>
-        </a>
       </h2>
-      <div class="row" id="row-recent">
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="clearfix visible-xs-block"></div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
+      <div id="rows-recent"></div>
+      <div id="show-more-recent" class="show-more row">
+        <div class="col-xs-12 col-sm-4 col-sm-offset-4">
+          <a class="btn btn-default btn-block" onclick="app.recent.showMore();">
+            Show More
           </a>
         </div>
       </div>
+
       <h2>
         Popular
-        <a onclick="app.popular.moveLeft();" class="results-arrow">
-          <span class="glyphicon glyphicon-chevron-left"></span>
-        </a>
-        <a onclick="app.popular.moveRight();" class="results-arrow">
-          <span class="glyphicon glyphicon-chevron-right"></span>
-        </a>
       </h2>
-      <div class="row" id="row-popular">
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="clearfix visible-xs-block"></div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
-          </a>
-        </div>
-        <div class="siftr-cell col-xs-6 col-sm-3">
-          <a href="#">
-            <img class="img-responsive img-thumbnail img-siftr-icon">
-            <div class="siftr-title"></div>
-            <div class="siftr-description"></div>
+      <div id="rows-popular"></div>
+      <div id="show-more-popular" class="show-more row">
+        <div class="col-xs-12 col-sm-4 col-sm-offset-4">
+          <a class="btn btn-default btn-block" onclick="app.popular.showMore();">
+            Show More
           </a>
         </div>
       </div>
+
     </div>
 
     <div id="empty-space"></div>

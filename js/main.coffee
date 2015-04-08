@@ -1,48 +1,42 @@
 class Results
-  constructor: (@cells, @games) ->
-    @index = 0
-    @updateCells()
+  constructor: (@parent, @games, @moreButton) ->
+    @showMore()
 
-  moveLeft: ->
-    if @index - 4 >= 0
-      @index -= 4
-      @updateCells()
-
-  moveRight: ->
-    if @index + 4 < @games.length
-      @index += 4
-      @updateCells()
-
-  updateCells: ->
-    for cell, i in @cells
-      @updateCell cell, @games[i + @index]
-
-  updateCell: (cell, game) ->
-    if game?
-      link = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
-      if game.go_to_note?
-        link += '#' + game.go_to_note
-      $(cell).find('a').attr 'href', link
-      $(cell).find('img').attr 'src', game.icon_url
-      $(cell).find('img').show()
-      $(cell).find('.siftr-title').text game.name
-      markdown = new Showdown.converter()
-      $(cell).find('.siftr-description').html markdown.makeHtml game.description
-    else
-      $(cell).find('a').attr 'href', '#'
-      $(cell).find('img').removeAttr 'src'
-      $(cell).find('img').hide()
-      $(cell).find('.siftr-title').text ''
-      $(cell).find('.siftr-description').text ''
+  showMore: ->
+    gamesToShow = @games[0..3]
+    if gamesToShow.length isnt 0
+      @games = @games[4..]
+      if @games.length is 0
+        @moreButton.hide()
+      else
+        @moreButton.show()
+      appendTo @parent, '.row', {}, (row) =>
+        appendGame = (game) =>
+          appendTo row, '.siftr-cell.col-xs-6.col-sm-3', {}, (cell) =>
+            if game?
+              url = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
+              if game.go_to_note?
+                url += '#' + game.go_to_note
+              appendTo cell, 'a', href: url, (link) =>
+                appendTo link, 'img.img-responsive.img-thumbnail.img-siftr-icon',
+                  src: game.icon_url
+                appendTo link, '.siftr-title', text: game.name
+                markdown = new Showdown.converter()
+                desc = appendTo link, '.siftr-description', html: markdown.makeHtml game.description
+                desc.dotdotdot
+                  watch: 'window'
+                  height: 50
+        appendGame gamesToShow[0]
+        appendGame gamesToShow[1]
+        appendTo row, '.clearfix.visible-xs-block'
+        appendGame gamesToShow[2]
+        appendGame gamesToShow[3]
+      $('.siftr-description').trigger 'update'
 
 class App
   constructor: ->
     $(document).ready =>
       @aris = new Aris
-
-      $('.siftr-description').dotdotdot
-        watch: 'window'
-        height: 50
 
       $('#menu-logout').click =>
         @aris.logout()
@@ -60,10 +54,9 @@ class App
               g for g in games when parseInt(g.published) isnt 0
             async.parallel( @getIconURL(game) for game in games
                           , =>
-                            cells = $('#row-search').children('.siftr-cell')
-                            @search = new Results cells, games
+                            $('#rows-search').text ''
                             $('#search-results').show()
-                            $('.siftr-description').trigger 'update'
+                            @search = new Results $('#rows-search'), games, $('#show-more-search')
                           )
 
       @aris.login undefined, undefined, =>
@@ -76,8 +69,7 @@ class App
             g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          cells = $('#row-recent').children('.siftr-cell')
-                          @recent = new Results cells, games
+                          @recent = new Results $('#rows-recent'), games, $('#show-more-recent')
                         )
 
         @aris.call 'games.searchSiftrs',
@@ -87,8 +79,7 @@ class App
             g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
                         , =>
-                          cells = $('#row-popular').children('.siftr-cell')
-                          @popular = new Results cells, games
+                          @popular = new Results $('#rows-popular'), games, $('#show-more-popular')
                         )
 
   getIconURL: (game) -> (cb) =>
