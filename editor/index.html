@@ -67,11 +67,6 @@
         <!-- This will usually be overwritten with an actual message -->
       </div>
 
-      <div id="hidden-map-container">
-        <div id="the-map">
-        </div>
-      </div>
-
       <div id="page-login" class="page">
         <h1>Log in</h1>
         <form>
@@ -214,7 +209,7 @@
             <input type="text" id="text-siftr-name" class="form-control" placeholder="Name">
           </div>
           <div class="form-group">
-            <label for="text-siftr-desc" class="control-label">Description (<a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> supported)</label>
+            <label for="text-siftr-desc" class="control-label">Description (<a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown</a> supported)</label>
             <textarea id="text-siftr-desc" class="form-control" rows="3" placeholder="Description"></textarea>
           </div>
           <div class="form-group">
@@ -242,10 +237,10 @@
             </div>
           </div>
           <div class="form-group" id="div-map-group">
-            <label for="div-google-map" class="control-label">
+            <label for="the-map" class="control-label">
               Map Center and Zoom
             </label>
-            <div id="div-google-map">
+            <div id="the-map">
             </div>
           </div>
           <div class="form-group">
@@ -267,7 +262,7 @@
           Edit tags
         </h1>
         <p>
-          Changes are saved automatically.
+          Click on an icon square to upload a new image. All changes are saved automatically.
         </p>
         <div id="div-edit-tags">
         </div>

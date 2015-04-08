@@ -23,10 +23,6 @@ nav {
   display: none;
 }
 
-#hidden-map-container {
-  display: none;
-}
-
 #the-map {
   height: 400px;
   width: 400px;

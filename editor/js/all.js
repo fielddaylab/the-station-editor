@@ -476,7 +476,7 @@
       });
     };
 
-    App.prototype.createMap = function(parent, _arg) {
+    App.prototype.createMap = function(_arg) {
       var lat, lng, zoom;
       lat = _arg.lat, lng = _arg.lng, zoom = _arg.zoom;
       if (this.map != null) {
@@ -484,9 +484,9 @@
           lat: lat,
           lng: lng
         });
-        this.map.setZoom(zoom);
+        return this.map.setZoom(zoom);
       } else {
-        this.map = new google.maps.Map($('#the-map')[0], {
+        return this.map = new google.maps.Map($('#the-map')[0], {
           center: {
             lat: lat,
             lng: lng
@@ -494,7 +494,6 @@
           zoom: zoom
         });
       }
-      return parent.append(this.map.getDiv());
     };
 
     App.prototype.startEdit = function(game) {
@@ -507,7 +506,7 @@
       $('#text-siftr-url').val(game.siftr_url);
       $('#checkbox-siftr-published').prop('checked', game.published);
       this.resetIcon();
-      this.createMap($('#div-google-map'), {
+      this.createMap({
         lat: game.map_latitude,
         lng: game.map_longitude,
         zoom: game.map_zoom_level

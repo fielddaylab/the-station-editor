@@ -297,9 +297,8 @@ class App
     $('#div-icon-thumb').html ''
     appendTo $('#div-icon-thumb'), 'img', src: @currentGame.icon_media.url
 
-  # Ensures that the map exists, centers it on the given place, and moves
-  # the map object to be a child of the given element.
-  createMap: (parent, {lat, lng, zoom}) ->
+  # Ensures that the map exists, and centers it on the given place.
+  createMap: ({lat, lng, zoom}) ->
     if @map?
       @map.setCenter {lat, lng}
       @map.setZoom zoom
@@ -307,7 +306,6 @@ class App
       @map = new google.maps.Map $('#the-map')[0],
         center: {lat, lng}
         zoom: zoom
-    parent.append @map.getDiv()
 
   # Starts or resets the edit process for a Siftr, and loads the Edit page.
   startEdit: (game = @currentGame) ->
@@ -317,7 +315,7 @@ class App
     $('#text-siftr-url').val game.siftr_url
     $('#checkbox-siftr-published').prop 'checked', game.published
     @resetIcon()
-    @createMap $('#div-google-map'),
+    @createMap
       lat: game.map_latitude
       lng: game.map_longitude
       zoom: game.map_zoom_level
