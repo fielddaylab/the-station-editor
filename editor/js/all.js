@@ -86,8 +86,18 @@
       })(this));
     }
 
-    App.prototype.showAlert = function(str) {
+    App.prototype.showAlert = function(str, good) {
+      if (good == null) {
+        good = false;
+      }
       $('#the-alert').text(str);
+      if (good) {
+        $('#the-alert').removeClass('alert-danger');
+        $('#the-alert').addClass('alert-success');
+      } else {
+        $('#the-alert').removeClass('alert-success');
+        $('#the-alert').addClass('alert-danger');
+      }
       return $('#the-alert').show();
     };
 
@@ -619,7 +629,7 @@
       $('#spinner-new-siftr').show();
       return this.aris.call('games.createGame', {
         name: 'Your New Siftr',
-        description: 'Click "Edit Siftr" to get started.',
+        description: '',
         map_latitude: 43.071644,
         map_longitude: -89.400658,
         map_zoom_level: 14,
@@ -640,7 +650,8 @@
               return _this.getGameTags(function() {
                 return _this.getGameTagCounts(function() {
                   _this.redrawGameList();
-                  return $('#spinner-new-siftr').hide();
+                  $('#spinner-new-siftr').hide();
+                  return _this.showAlert('Your Siftr has been created! Click "Edit Siftr" to get started.', true);
                 });
               });
             });
@@ -885,6 +896,7 @@
               return _results;
             }).call(_this);
             _this.redrawGameList();
+            $('#the-alert').hide();
           } else {
             _this.showAlert(res.returnCodeDescription);
           }

@@ -77,8 +77,14 @@ class App
 
   # Shows an alert textbox at the top of the page.
   # The alert is cleared upon calling @selectPage.
-  showAlert: (str) ->
+  showAlert: (str, good = false) ->
     $('#the-alert').text str
+    if good
+      $('#the-alert').removeClass 'alert-danger'
+      $('#the-alert').addClass 'alert-success'
+    else
+      $('#the-alert').removeClass 'alert-success'
+      $('#the-alert').addClass 'alert-danger'
     $('#the-alert').show()
 
   startingPage: ->
@@ -396,7 +402,7 @@ class App
     $('#spinner-new-siftr').show()
     @aris.call 'games.createGame',
       name: 'Your New Siftr'
-      description: 'Click "Edit Siftr" to get started.'
+      description: ''
       map_latitude: 43.071644
       map_longitude: -89.400658
       map_zoom_level: 14
@@ -413,6 +419,7 @@ class App
             @getGameTagCounts =>
               @redrawGameList()
               $('#spinner-new-siftr').hide()
+              @showAlert 'Your Siftr has been created! Click "Edit Siftr" to get started.', true
 
   # Prevents deleting a tag if it's the only one on the Edit Tags screen.
   # Prevents adding a tag if there are already 8.
@@ -561,6 +568,7 @@ class App
         @games =
           g for g in @games when g isnt @deleteGame
         @redrawGameList()
+        $('#the-alert').hide()
       else
         @showAlert res.returnCodeDescription
       $('#modal-delete-siftr').modal 'hide'
