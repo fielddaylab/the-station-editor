@@ -562,8 +562,37 @@ class App
     @selectPage '#page-editors'
 
   addEditorListing: (user) ->
-    appendTo $('#div-editor-list'), 'li', {}, (li) =>
-      li.text user.user_name
+    appendTo $('#div-editor-list'), '.form-group', {}, (formGroup) =>
+      appendTo formGroup, '.input-group', {}, (inputGroup) =>
+        appendTo inputGroup, 'input.form-control',
+          type: 'text'
+          value: user.user_name
+          disabled: true
+        appendTo inputGroup, 'span.input-group-btn', {}, (buttonSpan) =>
+          appendTo buttonSpan, 'button.btn.btn-danger', disabled: true, (button) =>
+            appendTo button, 'i.fa.fa-minus'
+
+  addEditor: ->
+    username = $('#add-editor-username').val()
+    if username is ''
+      @showAlert 'Enter the username of the editor you want to add.'
+    else
+      @aris.call 'users.getUserForSearch',
+        search: username
+      , (res) =>
+        if res.returnCode isnt 0
+          @showAlert res.returnCodeDescription
+        else
+          @aris.call 'editors.addEditorToGame',
+            user_id: parseInt res.data.user_id
+            game_id: @currentGame.game_id
+          , (res) =>
+            if res.returnCode isnt 0
+              @showAlert res.returnCodeDescription
+            else
+              delete @currentGame.editors
+              @getAllGameInfo =>
+                @startEditors @currentGame
 
   editAddTag: ->
     $('#spinner-add-tag').show()

@@ -906,11 +906,56 @@
     };
 
     App.prototype.addEditorListing = function(user) {
-      return appendTo($('#div-editor-list'), 'li', {}, (function(_this) {
-        return function(li) {
-          return li.text(user.user_name);
+      return appendTo($('#div-editor-list'), '.form-group', {}, (function(_this) {
+        return function(formGroup) {
+          return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
+            appendTo(inputGroup, 'input.form-control', {
+              type: 'text',
+              value: user.user_name,
+              disabled: true
+            });
+            return appendTo(inputGroup, 'span.input-group-btn', {}, function(buttonSpan) {
+              return appendTo(buttonSpan, 'button.btn.btn-danger', {
+                disabled: true
+              }, function(button) {
+                return appendTo(button, 'i.fa.fa-minus');
+              });
+            });
+          });
         };
       })(this));
+    };
+
+    App.prototype.addEditor = function() {
+      var username;
+      username = $('#add-editor-username').val();
+      if (username === '') {
+        return this.showAlert('Enter the username of the editor you want to add.');
+      } else {
+        return this.aris.call('users.getUserForSearch', {
+          search: username
+        }, (function(_this) {
+          return function(res) {
+            if (res.returnCode !== 0) {
+              return _this.showAlert(res.returnCodeDescription);
+            } else {
+              return _this.aris.call('editors.addEditorToGame', {
+                user_id: parseInt(res.data.user_id),
+                game_id: _this.currentGame.game_id
+              }, function(res) {
+                if (res.returnCode !== 0) {
+                  return _this.showAlert(res.returnCodeDescription);
+                } else {
+                  delete _this.currentGame.editors;
+                  return _this.getAllGameInfo(function() {
+                    return _this.startEditors(_this.currentGame);
+                  });
+                }
+              });
+            }
+          };
+        })(this));
+      }
     };
 
     App.prototype.editAddTag = function() {

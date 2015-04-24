@@ -309,8 +309,26 @@
         <h1>
           Editors
         </h1>
-        <ul id="div-editor-list">
-        </ul>
+        <p>
+          These people can edit the Siftr details, delete notes and comments on the Siftr, and delete the Siftr.
+        </p>
+        <form>
+          <div id="div-editor-list">
+          </div>
+          <div class="form-group">
+            <label for="add-editor-input-group">
+              Add a new editor
+            </label>
+            <div class="input-group" id="add-editor-input-group">
+              <input id="add-editor-username" class="form-control" type="text" placeholder="Username">
+              <span class="input-group-btn">
+                <button class="btn btn-success" onclick="app.addEditor();">
+                  <i class="fa fa-plus"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+        </form>
       </div>
 
       <div id="bottom-padding">
