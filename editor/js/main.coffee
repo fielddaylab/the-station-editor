@@ -265,11 +265,12 @@ class App
 
   # Gets all the missing info for games in the game list.
   getAllGameInfo: (cb = (->)) ->
-    @getGameIcons =>
-      @getGameTags =>
-        @getGameTagCounts =>
-          @getGameEditors =>
-            cb()
+    actions =
+      [ ((cb) => @getGameIcons cb)
+      , ((cb) => @getGameTags => @getGameTagCounts cb)
+      , ((cb) => @getGameEditors cb)
+      ]
+    async.parallel actions, cb
 
   # Downloads icon media info for each game that doesn't already have it.
   getGameIcons: (cb = (->)) ->

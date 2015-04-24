@@ -372,20 +372,28 @@
     };
 
     App.prototype.getAllGameInfo = function(cb) {
+      var actions;
       if (cb == null) {
         cb = (function() {});
       }
-      return this.getGameIcons((function(_this) {
-        return function() {
-          return _this.getGameTags(function() {
-            return _this.getGameTagCounts(function() {
-              return _this.getGameEditors(function() {
-                return cb();
-              });
+      actions = [
+        ((function(_this) {
+          return function(cb) {
+            return _this.getGameIcons(cb);
+          };
+        })(this)), ((function(_this) {
+          return function(cb) {
+            return _this.getGameTags(function() {
+              return _this.getGameTagCounts(cb);
             });
-          });
-        };
-      })(this));
+          };
+        })(this)), ((function(_this) {
+          return function(cb) {
+            return _this.getGameEditors(cb);
+          };
+        })(this))
+      ];
+      return async.parallel(actions, cb);
     };
 
     App.prototype.getGameIcons = function(cb) {
