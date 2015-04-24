@@ -913,6 +913,8 @@
     };
 
     App.prototype.addEditorListing = function(user) {
+      var canDelete;
+      canDelete = this.currentGame.editors.length > 1 && parseInt(user.user_id) !== this.aris.auth.user_id;
       return appendTo($('#div-editor-list'), '.form-group', {}, (function(_this) {
         return function(formGroup) {
           return appendTo(formGroup, '.input-group', {}, function(inputGroup) {
@@ -923,9 +925,20 @@
             });
             return appendTo(inputGroup, 'span.input-group-btn', {}, function(buttonSpan) {
               return appendTo(buttonSpan, 'button.btn.btn-danger', {
-                disabled: true
+                disabled: !canDelete
               }, function(button) {
-                return appendTo(button, 'i.fa.fa-minus');
+                appendTo(button, 'i.fa.fa-minus');
+                return button.click(function() {
+                  $('#the-delete-title').text('Delete Editor');
+                  $('#the-delete-text').text("Are you sure you want to delete the editor \"" + user.user_name + "\"?");
+                  $('#the-delete-button').unbind('click');
+                  $('#the-delete-button').click(function() {
+                    return _this.deleteEditor(user);
+                  });
+                  return $('#the-delete-modal').modal({
+                    keyboard: true
+                  });
+                });
               });
             });
           });
@@ -963,6 +976,27 @@
           };
         })(this));
       }
+    };
+
+    App.prototype.deleteEditor = function(user) {
+      $('#the-delete-spinner').show();
+      return this.aris.call('editors.removeEditorFromGame', {
+        user_id: parseInt(user.user_id),
+        game_id: this.currentGame.game_id
+      }, (function(_this) {
+        return function(res) {
+          if (res.returnCode !== 0) {
+            _this.showAlert(res.returnCodeDescription);
+          } else {
+            delete _this.currentGame.editors;
+            _this.getAllGameInfo(function() {
+              return _this.startEditors(_this.currentGame);
+            });
+          }
+          $('#the-delete-modal').modal('hide');
+          return $('#the-delete-spinner').hide();
+        };
+      })(this));
     };
 
     App.prototype.editAddTag = function() {

@@ -567,6 +567,8 @@ class App
     @selectPage '#page-editors'
 
   addEditorListing: (user) ->
+    canDelete =
+      @currentGame.editors.length > 1 and parseInt(user.user_id) isnt @aris.auth.user_id
     appendTo $('#div-editor-list'), '.form-group', {}, (formGroup) =>
       appendTo formGroup, '.input-group', {}, (inputGroup) =>
         appendTo inputGroup, 'input.form-control',
@@ -574,8 +576,17 @@ class App
           value: user.user_name
           disabled: true
         appendTo inputGroup, 'span.input-group-btn', {}, (buttonSpan) =>
-          appendTo buttonSpan, 'button.btn.btn-danger', disabled: true, (button) =>
+          appendTo buttonSpan, 'button.btn.btn-danger',
+            disabled: not canDelete
+          , (button) =>
             appendTo button, 'i.fa.fa-minus'
+            button.click =>
+              $('#the-delete-title').text 'Delete Editor'
+              $('#the-delete-text').text "Are you sure you want to delete the editor \"#{user.user_name}\"?"
+              $('#the-delete-button').unbind 'click'
+              $('#the-delete-button').click =>
+                @deleteEditor user
+              $('#the-delete-modal').modal(keyboard: true)
 
   addEditor: ->
     username = $('#add-editor-username').val()
@@ -598,6 +609,21 @@ class App
               delete @currentGame.editors
               @getAllGameInfo =>
                 @startEditors @currentGame
+
+  deleteEditor: (user) ->
+    $('#the-delete-spinner').show()
+    @aris.call 'editors.removeEditorFromGame',
+      user_id: parseInt user.user_id
+      game_id: @currentGame.game_id
+    , (res) =>
+      if res.returnCode isnt 0
+        @showAlert res.returnCodeDescription
+      else
+        delete @currentGame.editors
+        @getAllGameInfo =>
+          @startEditors @currentGame
+      $('#the-delete-modal').modal 'hide'
+      $('#the-delete-spinner').hide()
 
   editAddTag: ->
     $('#spinner-add-tag').show()
