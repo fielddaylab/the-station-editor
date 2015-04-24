@@ -74,6 +74,13 @@
           $('#text-siftr-url').keyup(function() {
             return _this.previewURL();
           });
+          $('#add-editor-username').keydown(function(event) {
+            if (event.keyCode === 13) {
+              $('#add-editor-button').click();
+              $('#add-editor-username').blur();
+              return false;
+            }
+          });
           $(window).on('hashchange', function() {
             return _this.goToHash();
           });
@@ -927,7 +934,7 @@
               return appendTo(buttonSpan, 'button.btn.btn-danger', {
                 disabled: !canDelete
               }, function(button) {
-                appendTo(button, 'i.fa.fa-minus');
+                appendTo(button, 'i.fa.fa-remove');
                 return button.click(function() {
                   $('#the-delete-title').text('Delete Editor');
                   $('#the-delete-text').text("Are you sure you want to delete the editor \"" + user.user_name + "\"?");
@@ -949,6 +956,7 @@
     App.prototype.addEditor = function() {
       var username;
       username = $('#add-editor-username').val();
+      $('#add-editor-username').val('');
       if (username === '') {
         return this.showAlert('Enter the username of the editor you want to add.');
       } else {

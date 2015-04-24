@@ -67,6 +67,12 @@ class App
       $('#text-siftr-url').change => @previewURL()
       $('#text-siftr-url').keyup => @previewURL()
 
+      $('#add-editor-username').keydown (event) =>
+        if event.keyCode is 13 # enter key
+          $('#add-editor-button').click()
+          $('#add-editor-username').blur()
+          return false
+
       $(window).on 'hashchange', =>
         @goToHash()
 
@@ -579,7 +585,7 @@ class App
           appendTo buttonSpan, 'button.btn.btn-danger',
             disabled: not canDelete
           , (button) =>
-            appendTo button, 'i.fa.fa-minus'
+            appendTo button, 'i.fa.fa-remove'
             button.click =>
               $('#the-delete-title').text 'Delete Editor'
               $('#the-delete-text').text "Are you sure you want to delete the editor \"#{user.user_name}\"?"
@@ -590,6 +596,7 @@ class App
 
   addEditor: ->
     username = $('#add-editor-username').val()
+    $('#add-editor-username').val ''
     if username is ''
       @showAlert 'Enter the username of the editor you want to add.'
     else
