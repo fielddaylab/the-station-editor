@@ -217,9 +217,12 @@ class App
                   html: '<i class="fa fa-remove"></i> Delete Siftr'
                 , (button) =>
                   button.click =>
-                    @deleteGame = game
-                    $('#modal-delete-siftr .modal-body').text "Are you sure you want to delete \"#{game.name}\"?"
-                    $('#modal-delete-siftr').modal(keyboard: true)
+                    $('#the-delete-title').text 'Delete Siftr'
+                    $('#the-delete-text').text "Are you sure you want to delete \"#{game.name}\"?"
+                    $('#the-delete-button').unbind 'click'
+                    $('#the-delete-button').click =>
+                      @deleteSiftr game
+                    $('#the-delete-modal').modal(keyboard: true)
 
   # Downloads all info for the games this user can edit, and then redraws the
   # game list accordingly.
@@ -535,8 +538,6 @@ class App
               html: '<i class="fa fa-remove"></i> Delete tag'
             , (btn) =>
               btn.click =>
-                @tagToDelete = tag
-                @tagEditorToDelete = media
                 message = "Are you sure you want to delete the tag \"#{tag.tag}\"?"
                 switch tag.count
                   when 0
@@ -545,8 +546,12 @@ class App
                     message += " 1 note with this tag will be deleted."
                   else
                     message += " #{tag.count} notes with this tag will be deleted."
-                $('#modal-delete-tag .modal-body').text message
-                $('#modal-delete-tag').modal(keyboard: true)
+                $('#the-delete-title').text 'Delete Tag'
+                $('#the-delete-text').text message
+                $('#the-delete-button').unbind 'click'
+                $('#the-delete-button').click =>
+                  @deleteTag tag, media
+                $('#the-delete-modal').modal(keyboard: true)
     @ableEditTags()
 
   startEditTags: (game) ->
@@ -608,35 +613,35 @@ class App
         @showAlert res.returnCodeDescription
       $('#spinner-add-tag').hide()
 
-  deleteTag: ->
-    $('#spinner-delete-tag').show()
+  deleteTag: (tag, media) ->
+    $('#the-delete-spinner').show()
     @aris.call 'tags.deleteTag',
-      tag_id: @tagToDelete.tag_id
+      tag_id: tag.tag_id
     , (res) =>
       if res.returnCode is 0
-        @tagEditorToDelete.remove()
+        media.remove()
         @ableEditTags()
         @currentGame.tags =
-          t for t in @currentGame.tags when t isnt @tagToDelete
+          t for t in @currentGame.tags when t isnt tag
       else
         @showAlert res.returnCodeDescription
-      $('#spinner-delete-tag').hide()
-      $('#modal-delete-tag').modal 'hide'
+      $('#the-delete-modal').modal 'hide'
+      $('#the-delete-spinner').hide()
 
-  deleteSiftr: ->
-    $('#spinner-delete-siftr').show()
+  deleteSiftr: (game) ->
+    $('#the-delete-spinner').show()
     @aris.call 'games.deleteGame',
-      game_id: @deleteGame.game_id
+      game_id: game.game_id
     , (res) =>
       if res.returnCode is 0
         @games =
-          g for g in @games when g isnt @deleteGame
+          g for g in @games when g isnt game
         @redrawGameList()
         $('#the-alert').hide()
       else
         @showAlert res.returnCodeDescription
-      $('#modal-delete-siftr').modal 'hide'
-      $('#spinner-delete-siftr').hide()
+      $('#the-delete-modal').modal 'hide'
+      $('#the-delete-spinner').hide()
 
 app = new App
 window.app = app

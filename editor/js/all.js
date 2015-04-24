@@ -288,9 +288,13 @@
                       html: '<i class="fa fa-remove"></i> Delete Siftr'
                     }, function(button) {
                       return button.click(function() {
-                        _this.deleteGame = game;
-                        $('#modal-delete-siftr .modal-body').text("Are you sure you want to delete \"" + game.name + "\"?");
-                        return $('#modal-delete-siftr').modal({
+                        $('#the-delete-title').text('Delete Siftr');
+                        $('#the-delete-text').text("Are you sure you want to delete \"" + game.name + "\"?");
+                        $('#the-delete-button').unbind('click');
+                        $('#the-delete-button').click(function() {
+                          return _this.deleteSiftr(game);
+                        });
+                        return $('#the-delete-modal').modal({
                           keyboard: true
                         });
                       });
@@ -854,8 +858,6 @@
                 }, function(btn) {
                   return btn.click(function() {
                     var message;
-                    _this.tagToDelete = tag;
-                    _this.tagEditorToDelete = media;
                     message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?";
                     switch (tag.count) {
                       case 0:
@@ -867,8 +869,13 @@
                       default:
                         message += " " + tag.count + " notes with this tag will be deleted.";
                     }
-                    $('#modal-delete-tag .modal-body').text(message);
-                    return $('#modal-delete-tag').modal({
+                    $('#the-delete-title').text('Delete Tag');
+                    $('#the-delete-text').text(message);
+                    $('#the-delete-button').unbind('click');
+                    $('#the-delete-button').click(function() {
+                      return _this.deleteTag(tag, media);
+                    });
+                    return $('#the-delete-modal').modal({
                       keyboard: true
                     });
                   });
@@ -978,15 +985,15 @@
       })(this));
     };
 
-    App.prototype.deleteTag = function() {
-      $('#spinner-delete-tag').show();
+    App.prototype.deleteTag = function(tag, media) {
+      $('#the-delete-spinner').show();
       return this.aris.call('tags.deleteTag', {
-        tag_id: this.tagToDelete.tag_id
+        tag_id: tag.tag_id
       }, (function(_this) {
         return function(res) {
           var t;
           if (res.returnCode === 0) {
-            _this.tagEditorToDelete.remove();
+            media.remove();
             _this.ableEditTags();
             _this.currentGame.tags = (function() {
               var _i, _len, _ref, _results;
@@ -994,7 +1001,7 @@
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 t = _ref[_i];
-                if (t !== this.tagToDelete) {
+                if (t !== tag) {
                   _results.push(t);
                 }
               }
@@ -1003,16 +1010,16 @@
           } else {
             _this.showAlert(res.returnCodeDescription);
           }
-          $('#spinner-delete-tag').hide();
-          return $('#modal-delete-tag').modal('hide');
+          $('#the-delete-modal').modal('hide');
+          return $('#the-delete-spinner').hide();
         };
       })(this));
     };
 
-    App.prototype.deleteSiftr = function() {
-      $('#spinner-delete-siftr').show();
+    App.prototype.deleteSiftr = function(game) {
+      $('#the-delete-spinner').show();
       return this.aris.call('games.deleteGame', {
-        game_id: this.deleteGame.game_id
+        game_id: game.game_id
       }, (function(_this) {
         return function(res) {
           var g;
@@ -1023,7 +1030,7 @@
               _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 g = _ref[_i];
-                if (g !== this.deleteGame) {
+                if (g !== game) {
                   _results.push(g);
                 }
               }
@@ -1034,8 +1041,8 @@
           } else {
             _this.showAlert(res.returnCodeDescription);
           }
-          $('#modal-delete-siftr').modal('hide');
-          return $('#spinner-delete-siftr').hide();
+          $('#the-delete-modal').modal('hide');
+          return $('#the-delete-spinner').hide();
         };
       })(this));
     };
