@@ -203,6 +203,25 @@
               } else {
                 return this.startingPage();
               }
+            } else if ((res = h.match(/^#editors(\d+)$/)) != null) {
+              game_id = parseInt(res[1]);
+              games = (function() {
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
+                  if (g.game_id === game_id) {
+                    _results.push(g);
+                  }
+                }
+                return _results;
+              }).call(this);
+              if (games.length !== 0) {
+                return this.startEditors(games[0]);
+              } else {
+                return this.startingPage();
+              }
             } else {
               return this.startingPage();
             }
@@ -261,6 +280,10 @@
                       href: '#tags' + game.game_id,
                       text: 'Edit tags'
                     });
+                    appendTo(formGroup, 'a.btn.btn-default', {
+                      href: '#editors' + game.game_id,
+                      text: 'Editors'
+                    });
                     return appendTo(formGroup, 'a.btn.btn-danger', {
                       html: '<i class="fa fa-remove"></i> Delete Siftr'
                     }, function(button) {
@@ -290,13 +313,9 @@
       if (this.aris.auth != null) {
         return this.getGames((function(_this) {
           return function() {
-            return _this.getGameIcons(function() {
-              return _this.getGameTags(function() {
-                return _this.getGameTagCounts(function() {
-                  _this.redrawGameList();
-                  return cb();
-                });
-              });
+            return _this.getAllGameInfo(function() {
+              _this.redrawGameList();
+              return cb();
             });
           };
         })(this));
@@ -348,6 +367,23 @@
             _this.addGameFromJson(json);
           }
           return cb();
+        };
+      })(this));
+    };
+
+    App.prototype.getAllGameInfo = function(cb) {
+      if (cb == null) {
+        cb = (function() {});
+      }
+      return this.getGameIcons((function(_this) {
+        return function() {
+          return _this.getGameTags(function() {
+            return _this.getGameTagCounts(function() {
+              return _this.getGameEditors(function() {
+                return cb();
+              });
+            });
+          });
         };
       })(this));
     };
@@ -475,6 +511,39 @@
         }
         return _results;
       })(), cb);
+    };
+
+    App.prototype.getGameEditors = function(cb) {
+      var game, go;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      go = (function(_this) {
+        return function(game) {
+          return function(cb) {
+            if (game.editors != null) {
+              return cb();
+            } else {
+              return _this.aris.call('editors.getEditorsForGame', {
+                game_id: game.game_id
+              }, function(_arg) {
+                game.editors = _arg.data;
+                return cb();
+              });
+            }
+          };
+        };
+      })(this);
+      return async.parallel((function() {
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
+        }
+        return _results;
+      }).call(this), cb);
     };
 
     App.prototype.resetIcon = function() {
@@ -609,15 +678,11 @@
               return $('#spinner-edit-save').hide();
             } else {
               newGame = _this.addGameFromJson(json);
-              return _this.getGameIcons(function() {
-                return _this.getGameTags(function() {
-                  return _this.getGameTagCounts(function() {
-                    _this.redrawGameList();
-                    $('#spinner-edit-save').hide();
-                    window.location.hash = '#';
-                    return cb(newGame);
-                  });
-                });
+              return _this.getAllGameInfo(function() {
+                _this.redrawGameList();
+                $('#spinner-edit-save').hide();
+                window.location.hash = '#';
+                return cb(newGame);
               });
             }
           });
@@ -646,14 +711,10 @@
           }, function(_arg1) {
             var tag;
             tag = _arg1.data;
-            return _this.getGameIcons(function() {
-              return _this.getGameTags(function() {
-                return _this.getGameTagCounts(function() {
-                  _this.redrawGameList();
-                  $('#spinner-new-siftr').hide();
-                  return _this.showAlert('Your Siftr has been created! Click "Edit Siftr" to get started.', true);
-                });
-              });
+            return _this.getAllGameInfo(function() {
+              _this.redrawGameList();
+              $('#spinner-new-siftr').hide();
+              return _this.showAlert('Your Siftr has been created! Click "Edit Siftr" to get started.', true);
             });
           });
         };
@@ -822,6 +883,26 @@
         this.addTagEditor(tag);
       }
       return this.selectPage('#page-edit-tags');
+    };
+
+    App.prototype.startEditors = function(game) {
+      var user, _i, _len, _ref;
+      this.currentGame = game;
+      $('#div-editor-list').html('');
+      _ref = game.editors;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        user = _ref[_i];
+        this.addEditorListing(user);
+      }
+      return this.selectPage('#page-editors');
+    };
+
+    App.prototype.addEditorListing = function(user) {
+      return appendTo($('#div-editor-list'), 'li', {}, (function(_this) {
+        return function(li) {
+          return li.text(user.user_name);
+        };
+      })(this));
     };
 
     App.prototype.editAddTag = function() {

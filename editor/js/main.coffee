@@ -153,6 +153,14 @@ class App
               @startEditTags games[0]
             else
               @startingPage()
+          else if (res = h.match /^#editors(\d+)$/)?
+            game_id = parseInt(res[1])
+            games =
+              g for g in @games when g.game_id is game_id
+            if games.length isnt 0
+              @startEditors games[0]
+            else
+              @startingPage()
           else
             @startingPage()
         else
@@ -202,6 +210,9 @@ class App
                 appendTo formGroup, 'a.btn.btn-default',
                   href: '#tags' + game.game_id
                   text: 'Edit tags'
+                appendTo formGroup, 'a.btn.btn-default',
+                  href: '#editors' + game.game_id
+                  text: 'Editors'
                 appendTo formGroup, 'a.btn.btn-danger',
                   html: '<i class="fa fa-remove"></i> Delete Siftr'
                 , (button) =>
@@ -216,11 +227,9 @@ class App
     @games = []
     if @aris.auth?
       @getGames =>
-        @getGameIcons =>
-          @getGameTags =>
-            @getGameTagCounts =>
-              @redrawGameList()
-              cb()
+        @getAllGameInfo =>
+          @redrawGameList()
+          cb()
     else
       @redrawGameList()
       cb()
@@ -253,6 +262,14 @@ class App
         continue if json.is_siftr? and not parseInt json.is_siftr
         @addGameFromJson json
       cb()
+
+  # Gets all the missing info for games in the game list.
+  getAllGameInfo: (cb = (->)) ->
+    @getGameIcons =>
+      @getGameTags =>
+        @getGameTagCounts =>
+          @getGameEditors =>
+            cb()
 
   # Downloads icon media info for each game that doesn't already have it.
   getGameIcons: (cb = (->)) ->
@@ -295,6 +312,17 @@ class App
           tag.count = parseInt count
           cb()
     async.parallel(go(tag) for tag in allTags, cb)
+
+  getGameEditors: (cb = (->)) ->
+    go = (game) => (cb) =>
+      if game.editors?
+        cb()
+      else
+        @aris.call 'editors.getEditorsForGame',
+          game_id: game.game_id
+        , (data: game.editors) =>
+          cb()
+    async.parallel(go(game) for game in @games, cb)
 
   # Resets the Siftr icon to its existing state.
   resetIcon: ->
@@ -390,13 +418,11 @@ class App
           $('#spinner-edit-save').hide()
         else
           newGame = @addGameFromJson json
-          @getGameIcons =>
-            @getGameTags =>
-              @getGameTagCounts =>
-                @redrawGameList()
-                $('#spinner-edit-save').hide()
-                window.location.hash = '#'
-                cb newGame
+          @getAllGameInfo =>
+            @redrawGameList()
+            $('#spinner-edit-save').hide()
+            window.location.hash = '#'
+            cb newGame
 
   makeNewSiftr: ->
     $('#spinner-new-siftr').show()
@@ -414,12 +440,10 @@ class App
         game_id: game.game_id
         tag: 'Your First Tag'
       , (data: tag) =>
-        @getGameIcons =>
-          @getGameTags =>
-            @getGameTagCounts =>
-              @redrawGameList()
-              $('#spinner-new-siftr').hide()
-              @showAlert 'Your Siftr has been created! Click "Edit Siftr" to get started.', true
+        @getAllGameInfo =>
+          @redrawGameList()
+          $('#spinner-new-siftr').hide()
+          @showAlert 'Your Siftr has been created! Click "Edit Siftr" to get started.', true
 
   # Prevents deleting a tag if it's the only one on the Edit Tags screen.
   # Prevents adding a tag if there are already 8.
@@ -529,6 +553,16 @@ class App
     $('#div-edit-tags').html ''
     @addTagEditor tag for tag in game.tags
     @selectPage '#page-edit-tags'
+
+  startEditors: (game) ->
+    @currentGame = game
+    $('#div-editor-list').html ''
+    @addEditorListing user for user in game.editors
+    @selectPage '#page-editors'
+
+  addEditorListing: (user) ->
+    appendTo $('#div-editor-list'), 'li', {}, (li) =>
+      li.text user.user_name
 
   editAddTag: ->
     $('#spinner-add-tag').show()
