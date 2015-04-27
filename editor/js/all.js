@@ -864,27 +864,44 @@
                   html: '<i class="fa fa-remove"></i> Delete tag'
                 }, function(btn) {
                   return btn.click(function() {
-                    var message;
-                    message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?";
-                    switch (tag.count) {
-                      case 0:
-                        null;
-                        break;
-                      case 1:
-                        message += " 1 note with this tag will be deleted.";
-                        break;
-                      default:
-                        message += " " + tag.count + " notes with this tag will be deleted.";
+                    var dropdown, message;
+                    if (tag.count === 0) {
+                      return _this.deleteTag(tag);
+                    } else {
+                      $('#the-delete-title').text('Delete Tag');
+                      message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?\n" + tag.count + " " + (tag.count === 1 ? 'note' : 'notes') + " will be reassigned to the tag chosen below:";
+                      $('#the-delete-text').text('');
+                      appendTo($('#the-delete-text'), 'p', {
+                        text: message
+                      });
+                      dropdown = null;
+                      appendTo($('#the-delete-text'), 'form', {}, function(form) {
+                        return dropdown = appendTo(form, 'select.form-control', {}, function(select) {
+                          var otherTag, _i, _len, _ref, _results;
+                          _ref = _this.currentGame.tags;
+                          _results = [];
+                          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                            otherTag = _ref[_i];
+                            if (tag.tag_id !== otherTag.tag_id) {
+                              _results.push(appendTo(select, 'option', {
+                                text: otherTag.tag,
+                                value: otherTag.tag_id
+                              }));
+                            } else {
+                              _results.push(void 0);
+                            }
+                          }
+                          return _results;
+                        });
+                      });
+                      $('#the-delete-button').unbind('click');
+                      $('#the-delete-button').click(function() {
+                        return _this.deleteTag(tag, dropdown.val());
+                      });
+                      return $('#the-delete-modal').modal({
+                        keyboard: true
+                      });
                     }
-                    $('#the-delete-title').text('Delete Tag');
-                    $('#the-delete-text').text(message);
-                    $('#the-delete-button').unbind('click');
-                    $('#the-delete-button').click(function() {
-                      return _this.deleteTag(tag, media);
-                    });
-                    return $('#the-delete-modal').modal({
-                      keyboard: true
-                    });
                   });
                 });
               });
@@ -1027,35 +1044,66 @@
       })(this));
     };
 
-    App.prototype.deleteTag = function(tag, media) {
+    App.prototype.assignTag = function(note, newTagID) {
+      return (function(_this) {
+        return function(cb) {
+          return _this.aris.call('tags.createObjectTag', {
+            game_id: _this.currentGame.game_id,
+            object_type: 'NOTE',
+            object_id: note.note_id,
+            tag_id: newTagID
+          }, cb);
+        };
+      })(this);
+    };
+
+    App.prototype.deleteTag = function(tag, newTagID) {
+      var proceed;
+      if (newTagID == null) {
+        newTagID = null;
+      }
+      proceed = (function(_this) {
+        return function() {
+          return _this.aris.call('tags.deleteTag', {
+            tag_id: tag.tag_id
+          }, function(res) {
+            if (res.returnCode === 0) {
+              delete _this.currentGame.tags;
+              _this.getAllGameInfo(function() {
+                return _this.startEditTags(_this.currentGame);
+              });
+            } else {
+              _this.showAlert(res.returnCodeDescription);
+            }
+            $('#the-delete-modal').modal('hide');
+            return $('#the-delete-spinner').hide();
+          });
+        };
+      })(this);
       $('#the-delete-spinner').show();
-      return this.aris.call('tags.deleteTag', {
-        tag_id: tag.tag_id
-      }, (function(_this) {
-        return function(res) {
-          var t;
-          if (res.returnCode === 0) {
-            media.remove();
-            _this.ableEditTags();
-            _this.currentGame.tags = (function() {
-              var _i, _len, _ref, _results;
-              _ref = this.currentGame.tags;
+      if (newTagID != null) {
+        return this.aris.call('notes.searchNotes', {
+          user_id: this.aris.auth.user_id,
+          game_id: this.currentGame.game_id,
+          tag_ids: [tag.tag_id]
+        }, (function(_this) {
+          return function(_arg) {
+            var note, notes;
+            notes = _arg.data;
+            return async.parallel((function() {
+              var _i, _len, _results;
               _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                t = _ref[_i];
-                if (t !== tag) {
-                  _results.push(t);
-                }
+              for (_i = 0, _len = notes.length; _i < _len; _i++) {
+                note = notes[_i];
+                _results.push(this.assignTag(note, newTagID));
               }
               return _results;
-            }).call(_this);
-          } else {
-            _this.showAlert(res.returnCodeDescription);
-          }
-          $('#the-delete-modal').modal('hide');
-          return $('#the-delete-spinner').hide();
-        };
-      })(this));
+            }).call(_this), proceed);
+          };
+        })(this));
+      } else {
+        return proceed();
+      }
     };
 
     App.prototype.deleteSiftr = function(game) {

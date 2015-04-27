@@ -544,20 +544,29 @@ class App
               html: '<i class="fa fa-remove"></i> Delete tag'
             , (btn) =>
               btn.click =>
-                message = "Are you sure you want to delete the tag \"#{tag.tag}\"?"
-                switch tag.count
-                  when 0
-                    null
-                  when 1
-                    message += " 1 note with this tag will be deleted."
-                  else
-                    message += " #{tag.count} notes with this tag will be deleted."
-                $('#the-delete-title').text 'Delete Tag'
-                $('#the-delete-text').text message
-                $('#the-delete-button').unbind 'click'
-                $('#the-delete-button').click =>
-                  @deleteTag tag, media
-                $('#the-delete-modal').modal(keyboard: true)
+                if tag.count is 0
+                  @deleteTag tag # no notes with this tag, no need to be cautious
+                else
+                  $('#the-delete-title').text 'Delete Tag'
+                  message =
+                    """
+                    Are you sure you want to delete the tag \"#{tag.tag}\"?
+                    #{tag.count} #{if tag.count is 1 then 'note' else 'notes'} will be reassigned to the tag chosen below:
+                    """
+                  $('#the-delete-text').text ''
+                  appendTo $('#the-delete-text'), 'p', text: message
+                  dropdown = null
+                  appendTo $('#the-delete-text'), 'form', {}, (form) =>
+                    dropdown = appendTo form, 'select.form-control', {}, (select) =>
+                      for otherTag in @currentGame.tags
+                        if tag.tag_id isnt otherTag.tag_id
+                          appendTo select, 'option',
+                            text:  otherTag.tag
+                            value: otherTag.tag_id
+                  $('#the-delete-button').unbind 'click'
+                  $('#the-delete-button').click =>
+                    @deleteTag tag, dropdown.val()
+                  $('#the-delete-modal').modal(keyboard: true)
     @ableEditTags()
 
   startEditTags: (game) ->
@@ -646,20 +655,38 @@ class App
         @showAlert res.returnCodeDescription
       $('#spinner-add-tag').hide()
 
-  deleteTag: (tag, media) ->
+  assignTag: (note, newTagID) -> (cb) =>
+    @aris.call 'tags.createObjectTag',
+      game_id: @currentGame.game_id
+      object_type: 'NOTE'
+      object_id: note.note_id
+      tag_id: newTagID
+    , cb
+
+  deleteTag: (tag, newTagID = null) ->
+    proceed = =>
+      @aris.call 'tags.deleteTag',
+        tag_id: tag.tag_id
+      , (res) =>
+        if res.returnCode is 0
+          delete @currentGame.tags
+          @getAllGameInfo =>
+            @startEditTags @currentGame
+        else
+          @showAlert res.returnCodeDescription
+        $('#the-delete-modal').modal 'hide'
+        $('#the-delete-spinner').hide()
     $('#the-delete-spinner').show()
-    @aris.call 'tags.deleteTag',
-      tag_id: tag.tag_id
-    , (res) =>
-      if res.returnCode is 0
-        media.remove()
-        @ableEditTags()
-        @currentGame.tags =
-          t for t in @currentGame.tags when t isnt tag
-      else
-        @showAlert res.returnCodeDescription
-      $('#the-delete-modal').modal 'hide'
-      $('#the-delete-spinner').hide()
+    if newTagID?
+      # First reassign notes to the new tag ID
+      @aris.call 'notes.searchNotes',
+        user_id: @aris.auth.user_id
+        game_id: @currentGame.game_id
+        tag_ids: [tag.tag_id]
+      , (data: notes) =>
+        async.parallel(@assignTag(note, newTagID) for note in notes, proceed)
+    else
+      proceed()
 
   deleteSiftr: (game) ->
     $('#the-delete-spinner').show()
