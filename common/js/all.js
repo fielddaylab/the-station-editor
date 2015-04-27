@@ -18,7 +18,8 @@
           username: user.user_name
         };
         return $.cookie('aris-auth', this.auth, {
-          path: '/'
+          path: '/',
+          expires: 365
         });
       } else {
         return this.logout();

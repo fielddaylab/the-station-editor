@@ -13,7 +13,7 @@ class Aris
         permission: 'read_write'
         key:        user.read_write_key
         username:   user.user_name
-      $.cookie 'aris-auth', @auth, path: '/'
+      $.cookie 'aris-auth', @auth, path: '/', expires: 365
     else
       @logout()
 
