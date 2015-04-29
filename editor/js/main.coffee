@@ -41,7 +41,8 @@ class App
               @showAlert "Couldn't create account: #{res.returnCodeDescription}"
             else
               @parseLogin res
-              @startingPage()
+              @updateGameList =>
+                @startingPage()
         false
 
       # Validates password change info, and then either shows an error message,

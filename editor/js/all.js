@@ -41,7 +41,9 @@
                   return _this.showAlert("Couldn't create account: " + res.returnCodeDescription);
                 } else {
                   _this.parseLogin(res);
-                  return _this.startingPage();
+                  return _this.updateGameList(function() {
+                    return _this.startingPage();
+                  });
                 }
               });
             }
