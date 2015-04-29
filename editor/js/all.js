@@ -281,15 +281,15 @@
                   return appendTo(form, '.form-group', {}, function(formGroup) {
                     appendTo(formGroup, 'a.btn.btn-primary', {
                       href: '#edit' + game.game_id,
-                      text: 'Edit Siftr'
+                      html: '<i class="fa fa-pencil"></i> Edit Siftr'
                     });
                     appendTo(formGroup, 'a.btn.btn-default', {
                       href: '#tags' + game.game_id,
-                      text: 'Edit tags'
+                      html: '<i class="fa fa-tags"></i> Edit tags'
                     });
                     appendTo(formGroup, 'a.btn.btn-default', {
                       href: '#editors' + game.game_id,
-                      text: 'Editors'
+                      html: '<i class="fa fa-users"></i> Editors'
                     });
                     return appendTo(formGroup, 'a.btn.btn-danger', {
                       html: '<i class="fa fa-remove"></i> Delete Siftr'
@@ -347,7 +347,8 @@
         map_longitude: parseFloat(json.map_longitude),
         map_zoom_level: parseInt(json.map_zoom_level),
         siftr_url: json.siftr_url || null,
-        published: parseInt(json.published) !== 0
+        published: parseInt(json.published) ? true : false,
+        moderated: parseInt(json.moderated) ? true : false
       };
       _ref = this.games;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -602,6 +603,7 @@
       $('#text-siftr-desc').val(game.description);
       $('#text-siftr-url').val(game.siftr_url);
       $('#checkbox-siftr-published').prop('checked', game.published);
+      $('#checkbox-siftr-moderated').prop('checked', game.moderated);
       this.resetIcon();
       this.createMap({
         lat: game.map_latitude,
@@ -685,6 +687,7 @@
             description: $('#text-siftr-desc').val(),
             siftr_url: $('#text-siftr-url').val(),
             published: $('#checkbox-siftr-published').prop('checked') ? 1 : 0,
+            moderated: $('#checkbox-siftr-moderated').prop('checked') ? 1 : 0,
             map_latitude: pn.lat(),
             map_longitude: pn.lng(),
             map_zoom_level: _this.map.getZoom(),
@@ -718,7 +721,8 @@
         map_longitude: -89.400658,
         map_zoom_level: 14,
         is_siftr: 1,
-        published: 0
+        published: 0,
+        moderated: 0
       }, (function(_this) {
         return function(_arg) {
           var game;
