@@ -550,7 +550,13 @@ class App
             , (btn) =>
               btn.click =>
                 if tag.count is 0
-                  @deleteTag tag # no notes with this tag, no need to be cautious
+                  $('#the-delete-title').text 'Delete Tag'
+                  message = "Are you sure you want to delete the tag \"#{tag.tag}\"?"
+                  $('#the-delete-text').text message
+                  $('#the-delete-button').unbind 'click'
+                  $('#the-delete-button').click =>
+                    @deleteTag tag
+                  $('#the-delete-modal').modal(keyboard: true)
                 else
                   $('#the-delete-title').text 'Delete Tag'
                   message =

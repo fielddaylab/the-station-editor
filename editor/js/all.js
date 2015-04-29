@@ -872,7 +872,16 @@
                   return btn.click(function() {
                     var dropdown, message;
                     if (tag.count === 0) {
-                      return _this.deleteTag(tag);
+                      $('#the-delete-title').text('Delete Tag');
+                      message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?";
+                      $('#the-delete-text').text(message);
+                      $('#the-delete-button').unbind('click');
+                      $('#the-delete-button').click(function() {
+                        return _this.deleteTag(tag);
+                      });
+                      return $('#the-delete-modal').modal({
+                        keyboard: true
+                      });
                     } else {
                       $('#the-delete-title').text('Delete Tag');
                       message = "Are you sure you want to delete the tag \"" + tag.tag + "\"?\n" + tag.count + " " + (tag.count === 1 ? 'note' : 'notes') + " will be reassigned to the tag chosen below:";
