@@ -7,9 +7,9 @@
       this.auth = $.cookie('aris-auth');
     }
 
-    Aris.prototype.parseLogin = function(_arg) {
+    Aris.prototype.parseLogin = function(arg) {
       var returnCode, user;
-      user = _arg.data, returnCode = _arg.returnCode;
+      user = arg.data, returnCode = arg.returnCode;
       if (returnCode === 0 && user.user_id !== null) {
         this.auth = {
           user_id: parseInt(user.user_id),
@@ -66,7 +66,7 @@
           }
         };
       })(this);
-      req.open('POST', "" + ARIS_URL + "/json.php/v2." + func, true);
+      req.open('POST', ARIS_URL + "/json.php/v2." + func, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       return req.send(JSON.stringify(json));
     };
@@ -127,7 +127,7 @@
   };
 
   appendTo = function(parent, haml, attrs, init) {
-    var c, child, classes, id, tag, _i, _len, _ref;
+    var c, child, classes, i, id, len, ref, tag;
     if (haml == null) {
       haml = '';
     }
@@ -137,9 +137,9 @@
     if (init == null) {
       init = (function() {});
     }
-    _ref = parseElement(haml), tag = _ref.tag, classes = _ref.classes, id = _ref.id;
-    for (_i = 0, _len = classes.length; _i < _len; _i++) {
-      c = classes[_i];
+    ref = parseElement(haml), tag = ref.tag, classes = ref.classes, id = ref.id;
+    for (i = 0, len = classes.length; i < len; i++) {
+      c = classes[i];
       if (attrs["class"] == null) {
         attrs["class"] = '';
       }
