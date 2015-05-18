@@ -57,10 +57,10 @@ class App
       zoom: @game.zoom
       center: new google.maps.LatLng @game.latitude, @game.longitude
       mapTypeId: google.maps.MapTypeId.ROADMAP
-      panControl: true
-      zoomControl: true
-      mapTypeControl: true
-      scaleControl: true
+      panControl: false
+      zoomControl: false
+      mapTypeControl: false
+      scaleControl: false
       streetViewControl: false
       overviewMapControl: false
       styles: window.mapStyle.concat [{

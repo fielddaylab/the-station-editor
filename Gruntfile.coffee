@@ -11,7 +11,9 @@ module.exports = (grunt) ->
     sass:
       compile:
         files:
-          'client/css/main.css': ['client/css/main.sass']
+          'client/css/main.css'   : ['client/css/main.sass']
+          'client/css/mobile.css' : ['client/css/mobile.sass']
+          'client/css/desktop.css': ['client/css/desktop.sass']
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-sass'
