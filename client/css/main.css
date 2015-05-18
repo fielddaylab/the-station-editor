@@ -30,4 +30,18 @@
   margin: 15px;
   cursor: pointer; }
 
+#the-icon-bar-x {
+  display: none;
+  float: left;
+  padding: 15px;
+  cursor: pointer;
+  color: #e0e0e0;
+  background-color: #555; }
+
+body.is-mode-note #the-icon-bar-x {
+  display: block; }
+
+body.is-mode-add #the-icon-bar-x {
+  display: block; }
+
 /*# sourceMappingURL=main.css.map */
