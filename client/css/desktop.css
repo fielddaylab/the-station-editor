@@ -14,8 +14,7 @@
   width: 450px;
   top: 30px;
   right: 30px;
-  height: calc(100% - 30px);
-  background-color: rgba(100, 100, 100, 0.4); }
+  height: calc(100% - 30px); }
 
 #the-add-button {
   position: absolute;
@@ -40,5 +39,8 @@
   top: 30px;
   left: 120px;
   background-color: rgba(100, 150, 100, 0.4); }
+
+#the-menu-button {
+  display: none; }
 
 /*# sourceMappingURL=desktop.css.map */

@@ -5,4 +5,27 @@
   top: 0;
   left: 0; }
 
+#the-main-modal {
+  background-color: white; }
+
+#the-icon-bar {
+  background-color: #e0e0e0;
+  color: #555;
+  font-size: 25px;
+  width: 100%; }
+
+#the-icon-bar:after {
+  content: " ";
+  display: block;
+  height: 0;
+  clear: both; }
+
+.a-menu-icon-left {
+  float: left;
+  margin: 15px; }
+
+.a-menu-icon-right {
+  float: right;
+  margin: 15px; }
+
 /*# sourceMappingURL=main.css.map */
