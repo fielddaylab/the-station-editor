@@ -35,11 +35,15 @@ body
   height: 0
   clear: both
 
+body.is-mode-add .a-menu-icon-left
+  display: none
 .a-menu-icon-left
   float: left
   margin: 15px
   cursor: pointer
 
+body.is-mode-add .a-menu-icon-right
+  display: none
 .a-menu-icon-right
   float: right
   margin: 15px
@@ -52,8 +56,7 @@ body
   cursor: pointer
   color: #e0e0e0
   background-color: #555
-body.is-mode-note #the-icon-bar-x
-  display: block
+body.is-mode-note #the-icon-bar-x,
 body.is-mode-add #the-icon-bar-x
   display: block
 
@@ -63,7 +66,9 @@ body:not(.is-logged-in) .logged-in
 .a-menu-option
   cursor: pointer
 
-body:not(.is-mode-tags) #the-search-tags
+body:not(.is-mode-tags) #the-search-tags,
+body.is-mode-note #the-search-tags,
+body.is-mode-add #the-search-tags
   display: none
 #the-search-tags
   margin: 15px
@@ -71,3 +76,9 @@ body:not(.is-mode-tags) #the-search-tags
   margin: 0px
 #the-search-tags input[type="checkbox"]
   margin: 10px
+
+#the-note-gallery
+  margin: 15px
+body.is-mode-note #the-note-gallery,
+body.is-mode-add #the-note-gallery
+  display: none

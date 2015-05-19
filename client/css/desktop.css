@@ -43,8 +43,7 @@ body.is-mode-note #the-add-button, body.is-mode-add #the-add-button {
   border-radius: 30px;
   top: 30px;
   left: 30px;
-  background-color: white;
-  cursor: pointer; }
+  background-color: white; }
 
 #the-user-logo {
   position: absolute;

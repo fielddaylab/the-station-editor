@@ -18,6 +18,27 @@ class Tag
     @tag      = json.tag
     @tag_id   = parseInt json.tag_id
 
+class Comment
+  constructor: (json) ->
+    @description = json.description
+    @comment_id  = parseInt json.note_comment_id
+    @user        = new User json.user
+    @created     = new Date(json.created.replace(' ', 'T') + 'Z')
+
+class Note
+  constructor: (json) ->
+    @user         = new User json.user
+    @description  = json.description
+    @photo_url    = json.media.data.url
+    @latitude     = parseFloat json.latitude
+    @longitude    = parseFloat json.longitude
+    @tag_id       = parseInt json.tag_id
+    @created      = new Date(json.created.replace(' ', 'T') + 'Z')
+    @player_liked = parseInt(json.player_liked) isnt 0
+    @note_likes   = parseInt json.note_likes
+    @comments     =
+      new Comment o for o in json.comments.data
+
 class App
   constructor: ->
     $(document).ready =>
@@ -29,7 +50,8 @@ class App
             @createMap()
             @getGameTags =>
               @makeSearchTags()
-              @installListeners()
+              @performSearch =>
+                @installListeners()
 
   getGameInfo: (cb) ->
     @aris.call 'games.searchSiftrs',
@@ -37,6 +59,8 @@ class App
     , ({data: games, returnCode}) =>
       if returnCode is 0 and games.length is 1
         @game = new Game games[0]
+        $('#the-siftr-title').text @game.name
+        $('#the-siftr-subtitle').text 'Started by Wilhuff Tarkin'
         cb()
       else
         @error "Failed to retrieve the Siftr game info"
@@ -83,7 +107,6 @@ class App
         @error "Failed to retrieve the list of tags"
 
   makeSearchTags: ->
-    # $('#the-search-tags').html ''
     appendTo $('#the-search-tags'), 'form', {}, (form) =>
       for t in @game.tags
         appendTo form, 'p', {}, (p) =>
@@ -92,6 +115,24 @@ class App
               type: 'checkbox'
               checked: false
             label.append document.createTextNode t.tag
+
+  performSearch: (cb) ->
+    @aris.call 'notes.searchNotes',
+      game_id: @game.game_id
+      # TODO: more search terms
+    , ({data: notes, returnCode}) =>
+      if returnCode is 0
+        @game.notes =
+          new Note o for o in notes
+        @updateGrid cb
+      else
+        @error "Failed to search for notes"
+
+  updateGrid: (cb) ->
+    $('#the-note-grid').html ''
+    for note in @game.notes
+      appendTo $('#the-note-grid'), 'p', text: note.description
+    cb()
 
   installListeners: ->
     $('#the-user-logo, #the-menu-button').click =>
