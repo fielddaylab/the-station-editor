@@ -151,9 +151,20 @@
     };
 
     App.prototype.installListeners = function() {
-      return $('#the-user-logo, #the-menu-button').click((function(_this) {
+      $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
           return $('body').toggleClass('is-mode-menu');
+        };
+      })(this));
+      $('#the-add-button').click((function(_this) {
+        return function() {
+          return $('body').toggleClass('is-mode-add');
+        };
+      })(this));
+      return $('#the-icon-bar-x').click((function(_this) {
+        return function() {
+          $('body').removeClass('is-mode-add');
+          return $('body').removeClass('is-mode-note');
         };
       })(this));
     };

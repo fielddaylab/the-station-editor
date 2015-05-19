@@ -84,6 +84,11 @@ class App
   installListeners: ->
     $('#the-user-logo, #the-menu-button').click =>
       $('body').toggleClass 'is-mode-menu'
+    $('#the-add-button').click =>
+      $('body').toggleClass 'is-mode-add'
+    $('#the-icon-bar-x').click =>
+      $('body').removeClass 'is-mode-add'
+      $('body').removeClass 'is-mode-note'
 
   error: (s) ->
     # TODO

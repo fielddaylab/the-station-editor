@@ -1,3 +1,8 @@
+$gap: 30px
+$circle-diameter: 60px
+$add-button-width: 160px
+$modal-width: 450px
+
 #the-map-box
   position: absolute
   width: 100%
@@ -11,16 +16,16 @@
 
 #the-main-modal
   position: absolute
-  width: 450px
-  top: 30px
-  right: 30px
-  height: calc(100% - 30px)
+  width: $modal-width
+  top: $gap
+  right: $gap
+  height: calc(100% - #{$gap})
 
 #the-add-button
   position: absolute
-  width: 160px
-  top: 30px
-  left: calc((30px + 60px) * 2 + (((100% - ((30px + 60px) * 2 + 450px + 30px)) / 2) - 80px))
+  width: $add-button-width
+  top: $gap
+  left: calc(#{($gap + $circle-diameter) * 2} + (((100% - #{($gap + $circle-diameter) * 2 + $modal-width + $gap}) / 2) - #{$add-button-width / 2}))
   background-color: white
   border-radius: 7px
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5)
@@ -31,28 +36,27 @@
   cursor: pointer
   text-transform: uppercase
   font-size: 15px
-  font-family: "Lato", sans-serif
-body.is-mode-note #the-add-button
+body.is-mode-note #the-add-button, body.is-mode-add #the-add-button
   background-color: #f0c719
   color: white
 
 #the-siftr-logo
   position: absolute
-  width: 60px
-  height: 60px
-  border-radius: 30px
-  top: 30px
-  left: 30px
+  width: $circle-diameter
+  height: $circle-diameter
+  border-radius: $circle-diameter / 2
+  top: $gap
+  left: $gap
   background-color: white
   cursor: pointer
 
 #the-user-logo
   position: absolute
-  width: 60px
-  height: 60px
-  border-radius: 30px
-  top: 30px
-  left: 30px + 60px + 30px
+  width: $circle-diameter
+  height: $circle-diameter
+  border-radius: $circle-diameter / 2
+  top: $gap
+  left: $gap + $circle-diameter + $gap
   background-color: #666
   cursor: pointer
 
