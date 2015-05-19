@@ -1,5 +1,11 @@
 body
   font-family: "Lato", sans-serif
+  -webkit-touch-callout: none
+  -webkit-user-select: none
+  -khtml-user-select: none
+  -moz-user-select: none
+  -ms-user-select: none
+  user-select: none
 
 #the-ui-box
   position: fixed
@@ -11,11 +17,17 @@ body
 #the-main-modal
   background-color: white
 
+#the-modal-content
+  overflow-y: auto
+  height: calc(100% - 60px)
+
 #the-icon-bar
   background-color: #e0e0e0
   color: #555
   font-size: 25px
   width: 100%
+  height: 60px
+  overflow-y: hidden
 
 #the-icon-bar:after
   content: " "
@@ -44,3 +56,18 @@ body.is-mode-note #the-icon-bar-x
   display: block
 body.is-mode-add #the-icon-bar-x
   display: block
+
+body:not(.is-logged-in) .logged-in
+  display: none
+
+.a-menu-option
+  cursor: pointer
+
+body:not(.is-mode-tags) #the-search-tags
+  display: none
+#the-search-tags
+  margin: 15px
+#the-search-tags p
+  margin: 0px
+#the-search-tags input[type="checkbox"]
+  margin: 10px

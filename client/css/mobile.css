@@ -1,7 +1,7 @@
 #the-map-box {
   position: relative;
   width: 100%;
-  height: calc(100% * 0.6);
+  height: 55%;
   top: 0;
   left: 0; }
 
@@ -12,7 +12,7 @@
 #the-main-modal {
   position: relative;
   width: 100%;
-  height: calc(100% * 0.4); }
+  height: 45%; }
 
 #the-add-button {
   display: none; }
@@ -48,5 +48,8 @@
 
 body.is-mode-menu #the-ui-box {
   left: -200px; }
+
+.a-menu-option {
+  margin: 10px; }
 
 /*# sourceMappingURL=mobile.css.map */

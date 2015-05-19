@@ -46,6 +46,7 @@
               return _this.getGameOwners(function() {
                 _this.createMap();
                 return _this.getGameTags(function() {
+                  _this.makeSearchTags();
                   return _this.installListeners();
                 });
               });
@@ -150,6 +151,29 @@
       })(this));
     };
 
+    App.prototype.makeSearchTags = function() {
+      return appendTo($('#the-search-tags'), 'form', {}, (function(_this) {
+        return function(form) {
+          var i, len, ref, results, t;
+          ref = _this.game.tags;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            t = ref[i];
+            results.push(appendTo(form, 'p', {}, function(p) {
+              return appendTo(p, 'label', {}, function(label) {
+                appendTo(label, 'input', {
+                  type: 'checkbox',
+                  checked: false
+                });
+                return label.append(document.createTextNode(t.tag));
+              });
+            }));
+          }
+          return results;
+        };
+      })(this));
+    };
+
     App.prototype.installListeners = function() {
       $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
@@ -161,12 +185,30 @@
           return $('body').toggleClass('is-mode-add');
         };
       })(this));
-      return $('#the-icon-bar-x').click((function(_this) {
+      $('#the-icon-bar-x').click((function(_this) {
         return function() {
           $('body').removeClass('is-mode-add');
           return $('body').removeClass('is-mode-note');
         };
       })(this));
+      if (this.aris.auth != null) {
+        $('body').addClass('is-logged-in');
+      }
+      $('#the-logout-button').click((function(_this) {
+        return function() {
+          return _this.logout();
+        };
+      })(this));
+      return $('#the-tag-button').click((function(_this) {
+        return function() {
+          return $('body').toggleClass('is-mode-tags');
+        };
+      })(this));
+    };
+
+    App.prototype.logout = function() {
+      this.aris.logout();
+      return $('body').removeClass('is-logged-in');
     };
 
     App.prototype.error = function(s) {

@@ -28,6 +28,7 @@ class App
           @getGameOwners =>
             @createMap()
             @getGameTags =>
+              @makeSearchTags()
               @installListeners()
 
   getGameInfo: (cb) ->
@@ -81,6 +82,17 @@ class App
       else
         @error "Failed to retrieve the list of tags"
 
+  makeSearchTags: ->
+    # $('#the-search-tags').html ''
+    appendTo $('#the-search-tags'), 'form', {}, (form) =>
+      for t in @game.tags
+        appendTo form, 'p', {}, (p) =>
+          appendTo p, 'label', {}, (label) =>
+            appendTo label, 'input',
+              type: 'checkbox'
+              checked: false
+            label.append document.createTextNode t.tag
+
   installListeners: ->
     $('#the-user-logo, #the-menu-button').click =>
       $('body').toggleClass 'is-mode-menu'
@@ -89,6 +101,15 @@ class App
     $('#the-icon-bar-x').click =>
       $('body').removeClass 'is-mode-add'
       $('body').removeClass 'is-mode-note'
+    if @aris.auth?
+      $('body').addClass 'is-logged-in'
+    $('#the-logout-button').click => @logout()
+    $('#the-tag-button').click =>
+      $('body').toggleClass 'is-mode-tags'
+
+  logout: ->
+    @aris.logout()
+    $('body').removeClass 'is-logged-in'
 
   error: (s) ->
     # TODO

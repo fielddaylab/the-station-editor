@@ -1,7 +1,11 @@
+$modal-percent: 45%
+$menu-width: 200px
+$menu-padding: 15px
+
 #the-map-box
   position: relative
   width: 100%
-  height: calc(100% * 0.6)
+  height: 100% - $modal-percent
   top: 0
   left: 0
 
@@ -12,7 +16,7 @@
 #the-main-modal
   position: relative
   width: 100%
-  height: calc(100% * 0.4)
+  height: $modal-percent
 
 #the-add-button
   display: none
@@ -35,14 +39,16 @@
   position: absolute
   top: 0
   left: 100%
-  width: 200px - 15px - 15px
+  width: $menu-width - $menu-padding - $menu-padding
   height: 100%
   background-color: #2b303b
   color: #72d3e8
-  padding: 15px
+  padding: $menu-padding
   text-align: center
 #the-ui-box
   transition-property: left
   transition-duration: 0.25s
 body.is-mode-menu #the-ui-box
-  left: -200px
+  left: -$menu-width
+.a-menu-option
+  margin: 10px
