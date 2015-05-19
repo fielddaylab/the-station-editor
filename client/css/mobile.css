@@ -42,6 +42,10 @@
   padding: 15px;
   text-align: center; }
 
+#the-ui-box {
+  transition-property: left;
+  transition-duration: 0.25s; }
+
 body.is-mode-menu #the-ui-box {
   left: -200px; }
 

@@ -46,7 +46,7 @@
               return _this.getGameOwners(function() {
                 _this.createMap();
                 return _this.getGameTags(function() {
-                  return null;
+                  return _this.installListeners();
                 });
               });
             });
@@ -146,6 +146,14 @@
           } else {
             return _this.error("Failed to retrieve the list of tags");
           }
+        };
+      })(this));
+    };
+
+    App.prototype.installListeners = function() {
+      return $('#the-user-logo, #the-menu-button').click((function(_this) {
+        return function() {
+          return $('body').toggleClass('is-mode-menu');
         };
       })(this));
     };

@@ -28,7 +28,7 @@ class App
           @getGameOwners =>
             @createMap()
             @getGameTags =>
-              null
+              @installListeners()
 
   getGameInfo: (cb) ->
     @aris.call 'games.searchSiftrs',
@@ -80,6 +80,10 @@ class App
         cb()
       else
         @error "Failed to retrieve the list of tags"
+
+  installListeners: ->
+    $('#the-user-logo, #the-menu-button').click =>
+      $('body').toggleClass 'is-mode-menu'
 
   error: (s) ->
     # TODO
