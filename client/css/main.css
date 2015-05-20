@@ -90,4 +90,23 @@ body.is-mode-note #the-note-gallery,
 body.is-mode-add #the-note-gallery {
   display: none; }
 
+#the-note-grid {
+  display: table;
+  width: 100%;
+  border-spacing: 7px; }
+
+.a-grid-row {
+  display: table-row; }
+
+.a-grid-photo {
+  background-size: cover;
+  background-position: center;
+  display: table-cell;
+  position: relative; }
+
+.a-grid-photo:after {
+  content: "";
+  display: block;
+  margin-top: 100%; }
+
 /*# sourceMappingURL=main.css.map */

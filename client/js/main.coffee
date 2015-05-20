@@ -29,7 +29,11 @@ class Note
   constructor: (json) ->
     @user         = new User json.user
     @description  = json.description
-    @photo_url    = json.media.data.url
+    @photo_url    =
+      if parseInt(json.media.data.media_id) is 0
+        null
+      else
+        json.media.data.url
     @latitude     = parseFloat json.latitude
     @longitude    = parseFloat json.longitude
     @tag_id       = parseInt json.tag_id
@@ -114,25 +118,40 @@ class App
             appendTo label, 'input',
               type: 'checkbox'
               checked: false
+              value: t.tag_id
             label.append document.createTextNode t.tag
 
   performSearch: (cb) ->
+    thisSearch = @lastSearch = Date.now()
+    tag_ids =
+      parseInt box.value for box in $('#the-search-tags input[type="checkbox"]') when box.checked
     @aris.call 'notes.searchNotes',
       game_id: @game.game_id
-      # TODO: more search terms
+      tag_ids: tag_ids
+      # TODO: search, order
     , ({data: notes, returnCode}) =>
       if returnCode is 0
-        @game.notes =
-          new Note o for o in notes
-        @updateGrid cb
+        if thisSearch is @lastSearch
+          @game.notes =
+            new Note o for o in notes
+          @updateGrid()
+        cb()
       else
         @error "Failed to search for notes"
 
-  updateGrid: (cb) ->
+  updateGrid: ->
     $('#the-note-grid').html ''
-    for note in @game.notes
-      appendTo $('#the-note-grid'), 'p', text: note.description
-    cb()
+    grid = $('#the-note-grid')
+    tr = null
+    for note, i in @game.notes
+      if i % 3 is 0
+        tr = appendTo grid, '.a-grid-row'
+      appendTo tr, '.a-grid-photo',
+        style:
+          if note.photo_url?
+            "background-image: url(\"#{note.photo_url}\");"
+          else
+            "background-color: black;"
 
   installListeners: ->
     $('#the-user-logo, #the-menu-button').click =>
@@ -147,6 +166,8 @@ class App
     $('#the-logout-button').click => @logout()
     $('#the-tag-button').click =>
       $('body').toggleClass 'is-mode-tags'
+    $('#the-search-tags input[type="checkbox"]').change =>
+      @performSearch(=>)
 
   logout: ->
     @aris.logout()

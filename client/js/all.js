@@ -52,7 +52,7 @@
       var o;
       this.user = new User(json.user);
       this.description = json.description;
-      this.photo_url = json.media.data.url;
+      this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
       this.latitude = parseFloat(json.latitude);
       this.longitude = parseFloat(json.longitude);
       this.tag_id = parseInt(json.tag_id);
@@ -60,11 +60,11 @@
       this.player_liked = parseInt(json.player_liked) !== 0;
       this.note_likes = parseInt(json.note_likes);
       this.comments = (function() {
-        var i, len, ref, results;
+        var j, len, ref, results;
         ref = json.comments.data;
         results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          o = ref[j];
           results.push(new Comment(o));
         }
         return results;
@@ -126,10 +126,10 @@
           owners = arg.data, returnCode = arg.returnCode;
           if (returnCode === 0) {
             _this.game.owners = (function() {
-              var i, len, results;
+              var j, len, results;
               results = [];
-              for (i = 0, len = owners.length; i < len; i++) {
-                o = owners[i];
+              for (j = 0, len = owners.length; j < len; j++) {
+                o = owners[j];
                 results.push(new User(o));
               }
               return results;
@@ -179,10 +179,10 @@
           tags = arg.data, returnCode = arg.returnCode;
           if (returnCode === 0) {
             _this.game.tags = (function() {
-              var i, len, results;
+              var j, len, results;
               results = [];
-              for (i = 0, len = tags.length; i < len; i++) {
-                o = tags[i];
+              for (j = 0, len = tags.length; j < len; j++) {
+                o = tags[j];
                 results.push(new Tag(o));
               }
               return results;
@@ -198,16 +198,17 @@
     App.prototype.makeSearchTags = function() {
       return appendTo($('#the-search-tags'), 'form', {}, (function(_this) {
         return function(form) {
-          var i, len, ref, results, t;
+          var j, len, ref, results, t;
           ref = _this.game.tags;
           results = [];
-          for (i = 0, len = ref.length; i < len; i++) {
-            t = ref[i];
+          for (j = 0, len = ref.length; j < len; j++) {
+            t = ref[j];
             results.push(appendTo(form, 'p', {}, function(p) {
               return appendTo(p, 'label', {}, function(label) {
                 appendTo(label, 'input', {
                   type: 'checkbox',
-                  checked: false
+                  checked: false,
+                  value: t.tag_id
                 });
                 return label.append(document.createTextNode(t.tag));
               });
@@ -219,23 +220,41 @@
     };
 
     App.prototype.performSearch = function(cb) {
+      var box, tag_ids, thisSearch;
+      thisSearch = this.lastSearch = Date.now();
+      tag_ids = (function() {
+        var j, len, ref, results;
+        ref = $('#the-search-tags input[type="checkbox"]');
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          box = ref[j];
+          if (box.checked) {
+            results.push(parseInt(box.value));
+          }
+        }
+        return results;
+      })();
       return this.aris.call('notes.searchNotes', {
-        game_id: this.game.game_id
+        game_id: this.game.game_id,
+        tag_ids: tag_ids
       }, (function(_this) {
         return function(arg) {
           var notes, o, returnCode;
           notes = arg.data, returnCode = arg.returnCode;
           if (returnCode === 0) {
-            _this.game.notes = (function() {
-              var i, len, results;
-              results = [];
-              for (i = 0, len = notes.length; i < len; i++) {
-                o = notes[i];
-                results.push(new Note(o));
-              }
-              return results;
-            })();
-            return _this.updateGrid(cb);
+            if (thisSearch === _this.lastSearch) {
+              _this.game.notes = (function() {
+                var j, len, results;
+                results = [];
+                for (j = 0, len = notes.length; j < len; j++) {
+                  o = notes[j];
+                  results.push(new Note(o));
+                }
+                return results;
+              })();
+              _this.updateGrid();
+            }
+            return cb();
           } else {
             return _this.error("Failed to search for notes");
           }
@@ -243,17 +262,23 @@
       })(this));
     };
 
-    App.prototype.updateGrid = function(cb) {
-      var i, len, note, ref;
+    App.prototype.updateGrid = function() {
+      var grid, i, j, len, note, ref, results, tr;
       $('#the-note-grid').html('');
+      grid = $('#the-note-grid');
+      tr = null;
       ref = this.game.notes;
-      for (i = 0, len = ref.length; i < len; i++) {
+      results = [];
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
         note = ref[i];
-        appendTo($('#the-note-grid'), 'p', {
-          text: note.description
-        });
+        if (i % 3 === 0) {
+          tr = appendTo(grid, '.a-grid-row');
+        }
+        results.push(appendTo(tr, '.a-grid-photo', {
+          style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;"
+        }));
       }
-      return cb();
+      return results;
     };
 
     App.prototype.installListeners = function() {
@@ -281,9 +306,14 @@
           return _this.logout();
         };
       })(this));
-      return $('#the-tag-button').click((function(_this) {
+      $('#the-tag-button').click((function(_this) {
         return function() {
           return $('body').toggleClass('is-mode-tags');
+        };
+      })(this));
+      return $('#the-search-tags input[type="checkbox"]').change((function(_this) {
+        return function() {
+          return _this.performSearch(function() {});
         };
       })(this));
     };

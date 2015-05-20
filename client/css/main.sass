@@ -77,8 +77,30 @@ body.is-mode-add #the-search-tags
 #the-search-tags input[type="checkbox"]
   margin: 10px
 
+$gallery-margin: 15px
 #the-note-gallery
-  margin: 15px
+  margin: $gallery-margin
+
 body.is-mode-note #the-note-gallery,
 body.is-mode-add #the-note-gallery
   display: none
+
+$grid-spacing: 7px
+#the-note-grid
+  display: table
+  width: 100%
+  border-spacing: $grid-spacing
+  // margin: -$grid-spacing
+
+.a-grid-row
+  display: table-row
+
+.a-grid-photo
+  background-size: cover
+  background-position: center
+  display: table-cell
+  position: relative
+.a-grid-photo:after
+  content: ''
+  display: block
+  margin-top: 100%
