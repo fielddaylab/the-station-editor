@@ -228,9 +228,10 @@
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           box = ref[j];
-          if (box.checked) {
-            results.push(parseInt(box.value));
+          if (!box.checked) {
+            continue;
           }
+          results.push(parseInt(box.value));
         }
         return results;
       })();
@@ -253,6 +254,7 @@
                 return results;
               })();
               _this.updateGrid();
+              _this.updateMap();
             }
             return cb();
           } else {
@@ -271,14 +273,67 @@
       results = [];
       for (i = j = 0, len = ref.length; j < len; i = ++j) {
         note = ref[i];
-        if (i % 3 === 0) {
-          tr = appendTo(grid, '.a-grid-row');
-        }
-        results.push(appendTo(tr, '.a-grid-photo', {
-          style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;"
-        }));
+        results.push((function(_this) {
+          return function(note) {
+            var td;
+            if (i % 3 === 0) {
+              tr = appendTo(grid, '.a-grid-row');
+            }
+            td = appendTo(tr, '.a-grid-photo', {
+              style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;"
+            });
+            return td.click(function() {
+              return _this.showNote(note);
+            });
+          };
+        })(this)(note));
       }
       return results;
+    };
+
+    App.prototype.updateMap = function() {
+      var j, len, marker, note, ref;
+      if (this.markers != null) {
+        ref = this.markers;
+        for (j = 0, len = ref.length; j < len; j++) {
+          marker = ref[j];
+          marker.setMap(null);
+        }
+      }
+      return this.markers = (function() {
+        var k, len1, ref1, results;
+        ref1 = this.game.notes;
+        results = [];
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          note = ref1[k];
+          results.push((function(_this) {
+            return function(note) {
+              marker = new google.maps.Marker({
+                position: new google.maps.LatLng(note.latitude, note.longitude),
+                map: _this.map
+              });
+              google.maps.event.addListener(marker, 'click', function() {
+                return _this.showNote(note);
+              });
+              return marker;
+            };
+          })(this)(note));
+        }
+        return results;
+      }).call(this);
+    };
+
+    App.prototype.showNote = function(note) {
+      $('body').removeClass('is-mode-add');
+      $('body').removeClass('is-mode-menu');
+      $('body').addClass('is-mode-note');
+      if (note.photo_url != null) {
+        $('#the-photo').css('background-image', "url(\"" + note.photo_url + "\")");
+      } else {
+        $('#the-photo').css('background-color', 'black');
+      }
+      $('#the-photo-caption').text(note.description);
+      return $('#the-photo-credit').text("Created by " + note.user.display_name + " at " + (note.created.toLocaleString()));
     };
 
     App.prototype.installListeners = function() {
@@ -289,13 +344,16 @@
       })(this));
       $('#the-add-button').click((function(_this) {
         return function() {
+          $('body').removeClass('is-mode-note');
+          $('body').removeClass('is-mode-menu');
           return $('body').toggleClass('is-mode-add');
         };
       })(this));
       $('#the-icon-bar-x').click((function(_this) {
         return function() {
           $('body').removeClass('is-mode-add');
-          return $('body').removeClass('is-mode-note');
+          $('body').removeClass('is-mode-note');
+          return $('body').removeClass('is-mode-menu');
         };
       })(this));
       if (this.aris.auth != null) {
@@ -308,6 +366,7 @@
       })(this));
       $('#the-tag-button').click((function(_this) {
         return function() {
+          $('body').removeClass('is-mode-menu');
           return $('body').toggleClass('is-mode-tags');
         };
       })(this));

@@ -102,9 +102,29 @@ body.is-mode-add #the-note-gallery {
   background-size: cover;
   background-position: center;
   display: table-cell;
-  position: relative; }
+  position: relative;
+  cursor: pointer; }
 
 .a-grid-photo:after {
+  content: "";
+  display: block;
+  margin-top: 100%; }
+
+body:not(.is-mode-note) #the-note-view {
+  display: none; }
+
+#the-note-view {
+  margin: 15px;
+  width: calc(100% - 30px); }
+
+#the-photo {
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  display: inline-block;
+  position: relative; }
+
+#the-photo:after {
   content: "";
   display: block;
   margin-top: 100%; }

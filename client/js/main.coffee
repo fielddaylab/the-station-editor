@@ -124,7 +124,9 @@ class App
   performSearch: (cb) ->
     thisSearch = @lastSearch = Date.now()
     tag_ids =
-      parseInt box.value for box in $('#the-search-tags input[type="checkbox"]') when box.checked
+      for box in $('#the-search-tags input[type="checkbox"]')
+        continue unless box.checked
+        parseInt box.value
     @aris.call 'notes.searchNotes',
       game_id: @game.game_id
       tag_ids: tag_ids
@@ -135,6 +137,7 @@ class App
           @game.notes =
             new Note o for o in notes
           @updateGrid()
+          @updateMap()
         cb()
       else
         @error "Failed to search for notes"
@@ -144,27 +147,56 @@ class App
     grid = $('#the-note-grid')
     tr = null
     for note, i in @game.notes
-      if i % 3 is 0
-        tr = appendTo grid, '.a-grid-row'
-      appendTo tr, '.a-grid-photo',
-        style:
-          if note.photo_url?
-            "background-image: url(\"#{note.photo_url}\");"
-          else
-            "background-color: black;"
+      do (note) =>
+        if i % 3 is 0
+          tr = appendTo grid, '.a-grid-row'
+        td = appendTo tr, '.a-grid-photo',
+          style:
+            if note.photo_url?
+              "background-image: url(\"#{note.photo_url}\");"
+            else
+              "background-color: black;"
+        td.click => @showNote note
+
+  updateMap: ->
+    if @markers?
+      marker.setMap(null) for marker in @markers
+    @markers =
+      for note in @game.notes
+        do (note) =>
+          marker = new google.maps.Marker
+            position: new google.maps.LatLng note.latitude, note.longitude
+            map: @map
+          google.maps.event.addListener marker, 'click', => @showNote note
+          marker
+
+  showNote: (note) ->
+    $('body').removeClass 'is-mode-add'
+    $('body').removeClass 'is-mode-menu'
+    $('body').addClass 'is-mode-note'
+    if note.photo_url?
+      $('#the-photo').css 'background-image', "url(\"#{note.photo_url}\")"
+    else
+      $('#the-photo').css 'background-color', 'black'
+    $('#the-photo-caption').text note.description
+    $('#the-photo-credit').text "Created by #{note.user.display_name} at #{note.created.toLocaleString()}"
 
   installListeners: ->
     $('#the-user-logo, #the-menu-button').click =>
       $('body').toggleClass 'is-mode-menu'
     $('#the-add-button').click =>
+      $('body').removeClass 'is-mode-note'
+      $('body').removeClass 'is-mode-menu'
       $('body').toggleClass 'is-mode-add'
     $('#the-icon-bar-x').click =>
       $('body').removeClass 'is-mode-add'
       $('body').removeClass 'is-mode-note'
+      $('body').removeClass 'is-mode-menu'
     if @aris.auth?
       $('body').addClass 'is-logged-in'
     $('#the-logout-button').click => @logout()
     $('#the-tag-button').click =>
+      $('body').removeClass 'is-mode-menu'
       $('body').toggleClass 'is-mode-tags'
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)

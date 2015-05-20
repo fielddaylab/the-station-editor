@@ -32,7 +32,7 @@
   text-transform: uppercase;
   font-size: 15px; }
 
-body.is-mode-note #the-add-button, body.is-mode-add #the-add-button {
+body.is-mode-add #the-add-button {
   background-color: #f0c719;
   color: white; }
 
