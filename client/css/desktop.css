@@ -16,7 +16,7 @@
   right: 30px;
   height: calc(100% - 30px); }
 
-body.is-mode-map #the-main-modal {
+body.is-mode-map:not(.is-mode-note) #the-main-modal {
   height: 60px; }
 
 #the-add-button {

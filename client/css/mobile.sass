@@ -8,10 +8,10 @@ $menu-padding: 15px
   height: 100% - $modal-percent
   top: 0
   left: 0
+body.is-mode-map:not(.is-mode-note) #the-map-box
+  height: calc(100% - 60px)
 body.is-mode-note #the-map-box
   height: 0
-body.is-mode-map #the-map-box
-  height: calc(100% - 60px)
 
 #the-map
   width: 100%
@@ -21,10 +21,10 @@ body.is-mode-map #the-map-box
   position: relative
   width: 100%
   height: $modal-percent
+body.is-mode-map:not(.is-mode-note) #the-main-modal
+  height: 60px
 body.is-mode-note #the-main-modal
   height: 100%
-body.is-mode-map #the-main-modal
-  height: 60px
 
 body.is-mode-note .a-menu-icon-right
   display: none

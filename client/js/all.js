@@ -327,7 +327,6 @@
     App.prototype.showNote = function(note) {
       $('body').removeClass('is-mode-add');
       $('body').removeClass('is-open-menu');
-      $('body').removeClass('is-mode-map');
       $('body').addClass('is-mode-note');
       if (note.photo_url != null) {
         $('#the-photo').css('background-image', "url(\"" + note.photo_url + "\")");
@@ -374,8 +373,7 @@
         return function() {
           body.removeClass('is-open-menu');
           body.removeClass('is-mode-note');
-          body.removeClass('is-mode-add');
-          return body.removeClass('is-mode-map');
+          return body.removeClass('is-mode-add');
         };
       })(this));
       if (this.aris.auth != null) {

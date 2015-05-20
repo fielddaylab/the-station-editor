@@ -174,7 +174,6 @@ class App
   showNote: (note) ->
     $('body').removeClass 'is-mode-add'
     $('body').removeClass 'is-open-menu'
-    $('body').removeClass 'is-mode-map'
     $('body').addClass 'is-mode-note'
     if note.photo_url?
       $('#the-photo').css 'background-image', "url(\"#{note.photo_url}\")"
@@ -206,7 +205,6 @@ class App
       body.removeClass 'is-open-menu'
       body.removeClass 'is-mode-note'
       body.removeClass 'is-mode-add'
-      body.removeClass 'is-mode-map'
     if @aris.auth?
       body.addClass 'is-logged-in'
     $('#the-logout-button').click => @logout()
