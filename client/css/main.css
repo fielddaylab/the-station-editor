@@ -92,8 +92,9 @@ body.is-mode-add #the-note-gallery {
 
 #the-note-grid {
   display: table;
-  width: 100%;
-  border-spacing: 7px; }
+  width: calc(100% + 14px);
+  border-spacing: 7px;
+  margin: -7px; }
 
 .a-grid-row {
   display: table-row; }

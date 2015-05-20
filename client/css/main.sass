@@ -89,9 +89,9 @@ body.is-mode-add #the-note-gallery
 $grid-spacing: 7px
 #the-note-grid
   display: table
-  width: 100%
+  width: calc(100% + #{$grid-spacing * 2})
   border-spacing: $grid-spacing
-  // margin: -$grid-spacing
+  margin: -$grid-spacing
 
 .a-grid-row
   display: table-row
