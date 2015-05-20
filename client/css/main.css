@@ -69,7 +69,7 @@ body:not(.is-logged-in) .logged-in {
 .a-menu-option {
   cursor: pointer; }
 
-body:not(.is-mode-tags) #the-search-tags,
+body:not(.is-open-tags) #the-search-tags,
 body.is-mode-note #the-search-tags,
 body.is-mode-add #the-search-tags {
   display: none; }

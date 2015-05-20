@@ -20,6 +20,8 @@ $modal-width: 450px
   top: $gap
   right: $gap
   height: calc(100% - #{$gap})
+body.is-mode-map #the-main-modal
+  height: 60px
 
 #the-add-button
   position: absolute
@@ -67,7 +69,7 @@ body.is-mode-add #the-add-button
 
 #the-menu
   display: none
-body.is-mode-menu #the-menu
+body.is-open-menu #the-menu
   display: block
   position: absolute
   background-color: white

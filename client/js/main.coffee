@@ -168,11 +168,13 @@ class App
             position: new google.maps.LatLng note.latitude, note.longitude
             map: @map
           google.maps.event.addListener marker, 'click', => @showNote note
+          note.marker = marker
           marker
 
   showNote: (note) ->
     $('body').removeClass 'is-mode-add'
-    $('body').removeClass 'is-mode-menu'
+    $('body').removeClass 'is-open-menu'
+    $('body').removeClass 'is-mode-map'
     $('body').addClass 'is-mode-note'
     if note.photo_url?
       $('#the-photo').css 'background-image', "url(\"#{note.photo_url}\")"
@@ -182,22 +184,38 @@ class App
     $('#the-photo-credit').text "Created by #{note.user.display_name} at #{note.created.toLocaleString()}"
 
   installListeners: ->
+    body = $('body')
     $('#the-user-logo, #the-menu-button').click =>
-      $('body').toggleClass 'is-mode-menu'
+      body.toggleClass 'is-open-menu'
+    $('#the-grid-button').click =>
+      body.removeClass 'is-open-menu'
+      body.removeClass 'is-mode-note'
+      body.removeClass 'is-mode-add'
+      body.removeClass 'is-mode-map'
+    $('#the-map-button').click =>
+      body.removeClass 'is-open-menu'
+      body.removeClass 'is-mode-note'
+      body.removeClass 'is-mode-add'
+      body.addClass 'is-mode-map'
     $('#the-add-button').click =>
-      $('body').removeClass 'is-mode-note'
-      $('body').removeClass 'is-mode-menu'
-      $('body').toggleClass 'is-mode-add'
+      body.removeClass 'is-open-menu'
+      body.removeClass 'is-mode-note'
+      body.toggleClass 'is-mode-add'
+      body.removeClass 'is-mode-map'
     $('#the-icon-bar-x').click =>
-      $('body').removeClass 'is-mode-add'
-      $('body').removeClass 'is-mode-note'
-      $('body').removeClass 'is-mode-menu'
+      body.removeClass 'is-open-menu'
+      body.removeClass 'is-mode-note'
+      body.removeClass 'is-mode-add'
+      body.removeClass 'is-mode-map'
     if @aris.auth?
-      $('body').addClass 'is-logged-in'
+      body.addClass 'is-logged-in'
     $('#the-logout-button').click => @logout()
     $('#the-tag-button').click =>
-      $('body').removeClass 'is-mode-menu'
-      $('body').toggleClass 'is-mode-tags'
+      body.removeClass 'is-open-menu'
+      body.removeClass 'is-mode-note'
+      body.removeClass 'is-mode-add'
+      body.removeClass 'is-mode-map'
+      body.toggleClass 'is-open-tags'
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
 

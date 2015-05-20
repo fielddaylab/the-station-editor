@@ -315,6 +315,7 @@
               google.maps.event.addListener(marker, 'click', function() {
                 return _this.showNote(note);
               });
+              note.marker = marker;
               return marker;
             };
           })(this)(note));
@@ -325,7 +326,8 @@
 
     App.prototype.showNote = function(note) {
       $('body').removeClass('is-mode-add');
-      $('body').removeClass('is-mode-menu');
+      $('body').removeClass('is-open-menu');
+      $('body').removeClass('is-mode-map');
       $('body').addClass('is-mode-note');
       if (note.photo_url != null) {
         $('#the-photo').css('background-image', "url(\"" + note.photo_url + "\")");
@@ -337,27 +339,47 @@
     };
 
     App.prototype.installListeners = function() {
+      var body;
+      body = $('body');
       $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
-          return $('body').toggleClass('is-mode-menu');
+          return body.toggleClass('is-open-menu');
+        };
+      })(this));
+      $('#the-grid-button').click((function(_this) {
+        return function() {
+          body.removeClass('is-open-menu');
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          return body.removeClass('is-mode-map');
+        };
+      })(this));
+      $('#the-map-button').click((function(_this) {
+        return function() {
+          body.removeClass('is-open-menu');
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          return body.addClass('is-mode-map');
         };
       })(this));
       $('#the-add-button').click((function(_this) {
         return function() {
-          $('body').removeClass('is-mode-note');
-          $('body').removeClass('is-mode-menu');
-          return $('body').toggleClass('is-mode-add');
+          body.removeClass('is-open-menu');
+          body.removeClass('is-mode-note');
+          body.toggleClass('is-mode-add');
+          return body.removeClass('is-mode-map');
         };
       })(this));
       $('#the-icon-bar-x').click((function(_this) {
         return function() {
-          $('body').removeClass('is-mode-add');
-          $('body').removeClass('is-mode-note');
-          return $('body').removeClass('is-mode-menu');
+          body.removeClass('is-open-menu');
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          return body.removeClass('is-mode-map');
         };
       })(this));
       if (this.aris.auth != null) {
-        $('body').addClass('is-logged-in');
+        body.addClass('is-logged-in');
       }
       $('#the-logout-button').click((function(_this) {
         return function() {
@@ -366,8 +388,11 @@
       })(this));
       $('#the-tag-button').click((function(_this) {
         return function() {
-          $('body').removeClass('is-mode-menu');
-          return $('body').toggleClass('is-mode-tags');
+          body.removeClass('is-open-menu');
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          body.removeClass('is-mode-map');
+          return body.toggleClass('is-open-tags');
         };
       })(this));
       return $('#the-search-tags input[type="checkbox"]').change((function(_this) {

@@ -8,6 +8,10 @@ $menu-padding: 15px
   height: 100% - $modal-percent
   top: 0
   left: 0
+body.is-mode-note #the-map-box
+  height: 0
+body.is-mode-map #the-map-box
+  height: calc(100% - 60px)
 
 #the-map
   width: 100%
@@ -17,6 +21,13 @@ $menu-padding: 15px
   position: relative
   width: 100%
   height: $modal-percent
+body.is-mode-note #the-main-modal
+  height: 100%
+body.is-mode-map #the-main-modal
+  height: 60px
+
+body.is-mode-note .a-menu-icon-right
+  display: none
 
 #the-add-button
   display: none
@@ -48,7 +59,7 @@ $menu-padding: 15px
 #the-ui-box
   transition-property: left
   transition-duration: 0.25s
-body.is-mode-menu #the-ui-box
+body.is-open-menu #the-ui-box
   left: -$menu-width
 .a-menu-option
   margin: 10px

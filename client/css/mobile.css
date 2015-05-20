@@ -5,6 +5,12 @@
   top: 0;
   left: 0; }
 
+body.is-mode-note #the-map-box {
+  height: 0; }
+
+body.is-mode-map #the-map-box {
+  height: calc(100% - 60px); }
+
 #the-map {
   width: 100%;
   height: 100%; }
@@ -13,6 +19,15 @@
   position: relative;
   width: 100%;
   height: 45%; }
+
+body.is-mode-note #the-main-modal {
+  height: 100%; }
+
+body.is-mode-map #the-main-modal {
+  height: 60px; }
+
+body.is-mode-note .a-menu-icon-right {
+  display: none; }
 
 #the-add-button {
   display: none; }
@@ -46,7 +61,7 @@
   transition-property: left;
   transition-duration: 0.25s; }
 
-body.is-mode-menu #the-ui-box {
+body.is-open-menu #the-ui-box {
   left: -200px; }
 
 .a-menu-option {
