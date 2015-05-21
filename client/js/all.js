@@ -108,7 +108,6 @@
           if (returnCode === 0 && games.length === 1) {
             _this.game = new Game(games[0]);
             $('#the-siftr-title').text(_this.game.name);
-            $('#the-siftr-subtitle').text('Started by Wilhuff Tarkin');
             return cb();
           } else {
             return _this.error("Failed to retrieve the Siftr game info");
@@ -122,7 +121,7 @@
         game_id: this.game.game_id
       }, (function(_this) {
         return function(arg) {
-          var o, owners, returnCode;
+          var commaList, names, o, owners, returnCode, user;
           owners = arg.data, returnCode = arg.returnCode;
           if (returnCode === 0) {
             _this.game.owners = (function() {
@@ -134,6 +133,29 @@
               }
               return results;
             })();
+            if (_this.game.owners.length > 0) {
+              names = (function() {
+                var j, len, ref, results;
+                ref = this.game.owners;
+                results = [];
+                for (j = 0, len = ref.length; j < len; j++) {
+                  user = ref[j];
+                  results.push(user.display_name);
+                }
+                return results;
+              }).call(_this);
+              commaList = function(list) {
+                switch (list.length) {
+                  case 0:
+                    return "";
+                  case 1:
+                    return list[0];
+                  default:
+                    return (list.slice(0, -1).join(', ')) + " and " + list[list.length - 1];
+                }
+              };
+              $('#the-siftr-subtitle').text("Started by " + (commaList(names)));
+            }
           } else {
             _this.game.owners = [];
             _this.warn("Failed to retrieve the list of Siftr owners");
@@ -280,7 +302,8 @@
               tr = appendTo(grid, '.a-grid-row');
             }
             td = appendTo(tr, '.a-grid-photo', {
-              style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;"
+              style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;",
+              alt: note.description
             });
             return td.click(function() {
               return _this.showNote(note);
@@ -325,16 +348,39 @@
     };
 
     App.prototype.showNote = function(note) {
+      var comment, j, len, ref, results;
       $('body').removeClass('is-mode-add');
       $('body').removeClass('is-open-menu');
       $('body').addClass('is-mode-note');
-      if (note.photo_url != null) {
-        $('#the-photo').css('background-image', "url(\"" + note.photo_url + "\")");
-      } else {
-        $('#the-photo').css('background-color', 'black');
-      }
+      $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
       $('#the-photo-caption').text(note.description);
-      return $('#the-photo-credit').text("Created by " + note.user.display_name + " at " + (note.created.toLocaleString()));
+      $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
+      $('#the-comments').html('');
+      if (note.comments.length > 0) {
+        appendTo($('#the-comments'), 'h3', {
+          text: 'Comments'
+        });
+        ref = note.comments;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          comment = ref[j];
+          if (comment.description.match(/\S/)) {
+            results.push(appendTo($('#the-comments'), 'div', {}, (function(_this) {
+              return function(div) {
+                appendTo(div, 'h4', {
+                  text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                });
+                return appendTo(div, 'p', {
+                  text: comment.description
+                });
+              };
+            })(this)));
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
+      }
     };
 
     App.prototype.installListeners = function() {

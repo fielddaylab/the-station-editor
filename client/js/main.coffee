@@ -64,7 +64,6 @@ class App
       if returnCode is 0 and games.length is 1
         @game = new Game games[0]
         $('#the-siftr-title').text @game.name
-        $('#the-siftr-subtitle').text 'Started by Wilhuff Tarkin'
         cb()
       else
         @error "Failed to retrieve the Siftr game info"
@@ -76,6 +75,14 @@ class App
       if returnCode is 0
         @game.owners =
           new User o for o in owners
+        if @game.owners.length > 0
+          names =
+            user.display_name for user in @game.owners
+          commaList = (list) -> switch list.length
+            when 0 then ""
+            when 1 then list[0]
+            else        "#{list[0..-2].join(', ')} and #{list[list.length - 1]}"
+          $('#the-siftr-subtitle').text "Started by #{commaList names}"
       else
         @game.owners = []
         @warn "Failed to retrieve the list of Siftr owners"
@@ -156,6 +163,7 @@ class App
               "background-image: url(\"#{note.photo_url}\");"
             else
               "background-color: black;"
+          alt: note.description
         td.click => @showNote note
 
   updateMap: ->
@@ -175,12 +183,24 @@ class App
     $('body').removeClass 'is-mode-add'
     $('body').removeClass 'is-open-menu'
     $('body').addClass 'is-mode-note'
-    if note.photo_url?
-      $('#the-photo').css 'background-image', "url(\"#{note.photo_url}\")"
-    else
-      $('#the-photo').css 'background-color', 'black'
+    $('#the-photo').css 'background-image',
+      if note.photo_url?
+        "url(\"#{note.photo_url}\")"
+      else
+        ''
     $('#the-photo-caption').text note.description
-    $('#the-photo-credit').text "Created by #{note.user.display_name} at #{note.created.toLocaleString()}"
+    $('#the-photo-credit').html """
+      Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}
+    """
+    $('#the-comments').html ''
+    if note.comments.length > 0
+      appendTo $('#the-comments'), 'h3', text: 'Comments'
+      for comment in note.comments
+        if comment.description.match(/\S/)
+          appendTo $('#the-comments'), 'div', {}, (div) =>
+            appendTo div, 'h4', text:
+              "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
+            appendTo div, 'p', text: comment.description
 
   installListeners: ->
     body = $('body')

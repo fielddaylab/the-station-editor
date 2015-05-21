@@ -37,3 +37,16 @@ appendTo = (parent, haml = '', attrs = {}, init = (->)) ->
   child
 
 window.appendTo = appendTo
+
+entityMap =
+  '&': '&amp;'
+  '<': '&lt;'
+  '>': '&gt;'
+  '"': '&quot;'
+  "'": '&#39;'
+  '/': '&#x2F;'
+
+escapeHTML = (str) ->
+  String(str).replace(/[&<>"'\/]/g, (s) -> entityMap[s])
+
+window.escapeHTML = escapeHTML

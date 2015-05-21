@@ -87,7 +87,7 @@
 }).call(this);
 
 (function() {
-  var appendTo, parseElement;
+  var appendTo, entityMap, escapeHTML, parseElement;
 
   parseElement = function(str) {
     var classes, eatWord, id, tag;
@@ -157,5 +157,22 @@
   };
 
   window.appendTo = appendTo;
+
+  entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;'
+  };
+
+  escapeHTML = function(str) {
+    return String(str).replace(/[&<>"'\/]/g, function(s) {
+      return entityMap[s];
+    });
+  };
+
+  window.escapeHTML = escapeHTML;
 
 }).call(this);
