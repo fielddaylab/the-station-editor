@@ -64,6 +64,8 @@ body.is-mode-add #the-icon-bar-x
 
 body:not(.is-logged-in) .logged-in
   display: none
+body.is-logged-in .logged-out
+  display: none
 
 .a-menu-option
   cursor: pointer
@@ -123,3 +125,23 @@ body:not(.is-mode-note) #the-note-view
   content: ''
   display: block
   margin-top: 100%
+
+body:not(.is-mode-add) #the-note-adder
+  display: none
+#the-note-adder
+  margin: $content-margin
+#the-photo-upload-box
+  width: 100%
+  background-color: gray
+  background-size: cover
+  background-position: center
+  display: inline-block
+  cursor: pointer
+#the-photo-upload-box:after
+  content: ''
+  display: block
+  margin-top: 100%
+#the-hidden-file-input
+  width: 0
+  height: 0
+  overflow: hidden

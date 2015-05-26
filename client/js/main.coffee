@@ -9,8 +9,7 @@ class Game
 class User
   constructor: (json) ->
     @user_id      = parseInt json.user_id
-    @display_name = json.display_name
-    # Let's always use display_name, never user_name
+    @display_name = json.display_name or json.user_name
 
 class Tag
   constructor: (json) ->
@@ -89,7 +88,7 @@ class App
       cb()
 
   createMap: ->
-    opts =
+    @map = new google.maps.Map $('#the-map')[0],
       zoom: @game.zoom
       center: new google.maps.LatLng @game.latitude, @game.longitude
       mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -99,12 +98,13 @@ class App
       scaleControl: false
       streetViewControl: false
       overviewMapControl: false
-      styles: window.mapStyle.concat [{
-        featureType: 'poi'
-        elementType: 'labels'
-        stylers: [{visibility: 'off'}]
-      }]
-    @map = new google.maps.Map $('#the-map')[0], opts
+      styles: do =>
+        styles = window.mapStyle
+        styles.push
+          featureType: 'poi'
+          elementType: 'labels'
+          stylers: [{visibility: 'off'}]
+        styles
 
   getGameTags: (cb) ->
     @aris.call 'tags.getTagsForGame',
@@ -137,12 +137,16 @@ class App
     @aris.call 'notes.searchNotes',
       game_id: @game.game_id
       tag_ids: tag_ids
-      # TODO: search, order
+      order_by: 'recent'
+      # TODO: search
     , ({data: notes, returnCode}) =>
       if returnCode is 0
         if thisSearch is @lastSearch
           @game.notes =
             new Note o for o in notes
+          # hide notes that don't have photos
+          @game.notes =
+            n for n in @game.notes when n.photo_url?
           @updateGrid()
           @updateMap()
         cb()
@@ -180,6 +184,7 @@ class App
           marker
 
   showNote: (note) ->
+    @scrollBackTo = $('#the-modal-content').scrollTop()
     $('body').removeClass 'is-mode-add'
     $('body').removeClass 'is-open-menu'
     $('body').addClass 'is-mode-note'
@@ -201,6 +206,7 @@ class App
             appendTo div, 'h4', text:
               "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
             appendTo div, 'p', text: comment.description
+    $('#the-modal-content').scrollTop 0
 
   installListeners: ->
     body = $('body')
@@ -211,6 +217,9 @@ class App
       body.removeClass 'is-mode-note'
       body.removeClass 'is-mode-add'
       body.removeClass 'is-mode-map'
+      if @scrollBackTo?
+        $('#the-modal-content').scrollTop @scrollBackTo
+        delete @scrollBackTo
     $('#the-map-button').click =>
       body.removeClass 'is-open-menu'
       body.removeClass 'is-mode-note'
@@ -221,10 +230,14 @@ class App
       body.removeClass 'is-mode-note'
       body.toggleClass 'is-mode-add'
       body.removeClass 'is-mode-map'
+      @readyFile null
     $('#the-icon-bar-x').click =>
       body.removeClass 'is-open-menu'
       body.removeClass 'is-mode-note'
       body.removeClass 'is-mode-add'
+      if @scrollBackTo?
+        $('#the-modal-content').scrollTop @scrollBackTo
+        delete @scrollBackTo
     if @aris.auth?
       body.addClass 'is-logged-in'
     $('#the-logout-button').click => @logout()
@@ -236,6 +249,58 @@ class App
       body.toggleClass 'is-open-tags'
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
+    $('#the-login-button').click =>
+      # TODO
+      if (n = prompt 'username')?
+        if (p = prompt 'password')?
+          @login n, p, =>
+            @performSearch(=>)
+    # drag and drop support for photo upload box
+    for action in ['dragover', 'dragenter']
+      $('#the-photo-upload-box').on action, (e) =>
+        e.preventDefault()
+        e.stopPropagation()
+    $('#the-photo-upload-box').on 'drop', (e) =>
+      if xfer = e.originalEvent.dataTransfer
+        if xfer.files.length
+          e.preventDefault()
+          e.stopPropagation()
+          @readyFile xfer.files[0]
+    # click support for photo upload box
+    $('#the-photo-upload-box').click =>
+      $('#the-hidden-file-input').click()
+    $('#the-hidden-file-input').on 'change', =>
+      @readyFile $('#the-hidden-file-input')[0].files[0]
+
+  readyFile: (file) ->
+    if file?
+      reader = new FileReader()
+      reader.onload = (e) =>
+        dataURL = e.target.result
+        typeMap =
+          jpg: 'image/jpeg'
+          png: 'image/png'
+          gif: 'image/gif'
+        for ext, mime of typeMap
+          prefix = "data:#{mime};base64,"
+          if dataURL.substring(0, prefix.length) is prefix
+            @ext    = ext
+            @base64 = dataURL.substring(prefix.length)
+            break
+        $('#the-photo-upload-box').css 'background-image', "url(\"#{dataURL}\")"
+      reader.readAsDataURL file
+    else
+      delete @ext
+      delete @base64
+      $('#the-photo-upload-box').css 'background-image', ''
+
+  login: (name, pw, cb) ->
+    @aris.login name, pw, =>
+      if @aris.auth?
+        $('body').addClass 'is-logged-in'
+      else
+        $('body').removeClass 'is-logged-in'
+      cb()
 
   logout: ->
     @aris.logout()

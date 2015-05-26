@@ -17,7 +17,7 @@
   User = (function() {
     function User(json) {
       this.user_id = parseInt(json.user_id);
-      this.display_name = json.display_name;
+      this.display_name = json.display_name || json.user_name;
     }
 
     return User;
@@ -166,8 +166,7 @@
     };
 
     App.prototype.createMap = function() {
-      var opts;
-      opts = {
+      return this.map = new google.maps.Map($('#the-map')[0], {
         zoom: this.game.zoom,
         center: new google.maps.LatLng(this.game.latitude, this.game.longitude),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -177,19 +176,23 @@
         scaleControl: false,
         streetViewControl: false,
         overviewMapControl: false,
-        styles: window.mapStyle.concat([
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [
-              {
-                visibility: 'off'
-              }
-            ]
-          }
-        ])
-      };
-      return this.map = new google.maps.Map($('#the-map')[0], opts);
+        styles: (function(_this) {
+          return function() {
+            var styles;
+            styles = window.mapStyle;
+            styles.push({
+              featureType: 'poi',
+              elementType: 'labels',
+              stylers: [
+                {
+                  visibility: 'off'
+                }
+              ]
+            });
+            return styles;
+          };
+        })(this)()
+      });
     };
 
     App.prototype.getGameTags = function(cb) {
@@ -259,10 +262,11 @@
       })();
       return this.aris.call('notes.searchNotes', {
         game_id: this.game.game_id,
-        tag_ids: tag_ids
+        tag_ids: tag_ids,
+        order_by: 'recent'
       }, (function(_this) {
         return function(arg) {
-          var notes, o, returnCode;
+          var n, notes, o, returnCode;
           notes = arg.data, returnCode = arg.returnCode;
           if (returnCode === 0) {
             if (thisSearch === _this.lastSearch) {
@@ -275,6 +279,18 @@
                 }
                 return results;
               })();
+              _this.game.notes = (function() {
+                var j, len, ref, results;
+                ref = this.game.notes;
+                results = [];
+                for (j = 0, len = ref.length; j < len; j++) {
+                  n = ref[j];
+                  if (n.photo_url != null) {
+                    results.push(n);
+                  }
+                }
+                return results;
+              }).call(_this);
               _this.updateGrid();
               _this.updateMap();
             }
@@ -348,7 +364,8 @@
     };
 
     App.prototype.showNote = function(note) {
-      var comment, j, len, ref, results;
+      var comment, j, len, ref;
+      this.scrollBackTo = $('#the-modal-content').scrollTop();
       $('body').removeClass('is-mode-add');
       $('body').removeClass('is-open-menu');
       $('body').addClass('is-mode-note');
@@ -361,11 +378,10 @@
           text: 'Comments'
         });
         ref = note.comments;
-        results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           comment = ref[j];
           if (comment.description.match(/\S/)) {
-            results.push(appendTo($('#the-comments'), 'div', {}, (function(_this) {
+            appendTo($('#the-comments'), 'div', {}, (function(_this) {
               return function(div) {
                 appendTo(div, 'h4', {
                   text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
@@ -374,17 +390,15 @@
                   text: comment.description
                 });
               };
-            })(this)));
-          } else {
-            results.push(void 0);
+            })(this));
           }
         }
-        return results;
       }
+      return $('#the-modal-content').scrollTop(0);
     };
 
     App.prototype.installListeners = function() {
-      var body;
+      var action, body, j, len, ref;
       body = $('body');
       $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
@@ -396,7 +410,11 @@
           body.removeClass('is-open-menu');
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
-          return body.removeClass('is-mode-map');
+          body.removeClass('is-mode-map');
+          if (_this.scrollBackTo != null) {
+            $('#the-modal-content').scrollTop(_this.scrollBackTo);
+            return delete _this.scrollBackTo;
+          }
         };
       })(this));
       $('#the-map-button').click((function(_this) {
@@ -412,14 +430,19 @@
           body.removeClass('is-open-menu');
           body.removeClass('is-mode-note');
           body.toggleClass('is-mode-add');
-          return body.removeClass('is-mode-map');
+          body.removeClass('is-mode-map');
+          return _this.readyFile(null);
         };
       })(this));
       $('#the-icon-bar-x').click((function(_this) {
         return function() {
           body.removeClass('is-open-menu');
           body.removeClass('is-mode-note');
-          return body.removeClass('is-mode-add');
+          body.removeClass('is-mode-add');
+          if (_this.scrollBackTo != null) {
+            $('#the-modal-content').scrollTop(_this.scrollBackTo);
+            return delete _this.scrollBackTo;
+          }
         };
       })(this));
       if (this.aris.auth != null) {
@@ -439,9 +462,99 @@
           return body.toggleClass('is-open-tags');
         };
       })(this));
-      return $('#the-search-tags input[type="checkbox"]').change((function(_this) {
+      $('#the-search-tags input[type="checkbox"]').change((function(_this) {
         return function() {
           return _this.performSearch(function() {});
+        };
+      })(this));
+      $('#the-login-button').click((function(_this) {
+        return function() {
+          var n, p;
+          if ((n = prompt('username')) != null) {
+            if ((p = prompt('password')) != null) {
+              return _this.login(n, p, function() {
+                return _this.performSearch(function() {});
+              });
+            }
+          }
+        };
+      })(this));
+      ref = ['dragover', 'dragenter'];
+      for (j = 0, len = ref.length; j < len; j++) {
+        action = ref[j];
+        $('#the-photo-upload-box').on(action, (function(_this) {
+          return function(e) {
+            e.preventDefault();
+            return e.stopPropagation();
+          };
+        })(this));
+      }
+      $('#the-photo-upload-box').on('drop', (function(_this) {
+        return function(e) {
+          var xfer;
+          if (xfer = e.originalEvent.dataTransfer) {
+            if (xfer.files.length) {
+              e.preventDefault();
+              e.stopPropagation();
+              return _this.readyFile(xfer.files[0]);
+            }
+          }
+        };
+      })(this));
+      $('#the-photo-upload-box').click((function(_this) {
+        return function() {
+          return $('#the-hidden-file-input').click();
+        };
+      })(this));
+      return $('#the-hidden-file-input').on('change', (function(_this) {
+        return function() {
+          return _this.readyFile($('#the-hidden-file-input')[0].files[0]);
+        };
+      })(this));
+    };
+
+    App.prototype.readyFile = function(file) {
+      var reader;
+      if (file != null) {
+        reader = new FileReader();
+        reader.onload = (function(_this) {
+          return function(e) {
+            var dataURL, ext, mime, prefix, typeMap;
+            dataURL = e.target.result;
+            typeMap = {
+              jpg: 'image/jpeg',
+              png: 'image/png',
+              gif: 'image/gif'
+            };
+            for (ext in typeMap) {
+              mime = typeMap[ext];
+              prefix = "data:" + mime + ";base64,";
+              if (dataURL.substring(0, prefix.length) === prefix) {
+                _this.ext = ext;
+                _this.base64 = dataURL.substring(prefix.length);
+                break;
+              }
+            }
+            return $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
+          };
+        })(this);
+        return reader.readAsDataURL(file);
+      } else {
+        delete this.ext;
+        delete this.base64;
+        return $('#the-photo-upload-box').css('background-image', '');
+      }
+    };
+
+    App.prototype.login = function(name, pw, cb) {
+      return this.aris.login(name, pw, (function(_this) {
+        return function() {
+          if (_this.aris.auth != null) {
+            $('body').addClass('is-logged-in');
+          } else {
+            $('body').removeClass('is-logged-in');
+          }
+          return cb();
         };
       })(this));
     };
