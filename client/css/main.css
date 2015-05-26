@@ -35,7 +35,8 @@ body {
   height: 0;
   clear: both; }
 
-body.is-mode-add .a-menu-icon-left {
+body.is-mode-add .a-menu-icon-left,
+body.is-mode-note .a-menu-icon-left {
   display: none; }
 
 .a-menu-icon-left {
@@ -43,7 +44,8 @@ body.is-mode-add .a-menu-icon-left {
   margin: 15px;
   cursor: pointer; }
 
-body.is-mode-add .a-menu-icon-right {
+body.is-mode-add .a-menu-icon-right,
+body.is-mode-note .a-menu-icon-right {
   display: none; }
 
 .a-menu-icon-right {
@@ -69,7 +71,8 @@ body:not(.is-logged-in) .logged-in {
 body.is-logged-in .logged-out {
   display: none; }
 
-.a-menu-option {
+#the-login-button,
+#the-logout-button {
   cursor: pointer; }
 
 body:not(.is-open-tags) #the-search-tags,

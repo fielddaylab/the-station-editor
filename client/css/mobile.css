@@ -26,9 +26,6 @@ body.is-mode-map:not(.is-mode-note) #the-main-modal {
 body.is-mode-note #the-main-modal {
   height: 100%; }
 
-body.is-mode-note .a-menu-icon-right {
-  display: none; }
-
 #the-add-button {
   display: none; }
 
@@ -56,6 +53,10 @@ body.is-mode-note .a-menu-icon-right {
   color: #72d3e8;
   padding: 15px;
   text-align: center; }
+
+#the-menu input {
+  width: 100%;
+  color: black; }
 
 #the-ui-box {
   transition-property: left;

@@ -33,6 +33,11 @@ class Note
         null
       else
         json.media.data.url
+    @thumb_url =
+      if parseInt(json.media.data.media_id) is 0
+        null
+      else
+        json.media.data.thumb_url
     @latitude     = parseFloat json.latitude
     @longitude    = parseFloat json.longitude
     @tag_id       = parseInt json.tag_id
@@ -46,7 +51,7 @@ class App
   constructor: ->
     $(document).ready =>
       @aris = new Aris
-      @aris.login undefined, undefined, =>
+      @login undefined, undefined, =>
         @siftr_url = 'snowchallenge' # for testing
         @getGameInfo =>
           @getGameOwners =>
@@ -88,9 +93,10 @@ class App
       cb()
 
   createMap: ->
+    @mapCenter = new google.maps.LatLng @game.latitude, @game.longitude
     @map = new google.maps.Map $('#the-map')[0],
       zoom: @game.zoom
-      center: new google.maps.LatLng @game.latitude, @game.longitude
+      center: @mapCenter
       mapTypeId: google.maps.MapTypeId.ROADMAP
       panControl: false
       zoomControl: false
@@ -98,13 +104,15 @@ class App
       scaleControl: false
       streetViewControl: false
       overviewMapControl: false
-      styles: do =>
-        styles = window.mapStyle
-        styles.push
-          featureType: 'poi'
-          elementType: 'labels'
-          stylers: [{visibility: 'off'}]
-        styles
+      styles: window.mapStyle.concat
+        featureType: 'poi'
+        elementType: 'labels'
+        stylers: [{visibility: 'off'}]
+    @dragMarker = new google.maps.Marker
+      position: @mapCenter
+      map: null # hidden at first
+      draggable: true
+      zIndexProcess: -> 9999
 
   getGameTags: (cb) ->
     @aris.call 'tags.getTagsForGame',
@@ -128,17 +136,15 @@ class App
               value: t.tag_id
             label.append document.createTextNode t.tag
     appendTo $('#the-tag-assigner'), 'form', {}, (form) =>
-      first = true
-      for t in @game.tags
+      for t, i in @game.tags
         appendTo form, 'p', {}, (p) =>
           appendTo p, 'label', {}, (label) =>
             appendTo label, 'input',
               type: 'radio'
-              checked: first
+              checked: i is 0
               name: 'upload-tag'
               value: t.tag_id
             label.append document.createTextNode t.tag
-        first = false
 
   performSearch: (cb) ->
     thisSearch = @lastSearch = Date.now()
@@ -175,8 +181,8 @@ class App
           tr = appendTo grid, '.a-grid-row'
         td = appendTo tr, '.a-grid-photo',
           style:
-            if note.photo_url?
-              "background-image: url(\"#{note.photo_url}\");"
+            if note.thumb_url?
+              "background-image: url(\"#{note.thumb_url}\");"
             else
               "background-color: black;"
           alt: note.description
@@ -205,6 +211,7 @@ class App
         "url(\"#{note.photo_url}\")"
       else
         ''
+    $('#the-photo-link').prop 'href', note.photo_url
     $('#the-photo-caption').text note.description
     $('#the-photo-credit').html """
       Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}
@@ -220,71 +227,86 @@ class App
             appendTo div, 'p', text: comment.description
     $('#the-modal-content').scrollTop 0
 
+  setMode: (mode) ->
+    body = $('body')
+    @mode = mode
+    body.removeClass 'is-open-menu'
+    @dragMarker.setMap null
+    switch mode
+      when 'grid'
+        @topMode = 'grid'
+        body.removeClass 'is-mode-note'
+        body.removeClass 'is-mode-add'
+        body.removeClass 'is-mode-map'
+        if @scrollBackTo?
+          $('#the-modal-content').scrollTop @scrollBackTo
+          delete @scrollBackTo
+      when 'map'
+        @topMode = 'map'
+        body.removeClass 'is-mode-note'
+        body.removeClass 'is-mode-add'
+        body.addClass 'is-mode-map'
+      when 'note'
+        body.addClass 'is-mode-note'
+        body.removeClass 'is-mode-add'
+        body.removeClass 'is-mode-map'
+      when 'add'
+        body.removeClass 'is-mode-note'
+        body.addClass 'is-mode-add'
+        body.removeClass 'is-mode-map'
+        @dragMarker.setMap @map
+        @dragMarker.setPosition @mapCenter
+        @map.setCenter @mapCenter
+        @map.setZoom @game.zoom
+
   installListeners: ->
     body = $('body')
+    @setMode 'grid'
     $('#the-user-logo, #the-menu-button').click =>
       body.toggleClass 'is-open-menu'
-    $('#the-grid-button').click =>
-      body.removeClass 'is-open-menu'
-      body.removeClass 'is-mode-note'
-      body.removeClass 'is-mode-add'
-      body.removeClass 'is-mode-map'
-      if @scrollBackTo?
-        $('#the-modal-content').scrollTop @scrollBackTo
-        delete @scrollBackTo
-    $('#the-map-button').click =>
-      body.removeClass 'is-open-menu'
-      body.removeClass 'is-mode-note'
-      body.removeClass 'is-mode-add'
-      body.addClass 'is-mode-map'
+    $('#the-grid-button').click => @setMode 'grid'
+    $('#the-map-button').click => @setMode 'map'
     $('#the-add-button').click =>
-      if @aris.auth?
-        body.removeClass 'is-open-menu'
-        body.removeClass 'is-mode-note'
-        body.toggleClass 'is-mode-add'
-        body.removeClass 'is-mode-map'
+      if @mode is 'add'
+        @setMode @topMode
+      else if @aris.auth?
+        @setMode 'add'
         @readyFile null
       else
         body.addClass 'is-open-menu'
     $('#the-icon-bar-x').click =>
-      body.removeClass 'is-open-menu'
-      body.removeClass 'is-mode-note'
-      body.removeClass 'is-mode-add'
-      if @scrollBackTo?
-        $('#the-modal-content').scrollTop @scrollBackTo
-        delete @scrollBackTo
-    if @aris.auth?
-      body.addClass 'is-logged-in'
+      @setMode @topMode
     $('#the-logout-button').click =>
       @logout()
       body.removeClass 'is-open-menu'
+      @setMode @topMode
       @performSearch(=>)
     $('#the-tag-button').click =>
-      body.removeClass 'is-open-menu'
-      body.removeClass 'is-mode-note'
-      body.removeClass 'is-mode-add'
-      body.removeClass 'is-mode-map'
-      body.toggleClass 'is-open-tags'
+      if @mode is 'map'
+        body.addClass 'is-open-tags'
+      else
+        body.toggleClass 'is-open-tags'
+      @setMode 'grid'
+      $('#the-modal-content').scrollTop 0
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
+    # login form
     $('#the-login-button').click =>
-      # TODO
-      if (n = prompt 'username')?
-        if (p = prompt 'password')?
-          @login n, p, =>
-            body.removeClass 'is-open-menu'
-            @performSearch(=>)
+      @login $('#the-username-input').val(), $('#the-password-input').val(), =>
+        if @aris.auth?
+          body.removeClass 'is-open-menu'
+          @performSearch(=>)
+    $('#the-username-input, #the-password-input').keypress (e) =>
+      if e.which is 13
+        $('#the-login-button').click()
+        return false
     # drag and drop support for photo upload box
-    for action in ['dragover', 'dragenter']
-      $('#the-photo-upload-box').on action, (e) =>
-        e.preventDefault()
-        e.stopPropagation()
+    $('#the-photo-upload-box').on 'dragover dragenter', (e) => false
     $('#the-photo-upload-box').on 'drop', (e) =>
       if xfer = e.originalEvent.dataTransfer
         if xfer.files.length
-          e.preventDefault()
-          e.stopPropagation()
           @readyFile xfer.files[0]
+          return false
     # click support for photo upload box
     $('#the-photo-upload-box').click =>
       $('#the-hidden-file-input').click()

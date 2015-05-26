@@ -53,6 +53,7 @@
       this.user = new User(json.user);
       this.description = json.description;
       this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
+      this.thumb_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.thumb_url;
       this.latitude = parseFloat(json.latitude);
       this.longitude = parseFloat(json.longitude);
       this.tag_id = parseInt(json.tag_id);
@@ -80,7 +81,7 @@
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
-          return _this.aris.login(void 0, void 0, function() {
+          return _this.login(void 0, void 0, function() {
             _this.siftr_url = 'snowchallenge';
             return _this.getGameInfo(function() {
               return _this.getGameOwners(function() {
@@ -166,9 +167,10 @@
     };
 
     App.prototype.createMap = function() {
-      return this.map = new google.maps.Map($('#the-map')[0], {
+      this.mapCenter = new google.maps.LatLng(this.game.latitude, this.game.longitude);
+      this.map = new google.maps.Map($('#the-map')[0], {
         zoom: this.game.zoom,
-        center: new google.maps.LatLng(this.game.latitude, this.game.longitude),
+        center: this.mapCenter,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         panControl: false,
         zoomControl: false,
@@ -176,22 +178,23 @@
         scaleControl: false,
         streetViewControl: false,
         overviewMapControl: false,
-        styles: (function(_this) {
-          return function() {
-            var styles;
-            styles = window.mapStyle;
-            styles.push({
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [
-                {
-                  visibility: 'off'
-                }
-              ]
-            });
-            return styles;
-          };
-        })(this)()
+        styles: window.mapStyle.concat({
+          featureType: 'poi',
+          elementType: 'labels',
+          stylers: [
+            {
+              visibility: 'off'
+            }
+          ]
+        })
+      });
+      return this.dragMarker = new google.maps.Marker({
+        position: this.mapCenter,
+        map: null,
+        draggable: true,
+        zIndexProcess: function() {
+          return 9999;
+        }
       });
     };
 
@@ -244,24 +247,22 @@
       })(this));
       return appendTo($('#the-tag-assigner'), 'form', {}, (function(_this) {
         return function(form) {
-          var first, j, len, ref, results, t;
-          first = true;
+          var i, j, len, ref, results, t;
           ref = _this.game.tags;
           results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            t = ref[j];
-            appendTo(form, 'p', {}, function(p) {
+          for (i = j = 0, len = ref.length; j < len; i = ++j) {
+            t = ref[i];
+            results.push(appendTo(form, 'p', {}, function(p) {
               return appendTo(p, 'label', {}, function(label) {
                 appendTo(label, 'input', {
                   type: 'radio',
-                  checked: first,
+                  checked: i === 0,
                   name: 'upload-tag',
                   value: t.tag_id
                 });
                 return label.append(document.createTextNode(t.tag));
               });
-            });
-            results.push(first = false);
+            }));
           }
           return results;
         };
@@ -342,7 +343,7 @@
               tr = appendTo(grid, '.a-grid-row');
             }
             td = appendTo(tr, '.a-grid-photo', {
-              style: note.photo_url != null ? "background-image: url(\"" + note.photo_url + "\");" : "background-color: black;",
+              style: note.thumb_url != null ? "background-image: url(\"" + note.thumb_url + "\");" : "background-color: black;",
               alt: note.description
             });
             return td.click(function() {
@@ -394,6 +395,7 @@
       $('body').removeClass('is-open-menu');
       $('body').addClass('is-mode-note');
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
+      $('#the-photo-link').prop('href', note.photo_url);
       $('#the-photo-caption').text(note.description);
       $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
       $('#the-comments').html('');
@@ -421,9 +423,47 @@
       return $('#the-modal-content').scrollTop(0);
     };
 
-    App.prototype.installListeners = function() {
-      var action, body, j, len, ref;
+    App.prototype.setMode = function(mode) {
+      var body;
       body = $('body');
+      this.mode = mode;
+      body.removeClass('is-open-menu');
+      this.dragMarker.setMap(null);
+      switch (mode) {
+        case 'grid':
+          this.topMode = 'grid';
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          body.removeClass('is-mode-map');
+          if (this.scrollBackTo != null) {
+            $('#the-modal-content').scrollTop(this.scrollBackTo);
+            return delete this.scrollBackTo;
+          }
+          break;
+        case 'map':
+          this.topMode = 'map';
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          return body.addClass('is-mode-map');
+        case 'note':
+          body.addClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          return body.removeClass('is-mode-map');
+        case 'add':
+          body.removeClass('is-mode-note');
+          body.addClass('is-mode-add');
+          body.removeClass('is-mode-map');
+          this.dragMarker.setMap(this.map);
+          this.dragMarker.setPosition(this.mapCenter);
+          this.map.setCenter(this.mapCenter);
+          return this.map.setZoom(this.game.zoom);
+      }
+    };
+
+    App.prototype.installListeners = function() {
+      var body;
+      body = $('body');
+      this.setMode('grid');
       $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
           return body.toggleClass('is-open-menu');
@@ -431,31 +471,20 @@
       })(this));
       $('#the-grid-button').click((function(_this) {
         return function() {
-          body.removeClass('is-open-menu');
-          body.removeClass('is-mode-note');
-          body.removeClass('is-mode-add');
-          body.removeClass('is-mode-map');
-          if (_this.scrollBackTo != null) {
-            $('#the-modal-content').scrollTop(_this.scrollBackTo);
-            return delete _this.scrollBackTo;
-          }
+          return _this.setMode('grid');
         };
       })(this));
       $('#the-map-button').click((function(_this) {
         return function() {
-          body.removeClass('is-open-menu');
-          body.removeClass('is-mode-note');
-          body.removeClass('is-mode-add');
-          return body.addClass('is-mode-map');
+          return _this.setMode('map');
         };
       })(this));
       $('#the-add-button').click((function(_this) {
         return function() {
-          if (_this.aris.auth != null) {
-            body.removeClass('is-open-menu');
-            body.removeClass('is-mode-note');
-            body.toggleClass('is-mode-add');
-            body.removeClass('is-mode-map');
+          if (_this.mode === 'add') {
+            return _this.setMode(_this.topMode);
+          } else if (_this.aris.auth != null) {
+            _this.setMode('add');
             return _this.readyFile(null);
           } else {
             return body.addClass('is-open-menu');
@@ -464,32 +493,26 @@
       })(this));
       $('#the-icon-bar-x').click((function(_this) {
         return function() {
-          body.removeClass('is-open-menu');
-          body.removeClass('is-mode-note');
-          body.removeClass('is-mode-add');
-          if (_this.scrollBackTo != null) {
-            $('#the-modal-content').scrollTop(_this.scrollBackTo);
-            return delete _this.scrollBackTo;
-          }
+          return _this.setMode(_this.topMode);
         };
       })(this));
-      if (this.aris.auth != null) {
-        body.addClass('is-logged-in');
-      }
       $('#the-logout-button').click((function(_this) {
         return function() {
           _this.logout();
           body.removeClass('is-open-menu');
+          _this.setMode(_this.topMode);
           return _this.performSearch(function() {});
         };
       })(this));
       $('#the-tag-button').click((function(_this) {
         return function() {
-          body.removeClass('is-open-menu');
-          body.removeClass('is-mode-note');
-          body.removeClass('is-mode-add');
-          body.removeClass('is-mode-map');
-          return body.toggleClass('is-open-tags');
+          if (_this.mode === 'map') {
+            body.addClass('is-open-tags');
+          } else {
+            body.toggleClass('is-open-tags');
+          }
+          _this.setMode('grid');
+          return $('#the-modal-content').scrollTop(0);
         };
       })(this));
       $('#the-search-tags input[type="checkbox"]').change((function(_this) {
@@ -499,35 +522,34 @@
       })(this));
       $('#the-login-button').click((function(_this) {
         return function() {
-          var n, p;
-          if ((n = prompt('username')) != null) {
-            if ((p = prompt('password')) != null) {
-              return _this.login(n, p, function() {
-                body.removeClass('is-open-menu');
-                return _this.performSearch(function() {});
-              });
+          return _this.login($('#the-username-input').val(), $('#the-password-input').val(), function() {
+            if (_this.aris.auth != null) {
+              body.removeClass('is-open-menu');
+              return _this.performSearch(function() {});
             }
+          });
+        };
+      })(this));
+      $('#the-username-input, #the-password-input').keypress((function(_this) {
+        return function(e) {
+          if (e.which === 13) {
+            $('#the-login-button').click();
+            return false;
           }
         };
       })(this));
-      ref = ['dragover', 'dragenter'];
-      for (j = 0, len = ref.length; j < len; j++) {
-        action = ref[j];
-        $('#the-photo-upload-box').on(action, (function(_this) {
-          return function(e) {
-            e.preventDefault();
-            return e.stopPropagation();
-          };
-        })(this));
-      }
+      $('#the-photo-upload-box').on('dragover dragenter', (function(_this) {
+        return function(e) {
+          return false;
+        };
+      })(this));
       $('#the-photo-upload-box').on('drop', (function(_this) {
         return function(e) {
           var xfer;
           if (xfer = e.originalEvent.dataTransfer) {
             if (xfer.files.length) {
-              e.preventDefault();
-              e.stopPropagation();
-              return _this.readyFile(xfer.files[0]);
+              _this.readyFile(xfer.files[0]);
+              return false;
             }
           }
         };

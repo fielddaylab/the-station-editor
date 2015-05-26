@@ -57,7 +57,9 @@
             <div id="the-note-grid"></div>
           </div>
           <div id="the-note-view">
-            <div id="the-photo"></div>
+            <a id="the-photo-link" target="_blank">
+              <div id="the-photo"></div>
+            </a>
             <p id="the-photo-caption"></p>
             <p id="the-photo-credit"></p>
             <div id="the-comments">
@@ -88,9 +90,17 @@
       </div>
       <div id="the-menu">
         <div class="logged-out">
-          <div id="the-login-button" class="a-menu-option">
-            Log in
-          </div>
+          <form>
+            <div class="a-menu-option">
+              <input id="the-username-input" type="text" placeholder="Username">
+            </div>
+            <div class="a-menu-option">
+              <input id="the-password-input" type="password" placeholder="Password">
+            </div>
+            <div id="the-login-button" class="a-menu-option">
+              Log in
+            </div>
+          </form>
         </div>
         <div class="logged-in">
           <div class="a-menu-option">
