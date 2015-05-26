@@ -52,7 +52,7 @@ class App
           @getGameOwners =>
             @createMap()
             @getGameTags =>
-              @makeSearchTags()
+              @makeTagLists()
               @performSearch =>
                 @installListeners()
 
@@ -117,7 +117,7 @@ class App
       else
         @error "Failed to retrieve the list of tags"
 
-  makeSearchTags: ->
+  makeTagLists: ->
     appendTo $('#the-search-tags'), 'form', {}, (form) =>
       for t in @game.tags
         appendTo form, 'p', {}, (p) =>
@@ -127,6 +127,18 @@ class App
               checked: false
               value: t.tag_id
             label.append document.createTextNode t.tag
+    appendTo $('#the-tag-assigner'), 'form', {}, (form) =>
+      first = true
+      for t in @game.tags
+        appendTo form, 'p', {}, (p) =>
+          appendTo p, 'label', {}, (label) =>
+            appendTo label, 'input',
+              type: 'radio'
+              checked: first
+              name: 'upload-tag'
+              value: t.tag_id
+            label.append document.createTextNode t.tag
+        first = false
 
   performSearch: (cb) ->
     thisSearch = @lastSearch = Date.now()
@@ -226,11 +238,14 @@ class App
       body.removeClass 'is-mode-add'
       body.addClass 'is-mode-map'
     $('#the-add-button').click =>
-      body.removeClass 'is-open-menu'
-      body.removeClass 'is-mode-note'
-      body.toggleClass 'is-mode-add'
-      body.removeClass 'is-mode-map'
-      @readyFile null
+      if @aris.auth?
+        body.removeClass 'is-open-menu'
+        body.removeClass 'is-mode-note'
+        body.toggleClass 'is-mode-add'
+        body.removeClass 'is-mode-map'
+        @readyFile null
+      else
+        body.addClass 'is-open-menu'
     $('#the-icon-bar-x').click =>
       body.removeClass 'is-open-menu'
       body.removeClass 'is-mode-note'
@@ -240,7 +255,10 @@ class App
         delete @scrollBackTo
     if @aris.auth?
       body.addClass 'is-logged-in'
-    $('#the-logout-button').click => @logout()
+    $('#the-logout-button').click =>
+      @logout()
+      body.removeClass 'is-open-menu'
+      @performSearch(=>)
     $('#the-tag-button').click =>
       body.removeClass 'is-open-menu'
       body.removeClass 'is-mode-note'
@@ -254,6 +272,7 @@ class App
       if (n = prompt 'username')?
         if (p = prompt 'password')?
           @login n, p, =>
+            body.removeClass 'is-open-menu'
             @performSearch(=>)
     # drag and drop support for photo upload box
     for action in ['dragover', 'dragenter']
@@ -273,6 +292,9 @@ class App
       @readyFile $('#the-hidden-file-input')[0].files[0]
 
   readyFile: (file) ->
+    delete @ext
+    delete @base64
+    $('#the-photo-upload-box').css 'background-image', ''
     if file?
       reader = new FileReader()
       reader.onload = (e) =>
@@ -286,13 +308,9 @@ class App
           if dataURL.substring(0, prefix.length) is prefix
             @ext    = ext
             @base64 = dataURL.substring(prefix.length)
+            $('#the-photo-upload-box').css 'background-image', "url(\"#{dataURL}\")"
             break
-        $('#the-photo-upload-box').css 'background-image', "url(\"#{dataURL}\")"
       reader.readAsDataURL file
-    else
-      delete @ext
-      delete @base64
-      $('#the-photo-upload-box').css 'background-image', ''
 
   login: (name, pw, cb) ->
     @aris.login name, pw, =>
@@ -305,6 +323,7 @@ class App
   logout: ->
     @aris.logout()
     $('body').removeClass 'is-logged-in'
+    $('body').removeClass 'is-mode-add'
 
   error: (s) ->
     # TODO

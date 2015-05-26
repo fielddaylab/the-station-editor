@@ -86,7 +86,7 @@
               return _this.getGameOwners(function() {
                 _this.createMap();
                 return _this.getGameTags(function() {
-                  _this.makeSearchTags();
+                  _this.makeTagLists();
                   return _this.performSearch(function() {
                     return _this.installListeners();
                   });
@@ -220,8 +220,8 @@
       })(this));
     };
 
-    App.prototype.makeSearchTags = function() {
-      return appendTo($('#the-search-tags'), 'form', {}, (function(_this) {
+    App.prototype.makeTagLists = function() {
+      appendTo($('#the-search-tags'), 'form', {}, (function(_this) {
         return function(form) {
           var j, len, ref, results, t;
           ref = _this.game.tags;
@@ -238,6 +238,30 @@
                 return label.append(document.createTextNode(t.tag));
               });
             }));
+          }
+          return results;
+        };
+      })(this));
+      return appendTo($('#the-tag-assigner'), 'form', {}, (function(_this) {
+        return function(form) {
+          var first, j, len, ref, results, t;
+          first = true;
+          ref = _this.game.tags;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            t = ref[j];
+            appendTo(form, 'p', {}, function(p) {
+              return appendTo(p, 'label', {}, function(label) {
+                appendTo(label, 'input', {
+                  type: 'radio',
+                  checked: first,
+                  name: 'upload-tag',
+                  value: t.tag_id
+                });
+                return label.append(document.createTextNode(t.tag));
+              });
+            });
+            results.push(first = false);
           }
           return results;
         };
@@ -427,11 +451,15 @@
       })(this));
       $('#the-add-button').click((function(_this) {
         return function() {
-          body.removeClass('is-open-menu');
-          body.removeClass('is-mode-note');
-          body.toggleClass('is-mode-add');
-          body.removeClass('is-mode-map');
-          return _this.readyFile(null);
+          if (_this.aris.auth != null) {
+            body.removeClass('is-open-menu');
+            body.removeClass('is-mode-note');
+            body.toggleClass('is-mode-add');
+            body.removeClass('is-mode-map');
+            return _this.readyFile(null);
+          } else {
+            return body.addClass('is-open-menu');
+          }
         };
       })(this));
       $('#the-icon-bar-x').click((function(_this) {
@@ -450,7 +478,9 @@
       }
       $('#the-logout-button').click((function(_this) {
         return function() {
-          return _this.logout();
+          _this.logout();
+          body.removeClass('is-open-menu');
+          return _this.performSearch(function() {});
         };
       })(this));
       $('#the-tag-button').click((function(_this) {
@@ -473,6 +503,7 @@
           if ((n = prompt('username')) != null) {
             if ((p = prompt('password')) != null) {
               return _this.login(n, p, function() {
+                body.removeClass('is-open-menu');
                 return _this.performSearch(function() {});
               });
             }
@@ -515,34 +546,37 @@
 
     App.prototype.readyFile = function(file) {
       var reader;
+      delete this.ext;
+      delete this.base64;
+      $('#the-photo-upload-box').css('background-image', '');
       if (file != null) {
         reader = new FileReader();
         reader.onload = (function(_this) {
           return function(e) {
-            var dataURL, ext, mime, prefix, typeMap;
+            var dataURL, ext, mime, prefix, results, typeMap;
             dataURL = e.target.result;
             typeMap = {
               jpg: 'image/jpeg',
               png: 'image/png',
               gif: 'image/gif'
             };
+            results = [];
             for (ext in typeMap) {
               mime = typeMap[ext];
               prefix = "data:" + mime + ";base64,";
               if (dataURL.substring(0, prefix.length) === prefix) {
                 _this.ext = ext;
                 _this.base64 = dataURL.substring(prefix.length);
+                $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
                 break;
+              } else {
+                results.push(void 0);
               }
             }
-            return $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
+            return results;
           };
         })(this);
         return reader.readAsDataURL(file);
-      } else {
-        delete this.ext;
-        delete this.base64;
-        return $('#the-photo-upload-box').css('background-image', '');
       }
     };
 
@@ -561,7 +595,8 @@
 
     App.prototype.logout = function() {
       this.aris.logout();
-      return $('body').removeClass('is-logged-in');
+      $('body').removeClass('is-logged-in');
+      return $('body').removeClass('is-mode-add');
     };
 
     App.prototype.error = function(s) {
