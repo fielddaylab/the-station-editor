@@ -13,7 +13,7 @@ class User
 
 class Tag
   constructor: (json) ->
-    @icon_url = json.media.data.url
+    @icon_url = json.media?.data?.url
     @tag      = json.tag
     @tag_id   = parseInt json.tag_id
 
@@ -53,6 +53,7 @@ class App
       @aris = new Aris
       @login undefined, undefined, =>
         @siftr_url = 'snowchallenge' # for testing
+        @siftr_id = null
         @getGameInfo =>
           @getGameOwners =>
             @createMap()
@@ -62,15 +63,25 @@ class App
                 @installListeners()
 
   getGameInfo: (cb) ->
-    @aris.call 'games.searchSiftrs',
-      siftr_url: @siftr_url
-    , ({data: games, returnCode}) =>
-      if returnCode is 0 and games.length is 1
-        @game = new Game games[0]
+    if @siftr_url?
+      @aris.call 'games.searchSiftrs',
+        siftr_url: @siftr_url
+      , ({data: games, returnCode}) =>
+        if returnCode is 0 and games.length is 1
+          @game = new Game games[0]
+          $('#the-siftr-title').text @game.name
+          cb()
+        else
+          @error "Failed to retrieve the Siftr game info"
+    else if @siftr_id?
+      @aris.call 'games.getGame',
+        game_id: @siftr_id
+      , ({data: game, returnCode}) =>
+        @game = new Game game
         $('#the-siftr-title').text @game.name
         cb()
-      else
-        @error "Failed to retrieve the Siftr game info"
+    else
+      @error "No Siftr specified"
 
   getGameOwners: (cb) ->
     @aris.call 'users.getUsersForGame',
@@ -203,9 +214,7 @@ class App
 
   showNote: (note) ->
     @scrollBackTo = $('#the-modal-content').scrollTop()
-    $('body').removeClass 'is-mode-add'
-    $('body').removeClass 'is-open-menu'
-    $('body').addClass 'is-mode-note'
+    @setMode 'note'
     $('#the-photo').css 'background-image',
       if note.photo_url?
         "url(\"#{note.photo_url}\")"
@@ -258,6 +267,45 @@ class App
         @dragMarker.setPosition @mapCenter
         @map.setCenter @mapCenter
         @map.setZoom @game.zoom
+        $('#the-caption-box').val ''
+        $('#the-tag-assigner input[name=upload-tag]:first').click()
+
+  submitNote: ->
+    unless @ext? and @base64?
+      @error 'Please select a photo to upload.'
+      return
+    desc = $('#the-caption-box').val()
+    if desc.length is 0
+      @error 'Please enter a caption for the image.'
+      return
+    @aris.call 'notes.createNote',
+      game_id: @game.game_id
+      media:
+        file_name: "upload.#{@ext}"
+        data: @base64
+        resize: 640
+      description: desc
+      trigger:
+        latitude: @dragMarker.getPosition().lat()
+        longitude: @dragMarker.getPosition().lng()
+      tag_id: parseInt $('#the-tag-assigner input[name=upload-tag]:checked').val()
+    , ({data: simpleNote, returnCode}) =>
+      if returnCode isnt 0
+        @error 'There was an error uploading your photo.'
+        return
+      @aris.call 'notes.searchNotes',
+        game_id: @game.game_id
+        note_id: parseInt simpleNote.note_id
+        note_count: 1
+      , ({data: notes, returnCode}) =>
+        if returnCode isnt 0
+          @error 'There was an error retrieving your new photo.'
+          return
+        note = new Note notes[0]
+        @game.notes.unshift note
+        @updateGrid()
+        @updateMap()
+        @showNote note
 
   installListeners: ->
     body = $('body')
@@ -274,7 +322,7 @@ class App
         @readyFile null
       else
         body.addClass 'is-open-menu'
-    $('#the-icon-bar-x').click =>
+    $('#the-icon-bar-x, #the-add-cancel-button').click =>
       @setMode @topMode
     $('#the-logout-button').click =>
       @logout()
@@ -290,6 +338,7 @@ class App
       $('#the-modal-content').scrollTop 0
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
+    $('#the-add-submit-button').click => @submitNote()
     # login form
     $('#the-login-button').click =>
       @login $('#the-username-input').val(), $('#the-password-input').val(), =>

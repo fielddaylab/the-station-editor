@@ -26,7 +26,8 @@
 
   Tag = (function() {
     function Tag(json) {
-      this.icon_url = json.media.data.url;
+      var ref, ref1;
+      this.icon_url = (ref = json.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0;
       this.tag = json.tag;
       this.tag_id = parseInt(json.tag_id);
     }
@@ -83,6 +84,7 @@
           _this.aris = new Aris;
           return _this.login(void 0, void 0, function() {
             _this.siftr_url = 'snowchallenge';
+            _this.siftr_id = null;
             return _this.getGameInfo(function() {
               return _this.getGameOwners(function() {
                 _this.createMap();
@@ -100,21 +102,37 @@
     }
 
     App.prototype.getGameInfo = function(cb) {
-      return this.aris.call('games.searchSiftrs', {
-        siftr_url: this.siftr_url
-      }, (function(_this) {
-        return function(arg) {
-          var games, returnCode;
-          games = arg.data, returnCode = arg.returnCode;
-          if (returnCode === 0 && games.length === 1) {
-            _this.game = new Game(games[0]);
+      if (this.siftr_url != null) {
+        return this.aris.call('games.searchSiftrs', {
+          siftr_url: this.siftr_url
+        }, (function(_this) {
+          return function(arg) {
+            var games, returnCode;
+            games = arg.data, returnCode = arg.returnCode;
+            if (returnCode === 0 && games.length === 1) {
+              _this.game = new Game(games[0]);
+              $('#the-siftr-title').text(_this.game.name);
+              return cb();
+            } else {
+              return _this.error("Failed to retrieve the Siftr game info");
+            }
+          };
+        })(this));
+      } else if (this.siftr_id != null) {
+        return this.aris.call('games.getGame', {
+          game_id: this.siftr_id
+        }, (function(_this) {
+          return function(arg) {
+            var game, returnCode;
+            game = arg.data, returnCode = arg.returnCode;
+            _this.game = new Game(game);
             $('#the-siftr-title').text(_this.game.name);
             return cb();
-          } else {
-            return _this.error("Failed to retrieve the Siftr game info");
-          }
-        };
-      })(this));
+          };
+        })(this));
+      } else {
+        return this.error("No Siftr specified");
+      }
     };
 
     App.prototype.getGameOwners = function(cb) {
@@ -391,9 +409,7 @@
     App.prototype.showNote = function(note) {
       var comment, j, len, ref;
       this.scrollBackTo = $('#the-modal-content').scrollTop();
-      $('body').removeClass('is-mode-add');
-      $('body').removeClass('is-open-menu');
-      $('body').addClass('is-mode-note');
+      this.setMode('note');
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
       $('#the-photo-link').prop('href', note.photo_url);
       $('#the-photo-caption').text(note.description);
@@ -456,8 +472,63 @@
           this.dragMarker.setMap(this.map);
           this.dragMarker.setPosition(this.mapCenter);
           this.map.setCenter(this.mapCenter);
-          return this.map.setZoom(this.game.zoom);
+          this.map.setZoom(this.game.zoom);
+          $('#the-caption-box').val('');
+          return $('#the-tag-assigner input[name=upload-tag]:first').click();
       }
+    };
+
+    App.prototype.submitNote = function() {
+      var desc;
+      if (!((this.ext != null) && (this.base64 != null))) {
+        this.error('Please select a photo to upload.');
+        return;
+      }
+      desc = $('#the-caption-box').val();
+      if (desc.length === 0) {
+        this.error('Please enter a caption for the image.');
+        return;
+      }
+      return this.aris.call('notes.createNote', {
+        game_id: this.game.game_id,
+        media: {
+          file_name: "upload." + this.ext,
+          data: this.base64,
+          resize: 640
+        },
+        description: desc,
+        trigger: {
+          latitude: this.dragMarker.getPosition().lat(),
+          longitude: this.dragMarker.getPosition().lng()
+        },
+        tag_id: parseInt($('#the-tag-assigner input[name=upload-tag]:checked').val())
+      }, (function(_this) {
+        return function(arg) {
+          var returnCode, simpleNote;
+          simpleNote = arg.data, returnCode = arg.returnCode;
+          if (returnCode !== 0) {
+            _this.error('There was an error uploading your photo.');
+            return;
+          }
+          return _this.aris.call('notes.searchNotes', {
+            game_id: _this.game.game_id,
+            note_id: parseInt(simpleNote.note_id),
+            note_count: 1
+          }, function(arg1) {
+            var note, notes, returnCode;
+            notes = arg1.data, returnCode = arg1.returnCode;
+            if (returnCode !== 0) {
+              _this.error('There was an error retrieving your new photo.');
+              return;
+            }
+            note = new Note(notes[0]);
+            _this.game.notes.unshift(note);
+            _this.updateGrid();
+            _this.updateMap();
+            return _this.showNote(note);
+          });
+        };
+      })(this));
     };
 
     App.prototype.installListeners = function() {
@@ -491,7 +562,7 @@
           }
         };
       })(this));
-      $('#the-icon-bar-x').click((function(_this) {
+      $('#the-icon-bar-x, #the-add-cancel-button').click((function(_this) {
         return function() {
           return _this.setMode(_this.topMode);
         };
@@ -518,6 +589,11 @@
       $('#the-search-tags input[type="checkbox"]').change((function(_this) {
         return function() {
           return _this.performSearch(function() {});
+        };
+      })(this));
+      $('#the-add-submit-button').click((function(_this) {
+        return function() {
+          return _this.submitNote();
         };
       })(this));
       $('#the-login-button').click((function(_this) {

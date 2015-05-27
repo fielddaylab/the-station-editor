@@ -161,4 +161,30 @@ body:not(.is-mode-add) #the-note-adder {
   height: 0;
   overflow: hidden; }
 
+#the-caption-box {
+  width: 100%;
+  resize: none; }
+
+#the-add-submit-cancel-buttons {
+  display: table;
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  margin-top: 15px;
+  text-transform: uppercase; }
+
+#the-add-submit-button {
+  display: table-cell;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #62c9e3;
+  color: white; }
+
+#the-add-cancel-button {
+  display: table-cell;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #c4f0fb;
+  color: #42acc7; }
+
 /*# sourceMappingURL=main.css.map */
