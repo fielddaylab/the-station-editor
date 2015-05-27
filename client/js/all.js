@@ -184,6 +184,51 @@
       })(this));
     };
 
+    App.prototype.centerMapOffset = function(latlng, offsetx, offsety) {
+      var p1, p2, z;
+      if (latlng == null) {
+        latlng = this.map.getCenter();
+      }
+      if (offsetx == null) {
+        offsetx = 0;
+      }
+      if (offsety == null) {
+        offsety = 0;
+      }
+      p1 = this.map.getProjection().fromLatLngToPoint(latlng);
+      z = this.map.getZoom();
+      p2 = new google.maps.Point(offsetx / (Math.pow(2, z)), offsety / (Math.pow(2, z)));
+      return this.map.setCenter((function(_this) {
+        return function() {
+          return _this.map.getProjection().fromPointToLatLng((function() {
+            return new google.maps.Point(p1.x - p2.x, p1.y - p2.y);
+          })());
+        };
+      })(this)());
+    };
+
+    App.prototype.setMapCenter = function(latlng) {
+      var listener, offsetx, w;
+      w = $('body').width();
+      if (w < 907) {
+        return this.map.setCenter(latlng);
+      } else {
+        offsetx = (w - 450 - 30) / 2 - w / 2;
+        if (this.map.getProjection() != null) {
+          return this.centerMapOffset(latlng, offsetx, 0);
+        } else {
+          return listener = google.maps.event.addListener(this.map, 'projection_changed', (function(_this) {
+            return function() {
+              if (_this.map.getProjection() != null) {
+                _this.centerMapOffset(latlng, offsetx, 0);
+                return google.maps.event.removeListener(listener);
+              }
+            };
+          })(this));
+        }
+      }
+    };
+
     App.prototype.createMap = function() {
       this.mapCenter = new google.maps.LatLng(this.game.latitude, this.game.longitude);
       this.map = new google.maps.Map($('#the-map')[0], {
@@ -206,6 +251,7 @@
           ]
         })
       });
+      this.setMapCenter(this.mapCenter);
       return this.dragMarker = new google.maps.Marker({
         position: this.mapCenter,
         map: null,
@@ -440,8 +486,9 @@
     };
 
     App.prototype.setMode = function(mode) {
-      var body;
+      var body, j, k, len, len1, note, oldMode, ref, ref1, results;
       body = $('body');
+      oldMode = this.mode;
       this.mode = mode;
       body.removeClass('is-open-menu');
       this.dragMarker.setMap(null);
@@ -453,28 +500,47 @@
           body.removeClass('is-mode-map');
           if (this.scrollBackTo != null) {
             $('#the-modal-content').scrollTop(this.scrollBackTo);
-            return delete this.scrollBackTo;
+            delete this.scrollBackTo;
           }
           break;
         case 'map':
           this.topMode = 'map';
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
-          return body.addClass('is-mode-map');
+          body.addClass('is-mode-map');
+          break;
         case 'note':
           body.addClass('is-mode-note');
           body.removeClass('is-mode-add');
-          return body.removeClass('is-mode-map');
+          body.removeClass('is-mode-map');
+          break;
         case 'add':
           body.removeClass('is-mode-note');
           body.addClass('is-mode-add');
           body.removeClass('is-mode-map');
           this.dragMarker.setMap(this.map);
           this.dragMarker.setPosition(this.mapCenter);
-          this.map.setCenter(this.mapCenter);
+          this.dragMarker.setAnimation(google.maps.Animation.DROP);
+          this.setMapCenter(this.mapCenter);
           this.map.setZoom(this.game.zoom);
           $('#the-caption-box').val('');
-          return $('#the-tag-assigner input[name=upload-tag]:first').click();
+          $('#the-tag-assigner input[name=upload-tag]:first').click();
+          if (oldMode !== 'add') {
+            ref = this.game.notes;
+            for (j = 0, len = ref.length; j < len; j++) {
+              note = ref[j];
+              note.marker.setOpacity(0.3);
+            }
+          }
+      }
+      if (oldMode === 'add' && mode !== 'add') {
+        ref1 = this.game.notes;
+        results = [];
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          note = ref1[k];
+          results.push(note.marker.setOpacity(1));
+        }
+        return results;
       }
     };
 

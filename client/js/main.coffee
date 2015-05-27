@@ -103,6 +103,29 @@ class App
         @warn "Failed to retrieve the list of Siftr owners"
       cb()
 
+  # http://stackoverflow.com/a/10722973
+  centerMapOffset: (latlng = @map.getCenter(), offsetx = 0, offsety = 0) ->
+    p1 = @map.getProjection().fromLatLngToPoint latlng
+    z = @map.getZoom()
+    p2 = new google.maps.Point(offsetx / (2 ** z), offsety / (2 ** z))
+    @map.setCenter do =>
+      @map.getProjection().fromPointToLatLng do =>
+        new google.maps.Point(p1.x - p2.x, p1.y - p2.y)
+
+  setMapCenter: (latlng) ->
+    w = $('body').width()
+    if w < 907
+      @map.setCenter latlng
+    else
+      offsetx = (w - 450 - 30) / 2 - w / 2
+      if @map.getProjection()?
+        @centerMapOffset latlng, offsetx, 0
+      else
+        listener = google.maps.event.addListener @map, 'projection_changed', =>
+          if @map.getProjection()?
+            @centerMapOffset latlng, offsetx, 0
+            google.maps.event.removeListener listener
+
   createMap: ->
     @mapCenter = new google.maps.LatLng @game.latitude, @game.longitude
     @map = new google.maps.Map $('#the-map')[0],
@@ -119,6 +142,7 @@ class App
         featureType: 'poi'
         elementType: 'labels'
         stylers: [{visibility: 'off'}]
+    @setMapCenter @mapCenter
     @dragMarker = new google.maps.Marker
       position: @mapCenter
       map: null # hidden at first
@@ -238,6 +262,7 @@ class App
 
   setMode: (mode) ->
     body = $('body')
+    oldMode = @mode
     @mode = mode
     body.removeClass 'is-open-menu'
     @dragMarker.setMap null
@@ -265,10 +290,17 @@ class App
         body.removeClass 'is-mode-map'
         @dragMarker.setMap @map
         @dragMarker.setPosition @mapCenter
-        @map.setCenter @mapCenter
+        @dragMarker.setAnimation google.maps.Animation.DROP
+        @setMapCenter @mapCenter
         @map.setZoom @game.zoom
         $('#the-caption-box').val ''
         $('#the-tag-assigner input[name=upload-tag]:first').click()
+        if oldMode isnt 'add'
+          for note in @game.notes
+            note.marker.setOpacity 0.3
+    if oldMode is 'add' and mode isnt 'add'
+      for note in @game.notes
+        note.marker.setOpacity 1
 
   submitNote: ->
     unless @ext? and @base64?
