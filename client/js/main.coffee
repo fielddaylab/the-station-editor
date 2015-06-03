@@ -47,6 +47,7 @@ class Note
     @note_likes   = parseInt json.note_likes
     @comments     =
       new Comment o for o in json.comments.data
+    @published    = json.published
 
 class App
   constructor: ->
@@ -91,6 +92,8 @@ class App
       if returnCode is 0
         @game.owners =
           new User o for o in owners
+        @checkIfOwner()
+        # show list of game owners
         if @game.owners.length > 0
           names =
             user.display_name for user in @game.owners
@@ -241,6 +244,8 @@ class App
     @currentNote = note
     @scrollBackTo = $('#the-modal-content').scrollTop()
     @setMode 'note'
+    $('#the-modal-content').scrollTop 0
+
     $('#the-photo').css 'background-image',
       if note.photo_url?
         "url(\"#{note.photo_url}\")"
@@ -251,6 +256,8 @@ class App
     $('#the-photo-credit').html """
       Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}
     """
+
+    # initialize like/unlike button
     heart = $('#the-like-button i')
     if note.player_liked
       heart.addClass 'fa-heart'
@@ -258,16 +265,29 @@ class App
     else
       heart.addClass 'fa-heart-o'
       heart.removeClass 'fa-heart'
+
+    # show/hide flag and edit buttons
+    $('#the-edit-button').toggle(
+      @aris.auth?.user_id is note.user.user_id or @userIsOwner
+    )
+    $('#the-flag-button').toggle(
+      note.published is 'AUTO' and @aris.auth?.user_id isnt note.user.user_id
+    )
+
+    # display comments
     $('#the-comments').html ''
     if note.comments.length > 0
       appendTo $('#the-comments'), 'h3', text: 'Comments'
       for comment in note.comments
         if comment.description.match(/\S/)
           appendTo $('#the-comments'), 'div', {}, (div) =>
-            appendTo div, 'h4', text:
-              "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
+            appendTo div, 'h4', {}, (h4) =>
+              appendTo h4, 'span', text:
+                "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
+              if @userIsOwner or @aris.auth?.user_id is comment.user.user_id
+                pencil = appendTo h4, 'i.fa.fa-pencil', style: 'cursor: pointer;'
+                pencil.click => console.log 'TODO: edit/delete comments'
             appendTo div, 'p', text: comment.description
-    $('#the-modal-content').scrollTop 0
 
   setMode: (mode) ->
     body = $('body')
@@ -468,16 +488,19 @@ class App
 
   login: (name, pw, cb) ->
     @aris.login name, pw, =>
-      if @aris.auth?
-        $('body').addClass 'is-logged-in'
-      else
-        $('body').removeClass 'is-logged-in'
+      $('body').toggleClass 'is-logged-in', @aris.auth?
+      @checkIfOwner()
       cb()
 
   logout: ->
     @aris.logout()
+    @checkIfOwner()
     $('body').removeClass 'is-logged-in'
     $('body').removeClass 'is-mode-add'
+
+  checkIfOwner: ->
+    @userIsOwner = @aris.auth? and @game?.owners? and
+      @aris.auth.user_id in @game.owners.map((user) => user.user_id)
 
   error: (s) ->
     # TODO

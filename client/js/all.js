@@ -1,5 +1,6 @@
 (function() {
-  var App, Comment, Game, Note, Tag, User, app;
+  var App, Comment, Game, Note, Tag, User, app,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Game = (function() {
     function Game(json) {
@@ -72,6 +73,7 @@
         }
         return results;
       })();
+      this.published = json.published;
     }
 
     return Note;
@@ -153,6 +155,7 @@
               }
               return results;
             })();
+            _this.checkIfOwner();
             if (_this.game.owners.length > 0) {
               names = (function() {
                 var j, len, ref, results;
@@ -454,10 +457,11 @@
     };
 
     App.prototype.showNote = function(note) {
-      var comment, heart, j, len, ref;
+      var comment, heart, j, len, ref, ref1, ref2, results;
       this.currentNote = note;
       this.scrollBackTo = $('#the-modal-content').scrollTop();
       this.setMode('note');
+      $('#the-modal-content').scrollTop(0);
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
       $('#the-photo-link').prop('href', note.photo_url);
       $('#the-photo-caption').text(note.description);
@@ -470,29 +474,45 @@
         heart.addClass('fa-heart-o');
         heart.removeClass('fa-heart');
       }
+      $('#the-edit-button').toggle(((ref = this.aris.auth) != null ? ref.user_id : void 0) === note.user.user_id || this.userIsOwner);
+      $('#the-flag-button').toggle(note.published === 'AUTO' && ((ref1 = this.aris.auth) != null ? ref1.user_id : void 0) !== note.user.user_id);
       $('#the-comments').html('');
       if (note.comments.length > 0) {
         appendTo($('#the-comments'), 'h3', {
           text: 'Comments'
         });
-        ref = note.comments;
-        for (j = 0, len = ref.length; j < len; j++) {
-          comment = ref[j];
+        ref2 = note.comments;
+        results = [];
+        for (j = 0, len = ref2.length; j < len; j++) {
+          comment = ref2[j];
           if (comment.description.match(/\S/)) {
-            appendTo($('#the-comments'), 'div', {}, (function(_this) {
+            results.push(appendTo($('#the-comments'), 'div', {}, (function(_this) {
               return function(div) {
-                appendTo(div, 'h4', {
-                  text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                appendTo(div, 'h4', {}, function(h4) {
+                  var pencil, ref3;
+                  appendTo(h4, 'span', {
+                    text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                  });
+                  if (_this.userIsOwner || ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id) {
+                    pencil = appendTo(h4, 'i.fa.fa-pencil', {
+                      style: 'cursor: pointer;'
+                    });
+                    return pencil.click(function() {
+                      return console.log('TODO: edit/delete comments');
+                    });
+                  }
                 });
                 return appendTo(div, 'p', {
                   text: comment.description
                 });
               };
-            })(this));
+            })(this)));
+          } else {
+            results.push(void 0);
           }
         }
+        return results;
       }
-      return $('#the-modal-content').scrollTop(0);
     };
 
     App.prototype.setMode = function(mode) {
@@ -817,11 +837,8 @@
     App.prototype.login = function(name, pw, cb) {
       return this.aris.login(name, pw, (function(_this) {
         return function() {
-          if (_this.aris.auth != null) {
-            $('body').addClass('is-logged-in');
-          } else {
-            $('body').removeClass('is-logged-in');
-          }
+          $('body').toggleClass('is-logged-in', _this.aris.auth != null);
+          _this.checkIfOwner();
           return cb();
         };
       })(this));
@@ -829,8 +846,18 @@
 
     App.prototype.logout = function() {
       this.aris.logout();
+      this.checkIfOwner();
       $('body').removeClass('is-logged-in');
       return $('body').removeClass('is-mode-add');
+    };
+
+    App.prototype.checkIfOwner = function() {
+      var ref, ref1;
+      return this.userIsOwner = (this.aris.auth != null) && (((ref = this.game) != null ? ref.owners : void 0) != null) && (ref1 = this.aris.auth.user_id, indexOf.call(this.game.owners.map((function(_this) {
+        return function(user) {
+          return user.user_id;
+        };
+      })(this)), ref1) >= 0);
     };
 
     App.prototype.error = function(s) {
