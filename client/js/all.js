@@ -718,7 +718,26 @@
           return _this.login($('#the-username-input').val(), $('#the-password-input').val(), function() {
             if (_this.aris.auth != null) {
               body.removeClass('is-open-menu');
-              return _this.performSearch(function() {});
+              return _this.performSearch(function() {
+                var j, len, note, oldNoteID, ref;
+                if (body.hasClass('is-mode-note')) {
+                  oldNoteID = _this.currentNote.note_id;
+                  _this.currentNote = null;
+                  ref = _this.game.notes;
+                  for (j = 0, len = ref.length; j < len; j++) {
+                    note = ref[j];
+                    if (note.note_id === oldNoteID) {
+                      _this.currentNote = note;
+                      break;
+                    }
+                  }
+                  if (_this.currentNote != null) {
+                    return _this.showNote(_this.currentNote);
+                  } else {
+                    return _this.setMode(_this.topMode);
+                  }
+                }
+              });
             }
           });
         };

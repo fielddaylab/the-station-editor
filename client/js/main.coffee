@@ -413,7 +413,19 @@ class App
       @login $('#the-username-input').val(), $('#the-password-input').val(), =>
         if @aris.auth?
           body.removeClass 'is-open-menu'
-          @performSearch(=>)
+          @performSearch =>
+            # If we're viewing a note, get its new Note object and refresh the view
+            if body.hasClass 'is-mode-note'
+              oldNoteID = @currentNote.note_id
+              @currentNote = null
+              for note in @game.notes
+                if note.note_id is oldNoteID
+                  @currentNote = note
+                  break
+              if @currentNote?
+                @showNote @currentNote
+              else
+                @setMode @topMode # shouldn't happen
     $('#the-username-input, #the-password-input').keypress (e) =>
       if e.which is 13
         $('#the-login-button').click()
