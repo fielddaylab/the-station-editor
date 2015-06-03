@@ -51,6 +51,7 @@
   Note = (function() {
     function Note(json) {
       var o;
+      this.note_id = parseInt(json.note_id);
       this.user = new User(json.user);
       this.description = json.description;
       this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
@@ -453,13 +454,22 @@
     };
 
     App.prototype.showNote = function(note) {
-      var comment, j, len, ref;
+      var comment, heart, j, len, ref;
+      this.currentNote = note;
       this.scrollBackTo = $('#the-modal-content').scrollTop();
       this.setMode('note');
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
       $('#the-photo-link').prop('href', note.photo_url);
       $('#the-photo-caption').text(note.description);
       $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
+      heart = $('#the-like-button i');
+      if (note.player_liked) {
+        heart.addClass('fa-heart');
+        heart.removeClass('fa-heart-o');
+      } else {
+        heart.addClass('fa-heart-o');
+        heart.removeClass('fa-heart');
+      }
       $('#the-comments').html('');
       if (note.comments.length > 0) {
         appendTo($('#the-comments'), 'h3', {
@@ -597,6 +607,14 @@
       })(this));
     };
 
+    App.prototype.needsAuth = function(act) {
+      if (this.aris.auth != null) {
+        return act();
+      } else {
+        return $('body').addClass('is-open-menu');
+      }
+    };
+
     App.prototype.installListeners = function() {
       var body;
       body = $('body');
@@ -620,11 +638,11 @@
         return function() {
           if (_this.mode === 'add') {
             return _this.setMode(_this.topMode);
-          } else if (_this.aris.auth != null) {
-            _this.setMode('add');
-            return _this.readyFile(null);
           } else {
-            return body.addClass('is-open-menu');
+            return _this.needsAuth(function() {
+              _this.setMode('add');
+              return _this.readyFile(null);
+            });
           }
         };
       })(this));
@@ -660,6 +678,39 @@
       $('#the-add-submit-button').click((function(_this) {
         return function() {
           return _this.submitNote();
+        };
+      })(this));
+      $('#the-like-button').click((function(_this) {
+        return function() {
+          return _this.needsAuth(function() {
+            var heart;
+            heart = $('#the-like-button i');
+            if (_this.currentNote.player_liked) {
+              return _this.aris.call('notes.unlikeNote', {
+                note_id: _this.currentNote.note_id
+              }, function(arg) {
+                var returnCode;
+                returnCode = arg.returnCode;
+                if (returnCode === 0) {
+                  _this.currentNote.player_liked = false;
+                  heart.addClass('fa-heart-o');
+                  return heart.removeClass('fa-heart');
+                }
+              });
+            } else {
+              return _this.aris.call('notes.likeNote', {
+                note_id: _this.currentNote.note_id
+              }, function(arg) {
+                var returnCode;
+                returnCode = arg.returnCode;
+                if (returnCode === 0) {
+                  _this.currentNote.player_liked = true;
+                  heart.addClass('fa-heart');
+                  return heart.removeClass('fa-heart-o');
+                }
+              });
+            }
+          });
         };
       })(this));
       $('#the-login-button').click((function(_this) {

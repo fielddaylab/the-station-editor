@@ -26,6 +26,7 @@ class Comment
 
 class Note
   constructor: (json) ->
+    @note_id      = parseInt json.note_id
     @user         = new User json.user
     @description  = json.description
     @photo_url    =
@@ -237,6 +238,7 @@ class App
           marker
 
   showNote: (note) ->
+    @currentNote = note
     @scrollBackTo = $('#the-modal-content').scrollTop()
     @setMode 'note'
     $('#the-photo').css 'background-image',
@@ -249,6 +251,13 @@ class App
     $('#the-photo-credit').html """
       Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}
     """
+    heart = $('#the-like-button i')
+    if note.player_liked
+      heart.addClass 'fa-heart'
+      heart.removeClass 'fa-heart-o'
+    else
+      heart.addClass 'fa-heart-o'
+      heart.removeClass 'fa-heart'
     $('#the-comments').html ''
     if note.comments.length > 0
       appendTo $('#the-comments'), 'h3', text: 'Comments'
@@ -339,6 +348,13 @@ class App
         @updateMap()
         @showNote note
 
+  # Performs an action if logged in. Otherwise, opens the menu for the user to login.
+  needsAuth: (act) ->
+    if @aris.auth?
+      act()
+    else
+      $('body').addClass 'is-open-menu'
+
   installListeners: ->
     body = $('body')
     @setMode 'grid'
@@ -349,11 +365,10 @@ class App
     $('#the-add-button').click =>
       if @mode is 'add'
         @setMode @topMode
-      else if @aris.auth?
-        @setMode 'add'
-        @readyFile null
       else
-        body.addClass 'is-open-menu'
+        @needsAuth =>
+          @setMode 'add'
+          @readyFile null
     $('#the-icon-bar-x, #the-add-cancel-button').click =>
       @setMode @topMode
     $('#the-logout-button').click =>
@@ -371,6 +386,28 @@ class App
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
     $('#the-add-submit-button').click => @submitNote()
+
+    # note actions
+    $('#the-like-button').click =>
+      @needsAuth =>
+        heart = $('#the-like-button i')
+        if @currentNote.player_liked
+          @aris.call 'notes.unlikeNote',
+            note_id: @currentNote.note_id
+          , ({returnCode}) =>
+            if returnCode is 0
+              @currentNote.player_liked = false
+              heart.addClass 'fa-heart-o'
+              heart.removeClass 'fa-heart'
+        else
+          @aris.call 'notes.likeNote',
+            note_id: @currentNote.note_id
+          , ({returnCode}) =>
+            if returnCode is 0
+              @currentNote.player_liked = true
+              heart.addClass 'fa-heart'
+              heart.removeClass 'fa-heart-o'
+
     # login form
     $('#the-login-button').click =>
       @login $('#the-username-input').val(), $('#the-password-input').val(), =>
@@ -381,6 +418,7 @@ class App
       if e.which is 13
         $('#the-login-button').click()
         return false
+
     # drag and drop support for photo upload box
     $('#the-photo-upload-box').on 'dragover dragenter', (e) => false
     $('#the-photo-upload-box').on 'drop', (e) =>
@@ -388,6 +426,7 @@ class App
         if xfer.files.length
           @readyFile xfer.files[0]
           return false
+
     # click support for photo upload box
     $('#the-photo-upload-box').click =>
       $('#the-hidden-file-input').click()
