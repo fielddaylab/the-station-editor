@@ -715,6 +715,8 @@
                   _this.currentNote.player_liked = false;
                   heart.addClass('fa-heart-o');
                   return heart.removeClass('fa-heart');
+                } else {
+                  return _this.error("There was a problem recording your unlike.");
                 }
               });
             } else {
@@ -727,10 +729,31 @@
                   _this.currentNote.player_liked = true;
                   heart.addClass('fa-heart');
                   return heart.removeClass('fa-heart-o');
+                } else {
+                  return _this.error("There was a problem recording your like.");
                 }
               });
             }
           });
+        };
+      })(this));
+      $('#the-flag-button').click((function(_this) {
+        return function() {
+          if (confirm('Are you sure you want to flag this note for inappropriate content?')) {
+            return _this.aris.call('notes.flagNote', {
+              note_id: _this.currentNote.note_id
+            }, function(arg) {
+              var returnCode;
+              returnCode = arg.returnCode;
+              if (returnCode === 0) {
+                return _this.performSearch(function() {
+                  return _this.setMode(_this.topMode);
+                });
+              } else {
+                return _this.error("There was a problem recording your flag.");
+              }
+            });
+          }
         };
       })(this));
       $('#the-login-button').click((function(_this) {

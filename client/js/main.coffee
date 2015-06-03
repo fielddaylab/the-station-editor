@@ -419,6 +419,8 @@ class App
               @currentNote.player_liked = false
               heart.addClass 'fa-heart-o'
               heart.removeClass 'fa-heart'
+            else
+              @error "There was a problem recording your unlike."
         else
           @aris.call 'notes.likeNote',
             note_id: @currentNote.note_id
@@ -427,6 +429,18 @@ class App
               @currentNote.player_liked = true
               heart.addClass 'fa-heart'
               heart.removeClass 'fa-heart-o'
+            else
+              @error "There was a problem recording your like."
+    $('#the-flag-button').click =>
+      if confirm 'Are you sure you want to flag this note for inappropriate content?'
+        @aris.call 'notes.flagNote',
+          note_id: @currentNote.note_id
+        , ({returnCode}) =>
+          if returnCode is 0
+            @performSearch =>
+              @setMode @topMode
+          else
+            @error "There was a problem recording your flag."
 
     # login form
     $('#the-login-button').click =>
