@@ -86,8 +86,8 @@
         return function() {
           _this.aris = new Aris;
           return _this.login(void 0, void 0, function() {
-            _this.siftr_url = 'snowchallenge';
-            _this.siftr_id = null;
+            _this.siftr_url = null;
+            _this.siftr_id = 6234;
             return _this.getGameInfo(function() {
               return _this.getGameOwners(function() {
                 _this.createMap();
@@ -457,7 +457,7 @@
     };
 
     App.prototype.showNote = function(note) {
-      var comment, heart, j, len, ref, ref1, ref2, results;
+      var canDelete, canEdit, canFlag, comment, heart, j, len, ref, ref1, ref2, results;
       this.currentNote = note;
       this.scrollBackTo = $('#the-modal-content').scrollTop();
       this.setMode('note');
@@ -474,8 +474,13 @@
         heart.addClass('fa-heart-o');
         heart.removeClass('fa-heart');
       }
-      $('#the-edit-button').toggle(((ref = this.aris.auth) != null ? ref.user_id : void 0) === note.user.user_id || this.userIsOwner);
-      $('#the-flag-button').toggle(note.published === 'AUTO' && ((ref1 = this.aris.auth) != null ? ref1.user_id : void 0) !== note.user.user_id);
+      canEdit = ((ref = this.aris.auth) != null ? ref.user_id : void 0) === note.user.user_id;
+      canDelete = canEdit || this.userIsOwner;
+      $('#the-edit-button').toggle(canEdit || canDelete);
+      $('#the-start-edit-button').toggle(canEdit);
+      $('#the-delete-button').toggle(canDelete);
+      canFlag = note.published === 'AUTO' && ((ref1 = this.aris.auth) != null ? ref1.user_id : void 0) !== note.user.user_id;
+      $('#the-flag-button').toggle(canFlag);
       $('#the-comments').html('');
       if (note.comments.length > 0) {
         appendTo($('#the-comments'), 'h3', {
@@ -521,6 +526,8 @@
       oldMode = this.mode;
       this.mode = mode;
       body.removeClass('is-open-menu');
+      body.removeClass('is-open-share');
+      body.removeClass('is-open-edit');
       this.dragMarker.setMap(null);
       switch (mode) {
         case 'grid':
@@ -700,6 +707,18 @@
           return _this.submitNote();
         };
       })(this));
+      $('#the-share-button').click((function(_this) {
+        return function() {
+          body.toggleClass('is-open-share');
+          return body.removeClass('is-open-edit');
+        };
+      })(this));
+      $('#the-edit-button').click((function(_this) {
+        return function() {
+          body.toggleClass('is-open-edit');
+          return body.removeClass('is-open-share');
+        };
+      })(this));
       $('#the-like-button').click((function(_this) {
         return function() {
           return _this.needsAuth(function() {
@@ -751,6 +770,25 @@
                 });
               } else {
                 return _this.error("There was a problem recording your flag.");
+              }
+            });
+          }
+        };
+      })(this));
+      $('#the-delete-button').click((function(_this) {
+        return function() {
+          if (confirm('Are you sure you want to delete this note?')) {
+            return _this.aris.call('notes.deleteNote', {
+              note_id: _this.currentNote.note_id
+            }, function(arg) {
+              var returnCode;
+              returnCode = arg.returnCode;
+              if (returnCode === 0) {
+                return _this.performSearch(function() {
+                  return _this.setMode(_this.topMode);
+                });
+              } else {
+                return _this.error("There was an error deleting that note.");
               }
             });
           }

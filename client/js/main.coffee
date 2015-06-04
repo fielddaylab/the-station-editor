@@ -54,8 +54,8 @@ class App
     $(document).ready =>
       @aris = new Aris
       @login undefined, undefined, =>
-        @siftr_url = 'snowchallenge' # for testing
-        @siftr_id = null
+        @siftr_url = null # 'snowchallenge' # for testing
+        @siftr_id = 6234
         @getGameInfo =>
           @getGameOwners =>
             @createMap()
@@ -267,12 +267,13 @@ class App
       heart.removeClass 'fa-heart'
 
     # show/hide flag and edit buttons
-    $('#the-edit-button').toggle(
-      @aris.auth?.user_id is note.user.user_id or @userIsOwner
-    )
-    $('#the-flag-button').toggle(
-      note.published is 'AUTO' and @aris.auth?.user_id isnt note.user.user_id
-    )
+    canEdit   = @aris.auth?.user_id is note.user.user_id
+    canDelete = canEdit or @userIsOwner
+    $('#the-edit-button').toggle(canEdit or canDelete)
+    $('#the-start-edit-button').toggle canEdit
+    $('#the-delete-button').toggle canDelete
+    canFlag = note.published is 'AUTO' and @aris.auth?.user_id isnt note.user.user_id
+    $('#the-flag-button').toggle canFlag
 
     # display comments
     $('#the-comments').html ''
@@ -294,6 +295,8 @@ class App
     oldMode = @mode
     @mode = mode
     body.removeClass 'is-open-menu'
+    body.removeClass 'is-open-share'
+    body.removeClass 'is-open-edit'
     @dragMarker.setMap null
     switch mode
       when 'grid'
@@ -408,6 +411,12 @@ class App
     $('#the-add-submit-button').click => @submitNote()
 
     # note actions
+    $('#the-share-button').click =>
+      body.toggleClass 'is-open-share'
+      body.removeClass 'is-open-edit'
+    $('#the-edit-button').click =>
+      body.toggleClass 'is-open-edit'
+      body.removeClass 'is-open-share'
     $('#the-like-button').click =>
       @needsAuth =>
         heart = $('#the-like-button i')
@@ -441,6 +450,16 @@ class App
               @setMode @topMode
           else
             @error "There was a problem recording your flag."
+    $('#the-delete-button').click =>
+      if confirm 'Are you sure you want to delete this note?'
+        @aris.call 'notes.deleteNote',
+          note_id: @currentNote.note_id
+        , ({returnCode}) =>
+          if returnCode is 0
+            @performSearch =>
+              @setMode @topMode
+          else
+            @error "There was an error deleting that note."
 
     # login form
     $('#the-login-button').click =>

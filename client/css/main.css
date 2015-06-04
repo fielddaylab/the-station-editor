@@ -151,6 +151,49 @@ body:not(.is-mode-note) #the-note-view {
   font-size: 20px;
   cursor: pointer; }
 
+body:not(.is-open-share) #the-share-buttons-box {
+  max-height: 0; }
+
+#the-share-buttons-box {
+  max-height: 55px;
+  overflow-y: hidden;
+  transition-property: max-height;
+  transition-duration: 0.25s; }
+
+#the-share-buttons {
+  display: table;
+  width: 100%;
+  background-color: #333; }
+
+.a-share-button {
+  display: table-cell;
+  text-align: center;
+  color: white;
+  padding: 5px;
+  padding-top: 7px;
+  cursor: pointer; }
+
+body:not(.is-open-edit) #the-edit-buttons-box {
+  max-height: 0; }
+
+#the-edit-buttons-box {
+  max-height: 50px;
+  overflow-y: hidden;
+  transition-property: max-height;
+  transition-duration: 0.25s; }
+
+#the-edit-buttons {
+  display: table;
+  width: 100%;
+  background-color: #333; }
+
+.a-edit-button {
+  display: table-cell;
+  text-align: center;
+  color: white;
+  padding: 5px;
+  cursor: pointer; }
+
 body:not(.is-mode-add) #the-note-adder {
   display: none; }
 
