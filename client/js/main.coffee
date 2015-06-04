@@ -241,6 +241,8 @@ class App
           marker
 
   showNote: (note) ->
+    if window.location.hash isnt '#' + note.note_id
+      history.pushState '', '', '#' + note.note_id
     @currentNote = note
     @scrollBackTo = $('#the-modal-content').scrollTop()
     @setMode 'note'
@@ -291,6 +293,8 @@ class App
             appendTo div, 'p', text: comment.description
 
   setMode: (mode) ->
+    if mode isnt 'note' and window.location.hash not in ['#', '']
+      history.pushState '', '', '#'
     body = $('body')
     oldMode = @mode
     @mode = mode
@@ -378,9 +382,21 @@ class App
     else
       $('body').addClass 'is-open-menu'
 
+  goToHash: ->
+    if md = window.location.hash.match(/^#(\d+)$/)
+      note_id = parseInt md[1]
+      for note in @game.notes
+        if note.note_id is note_id
+          @showNote note
+          return
+    @setMode @topMode
+
   installListeners: ->
     body = $('body')
-    @setMode 'grid'
+    @topMode = 'grid'
+    @goToHash()
+    $(window).on 'hashchange', => @goToHash()
+
     $('#the-user-logo, #the-menu-button').click =>
       body.toggleClass 'is-open-menu'
     $('#the-grid-button').click => @setMode 'grid'

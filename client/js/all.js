@@ -458,6 +458,9 @@
 
     App.prototype.showNote = function(note) {
       var canDelete, canEdit, canFlag, comment, heart, j, len, ref, ref1, ref2, results;
+      if (window.location.hash !== '#' + note.note_id) {
+        history.pushState('', '', '#' + note.note_id);
+      }
       this.currentNote = note;
       this.scrollBackTo = $('#the-modal-content').scrollTop();
       this.setMode('note');
@@ -521,7 +524,10 @@
     };
 
     App.prototype.setMode = function(mode) {
-      var body, j, k, len, len1, note, oldMode, ref, ref1, results;
+      var body, j, k, len, len1, note, oldMode, ref, ref1, ref2, results;
+      if (mode !== 'note' && ((ref = window.location.hash) !== '#' && ref !== '')) {
+        history.pushState('', '', '#');
+      }
       body = $('body');
       oldMode = this.mode;
       this.mode = mode;
@@ -563,18 +569,18 @@
           $('#the-caption-box').val('');
           $('#the-tag-assigner input[name=upload-tag]:first').click();
           if (oldMode !== 'add') {
-            ref = this.game.notes;
-            for (j = 0, len = ref.length; j < len; j++) {
-              note = ref[j];
+            ref1 = this.game.notes;
+            for (j = 0, len = ref1.length; j < len; j++) {
+              note = ref1[j];
               note.marker.setOpacity(0.3);
             }
           }
       }
       if (oldMode === 'add' && mode !== 'add') {
-        ref1 = this.game.notes;
+        ref2 = this.game.notes;
         results = [];
-        for (k = 0, len1 = ref1.length; k < len1; k++) {
-          note = ref1[k];
+        for (k = 0, len1 = ref2.length; k < len1; k++) {
+          note = ref2[k];
           results.push(note.marker.setOpacity(1));
         }
         return results;
@@ -642,10 +648,32 @@
       }
     };
 
+    App.prototype.goToHash = function() {
+      var j, len, md, note, note_id, ref;
+      if (md = window.location.hash.match(/^#(\d+)$/)) {
+        note_id = parseInt(md[1]);
+        ref = this.game.notes;
+        for (j = 0, len = ref.length; j < len; j++) {
+          note = ref[j];
+          if (note.note_id === note_id) {
+            this.showNote(note);
+            return;
+          }
+        }
+      }
+      return this.setMode(this.topMode);
+    };
+
     App.prototype.installListeners = function() {
       var body;
       body = $('body');
-      this.setMode('grid');
+      this.topMode = 'grid';
+      this.goToHash();
+      $(window).on('hashchange', (function(_this) {
+        return function() {
+          return _this.goToHash();
+        };
+      })(this));
       $('#the-user-logo, #the-menu-button').click((function(_this) {
         return function() {
           return body.toggleClass('is-open-menu');
