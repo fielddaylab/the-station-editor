@@ -665,7 +665,7 @@
     };
 
     App.prototype.installListeners = function() {
-      var body;
+      var body, currentNoteTag, currentNoteVerb;
       body = $('body');
       this.topMode = 'grid';
       this.goToHash();
@@ -820,6 +820,72 @@
               }
             });
           }
+        };
+      })(this));
+      currentNoteTag = (function(_this) {
+        return function() {
+          var j, len, ref, tag;
+          ref = _this.game.tags;
+          for (j = 0, len = ref.length; j < len; j++) {
+            tag = ref[j];
+            if (tag.tag_id === _this.currentNote.tag_id) {
+              return tag.tag;
+            }
+          }
+          return '???';
+        };
+      })(this);
+      currentNoteVerb = (function(_this) {
+        return function() {
+          var ref;
+          if (_this.currentNote.user.user_id === ((ref = app.aris.auth) != null ? ref.user_id : void 0)) {
+            return 'made';
+          } else {
+            return 'found';
+          }
+        };
+      })(this);
+      $('#the-email-button').click((function(_this) {
+        return function() {
+          var email, link, subject, tag;
+          tag = currentNoteTag();
+          subject = "Interesting note on " + tag;
+          email = "Check out this note I " + (currentNoteVerb()) + " about " + tag + ":\n\n" + _this.currentNote.description + "\n\nSee the whole note at: " + window.location.href;
+          link = "mailto:?subject=" + (encodeURIComponent(subject)) + "&body=" + (encodeURIComponent(email));
+          return window.open(link, '_blank');
+        };
+      })(this));
+      $('#the-facebook-button').click((function(_this) {
+        return function() {
+          var link;
+          link = "https://www.facebook.com/sharer/sharer.php?u=" + (encodeURIComponent(window.location.href));
+          return window.open(link, '_blank');
+        };
+      })(this));
+      $('#the-google-button').click((function(_this) {
+        return function() {
+          var link;
+          link = "https://plus.google.com/share?url=" + (encodeURIComponent(window.location.href));
+          return window.open(link, '_blank');
+        };
+      })(this));
+      $('#the-twitter-button').click((function(_this) {
+        return function() {
+          var link, tweet;
+          tweet = "Check out this note I " + (currentNoteVerb()) + " about " + (currentNoteTag()) + ":";
+          link = "https://twitter.com/share?&url=" + (encodeURIComponent(window.location.href)) + "&text=" + (encodeURIComponent(tweet));
+          return window.open(link, '_blank');
+        };
+      })(this));
+      $('#the-pinterest-button').click((function(_this) {
+        return function() {
+          var desc, link;
+          desc = "Check out this note I " + (currentNoteVerb()) + " about " + (currentNoteTag()) + ".";
+          link = "http://www.pinterest.com/pin/create/button/";
+          link += "?url=" + (encodeURIComponent(window.location.href));
+          link += "&media=" + (encodeURIComponent(app.currentNote.photo_url));
+          link += "&description=" + (encodeURIComponent(desc));
+          return window.open(link, '_blank');
         };
       })(this));
       $('#the-login-button').click((function(_this) {

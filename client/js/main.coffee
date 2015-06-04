@@ -477,6 +477,47 @@ class App
           else
             @error "There was an error deleting that note."
 
+    # share buttons
+    currentNoteTag = =>
+      for tag in @game.tags
+        if tag.tag_id is @currentNote.tag_id
+          return tag.tag
+      '???'
+    currentNoteVerb = =>
+      if @currentNote.user.user_id is app.aris.auth?.user_id
+        'made'
+      else
+        'found'
+    $('#the-email-button').click =>
+      tag = currentNoteTag()
+      subject = "Interesting note on #{tag}"
+      email = """
+        Check out this note I #{currentNoteVerb()} about #{tag}:
+
+        #{@currentNote.description}
+
+        See the whole note at: #{window.location.href}
+      """
+      link = "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent email}"
+      window.open link, '_blank'
+    $('#the-facebook-button').click =>
+      link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent window.location.href}"
+      window.open link, '_blank'
+    $('#the-google-button').click =>
+      link = "https://plus.google.com/share?url=#{encodeURIComponent window.location.href}"
+      window.open link, '_blank'
+    $('#the-twitter-button').click =>
+      tweet = "Check out this note I #{currentNoteVerb()} about #{currentNoteTag()}:"
+      link = "https://twitter.com/share?&url=#{encodeURIComponent window.location.href}&text=#{encodeURIComponent tweet}"
+      window.open link, '_blank'
+    $('#the-pinterest-button').click =>
+      desc = "Check out this note I #{currentNoteVerb()} about #{currentNoteTag()}."
+      link = "http://www.pinterest.com/pin/create/button/"
+      link += "?url=#{encodeURIComponent window.location.href}"
+      link += "&media=#{encodeURIComponent app.currentNote.photo_url}"
+      link += "&description=#{encodeURIComponent desc}"
+      window.open link, '_blank'
+
     # login form
     $('#the-login-button').click =>
       @login $('#the-username-input').val(), $('#the-password-input').val(), =>
