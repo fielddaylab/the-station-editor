@@ -500,19 +500,17 @@
           results.push((function(_this) {
             return function(comment, commentIndex) {
               return appendTo($('#the-comments'), 'div', {}, function(div) {
-                var ref3;
+                var desc, editPencil, editing, ref3;
                 canEdit = ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id;
                 canDelete = canEdit || _this.userIsOwner;
+                editPencil = null;
                 appendTo(div, 'h4', {}, function(h4) {
                   appendTo(h4, 'span', {
                     text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
                   });
                   if (canEdit) {
-                    appendTo(h4, 'i.fa.fa-pencil', {
-                      style: 'cursor: pointer; margin: 3px;',
-                      click: function() {
-                        return alert('TODO: edit comments');
-                      }
+                    editPencil = appendTo(h4, 'i.fa.fa-pencil', {
+                      style: 'cursor: pointer; margin: 3px;'
                     });
                   }
                   if (canDelete) {
@@ -537,9 +535,57 @@
                     });
                   }
                 });
-                return appendTo(div, 'p', {
+                desc = appendTo(div, 'p', {
                   text: comment.description
                 });
+                if (editPencil != null) {
+                  editing = false;
+                  return editPencil.click(function() {
+                    if (!editing) {
+                      editing = true;
+                      desc.hide();
+                      return appendTo(div, 'div', {}, function(editStuff) {
+                        var editBox;
+                        editBox = appendTo(editStuff, 'textarea', {
+                          placeholder: 'Edit your comment',
+                          val: comment.description,
+                          style: 'resize: none; width: 100%; margin-bottom: 10px;'
+                        });
+                        appendTo(editStuff, 'button', {
+                          type: 'button',
+                          text: 'Save changes',
+                          click: function() {
+                            return _this.aris.call('note_comments.updateNoteComment', {
+                              note_comment_id: comment.comment_id,
+                              description: editBox.val()
+                            }, function(arg) {
+                              var json, returnCode;
+                              json = arg.data, returnCode = arg.returnCode;
+                              if (returnCode !== 0) {
+                                _this.error("There was a problem posting your comment.");
+                                return;
+                              }
+                              editing = false;
+                              editStuff.remove();
+                              desc.show();
+                              _this.currentNote.comments[commentIndex] = new Comment(json);
+                              return _this.showNote(_this.currentNote);
+                            });
+                          }
+                        });
+                        return appendTo(editStuff, 'button', {
+                          type: 'button',
+                          text: 'Cancel',
+                          click: function() {
+                            editing = false;
+                            editStuff.remove();
+                            return desc.show();
+                          }
+                        });
+                      });
+                    }
+                  });
+                }
               });
             };
           })(this)(comment, commentIndex));

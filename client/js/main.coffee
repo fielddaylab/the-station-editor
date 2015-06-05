@@ -57,7 +57,7 @@ class App
       @aris = new Aris
       @login undefined, undefined, =>
         @siftr_url = 'snowchallenge' # for testing
-        @siftr_id = null
+        @siftr_id = null # 6234
         @getGameInfo =>
           @getGameOwners =>
             @createMap()
@@ -291,14 +291,13 @@ class App
             # note: aris also allows a note owner to delete comments on that note.
             # but that's probably not appropriate here.
             # already heard one case of a kid deleting comments from kids they didn't like...
+            editPencil = null
             appendTo div, 'h4', {}, (h4) =>
               appendTo h4, 'span', text:
                 "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
               if canEdit
-                appendTo h4, 'i.fa.fa-pencil',
+                editPencil = appendTo h4, 'i.fa.fa-pencil',
                   style: 'cursor: pointer; margin: 3px;'
-                  click: =>
-                    alert 'TODO: edit comments'
               if canDelete
                 appendTo h4, 'i.fa.fa-trash',
                   style: 'cursor: pointer; margin: 3px;'
@@ -312,7 +311,41 @@ class App
                           @showNote note
                         else
                           @error "There was a problem deleting that comment."
-            appendTo div, 'p', text: comment.description
+            desc = appendTo div, 'p', text: comment.description
+            if editPencil?
+              editing = false
+              editPencil.click =>
+                unless editing
+                  editing = true
+                  desc.hide()
+                  appendTo div, 'div', {}, (editStuff) =>
+                    editBox = appendTo editStuff, 'textarea',
+                      placeholder: 'Edit your comment'
+                      val: comment.description
+                      style: 'resize: none; width: 100%; margin-bottom: 10px;'
+                    appendTo editStuff, 'button',
+                      type: 'button'
+                      text: 'Save changes'
+                      click: =>
+                        @aris.call 'note_comments.updateNoteComment',
+                          note_comment_id: comment.comment_id
+                          description: editBox.val()
+                        , ({data: json, returnCode}) =>
+                          if returnCode isnt 0
+                            @error "There was a problem posting your comment."
+                            return
+                          editing = false
+                          editStuff.remove()
+                          desc.show()
+                          @currentNote.comments[commentIndex] = new Comment json
+                          @showNote @currentNote
+                    appendTo editStuff, 'button',
+                      type: 'button'
+                      text: 'Cancel'
+                      click: =>
+                        editing = false
+                        editStuff.remove()
+                        desc.show()
 
   setMode: (mode) ->
     if mode isnt 'note' and window.location.hash not in ['#', '']
