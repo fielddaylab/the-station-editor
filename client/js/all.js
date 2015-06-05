@@ -90,8 +90,8 @@
         return function() {
           _this.aris = new Aris;
           return _this.login(void 0, void 0, function() {
-            _this.siftr_url = null;
-            _this.siftr_id = 6234;
+            _this.siftr_url = 'snowchallenge';
+            _this.siftr_id = null;
             return _this.getGameInfo(function() {
               return _this.getGameOwners(function() {
                 _this.createMap();

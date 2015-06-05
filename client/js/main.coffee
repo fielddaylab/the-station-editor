@@ -56,8 +56,8 @@ class App
     $(document).ready =>
       @aris = new Aris
       @login undefined, undefined, =>
-        @siftr_url = null # 'snowchallenge' # for testing
-        @siftr_id = 6234
+        @siftr_url = 'snowchallenge' # for testing
+        @siftr_id = null
         @getGameInfo =>
           @getGameOwners =>
             @createMap()

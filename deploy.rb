@@ -23,7 +23,7 @@ def upload_rf(sftp, from, to)
   log "Uploading #{from} to #{to}"
   Dir.entries(from).each do |ent|
     next if %w{. .. .DS_Store .gitignore .git root.htaccess
-      deploy.rb Gruntfile.coffee package.json
+      deploy.rb Gruntfile.coffee package.json .sass-cache
       Makefile README.md node_modules .sublime-grunt.cache}.include? ent
     full_from = "#{from}/#{ent}"
     full_to = "#{to}/#{ent}"
