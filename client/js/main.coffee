@@ -281,16 +281,37 @@ class App
     $('#the-comments').html ''
     if note.comments.length > 0
       appendTo $('#the-comments'), 'h3', text: 'Comments'
-      for comment in note.comments
-        if comment.description.match(/\S/)
-          appendTo $('#the-comments'), 'div', {}, (div) =>
-            appendTo div, 'h4', {}, (h4) =>
-              appendTo h4, 'span', text:
-                "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
-              if @userIsOwner or @aris.auth?.user_id is comment.user.user_id
-                pencil = appendTo h4, 'i.fa.fa-pencil', style: 'cursor: pointer;'
-                pencil.click => console.log 'TODO: edit/delete comments'
-            appendTo div, 'p', text: comment.description
+      for comment, commentIndex in note.comments
+        do (comment, commentIndex) =>
+          if comment.description.match(/\S/)
+            appendTo $('#the-comments'), 'div', {}, (div) =>
+              canEdit   = @aris.auth?.user_id is comment.user.user_id
+              canDelete = canEdit or @userIsOwner
+              # note: aris also allows a note owner to delete comments on that note.
+              # but that's probably not appropriate here.
+              # already heard one case of a kid deleting comments from kids they didn't like...
+              appendTo div, 'h4', {}, (h4) =>
+                appendTo h4, 'span', text:
+                  "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
+                if canEdit
+                  appendTo h4, 'i.fa.fa-pencil',
+                    style: 'cursor: pointer; margin: 3px;'
+                    click: =>
+                      alert 'TODO: edit comments'
+                if canDelete
+                  appendTo h4, 'i.fa.fa-trash',
+                    style: 'cursor: pointer; margin: 3px;'
+                    click: =>
+                      if confirm 'Are you sure you want to delete this comment?'
+                        @aris.call 'note_comments.deleteNoteComment',
+                          note_comment_id: comment.comment_id
+                        , ({returnCode}) =>
+                          if returnCode is 0
+                            note.comments.splice commentIndex, 1
+                            @showNote note
+                          else
+                            @error "There was a problem deleting that comment."
+              appendTo div, 'p', text: comment.description
 
   setMode: (mode) ->
     if mode isnt 'note' and window.location.hash not in ['#', '']

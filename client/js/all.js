@@ -457,7 +457,7 @@
     };
 
     App.prototype.showNote = function(note) {
-      var canDelete, canEdit, canFlag, comment, heart, j, len, ref, ref1, ref2, results;
+      var canDelete, canEdit, canFlag, comment, commentIndex, heart, j, len, ref, ref1, ref2, results;
       if (window.location.hash !== '#' + note.note_id) {
         history.pushState('', '', '#' + note.note_id);
       }
@@ -491,33 +491,56 @@
         });
         ref2 = note.comments;
         results = [];
-        for (j = 0, len = ref2.length; j < len; j++) {
-          comment = ref2[j];
-          if (comment.description.match(/\S/)) {
-            results.push(appendTo($('#the-comments'), 'div', {}, (function(_this) {
-              return function(div) {
-                appendTo(div, 'h4', {}, function(h4) {
-                  var pencil, ref3;
-                  appendTo(h4, 'span', {
-                    text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+        for (commentIndex = j = 0, len = ref2.length; j < len; commentIndex = ++j) {
+          comment = ref2[commentIndex];
+          results.push((function(_this) {
+            return function(comment, commentIndex) {
+              if (comment.description.match(/\S/)) {
+                return appendTo($('#the-comments'), 'div', {}, function(div) {
+                  var ref3;
+                  canEdit = ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id;
+                  canDelete = canEdit || _this.userIsOwner;
+                  appendTo(div, 'h4', {}, function(h4) {
+                    appendTo(h4, 'span', {
+                      text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                    });
+                    if (canEdit) {
+                      appendTo(h4, 'i.fa.fa-pencil', {
+                        style: 'cursor: pointer; margin: 3px;',
+                        click: function() {
+                          return alert('TODO: edit comments');
+                        }
+                      });
+                    }
+                    if (canDelete) {
+                      return appendTo(h4, 'i.fa.fa-trash', {
+                        style: 'cursor: pointer; margin: 3px;',
+                        click: function() {
+                          if (confirm('Are you sure you want to delete this comment?')) {
+                            return _this.aris.call('note_comments.deleteNoteComment', {
+                              note_comment_id: comment.comment_id
+                            }, function(arg) {
+                              var returnCode;
+                              returnCode = arg.returnCode;
+                              if (returnCode === 0) {
+                                note.comments.splice(commentIndex, 1);
+                                return _this.showNote(note);
+                              } else {
+                                return _this.error("There was a problem deleting that comment.");
+                              }
+                            });
+                          }
+                        }
+                      });
+                    }
                   });
-                  if (_this.userIsOwner || ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id) {
-                    pencil = appendTo(h4, 'i.fa.fa-pencil', {
-                      style: 'cursor: pointer;'
-                    });
-                    return pencil.click(function() {
-                      return console.log('TODO: edit/delete comments');
-                    });
-                  }
+                  return appendTo(div, 'p', {
+                    text: comment.description
+                  });
                 });
-                return appendTo(div, 'p', {
-                  text: comment.description
-                });
-              };
-            })(this)));
-          } else {
-            results.push(void 0);
-          }
+              }
+            };
+          })(this)(comment, commentIndex));
         }
         return results;
       }
