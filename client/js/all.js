@@ -946,9 +946,27 @@
           return $('#the-hidden-file-input').click();
         };
       })(this));
-      return $('#the-hidden-file-input').on('change', (function(_this) {
+      $('#the-hidden-file-input').on('change', (function(_this) {
         return function() {
           return _this.readyFile($('#the-hidden-file-input')[0].files[0]);
+        };
+      })(this));
+      return $('#the-comment-button').click((function(_this) {
+        return function() {
+          return _this.aris.call('note_comments.createNoteComment', {
+            game_id: _this.game.game_id,
+            note_id: _this.currentNote.note_id,
+            description: $('#the-comment-field').val()
+          }, function(arg) {
+            var json, returnCode;
+            json = arg.data, returnCode = arg.returnCode;
+            if (returnCode === 0) {
+              _this.currentNote.comments.push(new Comment(json));
+              return _this.showNote(_this.currentNote);
+            } else {
+              return _this.error("There was a problem posting your comment.");
+            }
+          });
         };
       })(this));
     };
@@ -1016,7 +1034,8 @@
     };
 
     App.prototype.error = function(s) {
-      return console.log("ERROR: " + s);
+      console.log("ERROR: " + s);
+      return alert("An error occurred: " + s);
     };
 
     App.prototype.warn = function(s) {

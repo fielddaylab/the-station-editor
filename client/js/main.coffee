@@ -555,6 +555,19 @@ class App
     $('#the-hidden-file-input').on 'change', =>
       @readyFile $('#the-hidden-file-input')[0].files[0]
 
+    # posting comments
+    $('#the-comment-button').click =>
+      @aris.call 'note_comments.createNoteComment',
+        game_id: @game.game_id
+        note_id: @currentNote.note_id
+        description: $('#the-comment-field').val()
+      , ({data: json, returnCode}) =>
+        if returnCode is 0
+          @currentNote.comments.push(new Comment json)
+          @showNote @currentNote
+        else
+          @error "There was a problem posting your comment."
+
   readyFile: (file) ->
     delete @ext
     delete @base64
@@ -595,6 +608,7 @@ class App
   error: (s) ->
     # TODO
     console.log "ERROR: #{s}"
+    alert "An error occurred: #{s}"
 
   warn: (s) ->
     # TODO
