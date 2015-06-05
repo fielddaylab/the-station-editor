@@ -174,7 +174,7 @@ class App
               checked: false
               value: t.tag_id
             label.append document.createTextNode t.tag
-    appendTo $('#the-tag-assigner'), 'form', {}, (form) =>
+    appendTo $('#the-tag-assigner, #the-editor-tag-assigner'), 'form', {}, (form) =>
       for t, i in @game.tags
         appendTo form, 'p', {}, (p) =>
           appendTo p, 'label', {}, (label) =>
@@ -328,6 +328,7 @@ class App
         @topMode = 'grid'
         body.removeClass 'is-mode-note'
         body.removeClass 'is-mode-add'
+        body.removeClass 'is-mode-edit'
         body.removeClass 'is-mode-map'
         if @scrollBackTo?
           $('#the-modal-content').scrollTop @scrollBackTo
@@ -336,14 +337,17 @@ class App
         @topMode = 'map'
         body.removeClass 'is-mode-note'
         body.removeClass 'is-mode-add'
+        body.removeClass 'is-mode-edit'
         body.addClass 'is-mode-map'
       when 'note'
         body.addClass 'is-mode-note'
         body.removeClass 'is-mode-add'
+        body.removeClass 'is-mode-edit'
         body.removeClass 'is-mode-map'
       when 'add'
         body.removeClass 'is-mode-note'
         body.addClass 'is-mode-add'
+        body.removeClass 'is-mode-edit'
         body.removeClass 'is-mode-map'
         @dragMarker.setMap @map
         @dragMarker.setPosition @mapCenter
@@ -352,12 +356,70 @@ class App
         @map.setZoom @game.zoom
         $('#the-caption-box').val ''
         $('#the-tag-assigner input[name=upload-tag]:first').click()
-        if oldMode isnt 'add'
+        if oldMode not in ['edit', 'add']
           for note in @game.notes
             note.marker.setOpacity 0.3
-    if oldMode is 'add' and mode isnt 'add'
+      when 'edit'
+        body.removeClass 'is-mode-note'
+        body.removeClass 'is-mode-add'
+        body.addClass 'is-mode-edit'
+        body.removeClass 'is-mode-map'
+        if oldMode not in ['edit', 'add']
+          for note in @game.notes
+            note.marker.setOpacity 0.3
+    if oldMode in ['add', 'edit'] and mode not in ['add', 'edit']
       for note in @game.notes
         note.marker.setOpacity 1
+
+  startEdit: (note) ->
+    @setMode 'edit'
+    @currentNote = note
+    position = new google.maps.LatLng note.latitude, note.longitude
+    # TODO: should we hide the note's existing marker? would be complicated
+    @dragMarker.setMap @map
+    @dragMarker.setPosition position
+    @dragMarker.setAnimation google.maps.Animation.DROP
+    @setMapCenter position
+    @map.setZoom @game.zoom
+    $('#the-editor-caption-box').val note.description
+    for radio in $('#the-editor-tag-assigner input[name=upload-tag]')
+      radio = $(radio)
+      radio.click() if note.tag_id is parseInt radio.val()
+    $('#the-editor-photo-box').css 'background-image', "url(\"#{note.photo_url}\")"
+
+  submitEdit: ->
+    desc = $('#the-editor-caption-box').val()
+    if desc.length is 0
+      @error 'Please enter a caption for the image.'
+      return
+    @aris.call 'notes.updateNote',
+      game_id: @game.game_id
+      note_id: @currentNote.note_id
+      description: desc
+      trigger:
+        latitude: @dragMarker.getPosition().lat()
+        longitude: @dragMarker.getPosition().lng()
+      tag_id: parseInt $('#the-editor-tag-assigner input[name=upload-tag]:checked').val()
+    , ({returnCode}) =>
+      if returnCode isnt 0
+        @error "There was a problem submitting your changes."
+        return
+      @aris.call 'notes.searchNotes',
+        game_id: @game.game_id
+        note_id: @currentNote.note_id
+        note_count: 1
+      , ({data: notes, returnCode}) =>
+        if returnCode isnt 0 or notes.length isnt 1
+          @error 'There was an error retrieving your edited note.'
+          return
+        newNote = new Note notes[0]
+        for existingNote, noteIndex in @game.notes
+          if existingNote.note_id is newNote.note_id
+            @game.notes[noteIndex] = newNote
+            break
+        @updateGrid()
+        @updateMap()
+        @showNote newNote
 
   submitNote: ->
     unless @ext? and @base64?
@@ -387,7 +449,7 @@ class App
         note_id: parseInt simpleNote.note_id
         note_count: 1
       , ({data: notes, returnCode}) =>
-        if returnCode isnt 0
+        if returnCode isnt 0 or notes.length isnt 1
           @error 'There was an error retrieving your new photo.'
           return
         note = new Note notes[0]
@@ -446,6 +508,10 @@ class App
     $('#the-search-tags input[type="checkbox"]').change =>
       @performSearch(=>)
     $('#the-add-submit-button').click => @submitNote()
+    $('#the-edit-submit-button').click => @submitEdit()
+    $('#the-edit-cancel-button').click =>
+      # go back to note view
+      @showNote @currentNote
 
     # note actions
     $('#the-share-button').click =>
@@ -487,6 +553,8 @@ class App
               @setMode @topMode
           else
             @error "There was a problem recording your flag."
+    $('#the-start-edit-button').click =>
+      @startEdit @currentNote
     $('#the-delete-button').click =>
       if confirm 'Are you sure you want to delete this note?'
         @aris.call 'notes.deleteNote',
@@ -578,16 +646,17 @@ class App
 
     # posting comments
     $('#the-comment-button').click =>
-      @aris.call 'note_comments.createNoteComment',
-        game_id: @game.game_id
-        note_id: @currentNote.note_id
-        description: $('#the-comment-field').val()
-      , ({data: json, returnCode}) =>
-        if returnCode is 0
-          @currentNote.comments.push(new Comment json)
-          @showNote @currentNote
-        else
-          @error "There was a problem posting your comment."
+      @needsAuth =>
+        @aris.call 'note_comments.createNoteComment',
+          game_id: @game.game_id
+          note_id: @currentNote.note_id
+          description: $('#the-comment-field').val()
+        , ({data: json, returnCode}) =>
+          if returnCode is 0
+            @currentNote.comments.push(new Comment json)
+            @showNote @currentNote
+          else
+            @error "There was a problem posting your comment."
 
   readyFile: (file) ->
     delete @ext

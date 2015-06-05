@@ -313,7 +313,7 @@
           return results;
         };
       })(this));
-      return appendTo($('#the-tag-assigner'), 'form', {}, (function(_this) {
+      return appendTo($('#the-tag-assigner, #the-editor-tag-assigner'), 'form', {}, (function(_this) {
         return function(form) {
           var i, j, len, ref, results, t;
           ref = _this.game.tags;
@@ -547,7 +547,7 @@
     };
 
     App.prototype.setMode = function(mode) {
-      var body, j, k, len, len1, note, oldMode, ref, ref1, ref2, results;
+      var body, j, k, l, len, len1, len2, note, oldMode, ref, ref1, ref2, ref3, results;
       if (mode !== 'note' && ((ref = window.location.hash) !== '#' && ref !== '')) {
         history.pushState('', '', '#');
       }
@@ -563,6 +563,7 @@
           this.topMode = 'grid';
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
+          body.removeClass('is-mode-edit');
           body.removeClass('is-mode-map');
           if (this.scrollBackTo != null) {
             $('#the-modal-content').scrollTop(this.scrollBackTo);
@@ -573,16 +574,19 @@
           this.topMode = 'map';
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
+          body.removeClass('is-mode-edit');
           body.addClass('is-mode-map');
           break;
         case 'note':
           body.addClass('is-mode-note');
           body.removeClass('is-mode-add');
+          body.removeClass('is-mode-edit');
           body.removeClass('is-mode-map');
           break;
         case 'add':
           body.removeClass('is-mode-note');
           body.addClass('is-mode-add');
+          body.removeClass('is-mode-edit');
           body.removeClass('is-mode-map');
           this.dragMarker.setMap(this.map);
           this.dragMarker.setPosition(this.mapCenter);
@@ -591,23 +595,110 @@
           this.map.setZoom(this.game.zoom);
           $('#the-caption-box').val('');
           $('#the-tag-assigner input[name=upload-tag]:first').click();
-          if (oldMode !== 'add') {
+          if (oldMode !== 'edit' && oldMode !== 'add') {
             ref1 = this.game.notes;
             for (j = 0, len = ref1.length; j < len; j++) {
               note = ref1[j];
               note.marker.setOpacity(0.3);
             }
           }
+          break;
+        case 'edit':
+          body.removeClass('is-mode-note');
+          body.removeClass('is-mode-add');
+          body.addClass('is-mode-edit');
+          body.removeClass('is-mode-map');
+          if (oldMode !== 'edit' && oldMode !== 'add') {
+            ref2 = this.game.notes;
+            for (k = 0, len1 = ref2.length; k < len1; k++) {
+              note = ref2[k];
+              note.marker.setOpacity(0.3);
+            }
+          }
       }
-      if (oldMode === 'add' && mode !== 'add') {
-        ref2 = this.game.notes;
+      if ((oldMode === 'add' || oldMode === 'edit') && (mode !== 'add' && mode !== 'edit')) {
+        ref3 = this.game.notes;
         results = [];
-        for (k = 0, len1 = ref2.length; k < len1; k++) {
-          note = ref2[k];
+        for (l = 0, len2 = ref3.length; l < len2; l++) {
+          note = ref3[l];
           results.push(note.marker.setOpacity(1));
         }
         return results;
       }
+    };
+
+    App.prototype.startEdit = function(note) {
+      var j, len, position, radio, ref;
+      this.setMode('edit');
+      this.currentNote = note;
+      position = new google.maps.LatLng(note.latitude, note.longitude);
+      this.dragMarker.setMap(this.map);
+      this.dragMarker.setPosition(position);
+      this.dragMarker.setAnimation(google.maps.Animation.DROP);
+      this.setMapCenter(position);
+      this.map.setZoom(this.game.zoom);
+      $('#the-editor-caption-box').val(note.description);
+      ref = $('#the-editor-tag-assigner input[name=upload-tag]');
+      for (j = 0, len = ref.length; j < len; j++) {
+        radio = ref[j];
+        radio = $(radio);
+        if (note.tag_id === parseInt(radio.val())) {
+          radio.click();
+        }
+      }
+      return $('#the-editor-photo-box').css('background-image', "url(\"" + note.photo_url + "\")");
+    };
+
+    App.prototype.submitEdit = function() {
+      var desc;
+      desc = $('#the-editor-caption-box').val();
+      if (desc.length === 0) {
+        this.error('Please enter a caption for the image.');
+        return;
+      }
+      return this.aris.call('notes.updateNote', {
+        game_id: this.game.game_id,
+        note_id: this.currentNote.note_id,
+        description: desc,
+        trigger: {
+          latitude: this.dragMarker.getPosition().lat(),
+          longitude: this.dragMarker.getPosition().lng()
+        },
+        tag_id: parseInt($('#the-editor-tag-assigner input[name=upload-tag]:checked').val())
+      }, (function(_this) {
+        return function(arg) {
+          var returnCode;
+          returnCode = arg.returnCode;
+          if (returnCode !== 0) {
+            _this.error("There was a problem submitting your changes.");
+            return;
+          }
+          return _this.aris.call('notes.searchNotes', {
+            game_id: _this.game.game_id,
+            note_id: _this.currentNote.note_id,
+            note_count: 1
+          }, function(arg1) {
+            var existingNote, j, len, newNote, noteIndex, notes, ref, returnCode;
+            notes = arg1.data, returnCode = arg1.returnCode;
+            if (returnCode !== 0 || notes.length !== 1) {
+              _this.error('There was an error retrieving your edited note.');
+              return;
+            }
+            newNote = new Note(notes[0]);
+            ref = _this.game.notes;
+            for (noteIndex = j = 0, len = ref.length; j < len; noteIndex = ++j) {
+              existingNote = ref[noteIndex];
+              if (existingNote.note_id === newNote.note_id) {
+                _this.game.notes[noteIndex] = newNote;
+                break;
+              }
+            }
+            _this.updateGrid();
+            _this.updateMap();
+            return _this.showNote(newNote);
+          });
+        };
+      })(this));
     };
 
     App.prototype.submitNote = function() {
@@ -649,7 +740,7 @@
           }, function(arg1) {
             var note, notes, returnCode;
             notes = arg1.data, returnCode = arg1.returnCode;
-            if (returnCode !== 0) {
+            if (returnCode !== 0 || notes.length !== 1) {
               _this.error('There was an error retrieving your new photo.');
               return;
             }
@@ -758,6 +849,16 @@
           return _this.submitNote();
         };
       })(this));
+      $('#the-edit-submit-button').click((function(_this) {
+        return function() {
+          return _this.submitEdit();
+        };
+      })(this));
+      $('#the-edit-cancel-button').click((function(_this) {
+        return function() {
+          return _this.showNote(_this.currentNote);
+        };
+      })(this));
       $('#the-share-button').click((function(_this) {
         return function() {
           body.toggleClass('is-open-share');
@@ -824,6 +925,11 @@
               }
             });
           }
+        };
+      })(this));
+      $('#the-start-edit-button').click((function(_this) {
+        return function() {
+          return _this.startEdit(_this.currentNote);
         };
       })(this));
       $('#the-delete-button').click((function(_this) {
@@ -976,19 +1082,21 @@
       })(this));
       return $('#the-comment-button').click((function(_this) {
         return function() {
-          return _this.aris.call('note_comments.createNoteComment', {
-            game_id: _this.game.game_id,
-            note_id: _this.currentNote.note_id,
-            description: $('#the-comment-field').val()
-          }, function(arg) {
-            var json, returnCode;
-            json = arg.data, returnCode = arg.returnCode;
-            if (returnCode === 0) {
-              _this.currentNote.comments.push(new Comment(json));
-              return _this.showNote(_this.currentNote);
-            } else {
-              return _this.error("There was a problem posting your comment.");
-            }
+          return _this.needsAuth(function() {
+            return _this.aris.call('note_comments.createNoteComment', {
+              game_id: _this.game.game_id,
+              note_id: _this.currentNote.note_id,
+              description: $('#the-comment-field').val()
+            }, function(arg) {
+              var json, returnCode;
+              json = arg.data, returnCode = arg.returnCode;
+              if (returnCode === 0) {
+                _this.currentNote.comments.push(new Comment(json));
+                return _this.showNote(_this.currentNote);
+              } else {
+                return _this.error("There was a problem posting your comment.");
+              }
+            });
           });
         };
       })(this));

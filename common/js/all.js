@@ -126,8 +126,8 @@
     };
   };
 
-  appendTo = function(parent, haml, attrs, init) {
-    var c, child, classes, i, id, len, ref, tag;
+  appendTo = function(parents, haml, attrs, init) {
+    var c, child, children, classes, i, id, len, p, ref, tag;
     if (haml == null) {
       haml = '';
     }
@@ -148,12 +148,26 @@
     if (id != null) {
       attrs.id = id;
     }
-    child = $("<" + tag + " />", attrs);
-    init(child);
-    parent.append(' ');
-    parent.append(child);
-    parent.append(' ');
-    return child;
+    children = (function() {
+      var j, len1, results;
+      results = [];
+      for (j = 0, len1 = parents.length; j < len1; j++) {
+        p = parents[j];
+        p = $(p);
+        child = $("<" + tag + " />", attrs);
+        init(child);
+        p.append(' ');
+        p.append(child);
+        p.append(' ');
+        results.push(child);
+      }
+      return results;
+    })();
+    if (children.length === 1) {
+      return $(children[0]);
+    } else {
+      return $(children);
+    }
   };
 
   window.appendTo = appendTo;

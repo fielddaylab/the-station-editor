@@ -23,18 +23,24 @@ parseElement = (str) ->
   {tag, classes, id}
 
 # Function for creating, initializing, and appending DOM elements.
-appendTo = (parent, haml = '', attrs = {}, init = (->)) ->
+appendTo = (parents, haml = '', attrs = {}, init = (->)) ->
   {tag, classes, id} = parseElement haml
   for c in classes
     attrs.class ?= ''
     attrs.class += " #{c}"
   attrs.id = id if id?
-  child = $("<#{tag} />", attrs)
-  init child
-  parent.append ' '
-  parent.append child
-  parent.append ' '
-  child
+  children = for p in parents
+    p = $(p)
+    child = $("<#{tag} />", attrs)
+    init child
+    p.append ' '
+    p.append child
+    p.append ' '
+    child
+  if children.length is 1
+    $(children[0])
+  else
+    $(children)
 
 window.appendTo = appendTo
 
