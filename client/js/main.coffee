@@ -45,8 +45,10 @@ class Note
     @created      = new Date(json.created.replace(' ', 'T') + 'Z')
     @player_liked = parseInt(json.player_liked) isnt 0
     @note_likes   = parseInt json.note_likes
-    @comments     =
-      new Comment o for o in json.comments.data
+    @comments     = for o in json.comments.data
+      comment = new Comment o
+      continue unless comment.description.match(/\S/)
+      comment
     @published    = json.published
 
 class App
@@ -283,35 +285,34 @@ class App
       appendTo $('#the-comments'), 'h3', text: 'Comments'
       for comment, commentIndex in note.comments
         do (comment, commentIndex) =>
-          if comment.description.match(/\S/)
-            appendTo $('#the-comments'), 'div', {}, (div) =>
-              canEdit   = @aris.auth?.user_id is comment.user.user_id
-              canDelete = canEdit or @userIsOwner
-              # note: aris also allows a note owner to delete comments on that note.
-              # but that's probably not appropriate here.
-              # already heard one case of a kid deleting comments from kids they didn't like...
-              appendTo div, 'h4', {}, (h4) =>
-                appendTo h4, 'span', text:
-                  "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
-                if canEdit
-                  appendTo h4, 'i.fa.fa-pencil',
-                    style: 'cursor: pointer; margin: 3px;'
-                    click: =>
-                      alert 'TODO: edit comments'
-                if canDelete
-                  appendTo h4, 'i.fa.fa-trash',
-                    style: 'cursor: pointer; margin: 3px;'
-                    click: =>
-                      if confirm 'Are you sure you want to delete this comment?'
-                        @aris.call 'note_comments.deleteNoteComment',
-                          note_comment_id: comment.comment_id
-                        , ({returnCode}) =>
-                          if returnCode is 0
-                            note.comments.splice commentIndex, 1
-                            @showNote note
-                          else
-                            @error "There was a problem deleting that comment."
-              appendTo div, 'p', text: comment.description
+          appendTo $('#the-comments'), 'div', {}, (div) =>
+            canEdit   = @aris.auth?.user_id is comment.user.user_id
+            canDelete = canEdit or @userIsOwner
+            # note: aris also allows a note owner to delete comments on that note.
+            # but that's probably not appropriate here.
+            # already heard one case of a kid deleting comments from kids they didn't like...
+            appendTo div, 'h4', {}, (h4) =>
+              appendTo h4, 'span', text:
+                "#{comment.user.display_name} (#{comment.created.toLocaleString()})"
+              if canEdit
+                appendTo h4, 'i.fa.fa-pencil',
+                  style: 'cursor: pointer; margin: 3px;'
+                  click: =>
+                    alert 'TODO: edit comments'
+              if canDelete
+                appendTo h4, 'i.fa.fa-trash',
+                  style: 'cursor: pointer; margin: 3px;'
+                  click: =>
+                    if confirm 'Are you sure you want to delete this comment?'
+                      @aris.call 'note_comments.deleteNoteComment',
+                        note_comment_id: comment.comment_id
+                      , ({returnCode}) =>
+                        if returnCode is 0
+                          note.comments.splice commentIndex, 1
+                          @showNote note
+                        else
+                          @error "There was a problem deleting that comment."
+            appendTo div, 'p', text: comment.description
 
   setMode: (mode) ->
     if mode isnt 'note' and window.location.hash not in ['#', '']
@@ -646,17 +647,18 @@ class App
 
     # posting comments
     $('#the-comment-button').click =>
-      @needsAuth =>
-        @aris.call 'note_comments.createNoteComment',
-          game_id: @game.game_id
-          note_id: @currentNote.note_id
-          description: $('#the-comment-field').val()
-        , ({data: json, returnCode}) =>
-          if returnCode is 0
-            @currentNote.comments.push(new Comment json)
-            @showNote @currentNote
-          else
-            @error "There was a problem posting your comment."
+      if $('#the-comment-field').val().match(/\S/)
+        @needsAuth =>
+          @aris.call 'note_comments.createNoteComment',
+            game_id: @game.game_id
+            note_id: @currentNote.note_id
+            description: $('#the-comment-field').val()
+          , ({data: json, returnCode}) =>
+            if returnCode is 0
+              @currentNote.comments.push(new Comment json)
+              @showNote @currentNote
+            else
+              @error "There was a problem posting your comment."
 
   readyFile: (file) ->
     delete @ext

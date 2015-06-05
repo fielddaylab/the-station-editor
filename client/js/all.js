@@ -51,7 +51,7 @@
 
   Note = (function() {
     function Note(json) {
-      var o;
+      var comment, o;
       this.note_id = parseInt(json.note_id);
       this.user = new User(json.user);
       this.description = json.description;
@@ -69,7 +69,11 @@
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           o = ref[j];
-          results.push(new Comment(o));
+          comment = new Comment(o);
+          if (!comment.description.match(/\S/)) {
+            continue;
+          }
+          results.push(comment);
         }
         return results;
       })();
@@ -495,50 +499,48 @@
           comment = ref2[commentIndex];
           results.push((function(_this) {
             return function(comment, commentIndex) {
-              if (comment.description.match(/\S/)) {
-                return appendTo($('#the-comments'), 'div', {}, function(div) {
-                  var ref3;
-                  canEdit = ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id;
-                  canDelete = canEdit || _this.userIsOwner;
-                  appendTo(div, 'h4', {}, function(h4) {
-                    appendTo(h4, 'span', {
-                      text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+              return appendTo($('#the-comments'), 'div', {}, function(div) {
+                var ref3;
+                canEdit = ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id;
+                canDelete = canEdit || _this.userIsOwner;
+                appendTo(div, 'h4', {}, function(h4) {
+                  appendTo(h4, 'span', {
+                    text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                  });
+                  if (canEdit) {
+                    appendTo(h4, 'i.fa.fa-pencil', {
+                      style: 'cursor: pointer; margin: 3px;',
+                      click: function() {
+                        return alert('TODO: edit comments');
+                      }
                     });
-                    if (canEdit) {
-                      appendTo(h4, 'i.fa.fa-pencil', {
-                        style: 'cursor: pointer; margin: 3px;',
-                        click: function() {
-                          return alert('TODO: edit comments');
+                  }
+                  if (canDelete) {
+                    return appendTo(h4, 'i.fa.fa-trash', {
+                      style: 'cursor: pointer; margin: 3px;',
+                      click: function() {
+                        if (confirm('Are you sure you want to delete this comment?')) {
+                          return _this.aris.call('note_comments.deleteNoteComment', {
+                            note_comment_id: comment.comment_id
+                          }, function(arg) {
+                            var returnCode;
+                            returnCode = arg.returnCode;
+                            if (returnCode === 0) {
+                              note.comments.splice(commentIndex, 1);
+                              return _this.showNote(note);
+                            } else {
+                              return _this.error("There was a problem deleting that comment.");
+                            }
+                          });
                         }
-                      });
-                    }
-                    if (canDelete) {
-                      return appendTo(h4, 'i.fa.fa-trash', {
-                        style: 'cursor: pointer; margin: 3px;',
-                        click: function() {
-                          if (confirm('Are you sure you want to delete this comment?')) {
-                            return _this.aris.call('note_comments.deleteNoteComment', {
-                              note_comment_id: comment.comment_id
-                            }, function(arg) {
-                              var returnCode;
-                              returnCode = arg.returnCode;
-                              if (returnCode === 0) {
-                                note.comments.splice(commentIndex, 1);
-                                return _this.showNote(note);
-                              } else {
-                                return _this.error("There was a problem deleting that comment.");
-                              }
-                            });
-                          }
-                        }
-                      });
-                    }
-                  });
-                  return appendTo(div, 'p', {
-                    text: comment.description
-                  });
+                      }
+                    });
+                  }
                 });
-              }
+                return appendTo(div, 'p', {
+                  text: comment.description
+                });
+              });
             };
           })(this)(comment, commentIndex));
         }
@@ -1082,22 +1084,24 @@
       })(this));
       return $('#the-comment-button').click((function(_this) {
         return function() {
-          return _this.needsAuth(function() {
-            return _this.aris.call('note_comments.createNoteComment', {
-              game_id: _this.game.game_id,
-              note_id: _this.currentNote.note_id,
-              description: $('#the-comment-field').val()
-            }, function(arg) {
-              var json, returnCode;
-              json = arg.data, returnCode = arg.returnCode;
-              if (returnCode === 0) {
-                _this.currentNote.comments.push(new Comment(json));
-                return _this.showNote(_this.currentNote);
-              } else {
-                return _this.error("There was a problem posting your comment.");
-              }
+          if ($('#the-comment-field').val().match(/\S/)) {
+            return _this.needsAuth(function() {
+              return _this.aris.call('note_comments.createNoteComment', {
+                game_id: _this.game.game_id,
+                note_id: _this.currentNote.note_id,
+                description: $('#the-comment-field').val()
+              }, function(arg) {
+                var json, returnCode;
+                json = arg.data, returnCode = arg.returnCode;
+                if (returnCode === 0) {
+                  _this.currentNote.comments.push(new Comment(json));
+                  return _this.showNote(_this.currentNote);
+                } else {
+                  return _this.error("There was a problem posting your comment.");
+                }
+              });
             });
-          });
+          }
         };
       })(this));
     };
