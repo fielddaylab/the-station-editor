@@ -123,7 +123,7 @@ class App
     if w < 907
       @map.setCenter latlng
     else
-      offsetx = (w - 450 - 30) / 2 - w / 2
+      offsetx = $('#the-main-modal').offset().left / 2 - w / 2
       if @map.getProjection()?
         @centerMapOffset latlng, offsetx, 0
       else
@@ -230,14 +230,13 @@ class App
         td.click => @showNote note
 
   updateMap: ->
-    if @markers?
-      marker.setMap(null) for marker in @markers
-    @markers =
+    if @clusterer?
+      @clusterer.clearMarkers()
+    @clusterer = new MarkerClusterer @map,
       for note in @game.notes
         do (note) =>
           marker = new google.maps.Marker
             position: new google.maps.LatLng note.latitude, note.longitude
-            map: @map
           google.maps.event.addListener marker, 'click', => @showNote note
           note.marker = marker
           marker
@@ -386,24 +385,16 @@ class App
         @dragMarker.setMap @map
         @dragMarker.setPosition @mapCenter
         @dragMarker.setAnimation google.maps.Animation.DROP
-        @setMapCenter @mapCenter
         @map.setZoom @game.zoom
+        @setMapCenter @mapCenter
+        @clusterer?.repaint()
         $('#the-caption-box').val ''
         $('#the-tag-assigner input[name=upload-tag]:first').click()
-        if oldMode not in ['edit', 'add']
-          for note in @game.notes
-            note.marker.setOpacity 0.3
       when 'edit'
         body.removeClass 'is-mode-note'
         body.removeClass 'is-mode-add'
         body.addClass 'is-mode-edit'
         body.removeClass 'is-mode-map'
-        if oldMode not in ['edit', 'add']
-          for note in @game.notes
-            note.marker.setOpacity 0.3
-    if oldMode in ['add', 'edit'] and mode not in ['add', 'edit']
-      for note in @game.notes
-        note.marker.setOpacity 1
 
   startEdit: (note) ->
     @setMode 'edit'
@@ -413,8 +404,9 @@ class App
     @dragMarker.setMap @map
     @dragMarker.setPosition position
     @dragMarker.setAnimation google.maps.Animation.DROP
-    @setMapCenter position
     @map.setZoom @game.zoom
+    @setMapCenter position
+    @clusterer?.repaint()
     $('#the-editor-caption-box').val note.description
     for radio in $('#the-editor-tag-assigner input[name=upload-tag]')
       radio = $(radio)

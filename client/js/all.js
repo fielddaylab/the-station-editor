@@ -221,7 +221,7 @@
       if (w < 907) {
         return this.map.setCenter(latlng);
       } else {
-        offsetx = (w - 450 - 30) / 2 - w / 2;
+        offsetx = $('#the-main-modal').offset().left / 2 - w / 2;
         if (this.map.getProjection() != null) {
           return this.centerMapOffset(latlng, offsetx, 0);
         } else {
@@ -428,25 +428,21 @@
     };
 
     App.prototype.updateMap = function() {
-      var j, len, marker, note, ref;
-      if (this.markers != null) {
-        ref = this.markers;
-        for (j = 0, len = ref.length; j < len; j++) {
-          marker = ref[j];
-          marker.setMap(null);
-        }
+      var note;
+      if (this.clusterer != null) {
+        this.clusterer.clearMarkers();
       }
-      return this.markers = (function() {
-        var k, len1, ref1, results;
-        ref1 = this.game.notes;
+      return this.clusterer = new MarkerClusterer(this.map, (function() {
+        var j, len, ref, results;
+        ref = this.game.notes;
         results = [];
-        for (k = 0, len1 = ref1.length; k < len1; k++) {
-          note = ref1[k];
+        for (j = 0, len = ref.length; j < len; j++) {
+          note = ref[j];
           results.push((function(_this) {
             return function(note) {
+              var marker;
               marker = new google.maps.Marker({
-                position: new google.maps.LatLng(note.latitude, note.longitude),
-                map: _this.map
+                position: new google.maps.LatLng(note.latitude, note.longitude)
               });
               google.maps.event.addListener(marker, 'click', function() {
                 return _this.showNote(note);
@@ -457,7 +453,7 @@
           })(this)(note));
         }
         return results;
-      }).call(this);
+      }).call(this));
     };
 
     App.prototype.showNote = function(note) {
@@ -595,7 +591,7 @@
     };
 
     App.prototype.setMode = function(mode) {
-      var body, j, k, l, len, len1, len2, note, oldMode, ref, ref1, ref2, ref3, results;
+      var body, oldMode, ref, ref1;
       if (mode !== 'note' && ((ref = window.location.hash) !== '#' && ref !== '')) {
         history.pushState('', '', '#');
       }
@@ -615,7 +611,7 @@
           body.removeClass('is-mode-map');
           if (this.scrollBackTo != null) {
             $('#the-modal-content').scrollTop(this.scrollBackTo);
-            delete this.scrollBackTo;
+            return delete this.scrollBackTo;
           }
           break;
         case 'map':
@@ -623,14 +619,12 @@
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
           body.removeClass('is-mode-edit');
-          body.addClass('is-mode-map');
-          break;
+          return body.addClass('is-mode-map');
         case 'note':
           body.addClass('is-mode-note');
           body.removeClass('is-mode-add');
           body.removeClass('is-mode-edit');
-          body.removeClass('is-mode-map');
-          break;
+          return body.removeClass('is-mode-map');
         case 'add':
           body.removeClass('is-mode-note');
           body.addClass('is-mode-add');
@@ -639,56 +633,38 @@
           this.dragMarker.setMap(this.map);
           this.dragMarker.setPosition(this.mapCenter);
           this.dragMarker.setAnimation(google.maps.Animation.DROP);
-          this.setMapCenter(this.mapCenter);
           this.map.setZoom(this.game.zoom);
-          $('#the-caption-box').val('');
-          $('#the-tag-assigner input[name=upload-tag]:first').click();
-          if (oldMode !== 'edit' && oldMode !== 'add') {
-            ref1 = this.game.notes;
-            for (j = 0, len = ref1.length; j < len; j++) {
-              note = ref1[j];
-              note.marker.setOpacity(0.3);
-            }
+          this.setMapCenter(this.mapCenter);
+          if ((ref1 = this.clusterer) != null) {
+            ref1.repaint();
           }
-          break;
+          $('#the-caption-box').val('');
+          return $('#the-tag-assigner input[name=upload-tag]:first').click();
         case 'edit':
           body.removeClass('is-mode-note');
           body.removeClass('is-mode-add');
           body.addClass('is-mode-edit');
-          body.removeClass('is-mode-map');
-          if (oldMode !== 'edit' && oldMode !== 'add') {
-            ref2 = this.game.notes;
-            for (k = 0, len1 = ref2.length; k < len1; k++) {
-              note = ref2[k];
-              note.marker.setOpacity(0.3);
-            }
-          }
-      }
-      if ((oldMode === 'add' || oldMode === 'edit') && (mode !== 'add' && mode !== 'edit')) {
-        ref3 = this.game.notes;
-        results = [];
-        for (l = 0, len2 = ref3.length; l < len2; l++) {
-          note = ref3[l];
-          results.push(note.marker.setOpacity(1));
-        }
-        return results;
+          return body.removeClass('is-mode-map');
       }
     };
 
     App.prototype.startEdit = function(note) {
-      var j, len, position, radio, ref;
+      var j, len, position, radio, ref, ref1;
       this.setMode('edit');
       this.currentNote = note;
       position = new google.maps.LatLng(note.latitude, note.longitude);
       this.dragMarker.setMap(this.map);
       this.dragMarker.setPosition(position);
       this.dragMarker.setAnimation(google.maps.Animation.DROP);
-      this.setMapCenter(position);
       this.map.setZoom(this.game.zoom);
+      this.setMapCenter(position);
+      if ((ref = this.clusterer) != null) {
+        ref.repaint();
+      }
       $('#the-editor-caption-box').val(note.description);
-      ref = $('#the-editor-tag-assigner input[name=upload-tag]');
-      for (j = 0, len = ref.length; j < len; j++) {
-        radio = ref[j];
+      ref1 = $('#the-editor-tag-assigner input[name=upload-tag]');
+      for (j = 0, len = ref1.length; j < len; j++) {
+        radio = ref1[j];
         radio = $(radio);
         if (note.tag_id === parseInt(radio.val())) {
           radio.click();
