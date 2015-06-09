@@ -90,8 +90,14 @@
         return function() {
           _this.aris = new Aris;
           return _this.login(void 0, void 0, function() {
-            _this.siftr_url = 'snowchallenge';
-            _this.siftr_id = null;
+            _this.siftr_url = window.location.search.replace('?', '');
+            if (_this.siftr_url.length === 0) {
+              _this.siftr_url = window.location.pathname.replace(/\//g, '');
+            }
+            if (!_this.siftr_url.match(/[^0-9]/)) {
+              _this.siftr_id = parseInt(_this.siftr_url);
+              _this.siftr_url = null;
+            }
             return _this.getGameInfo(function() {
               return _this.getGameOwners(function() {
                 _this.createMap();
@@ -121,7 +127,7 @@
               $('#the-siftr-title').text(_this.game.name);
               return cb();
             } else {
-              return _this.error("Failed to retrieve the Siftr game info");
+              return _this.error("Couldn't find a Siftr with that URL");
             }
           };
         })(this));
@@ -132,9 +138,13 @@
           return function(arg) {
             var game, returnCode;
             game = arg.data, returnCode = arg.returnCode;
-            _this.game = new Game(game);
-            $('#the-siftr-title').text(_this.game.name);
-            return cb();
+            if (returnCode === 0 && (game != null)) {
+              _this.game = new Game(game);
+              $('#the-siftr-title').text(_this.game.name);
+              return cb();
+            } else {
+              return _this.error("Couldn't find a Siftr with that game ID");
+            }
           };
         })(this));
       } else {

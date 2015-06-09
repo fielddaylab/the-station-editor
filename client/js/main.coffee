@@ -56,8 +56,16 @@ class App
     $(document).ready =>
       @aris = new Aris
       @login undefined, undefined, =>
-        @siftr_url = 'snowchallenge' # for testing
-        @siftr_id = null # 6234
+        # get the URL (or game ID) from, first, the GET string:
+        #   siftr.org/doesntmatter/?siftrurlhere
+        # or, second, the URL path:
+        #   siftr.org/siftrurlhere/
+        @siftr_url = window.location.search.replace('?', '')
+        if @siftr_url.length is 0
+          @siftr_url = window.location.pathname.replace(/\//g, '')
+        unless @siftr_url.match(/[^0-9]/)
+          @siftr_id = parseInt @siftr_url
+          @siftr_url = null
         @getGameInfo =>
           @getGameOwners =>
             @createMap()
@@ -76,14 +84,17 @@ class App
           $('#the-siftr-title').text @game.name
           cb()
         else
-          @error "Failed to retrieve the Siftr game info"
+          @error "Couldn't find a Siftr with that URL"
     else if @siftr_id?
       @aris.call 'games.getGame',
         game_id: @siftr_id
       , ({data: game, returnCode}) =>
-        @game = new Game game
-        $('#the-siftr-title').text @game.name
-        cb()
+        if returnCode is 0 and game?
+          @game = new Game game
+          $('#the-siftr-title').text @game.name
+          cb()
+        else
+          @error "Couldn't find a Siftr with that game ID"
     else
       @error "No Siftr specified"
 
