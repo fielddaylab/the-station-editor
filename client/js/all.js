@@ -1179,6 +1179,26 @@
         return function() {
           $('body').toggleClass('is-logged-in', _this.aris.auth != null);
           _this.checkIfOwner();
+          if (_this.aris.auth != null) {
+            $('#the-user-logo').css('background-image', 'url("img/user.png")');
+            _this.aris.call('users.getUser', {
+              user_id: _this.aris.auth.user_id
+            }, function(arg) {
+              var user;
+              user = arg.data;
+              if (user != null) {
+                return _this.aris.call('media.getMedia', {
+                  media_id: user.media_id
+                }, function(arg1) {
+                  var media;
+                  media = arg1.data;
+                  if (media != null) {
+                    return $('#the-user-logo').css('background-image', "url(\"" + media.thumb_url + "\")");
+                  }
+                });
+              }
+            });
+          }
           return cb();
         };
       })(this));
@@ -1188,7 +1208,8 @@
       this.aris.logout();
       this.checkIfOwner();
       $('body').removeClass('is-logged-in');
-      return $('body').removeClass('is-mode-add');
+      $('body').removeClass('is-mode-add');
+      return $('#the-user-logo').css('background-image', 'url("img/mystery.png")');
     };
 
     App.prototype.checkIfOwner = function() {

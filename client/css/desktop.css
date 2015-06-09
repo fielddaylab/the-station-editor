@@ -56,7 +56,9 @@ body.is-mode-add #the-add-button {
   top: 30px;
   left: 120px;
   background-color: #666;
-  cursor: pointer; }
+  cursor: pointer;
+  background-size: cover;
+  background-image: url("img/mystery.png"); }
 
 #the-menu-button {
   display: none; }

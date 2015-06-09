@@ -721,6 +721,18 @@ class App
     @aris.login name, pw, =>
       $('body').toggleClass 'is-logged-in', @aris.auth?
       @checkIfOwner()
+      # get the user picture
+      if @aris.auth?
+        $('#the-user-logo').css 'background-image', 'url("img/user.png")'
+        @aris.call 'users.getUser',
+          user_id: @aris.auth.user_id
+        , ({data: user}) =>
+          if user?
+            @aris.call 'media.getMedia',
+              media_id: user.media_id
+            , ({data: media}) =>
+              if media?
+                $('#the-user-logo').css 'background-image', "url(\"#{media.thumb_url}\")"
       cb()
 
   logout: ->
@@ -728,6 +740,7 @@ class App
     @checkIfOwner()
     $('body').removeClass 'is-logged-in'
     $('body').removeClass 'is-mode-add'
+    $('#the-user-logo').css 'background-image', 'url("img/mystery.png")'
 
   checkIfOwner: ->
     @userIsOwner = @aris.auth? and @game?.owners? and
