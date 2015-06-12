@@ -68,4 +68,13 @@ body.is-open-menu #the-ui-box {
 .a-menu-option {
   margin: 10px; }
 
+body.is-mode-note .a-menu-icon-center,
+body.is-mode-add .a-menu-icon-center,
+body.is-mode-edit .a-menu-icon-center {
+  display: none; }
+
+.a-menu-icon-center {
+  margin: 0 auto;
+  width: 30px; }
+
 /*# sourceMappingURL=mobile.css.map */

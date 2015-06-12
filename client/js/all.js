@@ -115,6 +115,14 @@
     }
 
     App.prototype.getGameInfo = function(cb) {
+      var useGame;
+      useGame = (function(_this) {
+        return function(game1) {
+          _this.game = game1;
+          $('#the-siftr-title').text(_this.game.name);
+          return cb();
+        };
+      })(this);
       if (this.siftr_url != null) {
         return this.aris.call('games.searchSiftrs', {
           siftr_url: this.siftr_url
@@ -123,11 +131,9 @@
             var games, returnCode;
             games = arg.data, returnCode = arg.returnCode;
             if (returnCode === 0 && games.length === 1) {
-              _this.game = new Game(games[0]);
-              $('#the-siftr-title').text(_this.game.name);
-              return cb();
+              return useGame(new Game(games[0]));
             } else {
-              return _this.error("Couldn't find a Siftr with that URL");
+              return _this.error("Couldn't find a Siftr with the URL " + _this.siftr_url);
             }
           };
         })(this));
@@ -139,11 +145,9 @@
             var game, returnCode;
             game = arg.data, returnCode = arg.returnCode;
             if (returnCode === 0 && (game != null)) {
-              _this.game = new Game(game);
-              $('#the-siftr-title').text(_this.game.name);
-              return cb();
+              return useGame(new Game(game));
             } else {
-              return _this.error("Couldn't find a Siftr with that game ID");
+              return _this.error("Couldn't find a Siftr with game ID " + _this.siftr_id);
             }
           };
         })(this));
@@ -837,7 +841,7 @@
           return _this.setMode('map');
         };
       })(this));
-      $('#the-add-button').click((function(_this) {
+      $('#the-add-button, #the-mobile-add-button').click((function(_this) {
         return function() {
           if (_this.mode === 'add') {
             return _this.setMode(_this.topMode);

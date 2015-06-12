@@ -75,26 +75,25 @@ class App
                 @installListeners()
 
   getGameInfo: (cb) ->
+    useGame = (@game) =>
+      $('#the-siftr-title').text @game.name
+      cb()
     if @siftr_url?
       @aris.call 'games.searchSiftrs',
         siftr_url: @siftr_url
       , ({data: games, returnCode}) =>
         if returnCode is 0 and games.length is 1
-          @game = new Game games[0]
-          $('#the-siftr-title').text @game.name
-          cb()
+          useGame new Game games[0]
         else
-          @error "Couldn't find a Siftr with that URL"
+          @error "Couldn't find a Siftr with the URL #{@siftr_url}"
     else if @siftr_id?
       @aris.call 'games.getGame',
         game_id: @siftr_id
       , ({data: game, returnCode}) =>
         if returnCode is 0 and game?
-          @game = new Game game
-          $('#the-siftr-title').text @game.name
-          cb()
+          useGame new Game game
         else
-          @error "Couldn't find a Siftr with that game ID"
+          @error "Couldn't find a Siftr with game ID #{@siftr_id}"
     else
       @error "No Siftr specified"
 
@@ -521,7 +520,7 @@ class App
       body.toggleClass 'is-open-menu'
     $('#the-grid-button').click => @setMode 'grid'
     $('#the-map-button').click => @setMode 'map'
-    $('#the-add-button').click =>
+    $('#the-add-button, #the-mobile-add-button').click =>
       if @mode is 'add'
         @setMode @topMode
       else

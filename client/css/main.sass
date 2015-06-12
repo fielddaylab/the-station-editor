@@ -37,6 +37,12 @@ body
   height: 0
   clear: both
 
+.a-icon-bar-chunk
+  position: absolute
+  width: 100%
+  height: 100%
+  pointer-events: none
+
 body.is-mode-note .a-menu-icon-left,
 body.is-mode-add  .a-menu-icon-left,
 body.is-mode-edit .a-menu-icon-left
@@ -45,6 +51,7 @@ body.is-mode-edit .a-menu-icon-left
   float: left
   margin: 15px
   cursor: pointer
+  pointer-events: auto
 
 body.is-mode-note .a-menu-icon-right,
 body.is-mode-add  .a-menu-icon-right,
@@ -54,6 +61,10 @@ body.is-mode-edit .a-menu-icon-right
   float: right
   margin: 15px
   cursor: pointer
+  pointer-events: auto
+
+.a-menu-icon-center
+  pointer-events: auto
 
 #the-icon-bar-x
   display: none
@@ -62,10 +73,18 @@ body.is-mode-edit .a-menu-icon-right
   cursor: pointer
   color: #e0e0e0
   background-color: #555
+  pointer-events: auto
 body.is-mode-note #the-icon-bar-x,
 body.is-mode-add  #the-icon-bar-x,
 body.is-mode-edit #the-icon-bar-x
   display: block
+
+#the-mobile-add-button
+  color: #e0e0e0
+  background-color: #555
+  padding: 15px
+  text-align: center
+  cursor: pointer
 
 body:not(.is-logged-in) .logged-in
   display: none
