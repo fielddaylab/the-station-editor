@@ -80,7 +80,7 @@
 }).call(this);
 
 (function() {
-  window.SIFTR_URL = 'http://siftr.org/';
+  window.SIFTR_URL = window.location.origin + '/';
 
   window.ARIS_URL = 'http://arisgames.org/server/';
 

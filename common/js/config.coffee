@@ -1,7 +1,6 @@
-# local
-#window.SIFTR_URL = 'http://localhost:8888/'
-#window.ARIS_URL = 'http://localhost/aris/'
+window.SIFTR_URL = window.location.origin + '/'
 
+# local
+#window.ARIS_URL = 'http://localhost:10080/server/'
 # prod
-window.SIFTR_URL = 'http://siftr.org/'
 window.ARIS_URL = 'http://arisgames.org/server/'
