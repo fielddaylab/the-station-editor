@@ -298,4 +298,11 @@ body:not(.is-mode-edit) #the-note-editor {
 #the-comment-button {
   margin-top: 10px; }
 
+#the-main-modal {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text; }
+
 /*# sourceMappingURL=main.css.map */
