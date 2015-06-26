@@ -467,7 +467,9 @@
           })(this)(note));
         }
         return results;
-      }).call(this));
+      }).call(this), {
+        maxZoom: 18
+      });
     };
 
     App.prototype.showNote = function(note) {

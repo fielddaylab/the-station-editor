@@ -250,6 +250,7 @@ class App
           google.maps.event.addListener marker, 'click', => @showNote note
           note.marker = marker
           marker
+      , maxZoom: 18
 
   showNote: (note) ->
     if window.location.hash isnt '#' + note.note_id
