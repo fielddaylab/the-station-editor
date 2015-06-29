@@ -1120,7 +1120,7 @@
           return _this.readyFile($('#the-hidden-file-input')[0].files[0]);
         };
       })(this));
-      return $('#the-comment-button').click((function(_this) {
+      $('#the-comment-button').click((function(_this) {
         return function() {
           if ($('#the-comment-field').val().match(/\S/)) {
             return _this.needsAuth(function() {
@@ -1142,6 +1142,23 @@
           }
         };
       })(this));
+      return window.FDL_CLUSTER_BOUNDS_EDITOR = (function(_this) {
+        return function(bounds) {
+          var east, north, south, w, west;
+          w = $('body').width();
+          if (w < 907) {
+            return bounds;
+          }
+          north = bounds.getNorthEast().lat();
+          south = bounds.getSouthWest().lat();
+          east = bounds.getNorthEast().lng();
+          west = bounds.getSouthWest().lng();
+          console.log(east);
+          east = west + (east - west) * w / $('#the-main-modal').offset().left;
+          console.log(east);
+          return new google.maps.LatLngBounds(new google.maps.LatLng(south, west), new google.maps.LatLng(north, east));
+        };
+      })(this);
     };
 
     App.prototype.readyFile = function(file) {

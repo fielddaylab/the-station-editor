@@ -696,6 +696,19 @@ class App
             else
               @error "There was a problem posting your comment."
 
+    # hack to change how markerclusterer.js zooms
+    window.FDL_CLUSTER_BOUNDS_EDITOR = (bounds) =>
+      w = $('body').width()
+      return bounds if w < 907
+      north = bounds.getNorthEast().lat()
+      south = bounds.getSouthWest().lat()
+      east = bounds.getNorthEast().lng()
+      west = bounds.getSouthWest().lng()
+      console.log east
+      east = west + (east - west) * w / $('#the-main-modal').offset().left
+      console.log east
+      new google.maps.LatLngBounds(new google.maps.LatLng(south, west), new google.maps.LatLng(north, east))
+
   readyFile: (file) ->
     delete @ext
     delete @base64
