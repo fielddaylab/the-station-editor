@@ -1,5 +1,6 @@
 class App
   constructor: ->
+    $ -> FastClick.attach document.body
     $(document).ready =>
       @aris = new Aris
       @markdown = new Showdown.converter()
@@ -220,7 +221,6 @@ class App
       #.replace(/<[\/\!]*?[^<>]*?>/gi, '')
       .replace(/<style[^>]*?>.*?<\/style>/gi, '')
       .replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '')
-    console.log markdown
     $('#the-photo-caption').html markdown
     $('#the-photo-credit').html """
       Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}

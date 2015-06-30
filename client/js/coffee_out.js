@@ -4,6 +4,9 @@
 
   App = (function() {
     function App() {
+      $(function() {
+        return FastClick.attach(document.body);
+      });
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
@@ -404,7 +407,6 @@
       $('#the-photo-link').prop('href', note.photo_url);
       markdown = this.markdown.makeHtml(note.description);
       markdown = markdown.replace(/<script[^>]*?>.*?<\/script>/gi, '').replace(/<style[^>]*?>.*?<\/style>/gi, '').replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
-      console.log(markdown);
       $('#the-photo-caption').html(markdown);
       $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
       heart = $('#the-like-button i');

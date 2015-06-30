@@ -35,6 +35,7 @@ class Results
 
 class App
   constructor: ->
+    $ -> FastClick.attach document.body
     $(document).ready =>
       @aris = new Aris
 

@@ -4,6 +4,9 @@
 
   App = (function() {
     function App() {
+      $(function() {
+        return FastClick.attach(document.body);
+      });
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
