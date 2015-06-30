@@ -1,94 +1,13 @@
 (function() {
-  var App, Comment, Game, Note, Tag, User, app,
+  var App, app,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  Game = (function() {
-    function Game(json) {
-      this.game_id = parseInt(json.game_id);
-      this.name = json.name;
-      this.latitude = parseFloat(json.map_latitude);
-      this.longitude = parseFloat(json.map_longitude);
-      this.zoom = parseInt(json.map_zoom_level);
-    }
-
-    return Game;
-
-  })();
-
-  User = (function() {
-    function User(json) {
-      this.user_id = parseInt(json.user_id);
-      this.display_name = json.display_name || json.user_name;
-    }
-
-    return User;
-
-  })();
-
-  Tag = (function() {
-    function Tag(json) {
-      var ref, ref1;
-      this.icon_url = (ref = json.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0;
-      this.tag = json.tag;
-      this.tag_id = parseInt(json.tag_id);
-    }
-
-    return Tag;
-
-  })();
-
-  Comment = (function() {
-    function Comment(json) {
-      this.description = json.description;
-      this.comment_id = parseInt(json.note_comment_id);
-      this.user = new User(json.user);
-      this.created = new Date(json.created.replace(' ', 'T') + 'Z');
-    }
-
-    return Comment;
-
-  })();
-
-  Note = (function() {
-    function Note(json) {
-      var comment, o;
-      this.note_id = parseInt(json.note_id);
-      this.user = new User(json.user);
-      this.description = json.description;
-      this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
-      this.thumb_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.thumb_url;
-      this.latitude = parseFloat(json.latitude);
-      this.longitude = parseFloat(json.longitude);
-      this.tag_id = parseInt(json.tag_id);
-      this.created = new Date(json.created.replace(' ', 'T') + 'Z');
-      this.player_liked = parseInt(json.player_liked) !== 0;
-      this.note_likes = parseInt(json.note_likes);
-      this.comments = (function() {
-        var j, len, ref, results;
-        ref = json.comments.data;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          o = ref[j];
-          comment = new Comment(o);
-          if (!comment.description.match(/\S/)) {
-            continue;
-          }
-          results.push(comment);
-        }
-        return results;
-      })();
-      this.published = json.published;
-    }
-
-    return Note;
-
-  })();
 
   App = (function() {
     function App() {
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
+          _this.markdown = new Showdown.converter();
           return _this.login(void 0, void 0, function() {
             _this.siftr_url = window.location.search.replace('?', '');
             if (_this.siftr_url.length === 0) {
@@ -473,7 +392,7 @@
     };
 
     App.prototype.showNote = function(note) {
-      var canDelete, canEdit, canFlag, comment, commentIndex, heart, j, len, ref, ref1, ref2, results;
+      var canDelete, canEdit, canFlag, comment, commentIndex, heart, j, len, markdown, ref, ref1, ref2, results;
       if (window.location.hash !== '#' + note.note_id) {
         history.pushState('', '', '#' + note.note_id);
       }
@@ -483,7 +402,10 @@
       $('#the-modal-content').scrollTop(0);
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
       $('#the-photo-link').prop('href', note.photo_url);
-      $('#the-photo-caption').text(note.description);
+      markdown = this.markdown.makeHtml(note.description);
+      markdown = markdown.replace(/<script[^>]*?>.*?<\/script>/gi, '').replace(/<style[^>]*?>.*?<\/style>/gi, '').replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
+      console.log(markdown);
+      $('#the-photo-caption').html(markdown);
       $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
       heart = $('#the-like-button i');
       if (note.player_liked) {
@@ -1260,5 +1182,90 @@
   app = new App;
 
   window.app = app;
+
+}).call(this);
+
+(function() {
+  window.Game = (function() {
+    function Game(json) {
+      this.game_id = parseInt(json.game_id);
+      this.name = json.name;
+      this.latitude = parseFloat(json.map_latitude);
+      this.longitude = parseFloat(json.map_longitude);
+      this.zoom = parseInt(json.map_zoom_level);
+    }
+
+    return Game;
+
+  })();
+
+  window.User = (function() {
+    function User(json) {
+      this.user_id = parseInt(json.user_id);
+      this.display_name = json.display_name || json.user_name;
+    }
+
+    return User;
+
+  })();
+
+  window.Tag = (function() {
+    function Tag(json) {
+      var ref, ref1;
+      this.icon_url = (ref = json.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0;
+      this.tag = json.tag;
+      this.tag_id = parseInt(json.tag_id);
+    }
+
+    return Tag;
+
+  })();
+
+  window.Comment = (function() {
+    function Comment(json) {
+      this.description = json.description;
+      this.comment_id = parseInt(json.note_comment_id);
+      this.user = new User(json.user);
+      this.created = new Date(json.created.replace(' ', 'T') + 'Z');
+    }
+
+    return Comment;
+
+  })();
+
+  window.Note = (function() {
+    function Note(json) {
+      var comment, o;
+      this.note_id = parseInt(json.note_id);
+      this.user = new User(json.user);
+      this.description = json.description;
+      this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
+      this.thumb_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.thumb_url;
+      this.latitude = parseFloat(json.latitude);
+      this.longitude = parseFloat(json.longitude);
+      this.tag_id = parseInt(json.tag_id);
+      this.created = new Date(json.created.replace(' ', 'T') + 'Z');
+      this.player_liked = parseInt(json.player_liked) !== 0;
+      this.note_likes = parseInt(json.note_likes);
+      this.comments = (function() {
+        var i, len, ref, results;
+        ref = json.comments.data;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          o = ref[i];
+          comment = new Comment(o);
+          if (!comment.description.match(/\S/)) {
+            continue;
+          }
+          results.push(comment);
+        }
+        return results;
+      })();
+      this.published = json.published;
+    }
+
+    return Note;
+
+  })();
 
 }).call(this);

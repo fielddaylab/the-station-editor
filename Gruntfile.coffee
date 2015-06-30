@@ -3,11 +3,11 @@ module.exports = (grunt) ->
     coffee:
       compile:
         files:
-          'js/all.js'       : ['js/*.coffee']
-          'editor/js/all.js': ['editor/js/*.coffee']
-          'common/js/all.js': ['common/js/*.coffee']
-          'about/js/all.js' : ['about/js/*.coffee']
-          'client/js/all.js': ['client/js/*.coffee']
+          'js/coffee_out.js'       : ['js/*.coffee']
+          'editor/js/coffee_out.js': ['editor/js/*.coffee']
+          'common/js/coffee_out.js': ['common/js/*.coffee']
+          'about/js/coffee_out.js' : ['about/js/*.coffee']
+          'client/js/coffee_out.js': ['client/js/*.coffee']
     sass:
       compile:
         files:
