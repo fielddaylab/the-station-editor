@@ -1,6 +1,6 @@
 (function() {
   var App, app,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   App = (function() {
     function App() {
@@ -26,7 +26,7 @@
             return false;
           });
           $('#button-create-acct').click(function() {
-            if (indexOf.call($('#text-new-email').val(), '@') < 0) {
+            if (__indexOf.call($('#text-new-email').val(), '@') < 0) {
               _this.showAlert("Your email address is not valid.");
             } else if ($('#text-new-username').val().length < 1) {
               _this.showAlert("Your username must be at least 1 character.");
@@ -180,16 +180,16 @@
             if ((res = h.match(/^#edit(\d+)$/)) != null) {
               game_id = parseInt(res[1]);
               games = (function() {
-                var j, len, ref, results;
-                ref = this.games;
-                results = [];
-                for (j = 0, len = ref.length; j < len; j++) {
-                  g = ref[j];
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
                   if (g.game_id === game_id) {
-                    results.push(g);
+                    _results.push(g);
                   }
                 }
-                return results;
+                return _results;
               }).call(this);
               if (games.length !== 0) {
                 return this.startEdit(games[0]);
@@ -199,16 +199,16 @@
             } else if ((res = h.match(/^#tags(\d+)$/)) != null) {
               game_id = parseInt(res[1]);
               games = (function() {
-                var j, len, ref, results;
-                ref = this.games;
-                results = [];
-                for (j = 0, len = ref.length; j < len; j++) {
-                  g = ref[j];
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
                   if (g.game_id === game_id) {
-                    results.push(g);
+                    _results.push(g);
                   }
                 }
-                return results;
+                return _results;
               }).call(this);
               if (games.length !== 0) {
                 return this.startEditTags(games[0]);
@@ -218,16 +218,16 @@
             } else if ((res = h.match(/^#editors(\d+)$/)) != null) {
               game_id = parseInt(res[1]);
               games = (function() {
-                var j, len, ref, results;
-                ref = this.games;
-                results = [];
-                for (j = 0, len = ref.length; j < len; j++) {
-                  g = ref[j];
+                var _i, _len, _ref, _results;
+                _ref = this.games;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  g = _ref[_i];
                   if (g.game_id === game_id) {
-                    results.push(g);
+                    _results.push(g);
                   }
                 }
-                return results;
+                return _results;
               }).call(this);
               if (games.length !== 0) {
                 return this.startEditors(games[0]);
@@ -253,14 +253,14 @@
     };
 
     App.prototype.redrawGameList = function() {
-      var game, gameList, j, len, ref, results;
+      var game, gameList, _i, _len, _ref, _results;
       gameList = $('#list-siftrs');
       gameList.text('');
-      ref = this.games;
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        game = ref[j];
-        results.push((function(_this) {
+      _ref = this.games;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        game = _ref[_i];
+        _results.push((function(_this) {
           return function(game) {
             return appendTo(gameList, '.media', {}, function(media) {
               appendTo(media, '.media-left', {}, function(mediaLeft) {
@@ -269,9 +269,9 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
-                var markdown, ref1;
+                var markdown, _ref1;
                 appendTo(mediaBody, 'a', {
-                  href: "" + SIFTR_URL + ((ref1 = game.siftr_url) != null ? ref1 : game.game_id),
+                  href: "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
                   target: '_blank'
                 }, function(siftrLink) {
                   return appendTo(siftrLink, 'h4.media-heading', {
@@ -318,7 +318,7 @@
           };
         })(this)(game));
       }
-      return results;
+      return _results;
     };
 
     App.prototype.updateGameList = function(cb) {
@@ -342,7 +342,7 @@
     };
 
     App.prototype.addGameFromJson = function(json) {
-      var game, i, j, len, newGame, ref;
+      var game, i, newGame, _i, _len, _ref;
       newGame = {
         game_id: parseInt(json.game_id),
         name: json.name,
@@ -355,9 +355,9 @@
         published: parseInt(json.published) ? true : false,
         moderated: parseInt(json.moderated) ? true : false
       };
-      ref = this.games;
-      for (i = j = 0, len = ref.length; j < len; i = ++j) {
-        game = ref[i];
+      _ref = this.games;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        game = _ref[i];
         if (game.game_id === newGame.game_id) {
           this.games[i] = newGame;
           return newGame;
@@ -372,12 +372,12 @@
         cb = (function() {});
       }
       return this.aris.call('games.getGamesForUser', {}, (function(_this) {
-        return function(arg) {
-          var games, j, json, len;
-          games = arg.data;
+        return function(_arg) {
+          var games, json, _i, _len;
+          games = _arg.data;
           _this.games = [];
-          for (j = 0, len = games.length; j < len; j++) {
-            json = games[j];
+          for (_i = 0, _len = games.length; _i < _len; _i++) {
+            json = games[_i];
             if ((json.is_siftr != null) && !parseInt(json.is_siftr)) {
               continue;
             }
@@ -431,8 +431,8 @@
             } else {
               return _this.aris.call('media.getMedia', {
                 media_id: game.icon_media_id
-              }, function(arg) {
-                game.icon_media = arg.data;
+              }, function(_arg) {
+                game.icon_media = _arg.data;
                 return cb();
               });
             }
@@ -440,14 +440,14 @@
         };
       })(this);
       return async.parallel((function() {
-        var j, len, ref, results;
-        ref = this.games;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          game = ref[j];
-          results.push(go(game));
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
         }
-        return results;
+        return _results;
       }).call(this), cb);
     };
 
@@ -464,8 +464,8 @@
             } else {
               return _this.aris.call('tags.getTagsForGame', {
                 game_id: game.game_id
-              }, function(arg) {
-                game.tags = arg.data;
+              }, function(_arg) {
+                game.tags = _arg.data;
                 return cb();
               });
             }
@@ -473,40 +473,40 @@
         };
       })(this);
       return async.parallel((function() {
-        var j, len, ref, results;
-        ref = this.games;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          game = ref[j];
-          results.push(go(game));
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
         }
-        return results;
+        return _results;
       }).call(this), cb);
     };
 
     App.prototype.getGameTagCounts = function(cb) {
-      var allTags, game, go, ref, tag;
+      var allTags, game, go, tag, _ref;
       if (cb == null) {
         cb = (function() {});
       }
-      allTags = (ref = []).concat.apply(ref, (function() {
-        var j, len, ref, results;
-        ref = (function() {
-          var l, len, ref, results1;
-          ref = this.games;
-          results1 = [];
-          for (l = 0, len = ref.length; l < len; l++) {
-            game = ref[l];
-            results1.push(game.tags);
+      allTags = (_ref = []).concat.apply(_ref, (function() {
+        var _i, _len, _ref, _results;
+        _ref = (function() {
+          var _j, _len, _ref, _results1;
+          _ref = this.games;
+          _results1 = [];
+          for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+            game = _ref[_j];
+            _results1.push(game.tags);
           }
-          return results1;
+          return _results1;
         }).call(this);
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          tag = ref[j];
-          results.push(tag);
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          tag = _ref[_i];
+          _results.push(tag);
         }
-        return results;
+        return _results;
       }).call(this));
       go = (function(_this) {
         return function(tag) {
@@ -517,9 +517,9 @@
               return _this.aris.call('tags.countObjectsWithTag', {
                 object_type: 'NOTE',
                 tag_id: tag.tag_id
-              }, function(arg) {
+              }, function(_arg) {
                 var count;
-                count = arg.data.count;
+                count = _arg.data.count;
                 tag.count = parseInt(count);
                 return cb();
               });
@@ -528,13 +528,13 @@
         };
       })(this);
       return async.parallel((function() {
-        var j, len, results;
-        results = [];
-        for (j = 0, len = allTags.length; j < len; j++) {
-          tag = allTags[j];
-          results.push(go(tag));
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = allTags.length; _i < _len; _i++) {
+          tag = allTags[_i];
+          _results.push(go(tag));
         }
-        return results;
+        return _results;
       })(), cb);
     };
 
@@ -551,8 +551,8 @@
             } else {
               return _this.aris.call('editors.getEditorsForGame', {
                 game_id: game.game_id
-              }, function(arg) {
-                game.editors = arg.data;
+              }, function(_arg) {
+                game.editors = _arg.data;
                 return cb();
               });
             }
@@ -560,14 +560,14 @@
         };
       })(this);
       return async.parallel((function() {
-        var j, len, ref, results;
-        ref = this.games;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          game = ref[j];
-          results.push(go(game));
+        var _i, _len, _ref, _results;
+        _ref = this.games;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          game = _ref[_i];
+          _results.push(go(game));
         }
-        return results;
+        return _results;
       }).call(this), cb);
     };
 
@@ -579,9 +579,9 @@
       });
     };
 
-    App.prototype.createMap = function(arg) {
+    App.prototype.createMap = function(_arg) {
       var lat, lng, zoom;
-      lat = arg.lat, lng = arg.lng, zoom = arg.zoom;
+      lat = _arg.lat, lng = _arg.lng, zoom = _arg.zoom;
       if (this.map != null) {
         this.map.setCenter({
           lat: lat,
@@ -668,9 +668,9 @@
         return cb(this.currentGame.icon_media_id);
       } else {
         return this.uploadMediaFromInput('#file-siftr-icon', this.currentGame, (function(_this) {
-          return function(arg) {
+          return function(_arg) {
             var media;
-            media = arg.data;
+            media = _arg.data;
             return cb(media.media_id);
           };
         })(this));
@@ -697,9 +697,9 @@
             map_longitude: pn.lng(),
             map_zoom_level: _this.map.getZoom(),
             icon_media_id: media_id
-          }, function(arg) {
+          }, function(_arg) {
             var json, newGame, returnCode, returnCodeDescription;
-            json = arg.data, returnCode = arg.returnCode, returnCodeDescription = arg.returnCodeDescription;
+            json = _arg.data, returnCode = _arg.returnCode, returnCodeDescription = _arg.returnCodeDescription;
             if (returnCode !== 0) {
               _this.showAlert(returnCodeDescription);
               return $('#spinner-edit-save').hide();
@@ -729,16 +729,16 @@
         published: 0,
         moderated: 0
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var game;
-          game = arg.data;
+          game = _arg.data;
           _this.addGameFromJson(game);
           return _this.aris.call('tags.createTag', {
             game_id: game.game_id,
             tag: 'Your First Tag'
-          }, function(arg1) {
+          }, function(_arg1) {
             var tag;
-            tag = arg1.data;
+            tag = _arg1.data;
             return _this.getAllGameInfo(function() {
               _this.redrawGameList();
               $('#spinner-new-siftr').hide();
@@ -774,9 +774,9 @@
                 'data-trigger': 'fileinput',
                 style: 'width: 64px; height: 64px;'
               }, function(thumb) {
-                var ref, ref1;
+                var _ref, _ref1;
                 return appendTo(thumb, 'img', {
-                  src: tag != null ? (ref = tag.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0 : void 0
+                  src: tag != null ? (_ref = tag.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0 : void 0
                 });
               });
               return appendTo(fileInput, 'input.new-tag-icon', {
@@ -786,15 +786,15 @@
               }, function(iconInput) {
                 return iconInput.change(function() {
                   thumb.addClass('icon-uploading');
-                  return _this.uploadMediaFromInput(iconInput, _this.currentGame, function(arg) {
+                  return _this.uploadMediaFromInput(iconInput, _this.currentGame, function(_arg) {
                     var media;
-                    media = arg.data;
+                    media = _arg.data;
                     return _this.aris.call('tags.updateTag', {
                       tag_id: tag.tag_id,
                       media_id: media.media_id
-                    }, function(arg1) {
+                    }, function(_arg1) {
                       var newTag;
-                      newTag = arg1.data;
+                      newTag = _arg1.data;
                       thumb.removeClass('icon-uploading');
                       tag.media = newTag.media;
                       return tag.media_id = newTag.media_id;
@@ -817,7 +817,7 @@
                     val: tag.tag
                   });
                   appendTo(inputGroup, 'span.input-group-addon', {
-                    text: tag.count === 1 ? "1 note" : tag.count + " notes"
+                    text: tag.count === 1 ? "1 note" : "" + tag.count + " notes"
                   });
                   saved = edited = uploading = null;
                   appendTo(inputGroup, 'span.input-group-addon', {}, function(addon) {
@@ -895,21 +895,21 @@
                       dropdown = null;
                       appendTo($('#the-delete-text'), 'form', {}, function(form) {
                         return dropdown = appendTo(form, 'select.form-control', {}, function(select) {
-                          var j, len, otherTag, ref, results;
-                          ref = _this.currentGame.tags;
-                          results = [];
-                          for (j = 0, len = ref.length; j < len; j++) {
-                            otherTag = ref[j];
+                          var otherTag, _i, _len, _ref, _results;
+                          _ref = _this.currentGame.tags;
+                          _results = [];
+                          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                            otherTag = _ref[_i];
                             if (tag.tag_id !== otherTag.tag_id) {
-                              results.push(appendTo(select, 'option', {
+                              _results.push(appendTo(select, 'option', {
                                 text: otherTag.tag,
                                 value: otherTag.tag_id
                               }));
                             } else {
-                              results.push(void 0);
+                              _results.push(void 0);
                             }
                           }
-                          return results;
+                          return _results;
                         });
                       });
                       $('#the-delete-button').unbind('click');
@@ -931,24 +931,24 @@
     };
 
     App.prototype.startEditTags = function(game) {
-      var j, len, ref, tag;
+      var tag, _i, _len, _ref;
       this.currentGame = game;
       $('#div-edit-tags').html('');
-      ref = game.tags;
-      for (j = 0, len = ref.length; j < len; j++) {
-        tag = ref[j];
+      _ref = game.tags;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tag = _ref[_i];
         this.addTagEditor(tag);
       }
       return this.selectPage('#page-edit-tags');
     };
 
     App.prototype.startEditors = function(game) {
-      var j, len, ref, user;
+      var user, _i, _len, _ref;
       this.currentGame = game;
       $('#div-editor-list').html('');
-      ref = game.editors;
-      for (j = 0, len = ref.length; j < len; j++) {
-        user = ref[j];
+      _ref = game.editors;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        user = _ref[_i];
         this.addEditorListing(user);
       }
       return this.selectPage('#page-editors');
@@ -1105,17 +1105,17 @@
           game_id: this.currentGame.game_id,
           tag_ids: [tag.tag_id]
         }, (function(_this) {
-          return function(arg) {
+          return function(_arg) {
             var note, notes;
-            notes = arg.data;
+            notes = _arg.data;
             return async.parallel((function() {
-              var j, len, results;
-              results = [];
-              for (j = 0, len = notes.length; j < len; j++) {
-                note = notes[j];
-                results.push(this.assignTag(note, newTagID));
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = notes.length; _i < _len; _i++) {
+                note = notes[_i];
+                _results.push(this.assignTag(note, newTagID));
               }
-              return results;
+              return _results;
             }).call(_this), proceed);
           };
         })(this));
@@ -1133,16 +1133,16 @@
           var g;
           if (res.returnCode === 0) {
             _this.games = (function() {
-              var j, len, ref, results;
-              ref = this.games;
-              results = [];
-              for (j = 0, len = ref.length; j < len; j++) {
-                g = ref[j];
+              var _i, _len, _ref, _results;
+              _ref = this.games;
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                g = _ref[_i];
                 if (g !== game) {
-                  results.push(g);
+                  _results.push(g);
                 }
               }
-              return results;
+              return _results;
             }).call(_this);
             _this.redrawGameList();
             $('#the-alert').hide();

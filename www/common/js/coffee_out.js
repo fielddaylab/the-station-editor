@@ -7,9 +7,9 @@
       this.auth = $.cookie('aris-auth');
     }
 
-    Aris.prototype.parseLogin = function(arg) {
+    Aris.prototype.parseLogin = function(_arg) {
       var returnCode, user;
-      user = arg.data, returnCode = arg.returnCode;
+      user = _arg.data, returnCode = _arg.returnCode;
       if (returnCode === 0 && user.user_id !== null) {
         this.auth = {
           user_id: parseInt(user.user_id),
@@ -66,7 +66,7 @@
           }
         };
       })(this);
-      req.open('POST', ARIS_URL + "/json.php/v2." + func, true);
+      req.open('POST', "" + ARIS_URL + "/json.php/v2." + func, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       return req.send(JSON.stringify(json));
     };
@@ -127,7 +127,7 @@
   };
 
   appendTo = function(parents, haml, attrs, init) {
-    var c, child, children, classes, i, id, len, p, ref, tag;
+    var c, child, children, classes, id, p, tag, _i, _len, _ref;
     if (haml == null) {
       haml = '';
     }
@@ -137,9 +137,9 @@
     if (init == null) {
       init = (function() {});
     }
-    ref = parseElement(haml), tag = ref.tag, classes = ref.classes, id = ref.id;
-    for (i = 0, len = classes.length; i < len; i++) {
-      c = classes[i];
+    _ref = parseElement(haml), tag = _ref.tag, classes = _ref.classes, id = _ref.id;
+    for (_i = 0, _len = classes.length; _i < _len; _i++) {
+      c = classes[_i];
       if (attrs["class"] == null) {
         attrs["class"] = '';
       }
@@ -149,19 +149,19 @@
       attrs.id = id;
     }
     children = (function() {
-      var j, len1, results;
-      results = [];
-      for (j = 0, len1 = parents.length; j < len1; j++) {
-        p = parents[j];
+      var _j, _len1, _results;
+      _results = [];
+      for (_j = 0, _len1 = parents.length; _j < _len1; _j++) {
+        p = parents[_j];
         p = $(p);
         child = $("<" + tag + " />", attrs);
         init(child);
         p.append(' ');
         p.append(child);
         p.append(' ');
-        results.push(child);
+        _results.push(child);
       }
-      return results;
+      return _results;
     })();
     if (children.length === 1) {
       return $(children[0]);

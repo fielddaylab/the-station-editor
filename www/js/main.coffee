@@ -14,7 +14,11 @@ class Results
         appendGame = (game) =>
           appendTo row, '.siftr-cell.col-xs-6.col-sm-3', {}, (cell) =>
             if game?
-              url = "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
+              url =
+                if cordova?
+                  "client/index.html?#{game.siftr_url ? game.game_id}"
+                else
+                  "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
               photo_url = url + '#' + (game.go_to_note ? '')
               appendTo cell, 'a', href: photo_url, (link) =>
                 appendTo link, 'img.img-responsive.img-thumbnail.img-siftr-icon',

@@ -2,9 +2,9 @@
   var App, Results;
 
   Results = (function() {
-    function Results(parent, games1, moreButton) {
+    function Results(parent, games, moreButton) {
       this.parent = parent;
-      this.games = games1;
+      this.games = games;
       this.moreButton = moreButton;
       this.showMore();
     }
@@ -24,10 +24,10 @@
             var appendGame;
             appendGame = function(game) {
               return appendTo(row, '.siftr-cell.col-xs-6.col-sm-3', {}, function(cell) {
-                var desc, markdown, photo_url, ref, ref1, url;
+                var desc, markdown, photo_url, url, _ref, _ref1, _ref2;
                 if (game != null) {
-                  url = "" + SIFTR_URL + ((ref = game.siftr_url) != null ? ref : game.game_id);
-                  photo_url = url + '#' + ((ref1 = game.go_to_note) != null ? ref1 : '');
+                  url = typeof cordova !== "undefined" && cordova !== null ? "client/index.html?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id) : "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id);
+                  photo_url = url + '#' + ((_ref2 = game.go_to_note) != null ? _ref2 : '');
                   appendTo(cell, 'a', {
                     href: photo_url
                   }, function(link) {
@@ -88,28 +88,28 @@
             } else {
               return _this.aris.call('games.searchSiftrs', {
                 search: $('#search-text').val()
-              }, function(arg) {
+              }, function(_arg) {
                 var g, game, games;
-                games = arg.data;
+                games = _arg.data;
                 games = (function() {
-                  var i, len, results;
-                  results = [];
-                  for (i = 0, len = games.length; i < len; i++) {
-                    g = games[i];
+                  var _i, _len, _results;
+                  _results = [];
+                  for (_i = 0, _len = games.length; _i < _len; _i++) {
+                    g = games[_i];
                     if (parseInt(g.published) !== 0) {
-                      results.push(g);
+                      _results.push(g);
                     }
                   }
-                  return results;
+                  return _results;
                 })();
                 return async.parallel((function() {
-                  var i, len, results;
-                  results = [];
-                  for (i = 0, len = games.length; i < len; i++) {
-                    game = games[i];
-                    results.push(this.getIconURL(game));
+                  var _i, _len, _results;
+                  _results = [];
+                  for (_i = 0, _len = games.length; _i < _len; _i++) {
+                    game = games[_i];
+                    _results.push(this.getIconURL(game));
                   }
-                  return results;
+                  return _results;
                 }).call(_this), function() {
                   $('#rows-search').text('');
                   $('#search-results').show();
@@ -122,56 +122,56 @@
             _this.updateNav();
             _this.aris.call('games.searchSiftrs', {
               order_by: 'recent'
-            }, function(arg) {
+            }, function(_arg) {
               var g, game, games;
-              games = arg.data;
+              games = _arg.data;
               games = (function() {
-                var i, len, results;
-                results = [];
-                for (i = 0, len = games.length; i < len; i++) {
-                  g = games[i];
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  g = games[_i];
                   if (parseInt(g.published) !== 0) {
-                    results.push(g);
+                    _results.push(g);
                   }
                 }
-                return results;
+                return _results;
               })();
               return async.parallel((function() {
-                var i, len, results;
-                results = [];
-                for (i = 0, len = games.length; i < len; i++) {
-                  game = games[i];
-                  results.push(this.getIconURL(game));
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  game = games[_i];
+                  _results.push(this.getIconURL(game));
                 }
-                return results;
+                return _results;
               }).call(_this), function() {
                 return _this.recent = new Results($('#rows-recent'), games, $('#show-more-recent'));
               });
             });
             return _this.aris.call('games.searchSiftrs', {
               order_by: 'popular'
-            }, function(arg) {
+            }, function(_arg) {
               var g, game, games;
-              games = arg.data;
+              games = _arg.data;
               games = (function() {
-                var i, len, results;
-                results = [];
-                for (i = 0, len = games.length; i < len; i++) {
-                  g = games[i];
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  g = games[_i];
                   if (parseInt(g.published) !== 0) {
-                    results.push(g);
+                    _results.push(g);
                   }
                 }
-                return results;
+                return _results;
               })();
               return async.parallel((function() {
-                var i, len, results;
-                results = [];
-                for (i = 0, len = games.length; i < len; i++) {
-                  game = games[i];
-                  results.push(this.getIconURL(game));
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = games.length; _i < _len; _i++) {
+                  game = games[_i];
+                  _results.push(this.getIconURL(game));
                 }
-                return results;
+                return _results;
               }).call(_this), function() {
                 return _this.popular = new Results($('#rows-popular'), games, $('#show-more-popular'));
               });
@@ -192,9 +192,9 @@
             game_id: game.game_id,
             note_count: 1,
             order_by: 'recent'
-          }, function(arg) {
+          }, function(_arg) {
             var notes;
-            notes = arg.data;
+            notes = _arg.data;
             if (notes.length === 0) {
               if (parseInt(game.icon_media_id) === 0) {
                 game.icon_url = 'editor/img/uw_shield.png';
@@ -202,9 +202,9 @@
               } else {
                 return _this.aris.call('media.getMedia', {
                   media_id: game.icon_media_id
-                }, function(arg1) {
+                }, function(_arg1) {
                   var media;
-                  media = arg1.data;
+                  media = _arg1.data;
                   game.icon_url = media.url;
                   return cb();
                 });

@@ -1,6 +1,6 @@
 (function() {
   var App, app,
-    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   App = (function() {
     function App() {
@@ -39,8 +39,8 @@
     App.prototype.getGameInfo = function(cb) {
       var useGame;
       useGame = (function(_this) {
-        return function(game1) {
-          _this.game = game1;
+        return function(game) {
+          _this.game = game;
           $('#the-siftr-title').text(_this.game.name);
           return cb();
         };
@@ -49,9 +49,9 @@
         return this.aris.call('games.searchSiftrs', {
           siftr_url: this.siftr_url
         }, (function(_this) {
-          return function(arg) {
+          return function(_arg) {
             var games, returnCode;
-            games = arg.data, returnCode = arg.returnCode;
+            games = _arg.data, returnCode = _arg.returnCode;
             if (returnCode === 0 && games.length === 1) {
               return useGame(new Game(games[0]));
             } else {
@@ -63,9 +63,9 @@
         return this.aris.call('games.getGame', {
           game_id: this.siftr_id
         }, (function(_this) {
-          return function(arg) {
+          return function(_arg) {
             var game, returnCode;
-            game = arg.data, returnCode = arg.returnCode;
+            game = _arg.data, returnCode = _arg.returnCode;
             if (returnCode === 0 && (game != null)) {
               return useGame(new Game(game));
             } else {
@@ -82,30 +82,30 @@
       return this.aris.call('users.getUsersForGame', {
         game_id: this.game.game_id
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var commaList, names, o, owners, returnCode, user;
-          owners = arg.data, returnCode = arg.returnCode;
+          owners = _arg.data, returnCode = _arg.returnCode;
           if (returnCode === 0) {
             _this.game.owners = (function() {
-              var j, len, results;
-              results = [];
-              for (j = 0, len = owners.length; j < len; j++) {
-                o = owners[j];
-                results.push(new User(o));
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = owners.length; _i < _len; _i++) {
+                o = owners[_i];
+                _results.push(new User(o));
               }
-              return results;
+              return _results;
             })();
             _this.checkIfOwner();
             if (_this.game.owners.length > 0) {
               names = (function() {
-                var j, len, ref, results;
-                ref = this.game.owners;
-                results = [];
-                for (j = 0, len = ref.length; j < len; j++) {
-                  user = ref[j];
-                  results.push(user.display_name);
+                var _i, _len, _ref, _results;
+                _ref = this.game.owners;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  user = _ref[_i];
+                  _results.push(user.display_name);
                 }
-                return results;
+                return _results;
               }).call(_this);
               commaList = function(list) {
                 switch (list.length) {
@@ -114,7 +114,7 @@
                   case 1:
                     return list[0];
                   default:
-                    return (list.slice(0, -1).join(', ')) + " and " + list[list.length - 1];
+                    return "" + (list.slice(0, -1).join(', ')) + " and " + list[list.length - 1];
                 }
               };
               $('#the-siftr-subtitle').text("Started by " + (commaList(names)));
@@ -210,18 +210,18 @@
       return this.aris.call('tags.getTagsForGame', {
         game_id: this.game.game_id
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var o, returnCode, tags;
-          tags = arg.data, returnCode = arg.returnCode;
+          tags = _arg.data, returnCode = _arg.returnCode;
           if (returnCode === 0) {
             _this.game.tags = (function() {
-              var j, len, results;
-              results = [];
-              for (j = 0, len = tags.length; j < len; j++) {
-                o = tags[j];
-                results.push(new Tag(o));
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = tags.length; _i < _len; _i++) {
+                o = tags[_i];
+                _results.push(new Tag(o));
               }
-              return results;
+              return _results;
             })();
             return cb();
           } else {
@@ -234,12 +234,12 @@
     App.prototype.makeTagLists = function() {
       appendTo($('#the-search-tags'), 'form', {}, (function(_this) {
         return function(form) {
-          var j, len, ref, results, t;
-          ref = _this.game.tags;
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            t = ref[j];
-            results.push(appendTo(form, 'p', {}, function(p) {
+          var t, _i, _len, _ref, _results;
+          _ref = _this.game.tags;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            t = _ref[_i];
+            _results.push(appendTo(form, 'p', {}, function(p) {
               return appendTo(p, 'label', {}, function(label) {
                 appendTo(label, 'input', {
                   type: 'checkbox',
@@ -250,17 +250,17 @@
               });
             }));
           }
-          return results;
+          return _results;
         };
       })(this));
       return appendTo($('#the-tag-assigner, #the-editor-tag-assigner'), 'form', {}, (function(_this) {
         return function(form) {
-          var i, j, len, ref, results, t;
-          ref = _this.game.tags;
-          results = [];
-          for (i = j = 0, len = ref.length; j < len; i = ++j) {
-            t = ref[i];
-            results.push(appendTo(form, 'p', {}, function(p) {
+          var i, t, _i, _len, _ref, _results;
+          _ref = _this.game.tags;
+          _results = [];
+          for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+            t = _ref[i];
+            _results.push(appendTo(form, 'p', {}, function(p) {
               return appendTo(p, 'label', {}, function(label) {
                 appendTo(label, 'input', {
                   type: 'radio',
@@ -272,7 +272,7 @@
               });
             }));
           }
-          return results;
+          return _results;
         };
       })(this));
     };
@@ -281,48 +281,48 @@
       var box, tag_ids, thisSearch;
       thisSearch = this.lastSearch = Date.now();
       tag_ids = (function() {
-        var j, len, ref, results;
-        ref = $('#the-search-tags input[type="checkbox"]');
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          box = ref[j];
+        var _i, _len, _ref, _results;
+        _ref = $('#the-search-tags input[type="checkbox"]');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          box = _ref[_i];
           if (!box.checked) {
             continue;
           }
-          results.push(parseInt(box.value));
+          _results.push(parseInt(box.value));
         }
-        return results;
+        return _results;
       })();
       return this.aris.call('notes.searchNotes', {
         game_id: this.game.game_id,
         tag_ids: tag_ids,
         order_by: 'recent'
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var n, notes, o, returnCode;
-          notes = arg.data, returnCode = arg.returnCode;
+          notes = _arg.data, returnCode = _arg.returnCode;
           if (returnCode === 0) {
             if (thisSearch === _this.lastSearch) {
               _this.game.notes = (function() {
-                var j, len, results;
-                results = [];
-                for (j = 0, len = notes.length; j < len; j++) {
-                  o = notes[j];
-                  results.push(new Note(o));
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = notes.length; _i < _len; _i++) {
+                  o = notes[_i];
+                  _results.push(new Note(o));
                 }
-                return results;
+                return _results;
               })();
               _this.game.notes = (function() {
-                var j, len, ref, results;
-                ref = this.game.notes;
-                results = [];
-                for (j = 0, len = ref.length; j < len; j++) {
-                  n = ref[j];
+                var _i, _len, _ref, _results;
+                _ref = this.game.notes;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  n = _ref[_i];
                   if (n.photo_url != null) {
-                    results.push(n);
+                    _results.push(n);
                   }
                 }
-                return results;
+                return _results;
               }).call(_this);
               _this.updateGrid();
               _this.updateMap();
@@ -336,15 +336,15 @@
     };
 
     App.prototype.updateGrid = function() {
-      var grid, i, j, len, note, ref, results, tr;
+      var grid, i, note, tr, _i, _len, _ref, _results;
       $('#the-note-grid').html('');
       grid = $('#the-note-grid');
       tr = null;
-      ref = this.game.notes;
-      results = [];
-      for (i = j = 0, len = ref.length; j < len; i = ++j) {
-        note = ref[i];
-        results.push((function(_this) {
+      _ref = this.game.notes;
+      _results = [];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        note = _ref[i];
+        _results.push((function(_this) {
           return function(note) {
             var td;
             if (i % 3 === 0) {
@@ -360,7 +360,7 @@
           };
         })(this)(note));
       }
-      return results;
+      return _results;
     };
 
     App.prototype.updateMap = function() {
@@ -369,12 +369,12 @@
         this.clusterer.clearMarkers();
       }
       return this.clusterer = new MarkerClusterer(this.map, (function() {
-        var j, len, ref, results;
-        ref = this.game.notes;
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          note = ref[j];
-          results.push((function(_this) {
+        var _i, _len, _ref, _results;
+        _ref = this.game.notes;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          note = _ref[_i];
+          _results.push((function(_this) {
             return function(note) {
               var marker;
               marker = new google.maps.Marker({
@@ -388,14 +388,14 @@
             };
           })(this)(note));
         }
-        return results;
+        return _results;
       }).call(this), {
         maxZoom: 18
       });
     };
 
     App.prototype.showNote = function(note) {
-      var canDelete, canEdit, canFlag, comment, commentIndex, heart, j, len, markdown, ref, ref1, ref2, results;
+      var canDelete, canEdit, canFlag, comment, commentIndex, heart, markdown, _i, _len, _ref, _ref1, _ref2, _results;
       if (window.location.hash !== '#' + note.note_id) {
         history.pushState('', '', '#' + note.note_id);
       }
@@ -417,32 +417,32 @@
         heart.addClass('fa-heart-o');
         heart.removeClass('fa-heart');
       }
-      canEdit = ((ref = this.aris.auth) != null ? ref.user_id : void 0) === note.user.user_id;
+      canEdit = ((_ref = this.aris.auth) != null ? _ref.user_id : void 0) === note.user.user_id;
       canDelete = canEdit || this.userIsOwner;
       $('#the-edit-button').toggle(canEdit || canDelete);
       $('#the-start-edit-button').toggle(canEdit);
       $('#the-delete-button').toggle(canDelete);
-      canFlag = note.published === 'AUTO' && ((ref1 = this.aris.auth) != null ? ref1.user_id : void 0) !== note.user.user_id;
+      canFlag = note.published === 'AUTO' && ((_ref1 = this.aris.auth) != null ? _ref1.user_id : void 0) !== note.user.user_id;
       $('#the-flag-button').toggle(canFlag);
       $('#the-comments').html('');
       if (note.comments.length > 0) {
         appendTo($('#the-comments'), 'h3', {
           text: 'Comments'
         });
-        ref2 = note.comments;
-        results = [];
-        for (commentIndex = j = 0, len = ref2.length; j < len; commentIndex = ++j) {
-          comment = ref2[commentIndex];
-          results.push((function(_this) {
+        _ref2 = note.comments;
+        _results = [];
+        for (commentIndex = _i = 0, _len = _ref2.length; _i < _len; commentIndex = ++_i) {
+          comment = _ref2[commentIndex];
+          _results.push((function(_this) {
             return function(comment, commentIndex) {
               return appendTo($('#the-comments'), 'div', {}, function(div) {
-                var desc, editPencil, editing, ref3;
-                canEdit = ((ref3 = _this.aris.auth) != null ? ref3.user_id : void 0) === comment.user.user_id;
+                var desc, editPencil, editing, _ref3;
+                canEdit = ((_ref3 = _this.aris.auth) != null ? _ref3.user_id : void 0) === comment.user.user_id;
                 canDelete = canEdit || _this.userIsOwner;
                 editPencil = null;
                 appendTo(div, 'h4', {}, function(h4) {
                   appendTo(h4, 'span', {
-                    text: comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
+                    text: "" + comment.user.display_name + " (" + (comment.created.toLocaleString()) + ")"
                   });
                   if (canEdit) {
                     editPencil = appendTo(h4, 'i.fa.fa-pencil', {
@@ -456,9 +456,9 @@
                         if (confirm('Are you sure you want to delete this comment?')) {
                           return _this.aris.call('note_comments.deleteNoteComment', {
                             note_comment_id: comment.comment_id
-                          }, function(arg) {
+                          }, function(_arg) {
                             var returnCode;
-                            returnCode = arg.returnCode;
+                            returnCode = _arg.returnCode;
                             if (returnCode === 0) {
                               note.comments.splice(commentIndex, 1);
                               return _this.showNote(note);
@@ -494,9 +494,9 @@
                             return _this.aris.call('note_comments.updateNoteComment', {
                               note_comment_id: comment.comment_id,
                               description: editBox.val()
-                            }, function(arg) {
+                            }, function(_arg) {
                               var json, returnCode;
-                              json = arg.data, returnCode = arg.returnCode;
+                              json = _arg.data, returnCode = _arg.returnCode;
                               if (returnCode !== 0) {
                                 _this.error("There was a problem posting your comment.");
                                 return;
@@ -526,13 +526,13 @@
             };
           })(this)(comment, commentIndex));
         }
-        return results;
+        return _results;
       }
     };
 
     App.prototype.setMode = function(mode) {
-      var body, oldMode, ref, ref1;
-      if (mode !== 'note' && ((ref = window.location.hash) !== '#' && ref !== '')) {
+      var body, oldMode, _ref, _ref1;
+      if (mode !== 'note' && ((_ref = window.location.hash) !== '#' && _ref !== '')) {
         history.pushState('', '', '#');
       }
       body = $('body');
@@ -575,8 +575,8 @@
           this.dragMarker.setAnimation(google.maps.Animation.DROP);
           this.map.setZoom(this.game.zoom);
           this.setMapCenter(this.mapCenter);
-          if ((ref1 = this.clusterer) != null) {
-            ref1.repaint();
+          if ((_ref1 = this.clusterer) != null) {
+            _ref1.repaint();
           }
           $('#the-caption-box').val('');
           return $('#the-tag-assigner input[name=upload-tag]:first').click();
@@ -589,7 +589,7 @@
     };
 
     App.prototype.startEdit = function(note) {
-      var j, len, position, radio, ref, ref1;
+      var position, radio, _i, _len, _ref, _ref1;
       this.setMode('edit');
       this.currentNote = note;
       position = new google.maps.LatLng(note.latitude, note.longitude);
@@ -598,13 +598,13 @@
       this.dragMarker.setAnimation(google.maps.Animation.DROP);
       this.map.setZoom(this.game.zoom);
       this.setMapCenter(position);
-      if ((ref = this.clusterer) != null) {
-        ref.repaint();
+      if ((_ref = this.clusterer) != null) {
+        _ref.repaint();
       }
       $('#the-editor-caption-box').val(note.description);
-      ref1 = $('#the-editor-tag-assigner input[name=upload-tag]');
-      for (j = 0, len = ref1.length; j < len; j++) {
-        radio = ref1[j];
+      _ref1 = $('#the-editor-tag-assigner input[name=upload-tag]');
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        radio = _ref1[_i];
         radio = $(radio);
         if (note.tag_id === parseInt(radio.val())) {
           radio.click();
@@ -630,9 +630,9 @@
         },
         tag_id: parseInt($('#the-editor-tag-assigner input[name=upload-tag]:checked').val())
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var returnCode;
-          returnCode = arg.returnCode;
+          returnCode = _arg.returnCode;
           if (returnCode !== 0) {
             _this.error("There was a problem submitting your changes.");
             return;
@@ -641,17 +641,17 @@
             game_id: _this.game.game_id,
             note_id: _this.currentNote.note_id,
             note_count: 1
-          }, function(arg1) {
-            var existingNote, j, len, newNote, noteIndex, notes, ref, returnCode;
-            notes = arg1.data, returnCode = arg1.returnCode;
+          }, function(_arg1) {
+            var existingNote, newNote, noteIndex, notes, returnCode, _i, _len, _ref;
+            notes = _arg1.data, returnCode = _arg1.returnCode;
             if (returnCode !== 0 || notes.length !== 1) {
               _this.error('There was an error retrieving your edited note.');
               return;
             }
             newNote = new Note(notes[0]);
-            ref = _this.game.notes;
-            for (noteIndex = j = 0, len = ref.length; j < len; noteIndex = ++j) {
-              existingNote = ref[noteIndex];
+            _ref = _this.game.notes;
+            for (noteIndex = _i = 0, _len = _ref.length; _i < _len; noteIndex = ++_i) {
+              existingNote = _ref[noteIndex];
               if (existingNote.note_id === newNote.note_id) {
                 _this.game.notes[noteIndex] = newNote;
                 break;
@@ -690,9 +690,9 @@
         },
         tag_id: parseInt($('#the-tag-assigner input[name=upload-tag]:checked').val())
       }, (function(_this) {
-        return function(arg) {
+        return function(_arg) {
           var returnCode, simpleNote;
-          simpleNote = arg.data, returnCode = arg.returnCode;
+          simpleNote = _arg.data, returnCode = _arg.returnCode;
           if (returnCode !== 0) {
             _this.error('There was an error uploading your photo.');
             return;
@@ -701,9 +701,9 @@
             game_id: _this.game.game_id,
             note_id: parseInt(simpleNote.note_id),
             note_count: 1
-          }, function(arg1) {
+          }, function(_arg1) {
             var note, notes, returnCode;
-            notes = arg1.data, returnCode = arg1.returnCode;
+            notes = _arg1.data, returnCode = _arg1.returnCode;
             if (returnCode !== 0 || notes.length !== 1) {
               _this.error('There was an error retrieving your new photo.');
               return;
@@ -727,12 +727,12 @@
     };
 
     App.prototype.goToHash = function() {
-      var j, len, md, note, note_id, ref;
+      var md, note, note_id, _i, _len, _ref;
       if (md = window.location.hash.match(/^#(\d+)$/)) {
         note_id = parseInt(md[1]);
-        ref = this.game.notes;
-        for (j = 0, len = ref.length; j < len; j++) {
-          note = ref[j];
+        _ref = this.game.notes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          note = _ref[_i];
           if (note.note_id === note_id) {
             this.showNote(note);
             return;
@@ -843,9 +843,9 @@
             if (_this.currentNote.player_liked) {
               return _this.aris.call('notes.unlikeNote', {
                 note_id: _this.currentNote.note_id
-              }, function(arg) {
+              }, function(_arg) {
                 var returnCode;
-                returnCode = arg.returnCode;
+                returnCode = _arg.returnCode;
                 if (returnCode === 0) {
                   _this.currentNote.player_liked = false;
                   heart.addClass('fa-heart-o');
@@ -857,9 +857,9 @@
             } else {
               return _this.aris.call('notes.likeNote', {
                 note_id: _this.currentNote.note_id
-              }, function(arg) {
+              }, function(_arg) {
                 var returnCode;
-                returnCode = arg.returnCode;
+                returnCode = _arg.returnCode;
                 if (returnCode === 0) {
                   _this.currentNote.player_liked = true;
                   heart.addClass('fa-heart');
@@ -877,9 +877,9 @@
           if (confirm('Are you sure you want to flag this note for inappropriate content?')) {
             return _this.aris.call('notes.flagNote', {
               note_id: _this.currentNote.note_id
-            }, function(arg) {
+            }, function(_arg) {
               var returnCode;
-              returnCode = arg.returnCode;
+              returnCode = _arg.returnCode;
               if (returnCode === 0) {
                 return _this.performSearch(function() {
                   return _this.setMode(_this.topMode);
@@ -901,9 +901,9 @@
           if (confirm('Are you sure you want to delete this note?')) {
             return _this.aris.call('notes.deleteNote', {
               note_id: _this.currentNote.note_id
-            }, function(arg) {
+            }, function(_arg) {
               var returnCode;
-              returnCode = arg.returnCode;
+              returnCode = _arg.returnCode;
               if (returnCode === 0) {
                 return _this.performSearch(function() {
                   return _this.setMode(_this.topMode);
@@ -917,10 +917,10 @@
       })(this));
       currentNoteTag = (function(_this) {
         return function() {
-          var j, len, ref, tag;
-          ref = _this.game.tags;
-          for (j = 0, len = ref.length; j < len; j++) {
-            tag = ref[j];
+          var tag, _i, _len, _ref;
+          _ref = _this.game.tags;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            tag = _ref[_i];
             if (tag.tag_id === _this.currentNote.tag_id) {
               return tag.tag;
             }
@@ -930,8 +930,8 @@
       })(this);
       currentNoteVerb = (function(_this) {
         return function() {
-          var ref;
-          if (_this.currentNote.user.user_id === ((ref = app.aris.auth) != null ? ref.user_id : void 0)) {
+          var _ref;
+          if (_this.currentNote.user.user_id === ((_ref = app.aris.auth) != null ? _ref.user_id : void 0)) {
             return 'made';
           } else {
             return 'found';
@@ -987,13 +987,13 @@
             if (_this.aris.auth != null) {
               body.removeClass('is-open-menu');
               return _this.performSearch(function() {
-                var j, len, note, oldNoteID, ref;
+                var note, oldNoteID, _i, _len, _ref;
                 if (body.hasClass('is-mode-note')) {
                   oldNoteID = _this.currentNote.note_id;
                   _this.currentNote = null;
-                  ref = _this.game.notes;
-                  for (j = 0, len = ref.length; j < len; j++) {
-                    note = ref[j];
+                  _ref = _this.game.notes;
+                  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    note = _ref[_i];
                     if (note.note_id === oldNoteID) {
                       _this.currentNote = note;
                       break;
@@ -1052,9 +1052,9 @@
                 game_id: _this.game.game_id,
                 note_id: _this.currentNote.note_id,
                 description: $('#the-comment-field').val()
-              }, function(arg) {
+              }, function(_arg) {
                 var json, returnCode;
-                json = arg.data, returnCode = arg.returnCode;
+                json = _arg.data, returnCode = _arg.returnCode;
                 if (returnCode === 0) {
                   _this.currentNote.comments.push(new Comment(json));
                   return _this.showNote(_this.currentNote);
@@ -1094,14 +1094,14 @@
         reader = new FileReader();
         reader.onload = (function(_this) {
           return function(e) {
-            var dataURL, ext, mime, prefix, results, typeMap;
+            var dataURL, ext, mime, prefix, typeMap, _results;
             dataURL = e.target.result;
             typeMap = {
               jpg: 'image/jpeg',
               png: 'image/png',
               gif: 'image/gif'
             };
-            results = [];
+            _results = [];
             for (ext in typeMap) {
               mime = typeMap[ext];
               prefix = "data:" + mime + ";base64,";
@@ -1111,10 +1111,10 @@
                 $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
                 break;
               } else {
-                results.push(void 0);
+                _results.push(void 0);
               }
             }
-            return results;
+            return _results;
           };
         })(this);
         return reader.readAsDataURL(file);
@@ -1130,15 +1130,15 @@
             $('#the-user-logo').css('background-image', 'url("img/user.png")');
             _this.aris.call('users.getUser', {
               user_id: _this.aris.auth.user_id
-            }, function(arg) {
+            }, function(_arg) {
               var user;
-              user = arg.data;
+              user = _arg.data;
               if (user != null) {
                 return _this.aris.call('media.getMedia', {
                   media_id: user.media_id
-                }, function(arg1) {
+                }, function(_arg1) {
                   var media;
-                  media = arg1.data;
+                  media = _arg1.data;
                   if (media != null) {
                     return $('#the-user-logo').css('background-image', "url(\"" + media.thumb_url + "\")");
                   }
@@ -1160,12 +1160,12 @@
     };
 
     App.prototype.checkIfOwner = function() {
-      var ref, ref1;
-      return this.userIsOwner = (this.aris.auth != null) && (((ref = this.game) != null ? ref.owners : void 0) != null) && (ref1 = this.aris.auth.user_id, indexOf.call(this.game.owners.map((function(_this) {
+      var _ref, _ref1;
+      return this.userIsOwner = (this.aris.auth != null) && (((_ref = this.game) != null ? _ref.owners : void 0) != null) && (_ref1 = this.aris.auth.user_id, __indexOf.call(this.game.owners.map((function(_this) {
         return function(user) {
           return user.user_id;
         };
-      })(this)), ref1) >= 0);
+      })(this)), _ref1) >= 0);
     };
 
     App.prototype.error = function(s) {
@@ -1213,8 +1213,8 @@
 
   window.Tag = (function() {
     function Tag(json) {
-      var ref, ref1;
-      this.icon_url = (ref = json.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0;
+      var _ref, _ref1;
+      this.icon_url = (_ref = json.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0;
       this.tag = json.tag;
       this.tag_id = parseInt(json.tag_id);
     }
@@ -1250,18 +1250,18 @@
       this.player_liked = parseInt(json.player_liked) !== 0;
       this.note_likes = parseInt(json.note_likes);
       this.comments = (function() {
-        var i, len, ref, results;
-        ref = json.comments.data;
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
+        var _i, _len, _ref, _results;
+        _ref = json.comments.data;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          o = _ref[_i];
           comment = new Comment(o);
           if (!comment.description.match(/\S/)) {
             continue;
           }
-          results.push(comment);
+          _results.push(comment);
         }
-        return results;
+        return _results;
       })();
       this.published = json.published;
     }
