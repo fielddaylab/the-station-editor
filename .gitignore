@@ -2,3 +2,5 @@
 node_modules/
 .sublime-grunt.cache
 .sass-cache/
+/platforms/
+/plugins/
