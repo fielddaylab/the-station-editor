@@ -638,7 +638,16 @@ class App
 
     # click support for photo upload box
     $('#the-photo-upload-box').click =>
-      $('#the-hidden-file-input').click()
+      if cordova?
+        navigator.camera.getPicture(
+          ((base64) => @readyBase64 'jpg', base64)
+        , ((err) => @error err)
+        , {
+          destinationType: navigator.camera.DestinationType.DATA_URL
+          encodingType: navigator.camera.EncodingType.JPEG
+        })
+      else
+        $('#the-hidden-file-input').click()
     $('#the-hidden-file-input').on 'change', =>
       @readyFile $('#the-hidden-file-input')[0].files[0]
 
@@ -670,6 +679,17 @@ class App
       console.log east
       new google.maps.LatLngBounds(new google.maps.LatLng(south, west), new google.maps.LatLng(north, east))
 
+  readyBase64: (ext, base64, dataURL) ->
+    @ext    = ext
+    @base64 = base64
+    unless dataURL?
+      typeMap =
+        jpg: 'image/jpeg'
+        png: 'image/png'
+        gif: 'image/gif'
+      dataURL = "data:#{typeMap[ext]};base64,#{base64}"
+    $('#the-photo-upload-box').css 'background-image', "url(\"#{dataURL}\")"
+
   readyFile: (file) ->
     delete @ext
     delete @base64
@@ -685,9 +705,7 @@ class App
         for ext, mime of typeMap
           prefix = "data:#{mime};base64,"
           if dataURL.substring(0, prefix.length) is prefix
-            @ext    = ext
-            @base64 = dataURL.substring(prefix.length)
-            $('#the-photo-upload-box').css 'background-image', "url(\"#{dataURL}\")"
+            @readyBase64 ext, dataURL.substring(prefix.length), dataURL
             break
       reader.readAsDataURL file
 

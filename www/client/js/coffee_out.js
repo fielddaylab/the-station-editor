@@ -1046,7 +1046,18 @@
       })(this));
       $('#the-photo-upload-box').click((function(_this) {
         return function() {
-          return $('#the-hidden-file-input').click();
+          if (typeof cordova !== "undefined" && cordova !== null) {
+            return navigator.camera.getPicture((function(base64) {
+              return _this.readyBase64('jpg', base64);
+            }), (function(err) {
+              return _this.error(err);
+            }), {
+              destinationType: navigator.camera.DestinationType.DATA_URL,
+              encodingType: navigator.camera.EncodingType.JPEG
+            });
+          } else {
+            return $('#the-hidden-file-input').click();
+          }
         };
       })(this));
       $('#the-hidden-file-input').on('change', (function(_this) {
@@ -1095,6 +1106,21 @@
       })(this);
     };
 
+    App.prototype.readyBase64 = function(ext, base64, dataURL) {
+      var typeMap;
+      this.ext = ext;
+      this.base64 = base64;
+      if (dataURL == null) {
+        typeMap = {
+          jpg: 'image/jpeg',
+          png: 'image/png',
+          gif: 'image/gif'
+        };
+        dataURL = "data:" + typeMap[ext] + ";base64," + base64;
+      }
+      return $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
+    };
+
     App.prototype.readyFile = function(file) {
       var reader;
       delete this.ext;
@@ -1116,9 +1142,7 @@
               mime = typeMap[ext];
               prefix = "data:" + mime + ";base64,";
               if (dataURL.substring(0, prefix.length) === prefix) {
-                _this.ext = ext;
-                _this.base64 = dataURL.substring(prefix.length);
-                $('#the-photo-upload-box').css('background-image', "url(\"" + dataURL + "\")");
+                _this.readyBase64(ext, dataURL.substring(prefix.length), dataURL);
                 break;
               } else {
                 _results.push(void 0);
