@@ -62,9 +62,11 @@ cordovaFixLinks = ->
     for elt in $('.cordova-internal-link')
       elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#')
     for elt in $('.cordova-external-link')
-      url = elt.href
-      elt.href = '#'
-      $(elt).click ->
-        window.open url, '_system'
+      unless elt.cordovaFixed
+        url = elt.href
+        elt.href = '#'
+        $(elt).click ->
+          window.open url, '_system'
+        elt.cordovaFixed = true
 
 window.cordovaFixLinks = cordovaFixLinks

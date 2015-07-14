@@ -3,6 +3,7 @@ class App
     $ -> FastClick.attach document.body
     $(document).ready =>
       @aris = new Aris
+      cordovaFixLinks()
       @markdown = new Showdown.converter()
       @login undefined, undefined, =>
         # get the URL (or game ID) from, first, the GET string:
@@ -214,7 +215,12 @@ class App
         "url(\"#{note.photo_url}\")"
       else
         ''
-    $('#the-photo-link').prop 'href', note.photo_url
+    if cordova?
+      $('#the-photo-link').off 'click'
+      $('#the-photo-link').click =>
+        window.open note.photo_url, '_system'
+    else
+      $('#the-photo-link').prop 'href', note.photo_url
     markdown = @markdown.makeHtml note.description
     markdown = markdown
       .replace(/<script[^>]*?>.*?<\/script>/gi, '')
@@ -580,24 +586,24 @@ class App
         See the whole note at: #{window.location.href}
       """
       link = "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent email}"
-      window.open link, '_blank'
+      window.open link
     $('#the-facebook-button').click =>
       link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent window.location.href}"
-      window.open link, '_blank'
+      window.open link, '_system'
     $('#the-google-button').click =>
       link = "https://plus.google.com/share?url=#{encodeURIComponent window.location.href}"
-      window.open link, '_blank'
+      window.open link, '_system'
     $('#the-twitter-button').click =>
       tweet = "Check out this note I #{currentNoteVerb()} about #{currentNoteTag()}:"
       link = "https://twitter.com/share?&url=#{encodeURIComponent window.location.href}&text=#{encodeURIComponent tweet}"
-      window.open link, '_blank'
+      window.open link, '_system'
     $('#the-pinterest-button').click =>
       desc = "Check out this note I #{currentNoteVerb()} about #{currentNoteTag()}."
       link = "http://www.pinterest.com/pin/create/button/"
       link += "?url=#{encodeURIComponent window.location.href}"
       link += "&media=#{encodeURIComponent app.currentNote.photo_url}"
       link += "&description=#{encodeURIComponent desc}"
-      window.open link, '_blank'
+      window.open link, '_system'
 
     # login form
     $('#the-login-button').click =>

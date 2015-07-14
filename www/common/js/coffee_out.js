@@ -201,11 +201,16 @@
       _results = [];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         elt = _ref1[_j];
-        url = elt.href;
-        elt.href = '#';
-        _results.push($(elt).click(function() {
-          return window.open(url, '_system');
-        }));
+        if (!elt.cordovaFixed) {
+          url = elt.href;
+          elt.href = '#';
+          $(elt).click(function() {
+            return window.open(url, '_system');
+          });
+          _results.push(elt.cordovaFixed = true);
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     }

@@ -20,6 +20,7 @@
     <script src="js/mapstyle.js"></script>
     <link href="../css/normalize.css" rel="stylesheet">
     <link href="http://fonts.googleapis.com/css?family=Lato&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <script src="../cordova.js"></script>
 
     <link href="css/main.css" rel="stylesheet">
     <link href="css/mobile.css" rel="stylesheet" media="screen and (max-width: 906px)" type="text/css">
@@ -166,7 +167,7 @@
         <i class="fa fa-plus"></i>
         Add a Note
       </div>
-      <a href="../">
+      <a class="cordova-internal-link" href="../">
         <div id="the-siftr-logo">
         </div>
       </a>
@@ -179,7 +180,7 @@
         <div class="logged-out">
           <form>
             <div class="a-menu-option">
-              <input id="the-username-input" type="text" placeholder="Username">
+              <input id="the-username-input" type="text" autocorrect="off" autocapitalize="none" placeholder="Username">
             </div>
             <div class="a-menu-option">
               <input id="the-password-input" type="password" placeholder="Password">

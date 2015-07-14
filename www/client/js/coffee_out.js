@@ -10,6 +10,7 @@
       $(document).ready((function(_this) {
         return function() {
           _this.aris = new Aris;
+          cordovaFixLinks();
           _this.markdown = new Showdown.converter();
           return _this.login(void 0, void 0, function() {
             _this.siftr_url = window.location.search.replace('?', '');
@@ -404,7 +405,16 @@
       this.setMode('note');
       $('#the-modal-content').scrollTop(0);
       $('#the-photo').css('background-image', note.photo_url != null ? "url(\"" + note.photo_url + "\")" : '');
-      $('#the-photo-link').prop('href', note.photo_url);
+      if (typeof cordova !== "undefined" && cordova !== null) {
+        $('#the-photo-link').off('click');
+        $('#the-photo-link').click((function(_this) {
+          return function() {
+            return window.open(note.photo_url, '_system');
+          };
+        })(this));
+      } else {
+        $('#the-photo-link').prop('href', note.photo_url);
+      }
       markdown = this.markdown.makeHtml(note.description);
       markdown = markdown.replace(/<script[^>]*?>.*?<\/script>/gi, '').replace(/<style[^>]*?>.*?<\/style>/gi, '').replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
       $('#the-photo-caption').html(markdown);
@@ -945,21 +955,21 @@
           subject = "Interesting note on " + tag;
           email = "Check out this note I " + (currentNoteVerb()) + " about " + tag + ":\n\n" + _this.currentNote.description + "\n\nSee the whole note at: " + window.location.href;
           link = "mailto:?subject=" + (encodeURIComponent(subject)) + "&body=" + (encodeURIComponent(email));
-          return window.open(link, '_blank');
+          return window.open(link);
         };
       })(this));
       $('#the-facebook-button').click((function(_this) {
         return function() {
           var link;
           link = "https://www.facebook.com/sharer/sharer.php?u=" + (encodeURIComponent(window.location.href));
-          return window.open(link, '_blank');
+          return window.open(link, '_system');
         };
       })(this));
       $('#the-google-button').click((function(_this) {
         return function() {
           var link;
           link = "https://plus.google.com/share?url=" + (encodeURIComponent(window.location.href));
-          return window.open(link, '_blank');
+          return window.open(link, '_system');
         };
       })(this));
       $('#the-twitter-button').click((function(_this) {
@@ -967,7 +977,7 @@
           var link, tweet;
           tweet = "Check out this note I " + (currentNoteVerb()) + " about " + (currentNoteTag()) + ":";
           link = "https://twitter.com/share?&url=" + (encodeURIComponent(window.location.href)) + "&text=" + (encodeURIComponent(tweet));
-          return window.open(link, '_blank');
+          return window.open(link, '_system');
         };
       })(this));
       $('#the-pinterest-button').click((function(_this) {
@@ -978,7 +988,7 @@
           link += "?url=" + (encodeURIComponent(window.location.href));
           link += "&media=" + (encodeURIComponent(app.currentNote.photo_url));
           link += "&description=" + (encodeURIComponent(desc));
-          return window.open(link, '_blank');
+          return window.open(link, '_system');
         };
       })(this));
       $('#the-login-button').click((function(_this) {
