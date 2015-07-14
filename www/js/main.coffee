@@ -15,7 +15,7 @@ class Results
           appendTo row, '.siftr-cell.col-xs-6.col-sm-3', {}, (cell) =>
             if game?
               url =
-                if cordova?
+                if window.cordova?
                   "client/index.html?#{game.siftr_url ? game.game_id}"
                 else
                   "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
@@ -42,6 +42,10 @@ class App
     $ -> FastClick.attach document.body
     $(document).ready =>
       @aris = new Aris
+
+      if window.cordova?
+        for elt in $('.cordova-internal-link')
+          elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#')
 
       $('#menu-logout').click =>
         @aris.logout()

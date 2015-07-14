@@ -2,8 +2,11 @@ class App
   constructor: ->
     $ -> FastClick.attach document.body
     $(document).ready =>
-
       @aris = new Aris
+
+      if window.cordova?
+        for elt in $('.cordova-internal-link')
+          elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#')
 
       @isLoading = false
       @selectPage '#page-loading'

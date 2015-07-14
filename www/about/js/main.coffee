@@ -4,6 +4,10 @@ class App
     $(document).ready =>
       @aris = new Aris
 
+      if window.cordova?
+        for elt in $('.cordova-internal-link')
+          elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#')
+
       $('#menu-logout').click =>
         @aris.logout()
         @updateNav()

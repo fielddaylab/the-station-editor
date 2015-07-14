@@ -26,7 +26,7 @@
               return appendTo(row, '.siftr-cell.col-xs-6.col-sm-3', {}, function(cell) {
                 var desc, markdown, photo_url, url, _ref, _ref1, _ref2;
                 if (game != null) {
-                  url = typeof cordova !== "undefined" && cordova !== null ? "client/index.html?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id) : "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id);
+                  url = window.cordova != null ? "client/index.html?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id) : "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id);
                   photo_url = url + '#' + ((_ref2 = game.go_to_note) != null ? _ref2 : '');
                   appendTo(cell, 'a', {
                     href: photo_url
@@ -75,7 +75,15 @@
       });
       $(document).ready((function(_this) {
         return function() {
+          var elt, _i, _len, _ref;
           _this.aris = new Aris;
+          if (window.cordova != null) {
+            _ref = $('.cordova-internal-link');
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              elt = _ref[_i];
+              elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#');
+            }
+          }
           $('#menu-logout').click(function() {
             _this.aris.logout();
             return _this.updateNav();
@@ -92,10 +100,10 @@
                 var g, game, games;
                 games = _arg.data;
                 games = (function() {
-                  var _i, _len, _results;
+                  var _j, _len1, _results;
                   _results = [];
-                  for (_i = 0, _len = games.length; _i < _len; _i++) {
-                    g = games[_i];
+                  for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                    g = games[_j];
                     if (parseInt(g.published) !== 0) {
                       _results.push(g);
                     }
@@ -103,10 +111,10 @@
                   return _results;
                 })();
                 return async.parallel((function() {
-                  var _i, _len, _results;
+                  var _j, _len1, _results;
                   _results = [];
-                  for (_i = 0, _len = games.length; _i < _len; _i++) {
-                    game = games[_i];
+                  for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                    game = games[_j];
                     _results.push(this.getIconURL(game));
                   }
                   return _results;
@@ -126,10 +134,10 @@
               var g, game, games;
               games = _arg.data;
               games = (function() {
-                var _i, _len, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_i = 0, _len = games.length; _i < _len; _i++) {
-                  g = games[_i];
+                for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                  g = games[_j];
                   if (parseInt(g.published) !== 0) {
                     _results.push(g);
                   }
@@ -137,10 +145,10 @@
                 return _results;
               })();
               return async.parallel((function() {
-                var _i, _len, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_i = 0, _len = games.length; _i < _len; _i++) {
-                  game = games[_i];
+                for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                  game = games[_j];
                   _results.push(this.getIconURL(game));
                 }
                 return _results;
@@ -154,10 +162,10 @@
               var g, game, games;
               games = _arg.data;
               games = (function() {
-                var _i, _len, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_i = 0, _len = games.length; _i < _len; _i++) {
-                  g = games[_i];
+                for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                  g = games[_j];
                   if (parseInt(g.published) !== 0) {
                     _results.push(g);
                   }
@@ -165,10 +173,10 @@
                 return _results;
               })();
               return async.parallel((function() {
-                var _i, _len, _results;
+                var _j, _len1, _results;
                 _results = [];
-                for (_i = 0, _len = games.length; _i < _len; _i++) {
-                  game = games[_i];
+                for (_j = 0, _len1 = games.length; _j < _len1; _j++) {
+                  game = games[_j];
                   _results.push(this.getIconURL(game));
                 }
                 return _results;
