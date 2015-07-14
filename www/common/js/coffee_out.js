@@ -87,7 +87,7 @@
 }).call(this);
 
 (function() {
-  var appendTo, entityMap, escapeHTML, parseElement;
+  var appendTo, cordovaFixLinks, entityMap, escapeHTML, parseElement;
 
   parseElement = function(str) {
     var classes, eatWord, id, tag;
@@ -188,5 +188,29 @@
   };
 
   window.escapeHTML = escapeHTML;
+
+  cordovaFixLinks = function() {
+    var elt, url, _i, _j, _len, _len1, _ref, _ref1, _results;
+    if (window.cordova != null) {
+      _ref = $('.cordova-internal-link');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elt = _ref[_i];
+        elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#');
+      }
+      _ref1 = $('.cordova-external-link');
+      _results = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        elt = _ref1[_j];
+        url = elt.href;
+        elt.href = '#';
+        _results.push($(elt).click(function() {
+          return window.open(url, '_system');
+        }));
+      }
+      return _results;
+    }
+  };
+
+  window.cordovaFixLinks = cordovaFixLinks;
 
 }).call(this);

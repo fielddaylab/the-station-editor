@@ -9,15 +9,8 @@
       });
       $(document).ready((function(_this) {
         return function() {
-          var elt, _i, _len, _ref;
           _this.aris = new Aris;
-          if (window.cordova != null) {
-            _ref = $('.cordova-internal-link');
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              elt = _ref[_i];
-              elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#');
-            }
-          }
+          cordovaFixLinks();
           _this.isLoading = false;
           _this.selectPage('#page-loading');
           _this.isLoading = true;

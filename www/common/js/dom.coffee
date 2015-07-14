@@ -56,3 +56,15 @@ escapeHTML = (str) ->
   String(str).replace(/[&<>"'\/]/g, (s) -> entityMap[s])
 
 window.escapeHTML = escapeHTML
+
+cordovaFixLinks = ->
+  if window.cordova?
+    for elt in $('.cordova-internal-link')
+      elt.href = elt.href.replace(/\/$/g, '/index.html').replace(/\/\#/g, '/index.html#')
+    for elt in $('.cordova-external-link')
+      url = elt.href
+      elt.href = '#'
+      $(elt).click ->
+        window.open url, '_system'
+
+window.cordovaFixLinks = cordovaFixLinks
