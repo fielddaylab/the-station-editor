@@ -4,3 +4,7 @@ node_modules/
 .sass-cache/
 /platforms/
 /plugins/
+
+.AppleDouble
+.DS_Store
+.index.html.swp
