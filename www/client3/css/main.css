@@ -305,4 +305,8 @@ body:not(.is-mode-edit) #the-note-editor {
   -ms-user-select: text;
   user-select: text; }
 
+#the-menu a {
+  text-decoration: none;
+  color: inherit; }
+
 /*# sourceMappingURL=main.css.map */

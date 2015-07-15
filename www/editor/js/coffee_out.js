@@ -270,9 +270,9 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
-                var markdown, _ref1;
+                var markdown, _ref1, _ref2;
                 appendTo(mediaBody, 'a', {
-                  href: "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id),
+                  href: typeof cordova !== "undefined" && cordova !== null ? "../client2/index.html?" + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id) : "" + SIFTR_URL + ((_ref2 = game.siftr_url) != null ? _ref2 : game.game_id),
                   target: '_blank'
                 }, function(siftrLink) {
                   return appendTo(siftrLink, 'h4.media-heading', {

@@ -16,7 +16,7 @@ class Results
             if game?
               url =
                 if window.cordova?
-                  "client/index.html?#{game.siftr_url ? game.game_id}"
+                  "client2/index.html?#{game.siftr_url ? game.game_id}"
                 else
                   "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
               photo_url = url + '#' + (game.go_to_note ? '')

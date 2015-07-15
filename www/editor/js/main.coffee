@@ -202,7 +202,11 @@ class App
                 """
           appendTo media, '.media-body', {}, (mediaBody) =>
             appendTo mediaBody, 'a',
-              href: "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
+              href:
+                if cordova?
+                  "../client2/index.html?#{game.siftr_url ? game.game_id}"
+                else
+                  "#{SIFTR_URL}#{game.siftr_url ? game.game_id}"
               target: '_blank'
             , (siftrLink) =>
               appendTo siftrLink, 'h4.media-heading',
