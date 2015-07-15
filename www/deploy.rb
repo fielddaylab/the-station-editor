@@ -2,10 +2,10 @@
 
 # Enter login details here
 require "#{ENV['HOME']}/fdllogins" # I store mine outside of the repo; edit as necessary
-url        = $fdl_logins[:siftr_editor][:url]
-username   = $fdl_logins[:siftr_editor][:username]
-password   = $fdl_logins[:siftr_editor][:password]
-remote_dir = $fdl_logins[:siftr_editor][:remote_dir]
+url        = $fdl_logins[:siftr][:url]
+username   = $fdl_logins[:siftr][:username]
+password   = $fdl_logins[:siftr][:password]
+remote_dir = $fdl_logins[:siftr][:remote_dir]
 
 require 'net/sftp'
 
@@ -22,7 +22,7 @@ end
 def upload_rf(sftp, from, to)
   log "Uploading #{from} to #{to}"
   Dir.entries(from).each do |ent|
-    next if %w{. .. .DS_Store .gitignore .git root.htaccess
+    next if %w{. .. .DS_Store .gitignore .git
       deploy.rb Gruntfile.coffee package.json .sass-cache
       Makefile README.md node_modules .sublime-grunt.cache}.include? ent
     full_from = "#{from}/#{ent}"
