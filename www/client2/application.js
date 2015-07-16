@@ -11,6 +11,8 @@ function pageLoad() {
     model.finishLoad(startLoadGame);
 
     if (navigator.appName == 'Microsoft Internet Explorer') alert('You might need to install quicktime to properly view some media.\n(http://www.apple.com/quicktime/download)');
+
+    $(function(){ FastClick.attach(document.body); });
 }
 
 function startLoadGame() {
