@@ -678,11 +678,19 @@ function Controller() {
         // Show the about page on first launch of a Siftr.
         // Either they came straight to siftr.org/whatever/,
         // or they went to a note hash link and they're now closing it.
-        var seenCookie = $.cookie('seen-siftr');
-        if (!seenCookie) {
-            $.cookie('seen-siftr', {seen: true});
-            // the path for this cookie will automatically be siftr.org/some-specific-siftr/
-            this.showAbout();
+        if (window.localStorage != null) {
+            var seenCookie = localStorage['seen-siftr-' + model.gameId];
+            if (!seenCookie) {
+                localStorage['seen-siftr-' + model.gameId] = 'true';
+                this.showAbout();
+            }
+        } else {
+            var seenCookie = $.cookie('seen-siftr');
+            if (!seenCookie) {
+                $.cookie('seen-siftr', {seen: true});
+                // the path for this cookie will automatically be siftr.org/some-specific-siftr/
+                this.showAbout();
+            }
         }
     }
 
