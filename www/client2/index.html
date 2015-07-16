@@ -474,7 +474,7 @@
 
         <div class="content">
           <h3>
-            <a href="../" class="to-siftr-home">
+            <a href="../{{#cordova}}index.html{{/cordova}}" class="to-siftr-home">
               <span class='siftr-logo'></span> Discover more Siftrs
             </a>
           </h3>
@@ -550,6 +550,9 @@
     <!-- Extraction from original index -->
     <script src="application.js"></script>
     <script src="events.js"></script>
+
+    <!-- needed to fix links for cordova -->
+    <script src="../cordova.js"></script>
 
     <!--Google Tracking-->
     <script>

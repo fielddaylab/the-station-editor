@@ -940,6 +940,7 @@ function AboutView() {
     data.aboutSiftr = ABOUT_SIFTR;
     data.username = model.displayName;
     data.loggedIn = controller.logged_in();
+    data.cordova = window.cordova != null;
 
     var template = $('#aboutTemplate').html();
     var view = Mustache.render(template, data);

@@ -3,8 +3,9 @@
 
   Aris = (function() {
     function Aris() {
-      $.cookie.json = true;
-      this.auth = $.cookie('aris-auth');
+      var auth;
+      this.storage = window.localStorage != null;
+      this.auth = this.storage ? (auth = localStorage['aris-auth'], auth != null ? JSON.parse(auth) : null) : ($.cookie.json = true, $.cookie('aris-auth'));
     }
 
     Aris.prototype.parseLogin = function(_arg) {
@@ -17,10 +18,14 @@
           key: user.read_write_key,
           username: user.user_name
         };
-        return $.cookie('aris-auth', this.auth, {
-          path: '/',
-          expires: 365
-        });
+        if (this.storage) {
+          return localStorage['aris-auth'] = JSON.stringify(this.auth);
+        } else {
+          return $.cookie('aris-auth', this.auth, {
+            path: '/',
+            expires: 365
+          });
+        }
       } else {
         return this.logout();
       }
@@ -44,9 +49,13 @@
 
     Aris.prototype.logout = function() {
       this.auth = null;
-      return $.removeCookie('aris-auth', {
-        path: '/'
-      });
+      if (this.storage) {
+        return localStorage.removeItem('aris-auth');
+      } else {
+        return $.removeCookie('aris-auth', {
+          path: '/'
+        });
+      }
     };
 
     Aris.prototype.call = function(func, json, cb) {
