@@ -948,7 +948,13 @@ function AboutView() {
     this.html = $(view).get(0);
 
     //TODO: find a better way of getting around the fact that you have to wait until the element is rendered to attach an eventlistener
-    var cookie = $.cookie('aris-auth');
+    
+    if (window.localStorage != null) {
+        var json = localStorage['aris-auth'];
+        var cookie = json != null ? JSON.parse(json) : null;
+    } else {
+        var cookie = $.cookie('aris-auth');
+    }
     if (cookie) {
         self.playerId = cookie.user_id;
         self.displayName = cookie.username;

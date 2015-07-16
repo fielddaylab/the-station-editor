@@ -438,12 +438,18 @@ function Controller() {
     }
 
     this.saveCookies = function() {
-        $.cookie("aris-auth", { // this is shared with the Siftr homepage and editor
+        // this is shared with the Siftr homepage and editor
+        var authObject = {
             user_id: parseInt(model.playerId),
             permission: 'read_write',
             key: model.readWriteKey,
             username: model.displayName,
-        }, {path: '/', expires: 365});
+        };
+        if (window.localStorage != null) {
+            localStorage['aris-auth'] = JSON.stringify(authObject);
+        } else {
+            $.cookie("aris-auth", authObject, {path: '/', expires: 365});
+        }
     }
 
     this.loginReturned = function(obj) {
@@ -484,10 +490,13 @@ function Controller() {
     }
 
     this.logout = function() {
-        $.removeCookie('aris-auth', {path: '/'});
+        if (window.localStorage != null) {
+            localStorage.removeItem('aris-auth');
+        } else {
+            $.removeCookie('aris-auth', {path: '/'});
+        }
         $('.sifter-show-logout-button').hide();
         model.playerId = 0;
-
     }
 
     this.logged_in = function() {

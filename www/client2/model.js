@@ -104,7 +104,12 @@ function Model() {
 
     $('.sifter-show-logout-button').hide();
     //check to see if they have a session cookie with their playerId and can skip login, if not set it to zero
-    var cookie = $.cookie('aris-auth');
+    if (window.localStorage != null) {
+        var json = localStorage['aris-auth'];
+        var cookie = json != null ? JSON.parse(json) : json;
+    } else {
+        var cookie = $.cookie('aris-auth');
+    }
     if (cookie) {
         // Make sure the auth object is actually valid
         callAris('users.logIn', {
@@ -125,8 +130,6 @@ function Model() {
     this.checkGameOwners = function(callback) {
         callAris('users.getUsersForGame', {
             game_id: self.gameId,
-            auth: $.cookie('aris-auth') || getAuthObject(),
-            // the auth shouldn't be necessary after https://github.com/ARISGames/server/pull/10
         }, function(usersData) {
             self.owner_ids = [];
             if (usersData.data == null) return;
