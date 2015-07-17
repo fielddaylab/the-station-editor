@@ -89,6 +89,8 @@ function NoteView(note) {
         /* Get Data */
         var data = {};
 
+        data.cordova = window.cordova != null;
+
         data.image_url = getImageToUse(this.note);
         data.category_class = getTagIconName(this.note);
         data.audio_url = getAudioToUse(this.note);

@@ -153,13 +153,22 @@
 
         <!-- left-side: image and description -->
         <div class="sifter-show-content">
-          <a href="{{image_url}}" target="_blank">
+          {{#cordova}}
             <div class="sifter-image">
               <div class="square-dummy"></div>
               <div class="sifter-image-div" style="background-image: url({{image_url}});"></div>
               <div class="scale-icon scale_{{category_class}}"></div>
             </div>
-          </a>
+          {{/cordova}}
+          {{^cordova}}
+            <a href="{{image_url}}" target="_blank">
+              <div class="sifter-image">
+                <div class="square-dummy"></div>
+                <div class="sifter-image-div" style="background-image: url({{image_url}});"></div>
+                <div class="scale-icon scale_{{category_class}}"></div>
+              </div>
+            </a>
+          {{/cordova}}
 
           <div class="sifter-show-linkbar">
               <div class="shareable" title="Share" id="shareMenuBox">
