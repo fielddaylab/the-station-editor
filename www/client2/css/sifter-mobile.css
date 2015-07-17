@@ -197,8 +197,7 @@ button.filter-button.last {
   /*changes color of icons if icons are webfont*/
   font-size: 1.25em;
 }
-.sifter-categories input,
-.category_box input {
+.sifter-categories input {
   float: right;
   margin-right: 20px;
 }

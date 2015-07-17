@@ -341,12 +341,12 @@
 
         <div class="new-right-side">
           <!-- Category -->
-          <div class="category_box input_box">
+          <div class="category_box input_box" onclick="">
             
             {{#categories}}
             <div class="sifter-category">
-              <input  id="create_tag_{{category_number}}" name="note_tag_select" value="{{category}}" type="radio"/>
-              <label for="create_tag_{{category_number}}">
+              <label>
+                <input  id="create_tag_{{category_number}}" name="note_tag_select" value="{{category}}" type="radio"/>
                 <span><span class="scale-icon scale_tag_{{category_number}}"></span>  {{category}}</span>
               </label>
             </div>

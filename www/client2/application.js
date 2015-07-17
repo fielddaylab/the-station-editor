@@ -12,7 +12,8 @@ function pageLoad() {
 
     if (navigator.appName == 'Microsoft Internet Explorer') alert('You might need to install quicktime to properly view some media.\n(http://www.apple.com/quicktime/download)');
 
-    $(function(){ FastClick.attach(document.body); });
+    // Disabling for now. This breaks the tag selection on iOS for some reason
+    //$(function(){ FastClick.attach(document.body); });
 }
 
 function startLoadGame() {
