@@ -925,6 +925,8 @@ function NoteCreateView(existingNote) {
 
 
         /* Locate User */
+        // This uses the normal browser geolocation,
+        // or Cordova's plugin if it's there.
         if (navigator.geolocation && !existingNote) //this may take time to complete, so it'll just move the default when it's ready
         {
             function positionFound(position) {
@@ -945,7 +947,7 @@ function NoteCreateView(existingNote) {
                 handleNoGeolocation(true);
             }
 
-            navigator.geolocation.getCurrentPosition(positionFound, positionNotFound);
+            navigator.geolocation.getCurrentPosition(positionFound, positionNotFound, { enableHighAccuracy: true });
         }
 
 

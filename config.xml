@@ -12,6 +12,7 @@
   <plugin name="cordova-plugin-inappbrowser" version="1.0.1" />
   <plugin name="cordova-plugin-whitelist" version="1" />
   <plugin name="cordova-plugin-statusbar" version="1.0.1" />
+  <plugin name="cordova-plugin-geolocation" version="1.0.1" />
   <access origin="*" />
   <access origin="mailto:*" launch-external="yes" />
   <access origin="tel:*" launch-external="yes" />
