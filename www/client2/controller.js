@@ -315,31 +315,52 @@ function Controller() {
                     tags.push(model.tags[i - 1].tag_id);
                 }
             };
-            var photoReader = new FileReader();
-            photoReader.onload = function() {
-                var photoData = photoReader.result;
-                mime_map = {
-                    "jpg": "image/jpeg",
-                    "png": "image/png",
-                    "gif": "image/gif",
-                };
-                var photoBase64 = '';
-                var photoExt = '';
-                for (ext in mime_map) {
-                    var dataPrefix = 'data:' + mime_map[ext] + ';base64,';
-                    if (photoData.indexOf(dataPrefix) === 0) {
-                        photoBase64 = photoData.substring(dataPrefix.length);
-                        photoExt = ext;
-                        break;
-                    }
-                }
 
+            if (window.cordova == null) {
+                var photoReader = new FileReader();
+                photoReader.onload = function() {
+                    var photoData = photoReader.result;
+                    mime_map = {
+                        "jpg": "image/jpeg",
+                        "png": "image/png",
+                        "gif": "image/gif",
+                    };
+                    var photoBase64 = '';
+                    var photoExt = '';
+                    for (ext in mime_map) {
+                        var dataPrefix = 'data:' + mime_map[ext] + ';base64,';
+                        if (photoData.indexOf(dataPrefix) === 0) {
+                            photoBase64 = photoData.substring(dataPrefix.length);
+                            photoExt = ext;
+                            break;
+                        }
+                    }
+
+                    theJSON = {
+                        auth: getAuthObject(),
+                        game_id: gameId,
+                        media: {
+                            file_name: "upload." + photoExt,
+                            data: photoBase64,
+                            resize: 640,
+                        },
+                        description: caption,
+                        trigger: {
+                            latitude: lat,
+                            longitude: lon,
+                        },
+                        tag_id: tags[0],
+                    };
+                    withTheJSON();
+                }
+                photoReader.readAsDataURL( $('#in-camera')[0].files[0] );
+            } else {
                 theJSON = {
                     auth: getAuthObject(),
                     game_id: gameId,
                     media: {
-                        file_name: "upload." + photoExt,
-                        data: photoBase64,
+                        file_name: "upload.jpg",
+                        data: window.cordovaPhoto,
                         resize: 640,
                     },
                     description: caption,
@@ -351,7 +372,6 @@ function Controller() {
                 };
                 withTheJSON();
             }
-            photoReader.readAsDataURL( $('#in-camera')[0].files[0] );
         }
     };
     this.oneStepGetNote = function (note_id) {

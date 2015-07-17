@@ -421,7 +421,7 @@ function submitNote() {
 
     $('.error').removeClass('error');
 
-    if ($('#in-camera')[0].files < 1) {
+    if ($('#in-camera')[0].files < 1 && !(window.cordovaPhoto)) {
         errors.push("select an image");
         $('.camera_box').addClass('error');
         requirementsMet = false;
@@ -705,7 +705,55 @@ function createDownloadLink() {
 }
 
 function clickBrowseImage() {
-    $('#in-camera').click();
+    if (window.cordova == null) {
+        $('#in-camera').click();
+    } else {
+        navigator.camera.getPicture(function(base64){
+            window.cordovaPhoto = base64;
+
+            var file = new Image();
+            window.theFile = file;
+            file.onload = function() {
+                EXIF.getData(file, function(){
+                    var orientation = EXIF.getTag(file, 'Orientation') || 1;
+
+                    var latitude = EXIF.getTag(file, 'GPSLatitude');
+                    var longitude = EXIF.getTag(file, 'GPSLongitude');
+                    if (latitude && longitude) {
+                        function readRat(rat) {
+                            return rat.numerator / rat.denominator;
+                        }
+                        function readGPS(degminsec) {
+                            return readRat(degminsec[0]) +
+                                readRat(degminsec[1]) / 60 +
+                                readRat(degminsec[2]) / 3600;
+                        }
+                        var lat = readGPS(latitude);
+                        if (EXIF.getTag(file, 'GPSLatitudeRef') == 'S') lat *= -1;
+                        var lng = readGPS(longitude);
+                        if (EXIF.getTag(file, 'GPSLongitudeRef') == 'W') lng *= -1;
+
+                        marker.setPosition({lat: lat, lng: lng});
+                        markerMoved(marker, thism.map);
+
+                        thism.exifPosition = true;
+                    }
+
+                    $('.center-big').removeClass('center-big').addClass('left-small');
+                    $('#show-image-div').html('<div class="square-dummy"></div><div id="show-image" class="exif-'+orientation+'" style="background-image: url('+file.src+');"></div>');
+                });
+            };
+            file.src = "data:image/jpeg;base64," + base64;
+        }, function(err){}, {
+            targetWidth: 1000,
+            targetHeight: 1000,
+            mediaType: navigator.camera.MediaType.PICTURE,
+            destinationType: navigator.camera.DestinationType.DATA_URL,
+            encodingType: navigator.camera.EncodingType.JPEG,
+            correctOrientation: true,
+            saveToPhotoAlbum: true,
+        })
+    }
 }
 
 function clickBrowseAudio() {
