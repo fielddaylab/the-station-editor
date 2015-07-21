@@ -603,12 +603,20 @@ function Controller() {
     // so it links to the Siftr but not the photo.
     this.shareFacebook = function(playerId, noteId) {
         var url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(controller.noteURL(noteId));
-        window.open(url);
+        if (window.cordova != null) {
+            window.open(url, '_system');
+        } else {
+            window.open(url);
+        }
     }
 
     this.shareGoogle = function(playerId, noteId) {
         var url = 'https://plus.google.com/share?url=' + encodeURIComponent(controller.noteURL(noteId));
-        window.open(url);
+        if (window.cordova != null) {
+            window.open(url, '_system');
+        } else {
+            window.open(url);
+        }
     }
 
     this.sendEmail = function(playerId, noteId) {
@@ -645,7 +653,11 @@ function Controller() {
         emailText = "mailto:?subject=" + encodeURIComponent(subjectText) + "&body=" + encodeURIComponent(bodyText);
 
         //send the email
-        window.open(emailText);
+        if (window.cordova != null) {
+            window.open(emailText, '_system');
+        } else {
+            window.open(emailText);
+        }
     }
 
     this.showAbout = function() {
@@ -752,7 +764,11 @@ function Controller() {
         tweetURL = "https://twitter.com/share?&url=" + encodeURIComponent(noteURL) + "&text=" + encodeURIComponent(bodyText);
 
         //open window to send tweet
-        window.open(tweetURL);
+        if (window.cordova != null) {
+            window.open(tweetURL, '_system');
+        } else {
+            window.open(tweetURL);
+        }
     };
 
 
@@ -789,7 +805,11 @@ function Controller() {
         pinLink += '&media=' + encodeURIComponent(pinImage);
         pinLink += '&description=' + encodeURIComponent(pinDescr);
 
-        window.open(pinLink);
+        if (window.cordova != null) {
+            window.open(pinLink, '_system');
+        } else {
+            window.open(pinLink);
+        }
 
     };
 
