@@ -4,6 +4,7 @@ node_modules/
 .sass-cache/
 /platforms/
 /plugins/
+*.apk
 
 .AppleDouble
 .DS_Store
