@@ -63,7 +63,7 @@
         json.auth = this.auth;
       }
       return $.ajax({
-        contentType: 'application/x-www-form-urlencoded',
+        contentType: 'application/json',
         data: JSON.stringify(json),
         dataType: 'json',
         success: cb,

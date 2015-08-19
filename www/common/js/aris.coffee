@@ -50,7 +50,7 @@ class Aris
     if @auth?
       json.auth = @auth
     $.ajax
-      contentType: 'application/x-www-form-urlencoded'
+      contentType: 'application/json'
       data: JSON.stringify json
       dataType: 'json'
       success: cb
