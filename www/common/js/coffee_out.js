@@ -59,25 +59,21 @@
     };
 
     Aris.prototype.call = function(func, json, cb) {
-      var req;
       if (this.auth != null) {
         json.auth = this.auth;
       }
-      req = new XMLHttpRequest;
-      req.onreadystatechange = (function(_this) {
-        return function() {
-          if (req.readyState === 4) {
-            if (req.status === 200) {
-              return cb(JSON.parse(req.responseText));
-            } else {
-              return cb(false);
-            }
-          }
-        };
-      })(this);
-      req.open('POST', "" + ARIS_URL + "/json.php/v2." + func, true);
-      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      return req.send(JSON.stringify(json));
+      return $.ajax({
+        contentType: 'application/x-www-form-urlencoded',
+        data: JSON.stringify(json),
+        dataType: 'json',
+        success: cb,
+        error: function() {
+          return cb(false);
+        },
+        processData: false,
+        type: 'POST',
+        url: "" + ARIS_URL + "/json.php/v2." + func
+      });
     };
 
     return Aris;

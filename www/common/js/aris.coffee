@@ -49,15 +49,14 @@ class Aris
   call: (func, json, cb) ->
     if @auth?
       json.auth = @auth
-    req = new XMLHttpRequest
-    req.onreadystatechange = =>
-      if req.readyState is 4
-        if req.status is 200
-          cb JSON.parse req.responseText
-        else
-          cb false
-    req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
-    req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded'
-    req.send JSON.stringify json
+    $.ajax
+      contentType: 'application/x-www-form-urlencoded'
+      data: JSON.stringify json
+      dataType: 'json'
+      success: cb
+      error: -> cb false
+      processData: false
+      type: 'POST'
+      url: "#{ARIS_URL}/json.php/v2.#{func}"
 
 window.Aris = Aris
