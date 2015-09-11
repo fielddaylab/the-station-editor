@@ -1,0 +1,2 @@
+default:
+	grunt --no-color
