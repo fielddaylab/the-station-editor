@@ -1,10 +1,11 @@
 class window.Game
   constructor: (json) ->
-    @game_id   = parseInt json.game_id
-    @name      = json.name
-    @latitude  = parseFloat json.map_latitude
-    @longitude = parseFloat json.map_longitude
-    @zoom      = parseInt json.map_zoom_level
+    @game_id     = parseInt json.game_id
+    @name        = json.name
+    @description = json.description
+    @latitude    = parseFloat json.map_latitude
+    @longitude   = parseFloat json.map_longitude
+    @zoom        = parseInt json.map_zoom_level
 
 class window.User
   constructor: (json) ->
@@ -34,7 +35,7 @@ class window.Note
         null
       else
         json.media.data.url
-    @thumb_url =
+    @thumb_url    =
       if parseInt(json.media.data.media_id) is 0
         null
       else
@@ -66,11 +67,11 @@ NoteView = React.createClass
     <div>
       <p><button type="button" onClick={@props.onBack}>Back</button></p>
       <p><img src={@props.note.photo_url} /></p>
-      <p dangerouslySetInnerHTML={markdown @props.note.description} />
+      <p>{@props.note.description}</p>
       { for comment in @props.note.comments
-          <div key={comment.comment_id}>
+          <div key={"comment-#{comment.comment_id}"}>
             <h4>{comment.user.display_name}, {comment.created.toLocaleString()}</h4>
-            <p dangerouslySetInnerHTML={markdown comment.description} />
+            <p>{comment.description}</p>
           </div>
       }
     </div>
@@ -89,7 +90,7 @@ SearchBox = React.createClass
             <label>
               <input type="checkbox"
                 ref="searchTag#{tag.tag_id}"
-                checked={@props.checkedTags.indexOf(tag) >= 0}
+                checked={tag in @props.checkedTags}
                 onChange={@handleChange}
               />
               { tag.tag }
@@ -112,31 +113,45 @@ TopLevel = React.createClass
     @handleSearch [], '', false
 
   render: ->
-    if @state.viewing?
-      <NoteView
-        note={@state.viewing}
-        onBack={=> @setState viewing: null}
-      />
-    else
-      <div>
-        <h1>{ @props.game.name }</h1>
-        <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
-        <SearchBox
-          tags={@props.game.tags}
-          checkedTags={@state.checkedTags}
-          searchText={@state.searchText}
-          onSearch={@handleSearch}
-        />
-        { if @state.searching
-            <p>Searching...</p>
-          else
-            for note in @state.notes
-              do (note) =>
-                <a key={note.note_id} href="#" onClick={=> @setState viewing: note}>
-                  <img src={note.thumb_url} />
-                </a>
-        }
+    <div>
+      <h1>{ @props.game.name }</h1>
+      <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
+      <div dangerouslySetInnerHTML={markdown @props.game.description} />
+      <div style={width: '500px', height: '500px'}>
+        <GoogleMapReact
+          center={[@props.game.latitude, @props.game.longitude]}
+          zoom={@props.game.zoom}>
+          { @state.notes.map (note) =>
+              <div key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude}
+                style={width: '10px', height: '10px', backgroundColor: 'black', cursor: 'pointer'}
+                onClick={=> @setState viewing: note} />
+          }
+        </GoogleMapReact>
       </div>
+      { if @state.viewing?
+          <NoteView
+            note={@state.viewing}
+            onBack={=> @setState viewing: null}
+          />
+        else
+          <div>
+            <SearchBox
+              tags={@props.game.tags}
+              checkedTags={@state.checkedTags}
+              searchText={@state.searchText}
+              onSearch={@handleSearch}
+            />
+            { if @state.searching
+                <p>Searching...</p>
+              else
+                @state.notes.map (note) =>
+                  <a key={"thumb-#{note.note_id}"} href="#" onClick={=> @setState viewing: note}>
+                    <img src={note.thumb_url} />
+                  </a>
+            }
+          </div>
+      }
+    </div>
 
   handleSearch: (tags, text, wait = true) ->
     @setState
@@ -189,4 +204,5 @@ $(document).ready ->
             if returnCode is 0
               game.owners =
                 new User o for o in owners
+
               React.render <TopLevel game={game} aris={aris} />, document.getElementById('output')
