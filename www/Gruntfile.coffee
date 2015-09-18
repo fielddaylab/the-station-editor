@@ -19,12 +19,13 @@ module.exports = (grunt) ->
         files:
           'client2/css/sifter-desktop.css': ['client2/css/sifter-desktop.less']
           'client2/css/sifter-mobile.css' : ['client2/css/sifter-mobile.less']
-    shell:
-      cjsx:
-        command: 'cat client-react/js/*.cjsx | cjsx -sc > client-react/js/coffee_out.js'
+    cjsx:
+      compile:
+        files:
+          'client-react/js/coffee_out.js': ['client-react/js/*.cjsx']
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-sass'
   grunt.loadNpmTasks 'grunt-contrib-less'
-  grunt.loadNpmTasks 'grunt-shell'
-  grunt.registerTask 'default', ['coffee', 'sass', 'less', 'shell']
+  grunt.loadNpmTasks 'grunt-coffee-react'
+  grunt.registerTask 'default', ['coffee', 'sass', 'less', 'cjsx']
