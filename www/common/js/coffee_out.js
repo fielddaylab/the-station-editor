@@ -3,9 +3,9 @@
 
   Aris = (function() {
     function Aris() {
-      var auth;
-      this.storage = window.localStorage != null;
-      this.auth = this.storage ? (auth = localStorage['aris-auth'], auth != null ? JSON.parse(auth) : null) : ($.cookie.json = true, $.cookie('aris-auth'));
+      var authJSON;
+      authJSON = window.localStorage['aris-auth'];
+      this.auth = authJSON != null ? JSON.parse(authJSON) : null;
     }
 
     Aris.prototype.parseLogin = function(_arg) {
@@ -18,14 +18,7 @@
           key: user.read_write_key,
           username: user.user_name
         };
-        if (this.storage) {
-          return localStorage['aris-auth'] = JSON.stringify(this.auth);
-        } else {
-          return $.cookie('aris-auth', this.auth, {
-            path: '/',
-            expires: 365
-          });
-        }
+        return window.localStorage['aris-auth'] = JSON.stringify(this.auth);
       } else {
         return this.logout();
       }
@@ -49,13 +42,7 @@
 
     Aris.prototype.logout = function() {
       this.auth = null;
-      if (this.storage) {
-        return localStorage.removeItem('aris-auth');
-      } else {
-        return $.removeCookie('aris-auth', {
-          path: '/'
-        });
-      }
+      return window.localStorage.removeItem('aris-auth');
     };
 
     Aris.prototype.call = function(func, json, cb) {

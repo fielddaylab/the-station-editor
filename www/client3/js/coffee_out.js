@@ -11,7 +11,6 @@
         return function() {
           _this.aris = new Aris;
           cordovaFixLinks();
-          _this.markdown = new Showdown.converter();
           return _this.login(void 0, void 0, function() {
             _this.siftr_url = window.location.search.replace('?', '');
             if (_this.siftr_url.length === 0) {
@@ -396,7 +395,7 @@
     };
 
     App.prototype.showNote = function(note) {
-      var canDelete, canEdit, canFlag, comment, commentIndex, heart, markdown, _i, _len, _ref, _ref1, _ref2, _results;
+      var canDelete, canEdit, canFlag, comment, commentIndex, heart, _i, _len, _ref, _ref1, _ref2, _results;
       if (window.location.hash !== '#' + note.note_id) {
         history.pushState('', '', '#' + note.note_id);
       }
@@ -415,9 +414,7 @@
       } else {
         $('#the-photo-link').prop('href', note.photo_url);
       }
-      markdown = this.markdown.makeHtml(note.description);
-      markdown = markdown.replace(/<script[^>]*?>.*?<\/script>/gi, '').replace(/<style[^>]*?>.*?<\/style>/gi, '').replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
-      $('#the-photo-caption').html(markdown);
+      $('#the-photo-caption').html(window.markdown.toHTML(note.description));
       $('#the-photo-credit').html("Created by <b>" + (escapeHTML(note.user.display_name)) + "</b> at " + (escapeHTML(note.created.toLocaleString())));
       heart = $('#the-like-button i');
       if (note.player_liked) {

@@ -270,7 +270,7 @@
                 });
               });
               return appendTo(media, '.media-body', {}, function(mediaBody) {
-                var markdown, _ref1, _ref2;
+                var _ref1, _ref2;
                 appendTo(mediaBody, 'a', {
                   href: typeof cordova !== "undefined" && cordova !== null ? "../client2/index.html?" + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id) : "" + SIFTR_URL + ((_ref2 = game.siftr_url) != null ? _ref2 : game.game_id),
                   target: '_blank'
@@ -279,9 +279,8 @@
                     text: game.name
                   });
                 });
-                markdown = new Showdown.converter();
                 appendTo(mediaBody, 'p', {
-                  html: markdown.makeHtml(game.description)
+                  html: window.markdown.toHTML(game.description)
                 });
                 return appendTo(mediaBody, 'form', {}, function(form) {
                   return appendTo(form, '.form-group', {}, function(formGroup) {

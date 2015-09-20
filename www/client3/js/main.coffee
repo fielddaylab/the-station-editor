@@ -4,7 +4,6 @@ class App
     $(document).ready =>
       @aris = new Aris
       cordovaFixLinks()
-      @markdown = new Showdown.converter()
       @login undefined, undefined, =>
         # get the URL (or game ID) from, first, the GET string:
         #   siftr.org/doesntmatter/?siftrurlhere
@@ -221,13 +220,7 @@ class App
         window.open note.photo_url, '_system'
     else
       $('#the-photo-link').prop 'href', note.photo_url
-    markdown = @markdown.makeHtml note.description
-    markdown = markdown
-      .replace(/<script[^>]*?>.*?<\/script>/gi, '')
-      #.replace(/<[\/\!]*?[^<>]*?>/gi, '')
-      .replace(/<style[^>]*?>.*?<\/style>/gi, '')
-      .replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '')
-    $('#the-photo-caption').html markdown
+    $('#the-photo-caption').html window.markdown.toHTML note.description
     $('#the-photo-credit').html """
       Created by <b>#{escapeHTML note.user.display_name}</b> at #{escapeHTML note.created.toLocaleString()}
     """

@@ -25,8 +25,8 @@ class Results
                   src: game.icon_url
               appendTo cell, 'a', href: url, (link) =>
                 appendTo link, '.siftr-title', text: game.name
-              markdown = new Showdown.converter()
-              desc = appendTo cell, '.siftr-description', html: markdown.makeHtml game.description
+              desc = appendTo cell, '.siftr-description',
+                html: window.markdown.toHTML game.description
               desc.dotdotdot
                 watch: 'window'
                 height: 50

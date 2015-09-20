@@ -1,5 +1,5 @@
 (function() {
-  var NoteView, SearchBox, TopLevel, markdown, markdownConverter,
+  var NoteView, SearchBox, TopLevel, renderMarkdown,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   window.Game = (function() {
@@ -85,14 +85,9 @@
 
   })();
 
-  markdownConverter = new Showdown.converter();
-
-  markdown = function(str) {
-    var rendered;
-    rendered = markdownConverter.makeHtml(str);
-    rendered = rendered.replace(/<script[^>]*?>.*?<\/script>/gi, '').replace(/<style[^>]*?>.*?<\/style>/gi, '').replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
+  renderMarkdown = function(str) {
     return {
-      __html: rendered
+      __html: markdown.toHTML(str)
     };
   };
 
@@ -189,7 +184,7 @@
         }
         return _results;
       }).call(this)).join(', ')), React.createElement("div", {
-        "dangerouslySetInnerHTML": markdown(this.props.game.description)
+        "dangerouslySetInnerHTML": renderMarkdown(this.props.game.description)
       }), React.createElement("div", {
         "style": {
           width: '500px',

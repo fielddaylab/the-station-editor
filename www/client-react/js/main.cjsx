@@ -52,15 +52,8 @@ class window.Note
       comment
     @published    = json.published
 
-markdownConverter = new Showdown.converter();
-markdown = (str) ->
-  rendered = markdownConverter.makeHtml str
-  rendered = rendered
-    .replace(/<script[^>]*?>.*?<\/script>/gi, '')
-    #.replace(/<[\/\!]*?[^<>]*?>/gi, '')
-    .replace(/<style[^>]*?>.*?<\/style>/gi, '')
-    .replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '')
-  __html: rendered
+renderMarkdown = (str) ->
+  __html: markdown.toHTML str
 
 NoteView = React.createClass
   render: ->
@@ -116,7 +109,7 @@ TopLevel = React.createClass
     <div>
       <h1>{ @props.game.name }</h1>
       <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
-      <div dangerouslySetInnerHTML={markdown @props.game.description} />
+      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
       <div style={width: '500px', height: '500px'}>
         <GoogleMapReact
           center={[@props.game.latitude, @props.game.longitude]}

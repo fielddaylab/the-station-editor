@@ -1,14 +1,8 @@
 # Handles Aris v2 authentication and API calls.
 class Aris
   constructor: ->
-    @storage = window.localStorage?
-    @auth =
-      if @storage
-        auth = localStorage['aris-auth']
-        if auth? then JSON.parse auth else null
-      else
-        $.cookie.json = true
-        $.cookie 'aris-auth'
+    authJSON = window.localStorage['aris-auth']
+    @auth = if authJSON? then JSON.parse authJSON else null
 
   # Given the JSON result of users.logIn, if it was successful,
   # creates and stores the authentication object.
@@ -19,10 +13,7 @@ class Aris
         permission: 'read_write'
         key:        user.read_write_key
         username:   user.user_name
-      if @storage
-        localStorage['aris-auth'] = JSON.stringify @auth
-      else
-        $.cookie 'aris-auth', @auth, path: '/', expires: 365
+      window.localStorage['aris-auth'] = JSON.stringify @auth
     else
       @logout()
 
@@ -39,10 +30,7 @@ class Aris
 
   logout: ->
     @auth = null
-    if @storage
-      localStorage.removeItem 'aris-auth'
-    else
-      $.removeCookie 'aris-auth', path: '/'
+    window.localStorage.removeItem 'aris-auth'
 
   # Calls a function from the Aris v2 API.
   # The callback receives the entire JSON-decoded response.

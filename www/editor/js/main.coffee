@@ -211,9 +211,8 @@ class App
             , (siftrLink) =>
               appendTo siftrLink, 'h4.media-heading',
                 text: game.name
-            markdown = new Showdown.converter()
             appendTo mediaBody, 'p',
-              html: markdown.makeHtml game.description
+              html: window.markdown.toHTML game.description
             appendTo mediaBody, 'form', {}, (form) =>
               appendTo form, '.form-group', {}, (formGroup) =>
                 appendTo formGroup, 'a.btn.btn-primary',

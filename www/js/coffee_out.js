@@ -24,7 +24,7 @@
             var appendGame;
             appendGame = function(game) {
               return appendTo(row, '.siftr-cell.col-xs-6.col-sm-3', {}, function(cell) {
-                var desc, markdown, photo_url, url, _ref, _ref1, _ref2;
+                var desc, photo_url, url, _ref, _ref1, _ref2;
                 if (game != null) {
                   url = window.cordova != null ? "client2/index.html?" + ((_ref = game.siftr_url) != null ? _ref : game.game_id) : "" + SIFTR_URL + ((_ref1 = game.siftr_url) != null ? _ref1 : game.game_id);
                   photo_url = url + '#' + ((_ref2 = game.go_to_note) != null ? _ref2 : '');
@@ -42,9 +42,8 @@
                       text: game.name
                     });
                   });
-                  markdown = new Showdown.converter();
                   desc = appendTo(cell, '.siftr-description', {
-                    html: markdown.makeHtml(game.description)
+                    html: window.markdown.toHTML(game.description)
                   });
                   return desc.dotdotdot({
                     watch: 'window',
