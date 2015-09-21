@@ -24,7 +24,7 @@ def upload_rf(sftp, from, to)
   Dir.entries(from).each do |ent|
     next if %w{. .. .DS_Store .gitignore .git
       deploy.rb Gruntfile.coffee package.json .sass-cache
-      Makefile README.md node_modules .sublime-grunt.cache}.include? ent
+      Makefile README.md .sublime-grunt.cache}.include? ent
     full_from = "#{from}/#{ent}"
     full_to = "#{to}/#{ent}"
     if File.file?(full_from)

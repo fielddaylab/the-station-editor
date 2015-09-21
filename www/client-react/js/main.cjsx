@@ -1,3 +1,7 @@
+React = require 'react'
+GoogleMap = require 'google-map-react'
+{markdown} = require 'markdown'
+
 class window.Game
   constructor: (json) ->
     @game_id     = parseInt json.game_id
@@ -111,7 +115,7 @@ TopLevel = React.createClass
       <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
       <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
       <div style={width: '500px', height: '500px'}>
-        <GoogleMapReact
+        <GoogleMap
           center={[@props.game.latitude, @props.game.longitude]}
           zoom={@props.game.zoom}>
           { @state.notes.map (note) =>
@@ -119,7 +123,7 @@ TopLevel = React.createClass
                 style={width: '10px', height: '10px', backgroundColor: 'black', cursor: 'pointer'}
                 onClick={=> @setState viewing: note} />
           }
-        </GoogleMapReact>
+        </GoogleMap>
       </div>
       { if @state.viewing?
           <NoteView

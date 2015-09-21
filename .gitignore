@@ -9,3 +9,6 @@ node_modules/
 .AppleDouble
 .DS_Store
 .index.html.swp
+
+browserify_out.js
+coffee_out.js
