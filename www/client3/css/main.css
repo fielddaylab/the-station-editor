@@ -137,7 +137,7 @@ body.is-mode-edit #the-note-gallery {
   cursor: pointer; }
 
 .a-grid-photo:after {
-  content: "";
+  content: '';
   display: block;
   margin-top: 100%; }
 
@@ -157,7 +157,7 @@ body:not(.is-mode-note) #the-note-view {
   position: relative; }
 
 #the-photo:after {
-  content: "";
+  content: '';
   display: block;
   margin-top: 100%; }
 
@@ -233,7 +233,7 @@ body:not(.is-mode-add) #the-note-adder {
   cursor: pointer; }
 
 #the-photo-upload-box:after {
-  content: "";
+  content: '';
   display: block;
   margin-top: 100%; }
 
@@ -282,7 +282,7 @@ body:not(.is-mode-edit) #the-note-editor {
   display: inline-block; }
 
 #the-editor-photo-box:after {
-  content: "";
+  content: '';
   display: block;
   margin-top: 100%; }
 
@@ -308,5 +308,3 @@ body:not(.is-mode-edit) #the-note-editor {
 #the-menu a {
   text-decoration: none;
   color: inherit; }
-
-/*# sourceMappingURL=main.css.map */

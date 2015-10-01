@@ -271,7 +271,7 @@ class App
 
   # Downloads the list of games this user can edit.
   getGames: (cb = (->)) ->
-    @aris.call 'games.getGamesForUser', {}, (data: games) =>
+    @aris.call 'games.getGamesForUser', {}, ({data: games}) =>
       @games = []
       for json in games
         continue if json.is_siftr? and not parseInt json.is_siftr
@@ -299,7 +299,7 @@ class App
       else
         @aris.call 'media.getMedia',
           media_id: game.icon_media_id
-        , (data: game.icon_media) =>
+        , ({data: game.icon_media}) =>
           cb()
     async.parallel(go(game) for game in @games, cb)
 
@@ -311,7 +311,7 @@ class App
       else
         @aris.call 'tags.getTagsForGame',
           game_id: game.game_id
-        , (data: game.tags) =>
+        , ({data: game.tags}) =>
           cb()
     async.parallel(go(game) for game in @games, cb)
 
@@ -324,7 +324,7 @@ class App
         @aris.call 'tags.countObjectsWithTag',
           object_type: 'NOTE'
           tag_id: tag.tag_id
-        , (data: {count}) =>
+        , ({data: {count}}) =>
           tag.count = parseInt count
           cb()
     async.parallel(go(tag) for tag in allTags, cb)
@@ -336,7 +336,7 @@ class App
       else
         @aris.call 'editors.getEditorsForGame',
           game_id: game.game_id
-        , (data: game.editors) =>
+        , ({data: game.editors}) =>
           cb()
     async.parallel(go(game) for game in @games, cb)
 
@@ -410,7 +410,7 @@ class App
       cb @currentGame.icon_media_id
     else
       @uploadMediaFromInput '#file-siftr-icon', @currentGame
-      , (data: media) =>
+      , ({data: media}) =>
         cb media.media_id
 
   # Saves all edits to the name, description, icon, and map center/zoom.
@@ -453,12 +453,12 @@ class App
       is_siftr: 1
       published: 0
       moderated: 0
-    , (data: game) =>
+    , ({data: game}) =>
       @addGameFromJson game
       @aris.call 'tags.createTag',
         game_id: game.game_id
         tag: 'Your First Tag'
-      , (data: tag) =>
+      , ({data: tag}) =>
         @getAllGameInfo =>
           @redrawGameList()
           $('#spinner-new-siftr').hide()
@@ -491,11 +491,11 @@ class App
           , (iconInput) =>
             iconInput.change =>
               thumb.addClass 'icon-uploading'
-              @uploadMediaFromInput iconInput, @currentGame, (data: media) =>
+              @uploadMediaFromInput iconInput, @currentGame, ({data: media}) =>
                 @aris.call 'tags.updateTag',
                   tag_id: tag.tag_id
                   media_id: media.media_id
-                , (data: newTag) =>
+                , ({data: newTag}) =>
                   thumb.removeClass 'icon-uploading'
                   tag.media = newTag.media
                   tag.media_id = newTag.media_id
@@ -698,7 +698,7 @@ class App
         user_id: @aris.auth.user_id
         game_id: @currentGame.game_id
         tag_ids: [tag.tag_id]
-      , (data: notes) =>
+      , ({data: notes}) =>
         async.parallel(@assignTag(note, newTagID) for note in notes, proceed)
     else
       proceed()

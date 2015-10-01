@@ -55,7 +55,7 @@ class App
         else
           @aris.call 'games.searchSiftrs',
             search: $('#search-text').val()
-          , (data: games) =>
+          , ({data: games}) =>
             games =
               g for g in games when parseInt(g.published) isnt 0
             async.parallel( @getIconURL(game) for game in games
@@ -70,7 +70,7 @@ class App
 
         @aris.call 'games.searchSiftrs',
           order_by: 'recent'
-        , (data: games) =>
+        , ({data: games}) =>
           games =
             g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
@@ -80,7 +80,7 @@ class App
 
         @aris.call 'games.searchSiftrs',
           order_by: 'popular'
-        , (data: games) =>
+        , ({data: games}) =>
           games =
             g for g in games when parseInt(g.published) isnt 0
           async.parallel( @getIconURL(game) for game in games
@@ -96,7 +96,7 @@ class App
       game_id: game.game_id
       note_count: 1
       order_by: 'recent'
-    , (data: notes) =>
+    , ({data: notes}) =>
       if notes.length is 0
         if parseInt(game.icon_media_id) is 0
           game.icon_url = 'editor/img/uw_shield.png'
@@ -104,7 +104,7 @@ class App
         else
           @aris.call 'media.getMedia',
             media_id: game.icon_media_id
-          , (data: media) =>
+          , ({data: media}) =>
             game.icon_url = media.url
             cb()
       else

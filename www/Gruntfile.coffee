@@ -26,7 +26,7 @@ module.exports = (grunt) ->
           'client-react/js/browserify_out.js': ['client-react/js/coffee_out.js']
 
   grunt.loadNpmTasks 'grunt-coffee-react'
-  grunt.loadNpmTasks 'grunt-contrib-sass'
+  grunt.loadNpmTasks 'grunt-sass'
   grunt.loadNpmTasks 'grunt-contrib-less'
   grunt.loadNpmTasks 'grunt-browserify'
   grunt.registerTask 'default', ['cjsx', 'sass', 'less', 'browserify']
