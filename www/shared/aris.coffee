@@ -13,6 +13,10 @@ class Game
     @latitude    = parseFloat json.map_latitude
     @longitude   = parseFloat json.map_longitude
     @zoom        = parseInt json.map_zoom_level
+    @siftr_url   = json.siftr_url or null
+    @is_siftr    = if parseInt json.is_siftr  then true else false
+    @published   = if parseInt json.published then true else false
+    @moderated   = if parseInt json.moderated then true else false
 
 class User
   constructor: (json) ->
@@ -126,6 +130,9 @@ class Aris
 
   getGamesForUser: (json, cb) ->
     @callWrapped 'games.getGamesForUser', json, cb, (data) -> new Game o for o in data
+
+  searchNotes: (json, cb) ->
+    @callWrapped 'notes.searchNotes', json, cb, (data) -> new Note o for o in data
 
 for k, v of {Game, User, Tag, Comment, Note, Aris, ARIS_URL, SIFTR_URL}
   exports[k] = v

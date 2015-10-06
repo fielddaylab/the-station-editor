@@ -16,6 +16,10 @@
       this.latitude = parseFloat(json.map_latitude);
       this.longitude = parseFloat(json.map_longitude);
       this.zoom = parseInt(json.map_zoom_level);
+      this.siftr_url = json.siftr_url || null;
+      this.is_siftr = parseInt(json.is_siftr) ? true : false;
+      this.published = parseInt(json.published) ? true : false;
+      this.moderated = parseInt(json.moderated) ? true : false;
     }
 
     return Game;
@@ -201,6 +205,18 @@
         for (_i = 0, _len = data.length; _i < _len; _i++) {
           o = data[_i];
           _results.push(new Game(o));
+        }
+        return _results;
+      });
+    };
+
+    Aris.prototype.searchNotes = function(json, cb) {
+      return this.callWrapped('notes.searchNotes', json, cb, function(data) {
+        var o, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          o = data[_i];
+          _results.push(new Note(o));
         }
         return _results;
       });
