@@ -1,60 +1,9 @@
 React = require 'react'
 GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
-
-class window.Game
-  constructor: (json) ->
-    @game_id     = parseInt json.game_id
-    @name        = json.name
-    @description = json.description
-    @latitude    = parseFloat json.map_latitude
-    @longitude   = parseFloat json.map_longitude
-    @zoom        = parseInt json.map_zoom_level
-
-class window.User
-  constructor: (json) ->
-    @user_id      = parseInt json.user_id
-    @display_name = json.display_name or json.user_name
-
-class window.Tag
-  constructor: (json) ->
-    @icon_url = json.media?.data?.url
-    @tag      = json.tag
-    @tag_id   = parseInt json.tag_id
-
-class window.Comment
-  constructor: (json) ->
-    @description = json.description
-    @comment_id  = parseInt json.note_comment_id
-    @user        = new User json.user
-    @created     = new Date(json.created.replace(' ', 'T') + 'Z')
-
-class window.Note
-  constructor: (json) ->
-    @note_id      = parseInt json.note_id
-    @user         = new User json.user
-    @description  = json.description
-    @photo_url    =
-      if parseInt(json.media.data.media_id) is 0
-        null
-      else
-        json.media.data.url
-    @thumb_url    =
-      if parseInt(json.media.data.media_id) is 0
-        null
-      else
-        json.media.data.thumb_url
-    @latitude     = parseFloat json.latitude
-    @longitude    = parseFloat json.longitude
-    @tag_id       = parseInt json.tag_id
-    @created      = new Date(json.created.replace(' ', 'T') + 'Z')
-    @player_liked = parseInt(json.player_liked) isnt 0
-    @note_likes   = parseInt json.note_likes
-    @comments     = for o in json.comments.data
-      comment = new Comment o
-      continue unless comment.description.match(/\S/)
-      comment
-    @published    = json.published
+for k, v of require '../../shared/aris.js'
+  window[k] = v
+$ = require 'jquery'
 
 renderMarkdown = (str) ->
   __html: markdown.toHTML str
@@ -182,24 +131,21 @@ TopLevel = React.createClass
 $(document).ready ->
 
   aris = new Aris
-  aris.call 'games.getGame',
-    game_id: 3967
-  , ({data: gameJson, returnCode}) ->
-    if returnCode is 0 and gameJson?
-      game = new Game gameJson
+  aris.getGame
+    game_id: 4693
+  , ({data: game, returnCode}) ->
+    if returnCode is 0 and game?
 
-      aris.call 'tags.getTagsForGame',
+      aris.getTagsForGame
         game_id: game.game_id
       , ({data: tags, returnCode}) =>
-        if returnCode is 0
-          game.tags =
-            new Tag o for o in tags
+        if returnCode is 0 and tags?
+          game.tags = tags
 
-          aris.call 'users.getUsersForGame',
+          aris.getUsersForGame
             game_id: game.game_id
           , ({data: owners, returnCode}) =>
-            if returnCode is 0
-              game.owners =
-                new User o for o in owners
+            if returnCode is 0 and owners?
+              game.owners = owners
 
               React.render <TopLevel game={game} aris={aris} />, document.getElementById('output')
