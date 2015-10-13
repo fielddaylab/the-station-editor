@@ -3,6 +3,7 @@ GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
   window[k] = v
+{Router, Route, Link} = require 'react-router'
 
 countContributors = (notes) ->
   user_ids = {}
@@ -12,11 +13,33 @@ countContributors = (notes) ->
       user_ids[comment.user.user_id] = true
   Object.keys(user_ids).length
 
+SiftrList = React.createClass
+  render: ->
+    <ul>
+      { for game in @props.games
+          notes = @props.notes[game.game_id]
+          <li key={"game-#{game.game_id}"}>
+            <p>
+              {' '} { game.name }:
+              {' '} { notes?.length ? '...' } notes,
+              {' '} { if notes? then countContributors(notes) else '...' } contributors
+            </p>
+            <p>
+              <Link to={"/edit/#{game.game_id}"}>Edit Siftr</Link>
+            </p>
+            <p>
+              <a href="#{SIFTR_URL}/#{game.siftr_url or game.game_id}">Go to Siftr</a>
+            </p>
+          </li>
+      }
+    </ul>
+
 App = React.createClass
   getInitialState: ->
     auth: null
     games: []
     tags: {}
+    notes: {}
     username: ''
     password: ''
 
@@ -83,23 +106,19 @@ App = React.createClass
       <form>
         <p><code>{ JSON.stringify @state.auth }</code></p>
         <button type="button" onClick={@logout}>Logout</button>
-        <ul>
-          { for game in @state.games
-              <li key={"game-#{game.game_id}"}>
-                <p><code>{ JSON.stringify game }</code></p>
-                <p>
-                  <a href="#{SIFTR_URL}/#{game.siftr_url or game.game_id}">Go to Siftr</a>
-                </p>
-                <p>{ (@state.notes[game.game_id] ? []).length } notes</p>
-                <p>{ countContributors(@state.notes[game.game_id] ? []) } contributors</p>
-                <ul>
-                  { for tag in @state.tags[game.game_id] ? []
-                      <li key={"tag-#{tag.tag_id}"}><code>{ JSON.stringify tag }</code></li>
-                  }
-                </ul>
-              </li>
-          }
-        </ul>
+        {
+          if @props.children?
+            React.cloneElement @props.children,
+              games: @state.games
+              notes: @state.notes
+              tags: @state.tags
+          else
+            <SiftrList
+              games={@state.games}
+              notes={@state.notes}
+              tags={@state.tags}
+              />
+        }
       </form>
     else
       <form>
@@ -108,5 +127,37 @@ App = React.createClass
         <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
       </form>
 
+EditSiftr = React.createClass
+  render: ->
+    game_id = @props.params.gameID
+    tags = @props.tags[game_id] ? []
+    <div>
+      <p>Tags</p>
+      <ul>
+        { for tag in tags
+            <li key={"tag-#{tag.tag_id}"}>{ tag.tag }</li>
+        }
+      </ul>
+      <p>
+        <Link to="/">
+          Back to Siftrs
+        </Link>
+      </p>
+    </div>
+
+# Wrap a React class to have some new default prop values.
+prefillProps = (klass, props) ->
+  React.createClass
+    getDefaultProps: ->
+      props
+    render: ->
+      <klass {...@props} />
+
 document.addEventListener 'DOMContentLoaded', (event) ->
-  React.render <App aris={new Aris} />, document.getElementById('output')
+  app =
+    <Router>
+      <Route path="/" component={prefillProps App, aris: new Aris}>
+        <Route path="edit/:gameID" component={EditSiftr} />
+      </Route>
+    </Router>
+  React.render app, document.getElementById('output')
