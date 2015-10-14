@@ -4,6 +4,9 @@ GoogleMap = require 'google-map-react'
 for k, v of require '../../shared/aris.js'
   window[k] = v
 
+renderMarkdown = (str) ->
+  __html: markdown.toHTML str
+
 countContributors = (notes) ->
   user_ids = {}
   for note in notes
@@ -155,7 +158,7 @@ SiftrList = React.createClass
             <li key={"game-#{game.game_id}"}>
               <p>
                 { game.name }
-                {' '} <a href={"#{SIFTR_URL}/#{game.siftr_url or game.game_id}"}>[View]</a>
+                {' '} <a href={"#{SIFTR_URL}#{game.siftr_url or game.game_id}"}>[View]</a>
                 {' '} <a href={"\#edit#{game.game_id}"}>[Edit]</a>
               </p>
               <p>
@@ -178,6 +181,42 @@ EditSiftr = React.createClass
         </label>
       </p>
       <p>
+        <label>
+          Description <br />
+          <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
+        </label>
+      </p>
+      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
+      <p>
+        <label>
+          URL <br />
+          <input ref="siftr_url" type="text" value={@props.game.siftr_url} onChange={@handleChange} />
+        </label>
+      </p>
+      <p>
+        Your Siftr's URL will be <code>{"#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"}</code>
+      </p>
+      <p>
+        <label>
+          <input ref="published" type="checkbox" checked={@props.game.published} onChange={@handleChange} />
+          Published
+        </label>
+      </p>
+      <p>
+        <label>
+          <input ref="moderated" type="checkbox" checked={@props.game.moderated} onChange={@handleChange} />
+          Moderated
+        </label>
+      </p>
+      <div style={width: '500px', height: '500px'}>
+        <GoogleMap
+          ref="map"
+          center={[@props.game.latitude, @props.game.longitude]}
+          zoom={@props.game.zoom}
+          onBoundsChange={@handleMapChange}>
+        </GoogleMap>
+      </div>
+      <p>
         <button type="button" onClick={@props.onSave}>Save changes</button>
       </p>
       <p><a href="#">Back to Siftr list</a></p>
@@ -186,7 +225,25 @@ EditSiftr = React.createClass
   handleChange: ->
     game = React.addons.update @props.game,
       name:
-        $set: @refs["name"].getDOMNode().value
+        $set: @refs['name'].getDOMNode().value
+      description:
+        $set: @refs['description'].getDOMNode().value
+      siftr_url:
+        $set: @refs['siftr_url'].getDOMNode().value or null
+      published:
+        $set: @refs['published'].getDOMNode().checked
+      moderated:
+        $set: @refs['moderated'].getDOMNode().checked
+    @props.onChange game
+
+  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
+    game = React.addons.update @props.game,
+      latitude:
+        $set: lat
+      longitude:
+        $set: lng
+      zoom:
+        $set: zoom
     @props.onChange game
 
 document.addEventListener 'DOMContentLoaded', (event) ->
