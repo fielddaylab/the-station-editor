@@ -3,7 +3,6 @@ GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
   window[k] = v
-{Router, Route, Link} = require 'react-router'
 
 countContributors = (notes) ->
   user_ids = {}
@@ -13,27 +12,6 @@ countContributors = (notes) ->
       user_ids[comment.user.user_id] = true
   Object.keys(user_ids).length
 
-SiftrList = React.createClass
-  render: ->
-    <ul>
-      { for game in @props.games
-          notes = @props.notes[game.game_id]
-          <li key={"game-#{game.game_id}"}>
-            <p>
-              {' '} { game.name }:
-              {' '} { notes?.length ? '...' } notes,
-              {' '} { if notes? then countContributors(notes) else '...' } contributors
-            </p>
-            <p>
-              <Link to={"/edit/#{game.game_id}"}>Edit Siftr</Link>
-            </p>
-            <p>
-              <a href="#{SIFTR_URL}/#{game.siftr_url or game.game_id}">Go to Siftr</a>
-            </p>
-          </li>
-      }
-    </ul>
-
 App = React.createClass
   getInitialState: ->
     auth: null
@@ -42,9 +20,24 @@ App = React.createClass
     notes: {}
     username: ''
     password: ''
+    edit_game: null
 
   componentDidMount: ->
     @login undefined, undefined
+    window.addEventListener 'hashchange', => @applyHash()
+
+  applyHash: ->
+    hash = window.location.hash[1..]
+    if hash[0..3] is 'edit'
+      game_id = parseInt hash[4..]
+      matchingGames =
+        game for game in @state.games when game.game_id is game_id
+      if matchingGames.length is 1
+        @setState edit_game: matchingGames[0]
+      else
+        @setState edit_game: null
+    else
+      @setState edit_game: null
 
   login: (username, password) ->
     @props.aris.login username, password, => @updateLogin()
@@ -66,6 +59,7 @@ App = React.createClass
               game for game in result.data when game.is_siftr
             tags: {}
             notes: {}
+          @applyHash()
           @updateTags result.data
           @updateNotes result.data
         else
@@ -101,17 +95,34 @@ App = React.createClass
                   obj[game.game_id] = result.data
                   obj
 
+  handleSave: ->
+    @props.aris.updateGame @state.edit_game
+    , (result) =>
+      window.location.hash = '#'
+      if result.returnCode is 0 and result.data?
+        newGame = result.data
+        @setState (previousState, currentProps) =>
+          React.addons.update previousState,
+            games:
+              $apply: (games) =>
+                for game in games
+                  if game.game_id is newGame.game_id
+                    newGame
+                  else
+                    game
+
   render: ->
     if @state.auth?
       <form>
         <p><code>{ JSON.stringify @state.auth }</code></p>
         <button type="button" onClick={@logout}>Logout</button>
         {
-          if @props.children?
-            React.cloneElement @props.children,
-              games: @state.games
-              notes: @state.notes
-              tags: @state.tags
+          if @state.edit_game?
+            <EditSiftr
+              game={@state.edit_game}
+              onChange={(game) => @setState edit_game: game}
+              onSave={@handleSave}
+              />
           else
             <SiftrList
               games={@state.games}
@@ -127,37 +138,48 @@ App = React.createClass
         <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
       </form>
 
+SiftrList = React.createClass
+  render: ->
+    <ul>
+      { for game in @props.games
+          do (game) =>
+            notes = @props.notes[game.game_id]
+            <li key={"game-#{game.game_id}"}>
+              <p>
+                { game.name }
+                {' '} <a href={"#{SIFTR_URL}/#{game.siftr_url or game.game_id}"}>[View]</a>
+                {' '} <a href={"\#edit#{game.game_id}"}>[Edit]</a>
+              </p>
+              <p>
+                { notes?.length ? '...' } items
+                {' | '} { if notes? then countContributors(notes) else '...' } contributors
+                {' | '} { if game.published then 'Public' else 'Private' }
+                {' | '} { if game.moderated then 'Moderated' else 'Non-Moderated' }
+              </p>
+            </li>
+      }
+    </ul>
+
 EditSiftr = React.createClass
   render: ->
-    game_id = @props.params.gameID
-    tags = @props.tags[game_id] ? []
-    <div>
-      <p>Tags</p>
-      <ul>
-        { for tag in tags
-            <li key={"tag-#{tag.tag_id}"}>{ tag.tag }</li>
-        }
-      </ul>
+    <form>
       <p>
-        <Link to="/">
-          Back to Siftrs
-        </Link>
+        <label>
+          Name <br />
+          <input ref="name" type="text" value={@props.game.name} onChange={@handleChange} />
+        </label>
       </p>
-    </div>
+      <p>
+        <button type="button" onClick={@props.onSave}>Save changes</button>
+      </p>
+      <p><a href="#">Back to Siftr list</a></p>
+    </form>
 
-# Wrap a React class to have some new default prop values.
-prefillProps = (klass, props) ->
-  React.createClass
-    getDefaultProps: ->
-      props
-    render: ->
-      <klass {...@props} />
+  handleChange: ->
+    game = React.addons.update @props.game,
+      name:
+        $set: @refs["name"].getDOMNode().value
+    @props.onChange game
 
 document.addEventListener 'DOMContentLoaded', (event) ->
-  app =
-    <Router>
-      <Route path="/" component={prefillProps App, aris: new Aris}>
-        <Route path="edit/:gameID" component={EditSiftr} />
-      </Route>
-    </Router>
-  React.render app, document.getElementById('output')
+  React.render <App aris={new Aris} />, document.getElementById('output')

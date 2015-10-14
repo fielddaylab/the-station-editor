@@ -10,17 +10,45 @@
 
   Game = (function() {
     function Game(json) {
-      this.game_id = parseInt(json.game_id);
-      this.name = json.name;
-      this.description = json.description;
-      this.latitude = parseFloat(json.map_latitude);
-      this.longitude = parseFloat(json.map_longitude);
-      this.zoom = parseInt(json.map_zoom_level);
-      this.siftr_url = json.siftr_url || null;
-      this.is_siftr = parseInt(json.is_siftr) ? true : false;
-      this.published = parseInt(json.published) ? true : false;
-      this.moderated = parseInt(json.moderated) ? true : false;
+      if (json != null) {
+        this.game_id = parseInt(json.game_id);
+        this.name = json.name;
+        this.description = json.description;
+        this.latitude = parseFloat(json.map_latitude);
+        this.longitude = parseFloat(json.map_longitude);
+        this.zoom = parseInt(json.map_zoom_level);
+        this.siftr_url = json.siftr_url || null;
+        this.is_siftr = parseInt(json.is_siftr) ? true : false;
+        this.published = parseInt(json.published) ? true : false;
+        this.moderated = parseInt(json.moderated) ? true : false;
+      } else {
+        this.game_id = null;
+        this.name = null;
+        this.description = null;
+        this.latitude = null;
+        this.longitude = null;
+        this.zoom = null;
+        this.siftr_url = null;
+        this.is_siftr = null;
+        this.published = null;
+        this.moderated = null;
+      }
     }
+
+    Game.prototype.createJSON = function() {
+      return {
+        game_id: this.game_id || void 0,
+        name: this.name,
+        description: this.description,
+        map_latitude: this.latitude,
+        map_longitude: this.longitude,
+        map_zoom_level: this.zoom,
+        siftr_url: this.siftr_url,
+        is_siftr: this.is_siftr,
+        published: this.published,
+        moderated: this.moderated
+      };
+    };
 
     return Game;
 
@@ -219,6 +247,12 @@
           _results.push(new Note(o));
         }
         return _results;
+      });
+    };
+
+    Aris.prototype.updateGame = function(game, cb) {
+      return this.callWrapped('games.updateGame', game.createJSON(), cb, function(data) {
+        return new Game(data);
       });
     };
 

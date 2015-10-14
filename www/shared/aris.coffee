@@ -7,16 +7,40 @@ SIFTR_URL = window.location.origin + '/'
 
 class Game
   constructor: (json) ->
-    @game_id     = parseInt json.game_id
-    @name        = json.name
-    @description = json.description
-    @latitude    = parseFloat json.map_latitude
-    @longitude   = parseFloat json.map_longitude
-    @zoom        = parseInt json.map_zoom_level
-    @siftr_url   = json.siftr_url or null
-    @is_siftr    = if parseInt json.is_siftr  then true else false
-    @published   = if parseInt json.published then true else false
-    @moderated   = if parseInt json.moderated then true else false
+    if json?
+      @game_id     = parseInt json.game_id
+      @name        = json.name
+      @description = json.description
+      @latitude    = parseFloat json.map_latitude
+      @longitude   = parseFloat json.map_longitude
+      @zoom        = parseInt json.map_zoom_level
+      @siftr_url   = json.siftr_url or null
+      @is_siftr    = if parseInt json.is_siftr  then true else false
+      @published   = if parseInt json.published then true else false
+      @moderated   = if parseInt json.moderated then true else false
+    else
+      @game_id     = null
+      @name        = null
+      @description = null
+      @latitude    = null
+      @longitude   = null
+      @zoom        = null
+      @siftr_url   = null
+      @is_siftr    = null
+      @published   = null
+      @moderated   = null
+
+  createJSON: ->
+    game_id: @game_id or undefined
+    name: @name
+    description: @description
+    map_latitude: @latitude
+    map_longitude: @longitude
+    map_zoom_level: @zoom
+    siftr_url: @siftr_url
+    is_siftr: @is_siftr
+    published: @published
+    moderated: @moderated
 
 class User
   constructor: (json) ->
@@ -133,6 +157,9 @@ class Aris
 
   searchNotes: (json, cb) ->
     @callWrapped 'notes.searchNotes', json, cb, (data) -> new Note o for o in data
+
+  updateGame: (game, cb) ->
+    @callWrapped 'games.updateGame', game.createJSON(), cb, (data) -> new Game data
 
 for k, v of {Game, User, Tag, Comment, Note, Aris, ARIS_URL, SIFTR_URL}
   exports[k] = v
