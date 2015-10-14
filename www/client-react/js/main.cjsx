@@ -55,8 +55,17 @@ TopLevel = React.createClass
     searching: false
     checkedTags: []
     searchText: ''
+    latitude: @props.game.latitude
+    longitude: @props.game.longitude
+    zoom: @props.game.zoom
   componentDidMount: ->
     @handleSearch [], '', false
+
+  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
+    @setState
+      latitude: lat
+      longitude: lng
+      zoom: zoom
 
   render: ->
     <div>
@@ -65,8 +74,9 @@ TopLevel = React.createClass
       <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
       <div style={width: '500px', height: '500px'}>
         <GoogleMap
-          center={[@props.game.latitude, @props.game.longitude]}
-          zoom={@props.game.zoom}>
+          center={[@state.latitude, @state.longitude]}
+          zoom={@state.zoom}
+          onBoundsChange={@handleMapChange}>
           { @state.notes.map (note) =>
               <div key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude}
                 style={width: '10px', height: '10px', backgroundColor: 'black', cursor: 'pointer'}
