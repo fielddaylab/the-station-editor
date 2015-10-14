@@ -24,6 +24,7 @@ App = React.createClass
 
   componentDidMount: ->
     @login undefined, undefined
+    @applyHash()
     window.addEventListener 'hashchange', => @applyHash()
 
   applyHash: ->
@@ -43,6 +44,7 @@ App = React.createClass
     @props.aris.login username, password, => @updateLogin()
 
   logout: ->
+    window.location.hash = '#'
     @props.aris.logout()
     @updateLogin()
 
@@ -133,9 +135,15 @@ App = React.createClass
       </form>
     else
       <form>
-        <input type="text" value={@state.username} onChange={(e) => @setState username: e.target.value} />
-        <input type="password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
-        <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
+        <p>
+          <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
+        </p>
+        <p>
+          <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
+        </p>
+        <p>
+          <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
+        </p>
       </form>
 
 SiftrList = React.createClass
