@@ -117,37 +117,46 @@ App = React.createClass
                     game
 
   render: ->
-    if @state.auth?
-      <form>
-        <p><code>{ JSON.stringify @state.auth }</code></p>
-        <button type="button" onClick={@logout}>Logout</button>
-        {
-          if @state.edit_game?
-            <EditSiftr
-              game={@state.edit_game}
-              onChange={(game) => @setState edit_game: game}
-              onSave={@handleSave}
-              />
-          else
-            <SiftrList
-              games={@state.games}
-              notes={@state.notes}
-              tags={@state.tags}
-              />
-        }
-      </form>
-    else
-      <form>
-        <p>
-          <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
-        </p>
-        <p>
-          <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
-        </p>
-        <p>
-          <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
-        </p>
-      </form>
+    <div>
+      <div id="the-nav-bar">
+        <div id="the-logo">Siftr</div>
+        <div id="the-discover-button">Discover</div>
+        <div id="the-my-account-button">My Account</div>
+        <div id="the-my-siftrs-button">My Siftrs</div>
+      </div>
+      { if @state.auth?
+          <form>
+            <p><code>{ JSON.stringify @state.auth }</code></p>
+            <button type="button" onClick={@logout}>Logout</button>
+            {
+              if @state.edit_game?
+                <EditSiftr
+                  game={@state.edit_game}
+                  onChange={(game) => @setState edit_game: game}
+                  onSave={@handleSave}
+                  />
+              else
+                <SiftrList
+                  games={@state.games}
+                  notes={@state.notes}
+                  tags={@state.tags}
+                  />
+            }
+          </form>
+        else
+          <form>
+            <p>
+              <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
+            </p>
+            <p>
+              <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
+            </p>
+            <p>
+              <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
+            </p>
+          </form>
+      }
+    </div>
 
 SiftrList = React.createClass
   render: ->
@@ -247,4 +256,4 @@ EditSiftr = React.createClass
     @props.onChange game
 
 document.addEventListener 'DOMContentLoaded', (event) ->
-  React.render <App aris={new Aris} />, document.getElementById('output')
+  React.render <App aris={new Aris} />, document.body
