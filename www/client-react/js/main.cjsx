@@ -48,7 +48,7 @@ SearchBox = React.createClass
       </p>
     </form>
 
-TopLevel = React.createClass
+App = React.createClass
   getInitialState: ->
     notes: []
     viewing: null
@@ -60,6 +60,18 @@ TopLevel = React.createClass
     zoom: @props.game.zoom
   componentDidMount: ->
     @handleSearch [], '', false
+    @applyHash()
+    window.addEventListener 'hashchange', => @applyHash()
+
+  applyHash: ->
+    hash = window.location.hash[1..]
+    note_id = parseInt hash
+    matchingNotes =
+      note for note in @state.notes when note.note_id is note_id
+    if matchingNotes.length is 1
+      @setState viewing: matchingNotes[0]
+    else
+      @setState viewing: null
 
   handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
     @setState
@@ -77,17 +89,24 @@ TopLevel = React.createClass
           center={[@state.latitude, @state.longitude]}
           zoom={@state.zoom}
           onBoundsChange={@handleMapChange}>
-          { @state.notes.map (note) =>
-              <div key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude}
-                style={width: '10px', height: '10px', backgroundColor: 'black', cursor: 'pointer'}
-                onClick={=> @setState viewing: note} />
+          { do =>
+            note_ids = @state.notes.map((note) => note.note_id)
+            max_note_id = Math.max(note_ids...)
+            min_note_id = Math.min(note_ids...)
+            @state.notes.map (note) =>
+              age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
+              age_percent = "#{age * 100}%"
+              color = "rgb(#{age_percent}, #{age_percent}, #{age_percent})"
+              <a key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude} href={"##{note.note_id}"}>
+                <div style={width: '10px', height: '10px', backgroundColor: color} />
+              </a>
           }
         </GoogleMap>
       </div>
       { if @state.viewing?
           <NoteView
             note={@state.viewing}
-            onBack={=> @setState viewing: null}
+            onBack={=> window.location.hash = '#'}
           />
         else
           <div>
@@ -101,7 +120,7 @@ TopLevel = React.createClass
                 <p>Searching...</p>
               else
                 @state.notes.map (note) =>
-                  <a key={"thumb-#{note.note_id}"} href="#" onClick={=> @setState viewing: note}>
+                  <a key={"thumb-#{note.note_id}"} href={"##{note.note_id}"}>
                     <img src={note.thumb_url} />
                   </a>
             }
@@ -158,4 +177,4 @@ $(document).ready ->
             if returnCode is 0 and owners?
               game.owners = owners
 
-              React.render <TopLevel game={game} aris={aris} />, document.getElementById('output')
+              React.render <App game={game} aris={aris} />, document.body
