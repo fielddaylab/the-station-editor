@@ -23,7 +23,9 @@ App = React.createClass
     notes: {}
     username: ''
     password: ''
+    screen: 'main'
     edit_game: null
+    new_step: null
 
   componentDidMount: ->
     @login undefined, undefined
@@ -37,11 +39,34 @@ App = React.createClass
       matchingGames =
         game for game in @state.games when game.game_id is game_id
       if matchingGames.length is 1
-        @setState edit_game: matchingGames[0]
+        @setState
+          screen: 'edit'
+          edit_game: matchingGames[0]
       else
-        @setState edit_game: null
+        @setState screen: 'main'
+        # This is temporary if the user is currently being logged in,
+        # because the list of games will load and re-call applyHash
+    else if hash is 'new1'
+      @setState
+        screen: 'new1'
+        new_step: 1
+        edit_game: new Game
+    else if hash is 'new2'
+      if @state.new_step is null
+        window.location.replace '#'
+      else
+        @setState
+          screen: 'new2'
+          new_step: 2
+    else if hash is 'new3'
+      if @state.new_step is null
+        window.location.replace '#'
+      else
+        @setState
+          screen: 'new3'
+          new_step: 3
     else
-      @setState edit_game: null
+      @setState screen: 'main'
 
   login: (username, password) ->
     @props.aris.login username, password, => @updateLogin()
@@ -129,18 +154,39 @@ App = React.createClass
             <p><code>{ JSON.stringify @state.auth }</code></p>
             <button type="button" onClick={@logout}>Logout</button>
             {
-              if @state.edit_game?
-                <EditSiftr
-                  game={@state.edit_game}
-                  onChange={(game) => @setState edit_game: game}
-                  onSave={@handleSave}
-                  />
-              else
-                <SiftrList
-                  games={@state.games}
-                  notes={@state.notes}
-                  tags={@state.tags}
-                  />
+              switch @state.screen
+                when 'edit'
+                  <EditSiftr
+                    game={@state.edit_game}
+                    onChange={(game) => @setState edit_game: game}
+                    onSave={@handleSave} />
+                when 'main'
+                  <div>
+                    <SiftrList
+                      games={@state.games}
+                      notes={@state.notes}
+                      tags={@state.tags} />
+                    <p>
+                      <a href="#new1">
+                        New Siftr
+                      </a>
+                    </p>
+                  </div>
+                when 'new1'
+                  <NewStep1
+                    game={@state.edit_game}
+                    tags={@state.new_tags}
+                    onChange={(game) => @setState edit_game: game} />
+                when 'new2'
+                  <NewStep2
+                    game={@state.edit_game}
+                    tags={@state.new_tags}
+                    onChange={(game) => @setState edit_game: game} />
+                when 'new3'
+                  <NewStep3
+                    game={@state.edit_game}
+                    tags={@state.new_tags}
+                    onChange={(game) => @setState edit_game: game} />
             }
           </form>
         else
@@ -254,6 +300,59 @@ EditSiftr = React.createClass
       zoom:
         $set: zoom
     @props.onChange game
+
+NewStep1 = React.createClass
+  render: ->
+    <div>
+      <h2>New Siftr</h2>
+      <p>
+        <a href="#new2">Next, appearance</a>
+      </p>
+      <p>What kind of Siftr do you want to make?</p>
+      <label>
+        <p>Name</p>
+        <input type="text" />
+      </label>
+      <label>
+        <p>Tags, separated by comma</p>
+        <input type="text" />
+      </label>
+      <label>
+        <p>Description</p>
+        <textarea />
+      </label>
+      <label>
+        <p>Siftr Icon</p>
+        <p><b>TODO</b></p>
+      </label>
+      <p><a href="#">Cancel</a></p>
+    </div>
+
+NewStep2 = React.createClass
+  render: ->
+    <div>
+      <h2>New Siftr 2</h2>
+      <p>
+        <a href="#new1">Back, setup</a>
+      </p>
+      <p>
+        <a href="#new3">Next, settings</a>
+      </p>
+      <p><a href="#">Cancel</a></p>
+    </div>
+
+NewStep3 = React.createClass
+  render: ->
+    <div>
+      <h2>New Siftr 3</h2>
+      <p>
+        <a href="#new2">Back, setup</a>
+      </p>
+      <p>
+        <button type="button" onClick={@handleCreate}>Create!</button>
+      </p>
+      <p><a href="#">Cancel</a></p>
+    </div>
 
 document.addEventListener 'DOMContentLoaded', (event) ->
   React.render <App aris={new Aris} />, document.body
