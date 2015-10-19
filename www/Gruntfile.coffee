@@ -28,6 +28,8 @@ module.exports = (grunt) ->
         files:
           'client2/css/sifter-desktop.css': ['client2/css/sifter-desktop.less']
           'client2/css/sifter-mobile.css' : ['client2/css/sifter-mobile.less']
+          'arisjamprojects/css/sifter-desktop.css': ['arisjamprojects/css/sifter-desktop.less']
+          'arisjamprojects/css/sifter-mobile.css' : ['arisjamprojects/css/sifter-mobile.less']
     browserify:
       compile:
         files:
