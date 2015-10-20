@@ -95,6 +95,8 @@ function NoteView(note) {
         data.category_class = getTagIconName(this.note);
         data.audio_url = getAudioToUse(this.note);
         data.details = getTextToUse(this.note);
+        var markdown = new Showdown.converter();
+        data.detailsRendered = markdown.makeHtml(data.details);
         data.comments = this.getCommentsJson(this.note.comments.data, this.note.user_id);
         data.logged_in = controller.logged_in();
         data.emailShare = this.note.email_shares;

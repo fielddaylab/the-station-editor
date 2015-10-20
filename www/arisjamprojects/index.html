@@ -234,7 +234,7 @@
           </div>
           <div class="sifter-show-details">
             <div id="sifter-show-description">
-              <p>{{details}}</p>
+              <p>{{{detailsRendered}}}</p>
             </div>
             <div id="sifter-edit-description">
               <textarea>{{details}}</textarea>
@@ -359,14 +359,18 @@
           </div>
 
           <!-- Description -->
+          <p style="margin-left: 10px; margin-right: 10px;">
+            <a href="https://en.support.wordpress.com/markdown-quick-reference/" target="_blank">Markdown</a>
+            is supported.
+          </p>
           <div class="description_box input_box">
-            <textarea id="caption" placeholder="Add a caption">ARIS Game Name
+            <textarea id="caption" placeholder="Add a caption">ARIS Game Name:
 
 
-Description
+Description:
 
 
-Team Members
+Team Members:
 
 </textarea>
 
