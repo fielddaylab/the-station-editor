@@ -18,6 +18,7 @@ class Game
       @is_siftr    = if parseInt json.is_siftr  then true else false
       @published   = if parseInt json.published then true else false
       @moderated   = if parseInt json.moderated then true else false
+      @colors_id   = parseInt(json.colors_id) or null
     else
       @game_id     = null
       @name        = null
@@ -29,6 +30,7 @@ class Game
       @is_siftr    = null
       @published   = null
       @moderated   = null
+      @colors_id   = null
 
   createJSON: ->
     game_id: @game_id or undefined
@@ -41,6 +43,16 @@ class Game
     is_siftr: @is_siftr
     published: @published
     moderated: @moderated
+    colors_id: @colors_id
+
+class Colors
+  constructor: (json) ->
+    @colors_id = parseInt json.colors_id
+    @tag_1     = json.tag_1
+    @tag_2     = json.tag_2
+    @tag_3     = json.tag_3
+    @tag_4     = json.tag_4
+    @tag_5     = json.tag_5
 
 class User
   constructor: (json) ->
@@ -49,9 +61,21 @@ class User
 
 class Tag
   constructor: (json) ->
-    @icon_url = json.media?.data?.url
-    @tag      = json.tag
-    @tag_id   = parseInt json.tag_id
+    if json?
+      @icon_url = json.media?.data?.url
+      @tag      = json.tag
+      @tag_id   = parseInt json.tag_id
+      @game_id  = parseInt json.game_id
+    else
+      @icon_url = null
+      @tag      = null
+      @tag_id   = null
+      @game_id  = null
+
+  createJSON: ->
+    tag_id: @tag_id or undefined
+    game_id: @game_id
+    tag: @tag
 
 class Comment
   constructor: (json) ->
@@ -158,8 +182,17 @@ class Aris
   searchNotes: (json, cb) ->
     @callWrapped 'notes.searchNotes', json, cb, (data) -> new Note o for o in data
 
+  createGame: (game, cb) ->
+    @callWrapped 'games.createGame', game.createJSON(), cb, (data) -> new Game data
+
   updateGame: (game, cb) ->
     @callWrapped 'games.updateGame', game.createJSON(), cb, (data) -> new Game data
+
+  getColors: (json, cb) ->
+    @callWrapped 'colors.getColors', json, cb, (data) -> new Colors data
+
+  createTag: (tag, cb) ->
+    @callWrapped 'tags.createTag', tag.createJSON(), cb, (data) -> new Tag data
 
 for k, v of {Game, User, Tag, Comment, Note, Aris, ARIS_URL, SIFTR_URL}
   exports[k] = v

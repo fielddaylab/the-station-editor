@@ -25,6 +25,15 @@ App = React.createClass
     password: ''
     screen: 'main'
     edit_game: null
+    new_game: do =>
+      g = new Game
+      g.colors_id = 1
+      g.latitude = 43
+      g.longitude = -89
+      g.zoom = 14
+      g.is_siftr = true
+      g
+    new_tag_string: ''
     new_step: null
 
   componentDidMount: ->
@@ -50,17 +59,16 @@ App = React.createClass
       @setState
         screen: 'new1'
         new_step: 1
-        edit_game: new Game
     else if hash is 'new2'
       if @state.new_step is null
-        window.location.replace '#'
+        window.location.replace '#new1'
       else
         @setState
           screen: 'new2'
           new_step: 2
     else if hash is 'new3'
-      if @state.new_step is null
-        window.location.replace '#'
+      if @state.new_step in [null, 1]
+        window.location.replace '#new1'
       else
         @setState
           screen: 'new3'
@@ -126,8 +134,7 @@ App = React.createClass
                   obj
 
   handleSave: ->
-    @props.aris.updateGame @state.edit_game
-    , (result) =>
+    @props.aris.updateGame @state.edit_game, (result) =>
       window.location.hash = '#'
       if result.returnCode is 0 and result.data?
         newGame = result.data
@@ -140,6 +147,47 @@ App = React.createClass
                     newGame
                   else
                     game
+
+  createGame: ->
+    @props.aris.createGame @state.new_game, (result) =>
+      if result.returnCode is 0 and result.data?
+        window.location.hash = '#'
+        newGame = result.data
+        @setState (previousState, currentProps) =>
+          React.addons.update previousState,
+            games:
+              $push: [newGame]
+            notes:
+              $merge: do =>
+                obj = {}
+                obj[newGame.game_id] = []
+                obj
+            new_game:
+              $set: do =>
+                g = new Game
+                g.colors_id = 1
+                g.latitude = 43
+                g.longitude = -89
+                g.zoom = 14
+                g.is_siftr = true
+                g
+            new_tag_string:
+              $set: ''
+            new_step:
+              $set: null
+        tags = @state.new_tag_string.split(',')
+        tagsRemaining = tags.length
+        for tag, i in tags
+          tag = tag.replace(/^\s+/, '')
+          continue if tag is ''
+          tagObject = new Tag
+          tagObject.tag = tag
+          tagObject.game_id = newGame.game_id
+          @props.aris.createTag tagObject, (result) =>
+            if result.returnCode is 0 and result.data?
+              tagsRemaining--
+              if tagsRemaining is 0
+                @updateTags([newGame])
 
   render: ->
     <div>
@@ -173,20 +221,23 @@ App = React.createClass
                     </p>
                   </div>
                 when 'new1'
+                  f = (game, tag_string) => @setState
+                    new_game: game
+                    new_tag_string: tag_string
                   <NewStep1
-                    game={@state.edit_game}
-                    tags={@state.new_tags}
-                    onChange={(game) => @setState edit_game: game} />
+                    game={@state.new_game}
+                    tag_string={@state.new_tag_string}
+                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}} />
                 when 'new2'
                   <NewStep2
-                    game={@state.edit_game}
-                    tags={@state.new_tags}
-                    onChange={(game) => @setState edit_game: game} />
+                    game={@state.new_game}
+                    tag_string={@state.new_tag_string}
+                    onChange={(new_game) => @setState {new_game}} />
                 when 'new3'
                   <NewStep3
-                    game={@state.edit_game}
-                    tags={@state.new_tags}
-                    onChange={(game) => @setState edit_game: game} />
+                    game={@state.new_game}
+                    onChange={(new_game) => @setState {new_game}}
+                    onCreate={@createGame} />
             }
           </form>
         else
@@ -311,22 +362,30 @@ NewStep1 = React.createClass
       <p>What kind of Siftr do you want to make?</p>
       <label>
         <p>Name</p>
-        <input type="text" />
+        <input ref="name" type="text" value={@props.game.name} onChange={@handleChange} />
       </label>
       <label>
         <p>Tags, separated by comma</p>
-        <input type="text" />
+        <input ref="tag_string" type="text" value={@props.tag_string} onChange={@handleChange} />
       </label>
       <label>
         <p>Description</p>
-        <textarea />
+        <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
       </label>
       <label>
-        <p>Siftr Icon</p>
-        <p><b>TODO</b></p>
+        <p>Siftr Icon: TODO</p>
       </label>
       <p><a href="#">Cancel</a></p>
     </div>
+
+  handleChange: ->
+    game = React.addons.update @props.game,
+      name:
+        $set: @refs.name.getDOMNode().value
+      description:
+        $set: @refs.description.getDOMNode().value
+    tag_string = @refs.tag_string.getDOMNode().value
+    @props.onChange(game, tag_string)
 
 NewStep2 = React.createClass
   render: ->
@@ -338,8 +397,55 @@ NewStep2 = React.createClass
       <p>
         <a href="#new3">Next, settings</a>
       </p>
+      <form>
+        <p><label><input ref="colors_1" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 1} /> Primary</label></p>
+        <p><label><input ref="colors_2" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 2} /> Sunset</label></p>
+        <p><label><input ref="colors_3" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 3} /> Willy St.</label></p>
+        <p><label><input ref="colors_4" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 4} /> Nature</label></p>
+        <p><label><input ref="colors_5" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 5} /> Monochromatic Blue</label></p>
+        <p><label><input ref="colors_6" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 6} /> Monochromatic Red</label></p>
+      </form>
+      <form>
+        <p><b>TAGS</b></p>
+        <ul>
+          { for tag, i in @props.tag_string.split(',')
+              tag = tag.replace(/^\s+/, '')
+              continue if tag is ''
+              <li key={"tag-#{i}"}>{ tag }</li>
+          }
+        </ul>
+      </form>
+      <p>Position Map Center</p>
+      <div style={width: '500px', height: '500px'}>
+        <GoogleMap
+          ref="map"
+          center={[@props.game.latitude, @props.game.longitude]}
+          zoom={@props.game.zoom}
+          onBoundsChange={@handleMapChange}>
+        </GoogleMap>
+      </div>
       <p><a href="#">Cancel</a></p>
     </div>
+
+  handleChange: ->
+    colors_id = 1
+    for i in [1..6]
+      if @refs["colors_#{i}"].getDOMNode().checked
+        colors_id = i
+    game = React.addons.update @props.game,
+      colors_id:
+        $set: colors_id
+    @props.onChange game
+
+  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
+    game = React.addons.update @props.game,
+      latitude:
+        $set: lat
+      longitude:
+        $set: lng
+      zoom:
+        $set: zoom
+    @props.onChange game
 
 NewStep3 = React.createClass
   render: ->
@@ -349,10 +455,32 @@ NewStep3 = React.createClass
         <a href="#new2">Back, setup</a>
       </p>
       <p>
-        <button type="button" onClick={@handleCreate}>Create!</button>
+        <button type="button" onClick={@props.onCreate}>Create!</button>
       </p>
+      <form>
+        <p>
+          <label>
+            <input ref="published" type="checkbox" checked={@props.game.published} onChange={@handleChange} />
+            Public
+          </label>
+        </p>
+        <p>
+          <label>
+            <input ref="moderated" type="checkbox" checked={@props.game.moderated} onChange={@handleChange} />
+            Moderation
+          </label>
+        </p>
+      </form>
       <p><a href="#">Cancel</a></p>
     </div>
+
+  handleChange: ->
+    game = React.addons.update @props.game,
+      published:
+        $set: @refs.published.getDOMNode().checked
+      moderated:
+        $set: @refs.moderated.getDOMNode().checked
+    @props.onChange game
 
 document.addEventListener 'DOMContentLoaded', (event) ->
   React.render <App aris={new Aris} />, document.body

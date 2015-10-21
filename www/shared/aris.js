@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var $, ARIS_URL, Aris, Comment, Game, Note, SIFTR_URL, Tag, User, k, v, _ref;
+  var $, ARIS_URL, Aris, Colors, Comment, Game, Note, SIFTR_URL, Tag, User, k, v, _ref;
 
   $ = require('jquery');
 
@@ -21,6 +21,7 @@
         this.is_siftr = parseInt(json.is_siftr) ? true : false;
         this.published = parseInt(json.published) ? true : false;
         this.moderated = parseInt(json.moderated) ? true : false;
+        this.colors_id = parseInt(json.colors_id) || null;
       } else {
         this.game_id = null;
         this.name = null;
@@ -32,6 +33,7 @@
         this.is_siftr = null;
         this.published = null;
         this.moderated = null;
+        this.colors_id = null;
       }
     }
 
@@ -46,11 +48,26 @@
         siftr_url: this.siftr_url,
         is_siftr: this.is_siftr,
         published: this.published,
-        moderated: this.moderated
+        moderated: this.moderated,
+        colors_id: this.colors_id
       };
     };
 
     return Game;
+
+  })();
+
+  Colors = (function() {
+    function Colors(json) {
+      this.colors_id = parseInt(json.colors_id);
+      this.tag_1 = json.tag_1;
+      this.tag_2 = json.tag_2;
+      this.tag_3 = json.tag_3;
+      this.tag_4 = json.tag_4;
+      this.tag_5 = json.tag_5;
+    }
+
+    return Colors;
 
   })();
 
@@ -67,10 +84,26 @@
   Tag = (function() {
     function Tag(json) {
       var _ref, _ref1;
-      this.icon_url = (_ref = json.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0;
-      this.tag = json.tag;
-      this.tag_id = parseInt(json.tag_id);
+      if (json != null) {
+        this.icon_url = (_ref = json.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0;
+        this.tag = json.tag;
+        this.tag_id = parseInt(json.tag_id);
+        this.game_id = parseInt(json.game_id);
+      } else {
+        this.icon_url = null;
+        this.tag = null;
+        this.tag_id = null;
+        this.game_id = null;
+      }
     }
+
+    Tag.prototype.createJSON = function() {
+      return {
+        tag_id: this.tag_id || void 0,
+        game_id: this.game_id,
+        tag: this.tag
+      };
+    };
 
     return Tag;
 
@@ -250,9 +283,27 @@
       });
     };
 
+    Aris.prototype.createGame = function(game, cb) {
+      return this.callWrapped('games.createGame', game.createJSON(), cb, function(data) {
+        return new Game(data);
+      });
+    };
+
     Aris.prototype.updateGame = function(game, cb) {
       return this.callWrapped('games.updateGame', game.createJSON(), cb, function(data) {
         return new Game(data);
+      });
+    };
+
+    Aris.prototype.getColors = function(json, cb) {
+      return this.callWrapped('colors.getColors', json, cb, function(data) {
+        return new Colors(data);
+      });
+    };
+
+    Aris.prototype.createTag = function(tag, cb) {
+      return this.callWrapped('tags.createTag', tag.createJSON(), cb, function(data) {
+        return new Tag(data);
       });
     };
 
