@@ -319,6 +319,7 @@ EditSiftr = React.createClass
           ref="map"
           center={[@props.game.latitude, @props.game.longitude]}
           zoom={@props.game.zoom}
+          options={minZoom: 1}
           onBoundsChange={@handleMapChange}>
         </GoogleMap>
       </div>
@@ -421,6 +422,7 @@ NewStep2 = React.createClass
           ref="map"
           center={[@props.game.latitude, @props.game.longitude]}
           zoom={@props.game.zoom}
+          options={minZoom: 1}
           onBoundsChange={@handleMapChange}>
         </GoogleMap>
       </div>
