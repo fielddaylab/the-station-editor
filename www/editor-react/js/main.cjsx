@@ -153,6 +153,8 @@ App = React.createClass
       if result.returnCode is 0 and result.data?
         window.location.hash = '#'
         newGame = result.data
+        tags = @state.new_tag_string.split(',')
+        tagsRemaining = tags.length
         @setState (previousState, currentProps) =>
           React.addons.update previousState,
             games:
@@ -175,8 +177,6 @@ App = React.createClass
               $set: ''
             new_step:
               $set: null
-        tags = @state.new_tag_string.split(',')
-        tagsRemaining = tags.length
         for tag, i in tags
           tag = tag.replace(/^\s+/, '')
           continue if tag is ''
