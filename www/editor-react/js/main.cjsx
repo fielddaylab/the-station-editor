@@ -7,6 +7,11 @@ for k, v of require '../../shared/aris.js'
 renderMarkdown = (str) ->
   __html: markdown.toHTML(str ? '')
 
+singleObj = (k, v) ->
+  obj = {}
+  obj[k] = v
+  obj
+
 countContributors = (notes) ->
   user_ids = {}
   for note in notes
@@ -21,6 +26,7 @@ App = React.createClass
     games: []
     tags: {}
     notes: {}
+    colors: {}
     username: ''
     password: ''
     screen: 'main'
@@ -41,6 +47,7 @@ App = React.createClass
     @login undefined, undefined
     @applyHash()
     window.addEventListener 'hashchange', => @applyHash()
+    @getColors()
 
   applyHash: ->
     hash = window.location.hash[1..]
@@ -89,6 +96,18 @@ App = React.createClass
     @setState auth: @props.aris.auth
     @updateGames()
 
+  getColors: ->
+    for i in [1..6] # predefined schemes for now
+      do (i) =>
+        @props.aris.getColors
+          colors_id: i
+        , (result) =>
+          if result.returnCode is 0 and result.data?
+            @setState (previousState, currentProps) =>
+              React.addons.update previousState,
+                colors:
+                  $merge: singleObj(i, result.data)
+
   updateGames: ->
     if @props.aris.auth?
       @props.aris.getGamesForUser {}, (result) =>
@@ -115,10 +134,7 @@ App = React.createClass
           @setState (previousState, currentProps) =>
             React.addons.update previousState,
               notes:
-                $merge: do =>
-                  obj = {}
-                  obj[game.game_id] = result.data
-                  obj
+                $merge: singleObj(game.game_id, result.data)
 
   updateTags: (games) ->
     games.forEach (game) =>
@@ -129,10 +145,7 @@ App = React.createClass
           @setState (previousState, currentProps) =>
             React.addons.update previousState,
               tags:
-                $merge: do =>
-                  obj = {}
-                  obj[game.game_id] = result.data
-                  obj
+                $merge: singleObj(game.game_id, result.data)
 
   # Adds the game to the known games list,
   # or updates an existing game if it shares the game ID.
@@ -213,10 +226,7 @@ App = React.createClass
         @setState (previousState, currentProps) =>
           React.addons.update previousState,
             notes:
-              $merge: do =>
-                obj = {}
-                obj[newGame.game_id] = []
-                obj
+              $merge: singleObj(newGame.game_id, [])
             new_game:
               $set: do =>
                 g = new Game
@@ -250,12 +260,14 @@ App = React.createClass
                 when 'edit'
                   <EditSiftr
                     game={@state.edit_game}
+                    colors={@state.colors}
                     onChange={(game) => @setState edit_game: game}
                     onSave={@handleSave} />
                 when 'main'
                   <div>
                     <SiftrList
                       games={@state.games}
+                      colors={@state.colors}
                       notes={@state.notes}
                       tags={@state.tags} />
                     <p>
@@ -278,6 +290,7 @@ App = React.createClass
                   <NewStep2
                     game={@state.new_game}
                     tag_string={@state.new_tag_string}
+                    colors={@state.colors}
                     onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}} />
                 when 'new3'
                   <NewStep3
@@ -318,6 +331,21 @@ SiftrList = React.createClass
                 {' | '} { if notes? then countContributors(notes) else '...' } contributors
                 {' | '} { if game.published then 'Public' else 'Private' }
                 {' | '} { if game.moderated then 'Moderated' else 'Non-Moderated' }
+              </p>
+              <p>
+                { do =>
+                  colors = @props.colors[game.colors_id]
+                  if colors?
+                    rgbs =
+                      colors["tag_#{i}"] for i in [1..5]
+                    <div style={
+                      "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
+                      height: '20px'
+                      width: '100%'
+                      } />
+                  else
+                    ''
+                }
               </p>
             </li>
       }
