@@ -274,7 +274,7 @@ App = React.createClass
                   <NewStep2
                     game={@state.new_game}
                     tag_string={@state.new_tag_string}
-                    onChange={(new_game) => @setState {new_game}} />
+                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}} />
                 when 'new3'
                   <NewStep3
                     game={@state.new_game}
@@ -450,6 +450,7 @@ NewStep1 = React.createClass
 
 NewStep2 = React.createClass
   render: ->
+    @tag_boxes = []
     <div>
       <h2>New Siftr 2</h2>
       <p>
@@ -472,7 +473,9 @@ NewStep2 = React.createClass
           { for tag, i in @props.tag_string.split(',')
               tag = tag.replace(/^\s+/, '')
               continue if tag is ''
-              <li key={"tag-#{i}"}>{ tag }</li>
+              <li key={"tag-#{i}"}>
+                <input type="text" value={tag} onChange={@handleChange} ref={(elt) => @tag_boxes.push(elt) unless elt is null} />
+              </li>
           }
         </ul>
       </form>
@@ -497,7 +500,8 @@ NewStep2 = React.createClass
     game = React.addons.update @props.game,
       colors_id:
         $set: colors_id
-    @props.onChange game
+    tag_string = @tag_boxes.map((input) => input.getDOMNode().value).join(',')
+    @props.onChange game, tag_string
 
   handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
     game = React.addons.update @props.game,
@@ -507,7 +511,7 @@ NewStep2 = React.createClass
         $set: lng
       zoom:
         $set: zoom
-    @props.onChange game
+    @props.onChange game, @props.tag_string
 
 NewStep3 = React.createClass
   render: ->
