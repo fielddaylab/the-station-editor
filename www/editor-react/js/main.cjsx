@@ -471,12 +471,16 @@ NewStep2 = React.createClass
         <p><b>TAGS</b></p>
         <ul>
           { for tag, i in @props.tag_string.split(',')
-              tag = tag.replace(/^\s+/, '')
-              continue if tag is ''
-              <li key={"tag-#{i}"}>
-                <input type="text" value={tag} onChange={@handleChange} ref={(elt) => @tag_boxes.push(elt) unless elt is null} />
-              </li>
+              do (i) =>
+                tag = tag.replace(/^\s+/, '')
+                <li key={"tag-#{i}"}>
+                  <input type="text" value={tag} onChange={@handleChange} ref={(elt) => @tag_boxes.push(elt) unless elt is null} />
+                  <button type="button" onClick={=> @deleteTag i}>Delete</button>
+                </li>
           }
+          <li>
+            <button type="button" onClick={@addTag}>Add Tag</button>
+          </li>
         </ul>
       </form>
       <p>Position Map Center</p>
@@ -491,6 +495,17 @@ NewStep2 = React.createClass
       </div>
       <p><a href="#">Cancel</a></p>
     </div>
+
+  deleteTag: (index) ->
+    tags =
+      for input, i in @tag_boxes
+        continue if i is index
+        input.getDOMNode().value
+    @props.onChange @props.game, tags.join(',')
+
+  addTag: ->
+    tag_string = @tag_boxes.map((input) => input.getDOMNode().value).join(',') + ','
+    @props.onChange @props.game, tag_string
 
   handleChange: ->
     colors_id = 1
