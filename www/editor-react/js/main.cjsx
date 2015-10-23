@@ -162,6 +162,9 @@ App = React.createClass
 
   createNewIcon: (game, cb) ->
     dataURL = @state.new_icon
+    unless dataURL?
+      cb null
+      return
     extmap =
       jpg: 'data:image/jpeg;base64,'
       png: 'data:image/png;base64,'
@@ -188,12 +191,13 @@ App = React.createClass
         newGame = result.data
         tags = @state.new_tag_string.split(',')
         tagsRemaining = tags.length
-        @createNewIcon newGame, ({data: media}) =>
-          @props.aris.call 'games.updateGame',
-            game_id: newGame.game_id
-            icon_media_id: media.media_id
-          , ({data: game}) =>
-            @updateStateGame(new Game(game))
+        @createNewIcon newGame, (result) =>
+          if result?
+            @props.aris.call 'games.updateGame',
+              game_id: newGame.game_id
+              icon_media_id: result.data.media_id
+            , ({data: game}) =>
+              @updateStateGame(new Game(game))
         for tag, i in tags
           tag = tag.replace(/^\s+/, '')
           continue if tag is ''

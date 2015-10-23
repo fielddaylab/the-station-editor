@@ -212,7 +212,7 @@ class App
               appendTo siftrLink, 'h4.media-heading',
                 text: game.name
             appendTo mediaBody, 'p',
-              html: window.markdown.toHTML game.description
+              html: window.markdown.toHTML(game.description ? '')
             appendTo mediaBody, 'form', {}, (form) =>
               appendTo form, '.form-group', {}, (formGroup) =>
                 appendTo formGroup, 'a.btn.btn-primary',

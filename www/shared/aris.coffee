@@ -36,11 +36,11 @@ class Game
 
   createJSON: ->
     game_id: @game_id or undefined
-    name: @name
-    description: @description
-    map_latitude: @latitude
-    map_longitude: @longitude
-    map_zoom_level: @zoom
+    name: @name or ''
+    description: @description or ''
+    map_latitude: @latitude or 0
+    map_longitude: @longitude or 0
+    map_zoom_level: @zoom or 0
     siftr_url: @siftr_url
     is_siftr: @is_siftr
     published: @published

@@ -42,11 +42,11 @@
     Game.prototype.createJSON = function() {
       return {
         game_id: this.game_id || void 0,
-        name: this.name,
-        description: this.description,
-        map_latitude: this.latitude,
-        map_longitude: this.longitude,
-        map_zoom_level: this.zoom,
+        name: this.name || '',
+        description: this.description || '',
+        map_latitude: this.latitude || 0,
+        map_longitude: this.longitude || 0,
+        map_zoom_level: this.zoom || 0,
         siftr_url: this.siftr_url,
         is_siftr: this.is_siftr,
         published: this.published,
