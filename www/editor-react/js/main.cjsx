@@ -388,6 +388,26 @@ EditSiftr = React.createClass
           Moderated
         </label>
       </p>
+      { for i in [1..6]
+          colors_name = ['Primary', 'Sunset', 'Willy St.', 'Nature', 'Monochromatic Blue', 'Monochromatic Red'][i - 1]
+          colors = @props.colors[i]
+          rgbs =
+            if colors?
+              colors["tag_#{j}"] for j in [1..5]
+            else
+              []
+          <label key={"colors-#{i}"}>
+            <p>
+              <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
+              {colors_name}
+            </p>
+            <div style={
+              "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
+              height: '20px'
+              width: '100%'
+              } />
+          </label>
+      }
       <div style={width: '500px', height: '500px'}>
         <GoogleMap
           ref="map"
@@ -415,6 +435,12 @@ EditSiftr = React.createClass
         $set: @refs['published'].getDOMNode().checked
       moderated:
         $set: @refs['moderated'].getDOMNode().checked
+      colors_id:
+        $set: do =>
+          for i in [1..6]
+            if @refs["colors_#{i}"].getDOMNode().checked
+              return i
+          1
     @props.onChange game
 
   handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
@@ -492,12 +518,26 @@ NewStep2 = React.createClass
         <a href="#new3">Next, settings</a>
       </p>
       <form>
-        <p><label><input ref="colors_1" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 1} /> Primary</label></p>
-        <p><label><input ref="colors_2" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 2} /> Sunset</label></p>
-        <p><label><input ref="colors_3" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 3} /> Willy St.</label></p>
-        <p><label><input ref="colors_4" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 4} /> Nature</label></p>
-        <p><label><input ref="colors_5" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 5} /> Monochromatic Blue</label></p>
-        <p><label><input ref="colors_6" type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is 6} /> Monochromatic Red</label></p>
+        { for i in [1..6]
+            colors_name = ['Primary', 'Sunset', 'Willy St.', 'Nature', 'Monochromatic Blue', 'Monochromatic Red'][i - 1]
+            colors = @props.colors[i]
+            rgbs =
+              if colors?
+                colors["tag_#{j}"] for j in [1..5]
+              else
+                []
+            <label key={"colors-#{i}"}>
+              <p>
+                <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
+                {colors_name}
+              </p>
+              <div style={
+                "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
+                height: '20px'
+                width: '100%'
+                } />
+            </label>
+        }
       </form>
       <form>
         <p><b>TAGS</b></p>
