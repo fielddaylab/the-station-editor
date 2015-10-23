@@ -22,6 +22,7 @@
         this.published = parseInt(json.published) ? true : false;
         this.moderated = parseInt(json.moderated) ? true : false;
         this.colors_id = parseInt(json.colors_id) || null;
+        this.icon_media_id = parseInt(json.icon_media_id);
       } else {
         this.game_id = null;
         this.name = null;
@@ -34,6 +35,7 @@
         this.published = null;
         this.moderated = null;
         this.colors_id = null;
+        this.icon_media_id = null;
       }
     }
 
@@ -49,7 +51,8 @@
         is_siftr: this.is_siftr,
         published: this.published,
         moderated: this.moderated,
-        colors_id: this.colors_id
+        colors_id: this.colors_id,
+        icon_media_id: this.icon_media_id
       };
     };
 

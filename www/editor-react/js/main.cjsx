@@ -5,7 +5,7 @@ for k, v of require '../../shared/aris.js'
   window[k] = v
 
 renderMarkdown = (str) ->
-  __html: markdown.toHTML str
+  __html: markdown.toHTML(str ? '')
 
 countContributors = (notes) ->
   user_ids = {}
@@ -35,6 +35,7 @@ App = React.createClass
       g
     new_tag_string: ''
     new_step: null
+    new_icon: null
 
   componentDidMount: ->
     @login undefined, undefined
@@ -133,20 +134,52 @@ App = React.createClass
                   obj[game.game_id] = result.data
                   obj
 
+  # Adds the game to the known games list,
+  # or updates an existing game if it shares the game ID.
+  updateStateGame: (newGame) ->
+    @setState (previousState, currentProps) =>
+      React.addons.update previousState,
+        games:
+          $apply: (games) =>
+            foundOld = false
+            updated =
+              for game in games
+                if game.game_id is newGame.game_id
+                  foundOld = true
+                  newGame
+                else
+                  game
+            if foundOld
+              updated
+            else
+              updated.concat([newGame])
+
   handleSave: ->
     @props.aris.updateGame @state.edit_game, (result) =>
       window.location.hash = '#'
       if result.returnCode is 0 and result.data?
-        newGame = result.data
-        @setState (previousState, currentProps) =>
-          React.addons.update previousState,
-            games:
-              $apply: (games) =>
-                for game in games
-                  if game.game_id is newGame.game_id
-                    newGame
-                  else
-                    game
+        @updateStateGame result.data
+
+  createNewIcon: (game, cb) ->
+    dataURL = @state.new_icon
+    extmap =
+      jpg: 'data:image/jpeg;base64,'
+      png: 'data:image/png;base64,'
+      gif: 'data:image/gif;base64,'
+    ext = null
+    base64 = null
+    for k, v of extmap
+      if dataURL[0 .. v.length - 1] is v
+        ext    = k
+        base64 = dataURL[v.length ..]
+    if ext? and base64?
+      @props.aris.call 'media.createMedia',
+        game_id: game.game_id
+        file_name: "upload.#{ext}"
+        data: base64
+      , cb
+    else
+      cb null
 
   createGame: ->
     @props.aris.createGame @state.new_game, (result) =>
@@ -155,10 +188,26 @@ App = React.createClass
         newGame = result.data
         tags = @state.new_tag_string.split(',')
         tagsRemaining = tags.length
+        @createNewIcon newGame, ({data: media}) =>
+          @props.aris.call 'games.updateGame',
+            game_id: newGame.game_id
+            icon_media_id: media.media_id
+          , ({data: game}) =>
+            @updateStateGame(new Game(game))
+        for tag, i in tags
+          tag = tag.replace(/^\s+/, '')
+          continue if tag is ''
+          tagObject = new Tag
+          tagObject.tag = tag
+          tagObject.game_id = newGame.game_id
+          @props.aris.createTag tagObject, (result) =>
+            if result.returnCode is 0 and result.data?
+              tagsRemaining--
+              if tagsRemaining is 0
+                @updateTags([newGame])
+        @updateStateGame newGame
         @setState (previousState, currentProps) =>
           React.addons.update previousState,
-            games:
-              $push: [newGame]
             notes:
               $merge: do =>
                 obj = {}
@@ -177,17 +226,8 @@ App = React.createClass
               $set: ''
             new_step:
               $set: null
-        for tag, i in tags
-          tag = tag.replace(/^\s+/, '')
-          continue if tag is ''
-          tagObject = new Tag
-          tagObject.tag = tag
-          tagObject.game_id = newGame.game_id
-          @props.aris.createTag tagObject, (result) =>
-            if result.returnCode is 0 and result.data?
-              tagsRemaining--
-              if tagsRemaining is 0
-                @updateTags([newGame])
+            new_icon:
+              $set: null
 
   render: ->
     <div>
@@ -227,7 +267,9 @@ App = React.createClass
                   <NewStep1
                     game={@state.new_game}
                     tag_string={@state.new_tag_string}
-                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}} />
+                    icon={@state.new_icon}
+                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}}
+                    onIconChange={(new_icon) => @setState {new_icon}} />
                 when 'new2'
                   <NewStep2
                     game={@state.new_game}
@@ -249,7 +291,7 @@ App = React.createClass
               <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
             </p>
             <p>
-              <button type="button" onClick={=> @login @state.username, @state.password}>Login</button>
+              <button type="submit" onClick={(e) => e.preventDefault(); @login(@state.username, @state.password)}>Login</button>
             </p>
           </form>
       }
@@ -292,7 +334,7 @@ EditSiftr = React.createClass
           <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
         </label>
       </p>
-      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
+      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} style={border: '1px solid black'} />
       <p>
         <label>
           URL <br />
@@ -373,11 +415,29 @@ NewStep1 = React.createClass
         <p>Description</p>
         <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
       </label>
+      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} style={border: '1px solid black'} />
       <label>
-        <p>Siftr Icon: TODO</p>
+        <p>Siftr Icon</p>
+        { if @props.icon?
+            <p><img src={@props.icon} /></p>
+          else
+            ''
+        }
+        <p><button type="button" onClick={@selectImage}>Select Image</button></p>
       </label>
       <p><a href="#">Cancel</a></p>
     </div>
+
+  selectImage: ->
+    input = document.createElement 'input'
+    input.type = 'file'
+    input.onchange = (e) =>
+      file = e.target.files[0]
+      fr = new FileReader
+      fr.onload = =>
+        @props.onIconChange fr.result
+      fr.readAsDataURL file
+    input.click()
 
   handleChange: ->
     game = React.addons.update @props.game,

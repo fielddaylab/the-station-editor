@@ -19,6 +19,7 @@ class Game
       @published   = if parseInt json.published then true else false
       @moderated   = if parseInt json.moderated then true else false
       @colors_id   = parseInt(json.colors_id) or null
+      @icon_media_id = parseInt json.icon_media_id
     else
       @game_id     = null
       @name        = null
@@ -31,6 +32,7 @@ class Game
       @published   = null
       @moderated   = null
       @colors_id   = null
+      @icon_media_id = null
 
   createJSON: ->
     game_id: @game_id or undefined
@@ -44,6 +46,7 @@ class Game
     published: @published
     moderated: @moderated
     colors_id: @colors_id
+    icon_media_id: @icon_media_id
 
 class Colors
   constructor: (json) ->
