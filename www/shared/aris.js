@@ -63,6 +63,7 @@
   Colors = (function() {
     function Colors(json) {
       this.colors_id = parseInt(json.colors_id);
+      this.name = json.name;
       this.tag_1 = json.tag_1;
       this.tag_2 = json.tag_2;
       this.tag_3 = json.tag_3;

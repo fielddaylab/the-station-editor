@@ -389,7 +389,6 @@ EditSiftr = React.createClass
         </label>
       </p>
       { for i in [1..6]
-          colors_name = ['Primary', 'Sunset', 'Willy St.', 'Nature', 'Monochromatic Blue', 'Monochromatic Red'][i - 1]
           colors = @props.colors[i]
           rgbs =
             if colors?
@@ -399,7 +398,7 @@ EditSiftr = React.createClass
           <label key={"colors-#{i}"}>
             <p>
               <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
-              {colors_name}
+              {colors?.name}
             </p>
             <div style={
               "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
@@ -519,7 +518,6 @@ NewStep2 = React.createClass
       </p>
       <form>
         { for i in [1..6]
-            colors_name = ['Primary', 'Sunset', 'Willy St.', 'Nature', 'Monochromatic Blue', 'Monochromatic Red'][i - 1]
             colors = @props.colors[i]
             rgbs =
               if colors?
@@ -529,7 +527,7 @@ NewStep2 = React.createClass
             <label key={"colors-#{i}"}>
               <p>
                 <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
-                {colors_name}
+                {colors?.name}
               </p>
               <div style={
                 "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"

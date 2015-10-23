@@ -51,6 +51,7 @@ class Game
 class Colors
   constructor: (json) ->
     @colors_id = parseInt json.colors_id
+    @name      = json.name
     @tag_1     = json.tag_1
     @tag_2     = json.tag_2
     @tag_3     = json.tag_3
