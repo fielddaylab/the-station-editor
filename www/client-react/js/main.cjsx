@@ -64,7 +64,6 @@ App = React.createClass
 
   componentDidMount: ->
     @login undefined, undefined
-    @applyHash()
     window.addEventListener 'hashchange', => @applyHash()
 
   login: (username, password) ->
@@ -79,11 +78,11 @@ App = React.createClass
     @setState auth: @props.aris.auth
     @handleSearch undefined, undefined, false
 
-  applyHash: ->
+  applyHash: (notes) ->
     hash = window.location.hash[1..]
     note_id = parseInt hash
     matchingNotes =
-      note for note in @state.notes when note.note_id is note_id
+      note for note in notes ? @state.notes when note.note_id is note_id
     if matchingNotes.length is 1
       @setState viewing: matchingNotes[0]
     else
@@ -173,12 +172,14 @@ App = React.createClass
           if thisSearch is @state.lastSearch
             @setState searching: false
             if returnCode is 0
-              @setState notes:
+              notes =
                 for o in notes
                   n = new Note o
                   # hide notes that don't have photos
                   continue unless n.photo_url?
                   n
+              @setState notes: notes
+              @applyHash notes
     , if wait then 250 else 0
 
 NoteMap = React.createClass
@@ -205,7 +206,9 @@ NoteMap = React.createClass
     @props.latitude isnt nextProps.latitude or
     @props.longitude isnt nextProps.longitude or
     @props.zoom isnt nextProps.zoom or
-    @props.notes isnt nextProps.notes
+    @props.notes isnt nextProps.notes or
+    @props.onBoundsChange isnt nextProps.onBoundsChange
+    # is the onBoundsChange check necessary? doesn't seem to hurt performance
 
 Thumbnails = React.createClass
   render: ->
@@ -222,22 +225,39 @@ Thumbnails = React.createClass
 
 $(document).ready ->
 
+  siftr_url = window.location.search.replace('?', '')
+  if siftr_url.length is 0
+    siftr_url = window.location.pathname.replace(/\//g, '')
+  unless siftr_url.match(/[^0-9]/)
+    siftr_id = parseInt siftr_url
+    siftr_url = null
+
+  continueWithGame = (game) ->
+
+    aris.getTagsForGame
+      game_id: game.game_id
+    , ({data: tags, returnCode}) =>
+      if returnCode is 0 and tags?
+        game.tags = tags
+
+        aris.getUsersForGame
+          game_id: game.game_id
+        , ({data: owners, returnCode}) =>
+          if returnCode is 0 and owners?
+            game.owners = owners
+
+            React.render <App game={game} aris={aris} />, document.body
+
   aris = new Aris
-  aris.getGame
-    game_id: 4693
-  , ({data: game, returnCode}) ->
-    if returnCode is 0 and game?
-
-      aris.getTagsForGame
-        game_id: game.game_id
-      , ({data: tags, returnCode}) =>
-        if returnCode is 0 and tags?
-          game.tags = tags
-
-          aris.getUsersForGame
-            game_id: game.game_id
-          , ({data: owners, returnCode}) =>
-            if returnCode is 0 and owners?
-              game.owners = owners
-
-              React.render <App game={game} aris={aris} />, document.body
+  if siftr_id?
+    aris.getGame
+      game_id: siftr_id
+    , ({data: game, returnCode}) ->
+      if returnCode is 0 and game?
+        continueWithGame game
+  else if siftr_url?
+    aris.searchSiftrs
+      siftr_url: siftr_url
+    , ({data: games, returnCode}) ->
+      if returnCode is 0 and games.length is 1
+        continueWithGame games[0]

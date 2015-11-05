@@ -174,6 +174,9 @@ class Aris
   getGame: (json, cb) ->
     @callWrapped 'games.getGame', json, cb, (data) -> new Game data
 
+  searchSiftrs: (json, cb) ->
+    @callWrapped 'games.searchSiftrs', json, cb, (data) -> new Game o for o in data
+
   getTagsForGame: (json, cb) ->
     @callWrapped 'tags.getTagsForGame', json, cb, (data) -> new Tag o for o in data
 

@@ -239,6 +239,18 @@
       });
     };
 
+    Aris.prototype.searchSiftrs = function(json, cb) {
+      return this.callWrapped('games.searchSiftrs', json, cb, function(data) {
+        var o, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          o = data[_i];
+          _results.push(new Game(o));
+        }
+        return _results;
+      });
+    };
+
     Aris.prototype.getTagsForGame = function(json, cb) {
       return this.callWrapped('tags.getTagsForGame', json, cb, function(data) {
         var o, _i, _len, _results;
