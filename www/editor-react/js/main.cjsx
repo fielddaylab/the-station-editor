@@ -476,7 +476,14 @@ NewStep1 = React.createClass
       <label>
         <p>Siftr Icon</p>
         { if @props.icon?
-            <p><img src={@props.icon} /></p>
+            <div style={
+              backgroundImage: "url(#{@props.icon})"
+              backgroundSize: 'contain'
+              backgroundRepeat: 'no-repeat'
+              backgroundPosition: 'center'
+              width: '100px'
+              height: '100px'
+            } />
           else
             ''
         }

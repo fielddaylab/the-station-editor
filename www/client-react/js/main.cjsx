@@ -58,10 +58,26 @@ App = React.createClass
     latitude: @props.game.latitude
     longitude: @props.game.longitude
     zoom: @props.game.zoom
+    auth: null
+    username: ''
+    password: ''
+
   componentDidMount: ->
-    @handleSearch [], '', false
+    @login undefined, undefined
     @applyHash()
     window.addEventListener 'hashchange', => @applyHash()
+
+  login: (username, password) ->
+    @props.aris.login username, password, => @updateLogin()
+
+  logout: ->
+    window.location.hash = '#'
+    @props.aris.logout()
+    @updateLogin()
+
+  updateLogin: ->
+    @setState auth: @props.aris.auth
+    @handleSearch undefined, undefined, false
 
   applyHash: ->
     hash = window.location.hash[1..]
@@ -81,27 +97,34 @@ App = React.createClass
 
   render: ->
     <div>
+      { if @state.auth?
+          <div>
+            <p><code>{ JSON.stringify @state.auth }</code></p>
+            <p><button type="button" onClick={@logout}>Logout</button></p>
+          </div>
+        else
+          <form>
+            <p>
+              <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
+            </p>
+            <p>
+              <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
+            </p>
+            <p>
+              <button type="submit" onClick={(e) => e.preventDefault(); @login(@state.username, @state.password)}>Login</button>
+            </p>
+          </form>
+      }
       <h1>{ @props.game.name }</h1>
       <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
       <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
       <div style={width: '500px', height: '500px'}>
-        <GoogleMap
-          center={[@state.latitude, @state.longitude]}
+        <NoteMap
+          latitude={@state.latitude}
+          longitude={@state.longitude}
           zoom={@state.zoom}
-          onBoundsChange={@handleMapChange}>
-          { do =>
-            note_ids = @state.notes.map((note) => note.note_id)
-            max_note_id = Math.max(note_ids...)
-            min_note_id = Math.min(note_ids...)
-            @state.notes.map (note) =>
-              age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
-              age_percent = "#{age * 100}%"
-              color = "rgb(#{age_percent}, #{age_percent}, #{age_percent})"
-              <a key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude} href={"##{note.note_id}"}>
-                <div style={width: '10px', height: '10px', backgroundColor: color} />
-              </a>
-          }
-        </GoogleMap>
+          onBoundsChange={@handleMapChange}
+          notes={@state.notes} />
       </div>
       { if @state.viewing?
           <NoteView
@@ -119,19 +142,20 @@ App = React.createClass
             { if @state.searching
                 <p>Searching...</p>
               else
-                @state.notes.map (note) =>
-                  <a key={"thumb-#{note.note_id}"} href={"##{note.note_id}"}>
-                    <img src={note.thumb_url} />
-                  </a>
+                <Thumbnails notes={@state.notes} />
             }
           </div>
       }
     </div>
 
   handleSearch: (tags, text, wait = true) ->
-    @setState
-      checkedTags: tags
-      searchText: text
+    if tags? and text?
+      @setState
+        checkedTags: tags
+        searchText: text
+    else
+      tags = @state.checkedTags
+      text = @state.searchText
     thisSearch = Date.now()
     @setState
       lastSearch: thisSearch
@@ -156,6 +180,45 @@ App = React.createClass
                   continue unless n.photo_url?
                   n
     , if wait then 250 else 0
+
+NoteMap = React.createClass
+  render: ->
+    <GoogleMap
+      center={[@props.latitude, @props.longitude]}
+      zoom={@props.zoom}
+      onBoundsChange={@props.onBoundsChange}>
+      { do =>
+        note_ids = @props.notes.map((note) => note.note_id)
+        max_note_id = Math.max(note_ids...)
+        min_note_id = Math.min(note_ids...)
+        @props.notes.map (note) =>
+          age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
+          age_percent = "#{age * 100}%"
+          color = "rgb(#{age_percent}, #{age_percent}, #{age_percent})"
+          <a key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude} href={"##{note.note_id}"}>
+            <div style={width: '10px', height: '10px', backgroundColor: color} />
+          </a>
+      }
+    </GoogleMap>
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    @props.latitude isnt nextProps.latitude or
+    @props.longitude isnt nextProps.longitude or
+    @props.zoom isnt nextProps.zoom or
+    @props.notes isnt nextProps.notes
+
+Thumbnails = React.createClass
+  render: ->
+    <div>
+      { @props.notes.map (note) =>
+          <a key={"thumb-#{note.note_id}"} href={"##{note.note_id}"}>
+            <img src={note.thumb_url} />
+          </a>
+      }
+    </div>
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    @props.notes isnt nextProps.notes
 
 $(document).ready ->
 
