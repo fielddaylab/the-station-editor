@@ -184,21 +184,25 @@ App = React.createClass
 
 NoteMap = React.createClass
   render: ->
+    note_ids =
+      note.note_id for note in @props.notes
+    max_note_id = Math.max(note_ids...)
+    min_note_id = Math.min(note_ids...)
     <GoogleMap
       center={[@props.latitude, @props.longitude]}
       zoom={@props.zoom}
+      onChildClick={(key, childProps) => window.location.hash = key[7..]}
       onBoundsChange={@props.onBoundsChange}>
-      { do =>
-        note_ids = @props.notes.map((note) => note.note_id)
-        max_note_id = Math.max(note_ids...)
-        min_note_id = Math.min(note_ids...)
-        @props.notes.map (note) =>
+      { for note in @props.notes
           age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
           age_percent = "#{age * 100}%"
           color = "rgb(#{age_percent}, #{age_percent}, #{age_percent})"
-          <a key={"marker-#{note.note_id}"} lat={note.latitude} lng={note.longitude} href={"##{note.note_id}"}>
-            <div style={width: '10px', height: '10px', backgroundColor: color} />
-          </a>
+          <div
+            key={"marker-#{note.note_id}"}
+            lat={note.latitude}
+            lng={note.longitude}
+            style={width: '10px', height: '10px', backgroundColor: color, cursor: 'pointer'}
+            />
       }
     </GoogleMap>
 
