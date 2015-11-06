@@ -1,4 +1,4 @@
-React = require 'react'
+React = require 'react/addons'
 GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
@@ -9,6 +9,10 @@ renderMarkdown = (str) ->
   __html: markdown.toHTML str
 
 NoteView = React.createClass
+  propTypes:
+    onBack: React.PropTypes.func
+    note:   React.PropTypes.instanceOf Note
+
   render: ->
     <div>
       <p><button type="button" onClick={@props.onBack}>Back</button></p>
@@ -23,6 +27,12 @@ NoteView = React.createClass
     </div>
 
 SearchBox = React.createClass
+  propTypes:
+    tags:        React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
+    checkedTags: React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
+    onSearch:    React.PropTypes.func
+    searchText:  React.PropTypes.string
+
   handleChange: ->
     tags =
       tag for tag in @props.tags when @refs["searchTag#{tag.tag_id}"].getDOMNode().checked
@@ -49,6 +59,10 @@ SearchBox = React.createClass
     </form>
 
 App = React.createClass
+  propTypes:
+    game: React.PropTypes.instanceOf Game
+    aris: React.PropTypes.instanceOf Aris
+
   getInitialState: ->
     notes: []
     viewing: null
@@ -61,6 +75,7 @@ App = React.createClass
     auth: null
     username: ''
     password: ''
+    creating: null
 
   componentDidMount: ->
     @login undefined, undefined
@@ -80,13 +95,34 @@ App = React.createClass
 
   applyHash: (notes) ->
     hash = window.location.hash[1..]
-    note_id = parseInt hash
-    matchingNotes =
-      note for note in notes ? @state.notes when note.note_id is note_id
-    if matchingNotes.length is 1
-      @setState viewing: matchingNotes[0]
-    else
-      @setState viewing: null
+    @setState (previousState, currentProps) =>
+      if hash is 'new'
+        if previousState.creating?
+          previousState
+        else
+          React.addons.update previousState,
+            viewing:
+              $set: null
+            creating:
+              $set:
+                description: ''
+                url: null
+                tag: null
+                latitude: @props.game.latitude
+                longitude: @props.game.longitude
+      else
+        note_id = parseInt hash
+        matchingNotes =
+          note for note in notes ? @state.notes when note.note_id is note_id
+        React.addons.update previousState,
+          creating:
+            $set: null
+          viewing:
+            $set:
+              if matchingNotes.length is 1
+                matchingNotes[0]
+              else
+                null
 
   handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
     @setState
@@ -100,6 +136,7 @@ App = React.createClass
           <div>
             <p><code>{ JSON.stringify @state.auth }</code></p>
             <p><button type="button" onClick={@logout}>Logout</button></p>
+            <p><button type="button" onClick={=> window.location.hash = 'new'}>Add Note</button></p>
           </div>
         else
           <form>
@@ -117,31 +154,37 @@ App = React.createClass
       <h1>{ @props.game.name }</h1>
       <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
       <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
-      <div style={width: '500px', height: '500px'}>
-        <NoteMap
-          latitude={@state.latitude}
-          longitude={@state.longitude}
-          zoom={@state.zoom}
-          onBoundsChange={@handleMapChange}
-          notes={@state.notes} />
-      </div>
-      { if @state.viewing?
-          <NoteView
-            note={@state.viewing}
-            onBack={=> window.location.hash = '#'}
-          />
+      { if @state.creating?
+          'Creating a note'
         else
           <div>
-            <SearchBox
-              tags={@props.game.tags}
-              checkedTags={@state.checkedTags}
-              searchText={@state.searchText}
-              onSearch={@handleSearch}
-            />
-            { if @state.searching
-                <p>Searching...</p>
+            <div style={width: '500px', height: '500px'}>
+              <NoteMap
+                latitude={@state.latitude}
+                longitude={@state.longitude}
+                zoom={@state.zoom}
+                onBoundsChange={@handleMapChange}
+                notes={@state.notes} />
+            </div>
+            { if @state.viewing?
+                <NoteView
+                  note={@state.viewing}
+                  onBack={=> window.location.hash = '#'}
+                />
               else
-                <Thumbnails notes={@state.notes} />
+                <div>
+                  <SearchBox
+                    tags={@props.game.tags}
+                    checkedTags={@state.checkedTags}
+                    searchText={@state.searchText}
+                    onSearch={@handleSearch}
+                  />
+                  { if @state.searching
+                      <p>Searching...</p>
+                    else
+                      <Thumbnails notes={@state.notes} />
+                  }
+                </div>
             }
           </div>
       }
@@ -183,6 +226,13 @@ App = React.createClass
     , if wait then 250 else 0
 
 NoteMap = React.createClass
+  propTypes:
+    latitude:       React.PropTypes.number
+    longitude:      React.PropTypes.number
+    zoom:           React.PropTypes.number
+    notes:          React.PropTypes.arrayOf React.PropTypes.instanceOf Note
+    onBoundsChange: React.PropTypes.func
+
   render: ->
     note_ids =
       note.note_id for note in @props.notes
@@ -215,6 +265,9 @@ NoteMap = React.createClass
     # is the onBoundsChange check necessary? doesn't seem to hurt performance
 
 Thumbnails = React.createClass
+  propTypes:
+    notes: React.PropTypes.arrayOf React.PropTypes.instanceOf Note
+
   render: ->
     <div>
       { @props.notes.map (note) =>
@@ -227,6 +280,53 @@ Thumbnails = React.createClass
   shouldComponentUpdate: (nextProps, nextState) ->
     @props.notes isnt nextProps.notes
 
+Uploader = React.createClass
+  propTypes:
+    description:   React.PropTypes.string
+    tags:          React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
+    tag:           React.PropTypes.instanceOf Tag
+    url:           React.PropTypes.string
+    onImageSelect: React.PropTypes.func
+
+  render: ->
+    <div>
+      <input type="text" value={@props.description} />
+      <ImageUploader
+        url={@props.url}
+        onImageSelect={@props.onImageSelect}
+        width="100px"
+        height="100px"
+      />
+    </div>
+
+ImageUploader = React.createClass
+  propTypes:
+    url:           React.PropTypes.string
+    onImageSelect: React.PropTypes.func
+    width:         React.PropTypes.string
+    height:        React.PropTypes.string
+
+  selectImage: ->
+    input = document.createElement 'input'
+    input.type = 'file'
+    input.onchange = (e) =>
+      file = e.target.files[0]
+      fr = new FileReader
+      fr.onload = =>
+        @props.onImageSelect fr.result
+      fr.readAsDataURL file
+    input.click()
+
+  render: ->
+    <div style={
+      backgroundImage: "url(#{@props.url})"
+      backgroundSize: 'contain'
+      backgroundRepeat: 'no-repeat'
+      backgroundPosition: 'center'
+      width: @props.width
+      height: @props.height
+    } onClick={@selectImage} />
+
 $(document).ready ->
 
   siftr_url = window.location.search.replace('?', '')
@@ -236,8 +336,8 @@ $(document).ready ->
     siftr_id = parseInt siftr_url
     siftr_url = null
 
+  aris = new Aris
   continueWithGame = (game) ->
-
     aris.getTagsForGame
       game_id: game.game_id
     , ({data: tags, returnCode}) =>
@@ -252,7 +352,6 @@ $(document).ready ->
 
             React.render <App game={game} aris={aris} />, document.body
 
-  aris = new Aris
   if siftr_id?
     aris.getGame
       game_id: siftr_id
