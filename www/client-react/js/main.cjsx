@@ -1,62 +1,17 @@
 React = require 'react/addons'
-GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
-for k, v of require '../../shared/aris.js'
-  window[k] = v
-$ = require 'jquery'
+{Game, Colors, User, Tag, Comment, Note, Aris} = require '../../shared/aris.js'
+{NoteView} = require './components/NoteView.js'
+{NoteMap} = require './components/NoteMap.js'
+{Uploader} = require './components/Uploader.js'
+{SearchBox} = require './components/SearchBox.js'
+{Thumbnails} = require './components/Thumbnails.js'
+
+T = React.PropTypes
+update = React.addons.update
 
 renderMarkdown = (str) ->
   __html: markdown.toHTML str
-
-NoteView = React.createClass
-  propTypes:
-    onBack: React.PropTypes.func
-    note:   React.PropTypes.instanceOf Note
-
-  render: ->
-    <div>
-      <p><button type="button" onClick={@props.onBack}>Back</button></p>
-      <p><img src={@props.note.photo_url} /></p>
-      <p>{@props.note.description}</p>
-      { for comment in @props.note.comments
-          <div key={"comment-#{comment.comment_id}"}>
-            <h4>{comment.user.display_name}, {comment.created.toLocaleString()}</h4>
-            <p>{comment.description}</p>
-          </div>
-      }
-    </div>
-
-SearchBox = React.createClass
-  propTypes:
-    tags:        React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
-    checkedTags: React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
-    onSearch:    React.PropTypes.func
-    searchText:  React.PropTypes.string
-
-  handleChange: ->
-    tags =
-      tag for tag in @props.tags when @refs["searchTag#{tag.tag_id}"].getDOMNode().checked
-    text = @refs.searchText.getDOMNode().value
-    @props.onSearch tags, text
-
-  render: ->
-    <form>
-      { for tag in @props.tags
-          <p key={tag.tag_id}>
-            <label>
-              <input type="checkbox"
-                ref="searchTag#{tag.tag_id}"
-                checked={tag in @props.checkedTags}
-                onChange={@handleChange}
-              />
-              { tag.tag }
-            </label>
-          </p>
-      }
-      <p>
-        <input type="text" ref="searchText" value={@props.searchText} onChange={@handleChange} />
-      </p>
-    </form>
 
 # This is Haskell right? It uses indentation and everything
 match = (val, branches, def = (-> throw 'Match failed')) ->
@@ -67,8 +22,8 @@ match = (val, branches, def = (-> throw 'Match failed')) ->
 
 App = React.createClass
   propTypes:
-    game: React.PropTypes.instanceOf Game
-    aris: React.PropTypes.instanceOf Aris
+    game: T.instanceOf Game
+    aris: T.instanceOf Aris
 
   getInitialState: ->
     notes: []
@@ -99,11 +54,12 @@ App = React.createClass
 
   updateLogin: ->
     @setState (previousState, currentProps) =>
-      React.addons.update previousState,
+      update previousState,
         login:
           $set:
             if @props.aris.auth?
-              loggedIn: @props.aris.auth
+              loggedIn:
+                auth: @props.aris.auth
             else
               match previousState.login,
                 loggedIn:               => loggedOut: {username: '', password: ''}
@@ -114,10 +70,10 @@ App = React.createClass
     hash = window.location.hash[1..]
     @setState (previousState, currentProps) =>
       if hash is 'new'
-        if 'create' in previousState.screen
+        if 'create' of previousState.screen
           previousState
         else
-          React.addons.update previousState,
+          update previousState,
             screen:
               $set:
                 create:
@@ -130,7 +86,7 @@ App = React.createClass
         note_id = parseInt hash
         matchingNotes =
           note for note in notes ? @state.notes when note.note_id is note_id
-        React.addons.update previousState,
+        update previousState,
           screen:
             $set:
               if matchingNotes.length is 1
@@ -147,28 +103,28 @@ App = React.createClass
 
   setUsername: (username) ->
     @setState (previousState, currentProps) ->
-      React.addons.update previousState,
+      update previousState,
         login:
-          $set:
-            match previousState.login,
-              loggedIn:               => previousState.login
+          $apply: (login) =>
+            match login,
+              loggedIn:               => login
               loggedOut: ({password}) => loggedOut: {username, password}
 
   setPassword: (password) ->
     @setState (previousState, currentProps) ->
-      React.addons.update previousState,
+      update previousState,
         login:
-          $set:
-            match previousState.login,
-              loggedIn:               => previousState.login
+          $apply: (login) =>
+            match login,
+              loggedIn:               => login
               loggedOut: ({username}) => loggedOut: {username, password}
 
   render: ->
     <div>
       { match @state.login,
-          loggedIn: =>
+          loggedIn: ({auth}) =>
             <div>
-              <p><code>{ JSON.stringify @state.auth }</code></p>
+              <p><code>{ JSON.stringify auth }</code></p>
               <p><button type="button" onClick={@logout}>Logout</button></p>
               <p><button type="button" onClick={=> window.location.hash = 'new'}>Add Note</button></p>
             </div>
@@ -270,116 +226,7 @@ App = React.createClass
               @applyHash notes
     , if wait then 250 else 0
 
-NoteMap = React.createClass
-  propTypes:
-    latitude:       React.PropTypes.number
-    longitude:      React.PropTypes.number
-    zoom:           React.PropTypes.number
-    notes:          React.PropTypes.arrayOf React.PropTypes.instanceOf Note
-    onBoundsChange: React.PropTypes.func
-
-  render: ->
-    note_ids =
-      note.note_id for note in @props.notes
-    max_note_id = Math.max(note_ids...)
-    min_note_id = Math.min(note_ids...)
-    <GoogleMap
-      center={[@props.latitude, @props.longitude]}
-      zoom={@props.zoom}
-      onChildClick={(key, childProps) => window.location.hash = key[7..]}
-      onBoundsChange={@props.onBoundsChange}>
-      { for note in @props.notes
-          age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
-          age_percent = "#{age * 100}%"
-          color = "rgb(#{age_percent}, #{age_percent}, #{age_percent})"
-          <div
-            key={"marker-#{note.note_id}"}
-            lat={note.latitude}
-            lng={note.longitude}
-            style={width: '10px', height: '10px', backgroundColor: color, cursor: 'pointer'}
-            />
-      }
-    </GoogleMap>
-
-  shouldComponentUpdate: (nextProps, nextState) ->
-    @props.latitude isnt nextProps.latitude or
-    @props.longitude isnt nextProps.longitude or
-    @props.zoom isnt nextProps.zoom or
-    @props.notes isnt nextProps.notes or
-    @props.onBoundsChange isnt nextProps.onBoundsChange
-    # is the onBoundsChange check necessary? doesn't seem to hurt performance
-
-Thumbnails = React.createClass
-  propTypes:
-    notes: React.PropTypes.arrayOf React.PropTypes.instanceOf Note
-
-  render: ->
-    <div>
-      { @props.notes.map (note) =>
-          <a key={"thumb-#{note.note_id}"} href={"##{note.note_id}"}>
-            <img src={note.thumb_url} />
-          </a>
-      }
-    </div>
-
-  shouldComponentUpdate: (nextProps, nextState) ->
-    @props.notes isnt nextProps.notes
-
-Uploader = React.createClass
-  propTypes:
-    description:   React.PropTypes.string
-    tags:          React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
-    tag:           React.PropTypes.instanceOf Tag
-    url:           React.PropTypes.string
-    latitude:      React.PropTypes.number
-    longitude:     React.PropTypes.number
-    onChange:      React.PropTypes.func
-
-  handleChange: (url = @props.url) ->
-    @onChange
-      description: @refs.description.value
-      url: url
-
-  render: ->
-    <div>
-      <input ref="description" type="text" value={@props.description} onChange={=> @handleChange()} />
-      <ImageUploader
-        url={@props.url}
-        onImageSelect={@handleChange}
-        width="100px"
-        height="100px"
-      />
-    </div>
-
-ImageUploader = React.createClass
-  propTypes:
-    url:           React.PropTypes.string
-    onImageSelect: React.PropTypes.func
-    width:         React.PropTypes.string
-    height:        React.PropTypes.string
-
-  selectImage: ->
-    input = document.createElement 'input'
-    input.type = 'file'
-    input.onchange = (e) =>
-      file = e.target.files[0]
-      fr = new FileReader
-      fr.onload = =>
-        @props.onImageSelect fr.result
-      fr.readAsDataURL file
-    input.click()
-
-  render: ->
-    <div style={
-      backgroundImage: if @props.url? then "url(#{@props.url})" else ''
-      backgroundSize: 'contain'
-      backgroundRepeat: 'no-repeat'
-      backgroundPosition: 'center'
-      width: @props.width
-      height: @props.height
-    } onClick={@selectImage} />
-
-$(document).ready ->
+document.addEventListener 'DOMContentLoaded', ->
 
   siftr_url = window.location.search.replace('?', '')
   if siftr_url.length is 0

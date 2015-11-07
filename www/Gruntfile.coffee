@@ -10,12 +10,19 @@ module.exports = (grunt) ->
           'client3/js/coffee_out.js'     : ['client3/js/*.coffee']
           'client-react/js/coffee_out.js': ['client-react/js/*.cjsx']
           'editor-react/js/coffee_out.js': ['editor-react/js/*.cjsx']
-      glob_to_multiple:
+      glob_shared:
         expand: true
         flatten: true
         cwd: 'shared/'
         src: ['*.coffee']
         dest: 'shared/'
+        ext: '.js'
+      glob_client:
+        expand: true
+        flatten: true
+        cwd: 'client-react/js/components/'
+        src: ['*.coffee', '*.cjsx']
+        dest: 'client-react/js/components/'
         ext: '.js'
     sass:
       compile:
