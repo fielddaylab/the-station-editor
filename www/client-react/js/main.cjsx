@@ -58,6 +58,13 @@ SearchBox = React.createClass
       </p>
     </form>
 
+# This is Haskell right? It uses indentation and everything
+match = (val, branches, def = (-> throw 'Match failed')) ->
+  for k, v of branches
+    if k of val
+      return v val[k]
+  def()
+
 App = React.createClass
   propTypes:
     game: React.PropTypes.instanceOf Game
@@ -65,17 +72,18 @@ App = React.createClass
 
   getInitialState: ->
     notes: []
-    viewing: null
     searching: false
     checkedTags: []
     searchText: ''
     latitude: @props.game.latitude
     longitude: @props.game.longitude
     zoom: @props.game.zoom
-    auth: null
-    username: ''
-    password: ''
-    creating: null
+    login:
+      loggedOut:
+        username: ''
+        password: ''
+    screen:
+      main: {}
 
   componentDidMount: ->
     @login undefined, undefined
@@ -90,39 +98,46 @@ App = React.createClass
     @updateLogin()
 
   updateLogin: ->
-    @setState auth: @props.aris.auth
+    @setState (previousState, currentProps) =>
+      React.addons.update previousState,
+        login:
+          $set:
+            if @props.aris.auth?
+              loggedIn: @props.aris.auth
+            else
+              match previousState.login,
+                loggedIn:               => loggedOut: {username: '', password: ''}
+                loggedOut: ({username}) => loggedOut: {username    , password: ''}
     @handleSearch undefined, undefined, false
 
   applyHash: (notes) ->
     hash = window.location.hash[1..]
     @setState (previousState, currentProps) =>
       if hash is 'new'
-        if previousState.creating?
+        if 'create' in previousState.screen
           previousState
         else
           React.addons.update previousState,
-            viewing:
-              $set: null
-            creating:
+            screen:
               $set:
-                description: ''
-                url: null
-                tag: null
-                latitude: @props.game.latitude
-                longitude: @props.game.longitude
+                create:
+                  description: ''
+                  url: null
+                  tag: null
+                  latitude: @props.game.latitude
+                  longitude: @props.game.longitude
       else
         note_id = parseInt hash
         matchingNotes =
           note for note in notes ? @state.notes when note.note_id is note_id
         React.addons.update previousState,
-          creating:
-            $set: null
-          viewing:
+          screen:
             $set:
               if matchingNotes.length is 1
-                matchingNotes[0]
+                view:
+                  note: matchingNotes[0]
               else
-                null
+                main: {}
 
   handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
     @setState
@@ -130,63 +145,93 @@ App = React.createClass
       longitude: lng
       zoom: zoom
 
+  setUsername: (username) ->
+    @setState (previousState, currentProps) ->
+      React.addons.update previousState,
+        login:
+          $set:
+            match previousState.login,
+              loggedIn:               => previousState.login
+              loggedOut: ({password}) => loggedOut: {username, password}
+
+  setPassword: (password) ->
+    @setState (previousState, currentProps) ->
+      React.addons.update previousState,
+        login:
+          $set:
+            match previousState.login,
+              loggedIn:               => previousState.login
+              loggedOut: ({username}) => loggedOut: {username, password}
+
   render: ->
     <div>
-      { if @state.auth?
-          <div>
-            <p><code>{ JSON.stringify @state.auth }</code></p>
-            <p><button type="button" onClick={@logout}>Logout</button></p>
-            <p><button type="button" onClick={=> window.location.hash = 'new'}>Add Note</button></p>
-          </div>
-        else
-          <form>
-            <p>
-              <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
-            </p>
-            <p>
-              <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
-            </p>
-            <p>
-              <button type="submit" onClick={(e) => e.preventDefault(); @login(@state.username, @state.password)}>Login</button>
-            </p>
-          </form>
+      { match @state.login,
+          loggedIn: =>
+            <div>
+              <p><code>{ JSON.stringify @state.auth }</code></p>
+              <p><button type="button" onClick={@logout}>Logout</button></p>
+              <p><button type="button" onClick={=> window.location.hash = 'new'}>Add Note</button></p>
+            </div>
+          loggedOut: ({username, password}) =>
+            <form>
+              <p>
+                <input type="text" placeholder="Username" value={username} onChange={(e) => @setUsername e.target.value} />
+              </p>
+              <p>
+                <input type="password" placeholder="Password" value={password} onChange={(e) => @setPassword e.target.value} />
+              </p>
+              <p>
+                <button type="submit" onClick={(e) => e.preventDefault(); @login(username, password)}>Login</button>
+              </p>
+            </form>
       }
       <h1>{ @props.game.name }</h1>
       <h2>A Siftr by { (u.display_name for u in @props.game.owners).join(', ') }</h2>
       <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} />
-      { if @state.creating?
-          'Creating a note'
-        else
-          <div>
-            <div style={width: '500px', height: '500px'}>
-              <NoteMap
-                latitude={@state.latitude}
-                longitude={@state.longitude}
-                zoom={@state.zoom}
-                onBoundsChange={@handleMapChange}
-                notes={@state.notes} />
-            </div>
-            { if @state.viewing?
-                <NoteView
-                  note={@state.viewing}
-                  onBack={=> window.location.hash = '#'}
-                />
-              else
-                <div>
-                  <SearchBox
-                    tags={@props.game.tags}
-                    checkedTags={@state.checkedTags}
-                    searchText={@state.searchText}
-                    onSearch={@handleSearch}
-                  />
-                  { if @state.searching
-                      <p>Searching...</p>
-                    else
-                      <Thumbnails notes={@state.notes} />
-                  }
-                </div>
-            }
+      { do =>
+        noteMap =
+          <div style={width: '500px', height: '500px'}>
+            <NoteMap
+              latitude={@state.latitude}
+              longitude={@state.longitude}
+              zoom={@state.zoom}
+              onBoundsChange={@handleMapChange}
+              notes={@state.notes} />
           </div>
+        match @state.screen,
+          main: =>
+            <div>
+              { noteMap }
+              <SearchBox
+                tags={@props.game.tags}
+                checkedTags={@state.checkedTags}
+                searchText={@state.searchText}
+                onSearch={@handleSearch}
+              />
+              { if @state.searching
+                  <p>Searching...</p>
+                else
+                  <Thumbnails notes={@state.notes} />
+              }
+            </div>
+          view: ({note}) =>
+            <div>
+              { noteMap }
+              <NoteView
+                note={note}
+                onBack={=> window.location.hash = '#'}
+              />
+            </div>
+          create: ({description, tag, url, latitude, longitude}) =>
+            <Uploader
+              description={description}
+              tags={@props.game.tags}
+              tag={tag}
+              url={url}
+              onImageSelect={=>}
+              latitude={latitude}
+              longitude={longitude}
+              />
       }
     </div>
 
@@ -286,14 +331,21 @@ Uploader = React.createClass
     tags:          React.PropTypes.arrayOf React.PropTypes.instanceOf Tag
     tag:           React.PropTypes.instanceOf Tag
     url:           React.PropTypes.string
-    onImageSelect: React.PropTypes.func
+    latitude:      React.PropTypes.number
+    longitude:     React.PropTypes.number
+    onChange:      React.PropTypes.func
+
+  handleChange: (url = @props.url) ->
+    @onChange
+      description: @refs.description.value
+      url: url
 
   render: ->
     <div>
-      <input type="text" value={@props.description} />
+      <input ref="description" type="text" value={@props.description} onChange={=> @handleChange()} />
       <ImageUploader
         url={@props.url}
-        onImageSelect={@props.onImageSelect}
+        onImageSelect={@handleChange}
         width="100px"
         height="100px"
       />
@@ -319,7 +371,7 @@ ImageUploader = React.createClass
 
   render: ->
     <div style={
-      backgroundImage: "url(#{@props.url})"
+      backgroundImage: if @props.url? then "url(#{@props.url})" else ''
       backgroundSize: 'contain'
       backgroundRepeat: 'no-repeat'
       backgroundPosition: 'center'
