@@ -1,4 +1,6 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+update = require 'react-addons-update'
 {markdown} = require 'markdown'
 {Game, Colors, User, Tag, Comment, Note, Aris} = require '../../shared/aris.js'
 {NoteView} = require './components/NoteView.js'
@@ -8,7 +10,6 @@ React = require 'react/addons'
 {Thumbnails} = require './components/Thumbnails.js'
 
 T = React.PropTypes
-update = React.addons.update
 
 renderMarkdown = (str) ->
   __html: markdown.toHTML str
@@ -79,9 +80,13 @@ App = React.createClass
                 create:
                   description: ''
                   url: null
-                  tag: null
+                  tags: @props.game.tags
+                  tag: @props.game.tags[0]
                   latitude: @props.game.latitude
                   longitude: @props.game.longitude
+                  zoom: @props.game.zoom
+                  noteLatitude: @props.game.latitude
+                  noteLongitude: @props.game.longitude
       else
         note_id = parseInt hash
         matchingNotes =
@@ -95,7 +100,7 @@ App = React.createClass
               else
                 main: {}
 
-  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
+  handleMapChange: ({center: {lat, lng}, zoom}) ->
     @setState
       latitude: lat
       longitude: lng
@@ -178,15 +183,32 @@ App = React.createClass
                 onBack={=> window.location.hash = '#'}
               />
             </div>
-          create: ({description, tag, url, latitude, longitude}) =>
+          create: ({description, tag, url, latitude, longitude, zoom, noteLatitude, noteLongitude}) =>
             <Uploader
               description={description}
               tags={@props.game.tags}
               tag={tag}
               url={url}
-              onImageSelect={=>}
+              onChange={(o) =>
+                @setState (previousState, currentProps) =>
+                  update previousState,
+                    screen:
+                      $set:
+                        create:
+                          description: o.description ? description
+                          url: o.url ? url
+                          tag: o.tag ? tag
+                          latitude: o.latitude ? latitude
+                          longitude: o.longitude ? longitude
+                          zoom: o.zoom ? zoom
+                          noteLatitude: o.noteLatitude ? noteLatitude
+                          noteLongitude: o.noteLongitude ? noteLongitude
+              }
               latitude={latitude}
               longitude={longitude}
+              zoom={zoom}
+              noteLatitude={noteLatitude}
+              noteLongitude={noteLongitude}
               />
       }
     </div>
@@ -249,7 +271,7 @@ document.addEventListener 'DOMContentLoaded', ->
           if returnCode is 0 and owners?
             game.owners = owners
 
-            React.render <App game={game} aris={aris} />, document.body
+            ReactDOM.render <App game={game} aris={aris} />, document.getElementById('the-container')
 
   if siftr_id?
     aris.getGame

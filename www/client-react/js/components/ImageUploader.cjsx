@@ -1,4 +1,6 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+update = require 'react-addons-update'
 T = React.PropTypes
 
 exports.ImageUploader = React.createClass
@@ -27,4 +29,5 @@ exports.ImageUploader = React.createClass
       backgroundPosition: 'center'
       width: @props.width
       height: @props.height
+      border: '1px solid black'
     } onClick={@selectImage} />

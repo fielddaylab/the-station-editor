@@ -1,4 +1,6 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+update = require 'react-addons-update'
 T = React.PropTypes
 {Note} = require '../../../shared/aris.js'
 GoogleMap = require 'google-map-react'
@@ -20,7 +22,7 @@ exports.NoteMap = React.createClass
       center={[@props.latitude, @props.longitude]}
       zoom={@props.zoom}
       onChildClick={(key, childProps) => window.location.hash = key[7..]}
-      onBoundsChange={@props.onBoundsChange}>
+      onChange={@props.onBoundsChange}>
       { for note in @props.notes
           age = (note.note_id - min_note_id) / (max_note_id - min_note_id)
           age_percent = "#{age * 100}%"
@@ -29,7 +31,7 @@ exports.NoteMap = React.createClass
             key={"marker-#{note.note_id}"}
             lat={note.latitude}
             lng={note.longitude}
-            style={width: '10px', height: '10px', backgroundColor: color, cursor: 'pointer'}
+            style={marginLeft: '-5px', marginTop: '-5px', width: '10px', height: '10px', backgroundColor: color, cursor: 'pointer'}
             />
       }
     </GoogleMap>

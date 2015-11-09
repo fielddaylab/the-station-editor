@@ -1,4 +1,6 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+update = require 'react-addons-update'
 T = React.PropTypes
 {Note} = require '../../../shared/aris.js'
 
