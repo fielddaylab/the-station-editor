@@ -4,6 +4,8 @@ update = require 'react-addons-update'
 T = React.PropTypes
 
 exports.ImageUploader = React.createClass
+  displayName: 'ImageUploader'
+
   propTypes:
     url:           T.string
     onImageSelect: T.func

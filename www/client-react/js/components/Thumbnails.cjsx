@@ -5,6 +5,8 @@ T = React.PropTypes
 {Note} = require '../../../shared/aris.js'
 
 exports.Thumbnails = React.createClass
+  displayName: 'Thumbnails'
+
   propTypes:
     notes: T.arrayOf T.instanceOf Note
 

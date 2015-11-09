@@ -22,6 +22,8 @@ match = (val, branches, def = (-> throw 'Match failed')) ->
   def()
 
 App = React.createClass
+  displayName: 'App'
+
   propTypes:
     game: T.instanceOf Game
     aris: T.instanceOf Aris
@@ -209,6 +211,7 @@ App = React.createClass
               zoom={zoom}
               noteLatitude={noteLatitude}
               noteLongitude={noteLongitude}
+              onSubmit={@uploadNewNote}
               />
       }
     </div>
@@ -247,6 +250,42 @@ App = React.createClass
               @setState notes: notes
               @applyHash notes
     , if wait then 250 else 0
+
+  uploadNewNote: ->
+    match @state.screen,
+      create: ({description, tag, url, noteLatitude, noteLongitude}) =>
+
+        typeMap =
+          jpg: 'image/jpeg'
+          png: 'image/png'
+          gif: 'image/gif'
+        media_ext = null
+        media_base64 = null
+        for ext, mime of typeMap
+          prefix = "data:#{mime};base64,"
+          if url.substring(0, prefix.length) is prefix
+            media_ext = ext
+            media_base64 = url.substring(prefix.length)
+            break
+        return unless media_ext? and media_base64?
+
+        @props.aris.call 'notes.createNote',
+          game_id: @props.game.game_id
+          media:
+            file_name: "upload.#{media_ext}"
+            data: media_base64
+            resize: 640
+          description: description
+          trigger:
+            latitude: noteLatitude
+            longitude: noteLongitude
+          tag_id: tag.tag_id
+        , ({returnCode}) =>
+          if returnCode is 0
+            @handleSearch undefined, undefined, false
+            window.location.hash = ""
+
+    , (=>) # do nothing if not in create screen
 
 document.addEventListener 'DOMContentLoaded', ->
 

@@ -5,6 +5,8 @@ T = React.PropTypes
 {Note} = require '../../../shared/aris.js'
 
 exports.NoteView = React.createClass
+  displayName: 'NoteView'
+
   propTypes:
     onBack: T.func
     note:   T.instanceOf Note

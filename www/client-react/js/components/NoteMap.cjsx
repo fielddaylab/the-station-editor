@@ -6,6 +6,8 @@ T = React.PropTypes
 GoogleMap = require 'google-map-react'
 
 exports.NoteMap = React.createClass
+  displayName: 'NoteMap'
+
   propTypes:
     latitude:       T.number
     longitude:      T.number

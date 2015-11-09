@@ -5,6 +5,8 @@ T = React.PropTypes
 {Tag} = require '../../../shared/aris.js'
 
 exports.SearchBox = React.createClass
+  displayName: 'SearchBox'
+
   propTypes:
     tags:        T.arrayOf T.instanceOf Tag
     checkedTags: T.arrayOf T.instanceOf Tag

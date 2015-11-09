@@ -7,6 +7,8 @@ T = React.PropTypes
 GoogleMap = require 'google-map-react'
 
 exports.Uploader = React.createClass
+  displayName: 'Uploader'
+
   propTypes:
     description:   T.string
     tags:          T.arrayOf T.instanceOf Tag
@@ -15,9 +17,10 @@ exports.Uploader = React.createClass
     latitude:      T.number
     longitude:     T.number
     zoom:          T.number
-    onChange:      T.func
     noteLatitude:  T.number
     noteLongitude: T.number
+    onChange:      T.func
+    onSubmit:      T.func
 
   getInitialState: ->
     draggingMarker: null
@@ -90,7 +93,7 @@ exports.Uploader = React.createClass
         </GoogleMap>
       </div>
       <p>
-        <button type="button" onClick={=>}>
+        <button type="button" onClick={@props.onSubmit}>
           Submit
         </button>
       </p>
