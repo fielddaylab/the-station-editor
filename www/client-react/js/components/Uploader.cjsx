@@ -55,7 +55,8 @@ exports.Uploader = React.createClass
       <div style={width: '500px', height: '500px'}>
         <GoogleMap
           center={[@props.latitude, @props.longitude]}
-          zoom={@props.zoom}
+          zoom={Math.max 2, @props.zoom}
+          options={minZoom: 2}
           onChange={({center: {lat, lng}, zoom}) =>
             @props.onChange
               latitude: lat

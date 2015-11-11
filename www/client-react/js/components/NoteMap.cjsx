@@ -22,7 +22,8 @@ exports.NoteMap = React.createClass
     min_note_id = Math.min(note_ids...)
     <GoogleMap
       center={[@props.latitude, @props.longitude]}
-      zoom={@props.zoom}
+      zoom={Math.max 2, @props.zoom}
+      options={minZoom: 2}
       onChildClick={(key, childProps) => window.location.hash = key[7..]}
       onChange={@props.onBoundsChange}>
       { for note in @props.notes
