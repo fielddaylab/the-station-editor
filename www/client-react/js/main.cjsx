@@ -43,6 +43,10 @@ App = React.createClass
         password: ''
     screen:
       main: {}
+    searchMinDate: null
+    searchMaxDate: null
+    notesMinDate: null
+    notesMaxDate: null
 
   componentDidMount: ->
     @login undefined, undefined
@@ -171,6 +175,10 @@ App = React.createClass
                 tags={@props.game.tags}
                 checkedTags={@state.checkedTags}
                 searchText={@state.searchText}
+                searchMinDate={@state.searchMinDate}
+                searchMaxDate={@state.searchMaxDate}
+                notesMinDate={@state.notesMinDate}
+                notesMaxDate={@state.notesMaxDate}
                 onSearch={@handleSearch}
               />
               { if @state.fetching
@@ -231,18 +239,27 @@ App = React.createClass
           # hide notes that don't have photos
           continue unless n.photo_url?
           n
+      notesMinDate = notesMaxDate = notes[0]?.created
+      for note in notes
+        d = note.created
+        notesMinDate = d if d.getTime() < notesMinDate.getTime()
+        notesMaxDate = d if notesMaxDate.getTime() < d.getTime()
       @setState
         notes: notes
         searchedNotes: null
         fetching: false
+        notesMinDate: notesMinDate
+        notesMaxDate: notesMaxDate
       @applyHash notes
-      @handleSearch @state.checkedTags, @state.searchText
+      @handleSearch @state.checkedTags, @state.searchText, @state.minDate, @state.maxDate
 
-  handleSearch: (tags, text) ->
+  handleSearch: (tags, text, searchMinDate, searchMaxDate) ->
     thisSearch = Date.now()
     @setState
       checkedTags: tags
       searchText: text
+      searchMinDate: searchMinDate
+      searchMaxDate: searchMaxDate
       lastSearch: thisSearch
     setTimeout =>
       if thisSearch is @state.lastSearch
@@ -263,6 +280,10 @@ App = React.createClass
               continue unless words.every (word) =>
                 searchables.some (thing) =>
                   thing.indexOf(word) >= 0
+              if searchMinDate?
+                continue unless searchMinDate.getTime() <= note.created.getTime()
+              if searchMaxDate?
+                continue unless searchMaxDate.getTime() >= note.created.getTime()
               note
     , 250
 
