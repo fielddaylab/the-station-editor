@@ -72,30 +72,31 @@ App = React.createClass
   applyHash: (notes) ->
     hash = window.location.hash[1..]
     @setState (previousState, currentProps) =>
-      if hash is 'new'
-        if 'create' of previousState.screen
-          previousState
-        else
-          update previousState,
-            screen:
-              $set:
-                create:
-                  description: ''
-                  url: null
-                  tags: @props.game.tags
-                  tag: @props.game.tags[0]
-                  latitude: @props.game.latitude
-                  longitude: @props.game.longitude
-                  zoom: @props.game.zoom
-                  noteLatitude: @props.game.latitude
-                  noteLongitude: @props.game.longitude
-      else
-        note_id = parseInt hash
-        matchingNotes =
-          note for note in notes ? @state.notes when note.note_id is note_id
-        update previousState,
-          screen:
-            $set:
+      update previousState,
+        screen:
+          $apply: (previousScreen) =>
+            if hash is 'new'
+              match previousState.login,
+                loggedIn: =>
+                  match previousScreen,
+                    create: => previousScreen
+                  , =>
+                    create:
+                      description: ''
+                      url: null
+                      tags: @props.game.tags
+                      tag: @props.game.tags[0]
+                      latitude: @props.game.latitude
+                      longitude: @props.game.longitude
+                      zoom: @props.game.zoom
+                      noteLatitude: @props.game.latitude
+                      noteLongitude: @props.game.longitude
+                loggedOut: =>
+                  main: {}
+            else
+              note_id = parseInt hash
+              matchingNotes =
+                note for note in notes ? @state.notes when note.note_id is note_id
               if matchingNotes.length is 1
                 view:
                   note: matchingNotes[0]
