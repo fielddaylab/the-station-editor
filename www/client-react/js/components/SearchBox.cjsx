@@ -15,8 +15,8 @@ exports.SearchBox = React.createClass
 
   handleChange: ->
     tags =
-      tag for tag in @props.tags when @refs["searchTag#{tag.tag_id}"].getDOMNode().checked
-    text = @refs.searchText.getDOMNode().value
+      tag for tag in @props.tags when @refs["searchTag#{tag.tag_id}"].checked
+    text = @refs.searchText.value
     @props.onSearch tags, text
 
   render: ->

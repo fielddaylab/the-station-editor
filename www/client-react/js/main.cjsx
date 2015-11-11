@@ -30,7 +30,8 @@ App = React.createClass
 
   getInitialState: ->
     notes: []
-    searching: false
+    searchedNotes: []
+    fetching: false
     checkedTags: []
     searchText: ''
     latitude: @props.game.latitude
@@ -67,7 +68,7 @@ App = React.createClass
               match previousState.login,
                 loggedIn:               => loggedOut: {username: '', password: ''}
                 loggedOut: ({username}) => loggedOut: {username    , password: ''}
-    @handleSearch undefined, undefined, false
+    @refreshNotes()
 
   applyHash: (notes) ->
     hash = window.location.hash[1..]
@@ -160,7 +161,7 @@ App = React.createClass
               longitude={@state.longitude}
               zoom={@state.zoom}
               onBoundsChange={@handleMapChange}
-              notes={@state.notes} />
+              notes={@state.searchedNotes ? []} />
           </div>
         match @state.screen,
           main: =>
@@ -172,10 +173,12 @@ App = React.createClass
                 searchText={@state.searchText}
                 onSearch={@handleSearch}
               />
-              { if @state.searching
-                  <p>Searching...</p>
+              { if @state.fetching
+                  <p>Retrieving notes...</p>
+                else if @state.searchedNotes?
+                  <Thumbnails notes={@state.searchedNotes} />
                 else
-                  <Thumbnails notes={@state.notes} />
+                  <p>Searching...</p>
               }
             </div>
           view: ({note}) =>
@@ -217,40 +220,51 @@ App = React.createClass
       }
     </div>
 
-  handleSearch: (tags, text, wait = true) ->
-    if tags? and text?
+  refreshNotes: ->
+    @setState fetching: true
+    @props.aris.call 'notes.searchNotes',
+      game_id: @props.game.game_id
+    , ({data: notes, returnCode}) =>
+      notes =
+        for o in notes
+          n = new Note o
+          # hide notes that don't have photos
+          continue unless n.photo_url?
+          n
       @setState
-        checkedTags: tags
-        searchText: text
-    else
-      tags = @state.checkedTags
-      text = @state.searchText
+        notes: notes
+        searchedNotes: null
+        fetching: false
+      @applyHash notes
+      @handleSearch @state.checkedTags, @state.searchText
+
+  handleSearch: (tags, text) ->
     thisSearch = Date.now()
     @setState
+      checkedTags: tags
+      searchText: text
       lastSearch: thisSearch
-      searching: true
     setTimeout =>
       if thisSearch is @state.lastSearch
-        @props.aris.call 'notes.searchNotes',
-          game_id: @props.game.game_id
-          order_by: 'recent'
-          tag_ids:
-            tag.tag_id for tag in tags
-          search_terms:
-            word for word in text.split(/\s+/) when word isnt ''
-        , ({data: notes, returnCode}) =>
-          if thisSearch is @state.lastSearch
-            @setState searching: false
-            if returnCode is 0
-              notes =
-                for o in notes
-                  n = new Note o
-                  # hide notes that don't have photos
-                  continue unless n.photo_url?
-                  n
-              @setState notes: notes
-              @applyHash notes
-    , if wait then 250 else 0
+        words =
+          word.toLowerCase() for word in text.split(/\s+/) when word isnt ''
+        checkedTagIDs =
+          tag.tag_id for tag in tags
+        @setState
+          searchedNotes:
+            for note in @state.notes
+              if checkedTagIDs.length > 0
+                continue unless note.tag_id in checkedTagIDs
+              searchables =
+                [ note.description
+                , note.user.display_name
+                , (comment.description for comment in note.comments)...
+                ].map (s) => s.toLowerCase()
+              continue unless words.every (word) =>
+                searchables.some (thing) =>
+                  thing.indexOf(word) >= 0
+              note
+    , 250
 
   uploadNewNote: ->
     match @state.screen,
@@ -283,7 +297,7 @@ App = React.createClass
           tag_id: tag.tag_id
         , ({returnCode}) =>
           if returnCode is 0
-            @handleSearch undefined, undefined, false
+            @refreshNotes()
             window.location.hash = ""
 
     , (=>) # do nothing if not in create screen
