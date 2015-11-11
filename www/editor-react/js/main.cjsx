@@ -1,4 +1,6 @@
-React = require 'react/addons'
+React = require 'react'
+ReactDOM = require 'react-dom'
+update = require 'react-addons-update'
 GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
@@ -21,6 +23,8 @@ countContributors = (notes) ->
   Object.keys(user_ids).length
 
 App = React.createClass
+  displayName: 'App'
+
   getInitialState: ->
     auth: null
     games: []
@@ -104,7 +108,7 @@ App = React.createClass
         , (result) =>
           if result.returnCode is 0 and result.data?
             @setState (previousState, currentProps) =>
-              React.addons.update previousState,
+              update previousState,
                 colors:
                   $merge: singleObj(i, result.data)
 
@@ -132,7 +136,7 @@ App = React.createClass
       , (result) =>
         if result.returnCode is 0 and result.data?
           @setState (previousState, currentProps) =>
-            React.addons.update previousState,
+            update previousState,
               notes:
                 $merge: singleObj(game.game_id, result.data)
 
@@ -143,7 +147,7 @@ App = React.createClass
       , (result) =>
         if result.returnCode is 0 and result.data?
           @setState (previousState, currentProps) =>
-            React.addons.update previousState,
+            update previousState,
               tags:
                 $merge: singleObj(game.game_id, result.data)
 
@@ -151,7 +155,7 @@ App = React.createClass
   # or updates an existing game if it shares the game ID.
   updateStateGame: (newGame) ->
     @setState (previousState, currentProps) =>
-      React.addons.update previousState,
+      update previousState,
         games:
           $apply: (games) =>
             foundOld = false
@@ -224,7 +228,7 @@ App = React.createClass
                 @updateTags([newGame])
         @updateStateGame newGame
         @setState (previousState, currentProps) =>
-          React.addons.update previousState,
+          update previousState,
             notes:
               $merge: singleObj(newGame.game_id, [])
             new_game:
@@ -252,7 +256,7 @@ App = React.createClass
         <div id="the-my-siftrs-button">My Siftrs</div>
       </div>
       { if @state.auth?
-          <form>
+          <div>
             <p><code>{ JSON.stringify @state.auth }</code></p>
             <button type="button" onClick={@logout}>Logout</button>
             {
@@ -298,7 +302,7 @@ App = React.createClass
                     onChange={(new_game) => @setState {new_game}}
                     onCreate={@createGame} />
             }
-          </form>
+          </div>
         else
           <form>
             <p>
@@ -315,6 +319,8 @@ App = React.createClass
     </div>
 
 SiftrList = React.createClass
+  displayName: 'SiftrList'
+
   render: ->
     <ul>
       { for game in @props.games
@@ -332,26 +338,22 @@ SiftrList = React.createClass
                 {' | '} { if game.published then 'Public' else 'Private' }
                 {' | '} { if game.moderated then 'Moderated' else 'Non-Moderated' }
               </p>
-              <p>
-                { do =>
-                  colors = @props.colors[game.colors_id]
-                  if colors?
-                    rgbs =
-                      colors["tag_#{i}"] for i in [1..5]
-                    <div style={
-                      "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
-                      height: '20px'
-                      width: '100%'
-                      } />
-                  else
-                    ''
-                }
-              </p>
+              { if (colors = @props.colors[game.colors_id])?
+                  rgbs =
+                    colors["tag_#{i}"] for i in [1..5]
+                  <div style={
+                    backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
+                    height: '20px'
+                    width: '100%'
+                    } />
+              }
             </li>
       }
     </ul>
 
 EditSiftr = React.createClass
+  displayName: 'EditSiftr'
+
   render: ->
     <form>
       <p>
@@ -401,7 +403,7 @@ EditSiftr = React.createClass
               {colors?.name}
             </p>
             <div style={
-              "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
+              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
               height: '20px'
               width: '100%'
               } />
@@ -411,9 +413,9 @@ EditSiftr = React.createClass
         <GoogleMap
           ref="map"
           center={[@props.game.latitude, @props.game.longitude]}
-          zoom={@props.game.zoom}
-          options={minZoom: 1}
-          onBoundsChange={@handleMapChange}>
+          zoom={Math.max 2, @props.game.zoom}
+          options={minZoom: 2}
+          onChange={@handleMapChange}>
         </GoogleMap>
       </div>
       <p>
@@ -423,27 +425,27 @@ EditSiftr = React.createClass
     </form>
 
   handleChange: ->
-    game = React.addons.update @props.game,
+    game = update @props.game,
       name:
-        $set: @refs['name'].getDOMNode().value
+        $set: @refs['name'].value
       description:
-        $set: @refs['description'].getDOMNode().value
+        $set: @refs['description'].value
       siftr_url:
-        $set: @refs['siftr_url'].getDOMNode().value or null
+        $set: @refs['siftr_url'].value or null
       published:
-        $set: @refs['published'].getDOMNode().checked
+        $set: @refs['published'].checked
       moderated:
-        $set: @refs['moderated'].getDOMNode().checked
+        $set: @refs['moderated'].checked
       colors_id:
         $set: do =>
           for i in [1..6]
-            if @refs["colors_#{i}"].getDOMNode().checked
+            if @refs["colors_#{i}"].checked
               return i
           1
     @props.onChange game
 
-  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
-    game = React.addons.update @props.game,
+  handleMapChange: ({center: {lat, lng}, zoom}) ->
+    game = update @props.game,
       latitude:
         $set: lat
       longitude:
@@ -453,6 +455,8 @@ EditSiftr = React.createClass
     @props.onChange game
 
 NewStep1 = React.createClass
+  displayName: 'NewStep1'
+
   render: ->
     <div>
       <h2>New Siftr</h2>
@@ -504,15 +508,17 @@ NewStep1 = React.createClass
     input.click()
 
   handleChange: ->
-    game = React.addons.update @props.game,
+    game = update @props.game,
       name:
-        $set: @refs.name.getDOMNode().value
+        $set: @refs.name.value
       description:
-        $set: @refs.description.getDOMNode().value
-    tag_string = @refs.tag_string.getDOMNode().value
+        $set: @refs.description.value
+    tag_string = @refs.tag_string.value
     @props.onChange(game, tag_string)
 
 NewStep2 = React.createClass
+  displayName: 'NewStep2'
+
   render: ->
     @tag_boxes = []
     <div>
@@ -537,7 +543,7 @@ NewStep2 = React.createClass
                 {colors?.name}
               </p>
               <div style={
-                "background-image": "linear-gradient(to right, #{rgbs.join(', ')})"
+                backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
                 height: '20px'
                 width: '100%'
                 } />
@@ -565,9 +571,9 @@ NewStep2 = React.createClass
         <GoogleMap
           ref="map"
           center={[@props.game.latitude, @props.game.longitude]}
-          zoom={@props.game.zoom}
-          options={minZoom: 1}
-          onBoundsChange={@handleMapChange}>
+          zoom={Math.max 2, @props.game.zoom}
+          options={minZoom: 2}
+          onChange={@handleMapChange}>
         </GoogleMap>
       </div>
       <p><a href="#">Cancel</a></p>
@@ -577,26 +583,26 @@ NewStep2 = React.createClass
     tags =
       for input, i in @tag_boxes
         continue if i is index
-        input.getDOMNode().value
+        input.value
     @props.onChange @props.game, tags.join(',')
 
   addTag: ->
-    tag_string = @tag_boxes.map((input) => input.getDOMNode().value).join(',') + ','
+    tag_string = @tag_boxes.map((input) => input.value).join(',') + ','
     @props.onChange @props.game, tag_string
 
   handleChange: ->
     colors_id = 1
     for i in [1..6]
-      if @refs["colors_#{i}"].getDOMNode().checked
+      if @refs["colors_#{i}"].checked
         colors_id = i
-    game = React.addons.update @props.game,
+    game = update @props.game,
       colors_id:
         $set: colors_id
-    tag_string = @tag_boxes.map((input) => input.getDOMNode().value).join(',')
+    tag_string = @tag_boxes.map((input) => input.value).join(',')
     @props.onChange game, tag_string
 
-  handleMapChange: ([lat, lng], zoom, bounds, marginBounds) ->
-    game = React.addons.update @props.game,
+  handleMapChange: ({center: {lat, lng}, zoom}) ->
+    game = update @props.game,
       latitude:
         $set: lat
       longitude:
@@ -606,6 +612,8 @@ NewStep2 = React.createClass
     @props.onChange game, @props.tag_string
 
 NewStep3 = React.createClass
+  displayName: 'NewStep3'
+
   render: ->
     <div>
       <h2>New Siftr 3</h2>
@@ -633,12 +641,12 @@ NewStep3 = React.createClass
     </div>
 
   handleChange: ->
-    game = React.addons.update @props.game,
+    game = update @props.game,
       published:
-        $set: @refs.published.getDOMNode().checked
+        $set: @refs.published.checked
       moderated:
-        $set: @refs.moderated.getDOMNode().checked
+        $set: @refs.moderated.checked
     @props.onChange game
 
 document.addEventListener 'DOMContentLoaded', (event) ->
-  React.render <App aris={new Aris} />, document.body
+  ReactDOM.render <App aris={new Aris} />, document.getElementById('the-container')
