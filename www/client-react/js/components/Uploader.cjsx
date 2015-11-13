@@ -27,8 +27,7 @@ exports.Uploader = React.createClass
 
   render: ->
     <div>
-      <input ref="description" type="text" value={@props.description}
-        onChange={(e) => @props.onChange description: e.target.value} />
+      <p>Click the box below to choose a picture.</p>
       <ImageUploader
         url={@props.url}
         onImageSelect={(url) => @props.onChange {url}}
@@ -93,6 +92,12 @@ exports.Uploader = React.createClass
             />
         </GoogleMap>
       </div>
+      <p>
+        <textarea ref="description" value={@props.description}
+          placeholder="Enter a caption"
+          onChange={(e) => @props.onChange description: e.target.value}
+          style={width: '500px', height: '100px'} />
+      </p>
       <p>
         <button type="button" onClick={@props.onSubmit}>
           Submit

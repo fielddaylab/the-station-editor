@@ -70,4 +70,5 @@ exports.SearchBox = React.createClass
           onChange={@handleChange}
           style={width: '500px'} />
       </p>
+      <button type="submit" style={display: 'none'} onClick={(e) => e.preventDefault()} />
     </form>

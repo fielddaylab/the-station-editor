@@ -13,7 +13,7 @@ exports.Thumbnails = React.createClass
   render: ->
     <div>
       { @props.notes.map (note) =>
-          <a key={"thumb-#{note.note_id}"} href={"##{note.note_id}"}>
+          <a key={note.note_id} href={'#' + note.note_id}>
             <img src={note.thumb_url} />
           </a>
       }

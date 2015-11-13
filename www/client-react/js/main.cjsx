@@ -105,6 +105,7 @@ App = React.createClass
               if matchingNotes.length is 1
                 view:
                   note: matchingNotes[0]
+                  newComment: ''
               else
                 main: {}
 
@@ -131,6 +132,19 @@ App = React.createClass
             match login,
               loggedIn:               => login
               loggedOut: ({username}) => loggedOut: {username, password}
+
+  insertComment: (comment) ->
+    @setState (previousState, currentProps) ->
+      update previousState,
+        notes:
+          $apply: (previousNotes) =>
+            for note in previousNotes
+              if note.note_id is comment.note_id
+                update note,
+                  comments:
+                    $push: [comment]
+              else
+                note
 
   render: ->
     <div>
@@ -189,12 +203,34 @@ App = React.createClass
                   <p>Searching...</p>
               }
             </div>
-          view: ({note}) =>
+          view: ({note, newComment}) =>
             <div>
               { noteMap }
               <NoteView
                 note={note}
                 onBack={=> window.location.hash = '#'}
+                loggedIn={'loggedIn' of @state.login}
+                newComment={newComment}
+                onNewCommentChange={(newComment) =>
+                  @setState
+                    screen:
+                      view: {note, newComment}
+                }
+                onPostComment={=>
+                  @props.aris.createNoteComment
+                    name: ''
+                    description: newComment
+                    game_id: @props.game.game_id
+                    note_id: note.note_id
+                  , ({data: comment, returnCode}) =>
+                    if returnCode is 0 and comment?
+                      @insertComment comment
+                      @setState
+                        screen:
+                          view:
+                            note: note
+                            newComment: ''
+                }
               />
             </div>
           create: ({description, tag, url, latitude, longitude, zoom, noteLatitude, noteLongitude}) =>
@@ -204,19 +240,17 @@ App = React.createClass
               tag={tag}
               url={url}
               onChange={(o) =>
-                @setState (previousState, currentProps) =>
-                  update previousState,
-                    screen:
-                      $set:
-                        create:
-                          description: o.description ? description
-                          url: o.url ? url
-                          tag: o.tag ? tag
-                          latitude: o.latitude ? latitude
-                          longitude: o.longitude ? longitude
-                          zoom: o.zoom ? zoom
-                          noteLatitude: o.noteLatitude ? noteLatitude
-                          noteLongitude: o.noteLongitude ? noteLongitude
+                @setState
+                  screen:
+                    create:
+                      description: o.description ? description
+                      url: o.url ? url
+                      tag: o.tag ? tag
+                      latitude: o.latitude ? latitude
+                      longitude: o.longitude ? longitude
+                      zoom: o.zoom ? zoom
+                      noteLatitude: o.noteLatitude ? noteLatitude
+                      noteLongitude: o.noteLongitude ? noteLongitude
               }
               latitude={latitude}
               longitude={longitude}

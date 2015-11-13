@@ -119,6 +119,7 @@
       this.comment_id = parseInt(json.note_comment_id);
       this.user = new User(json.user);
       this.created = new Date(json.created.replace(' ', 'T') + 'Z');
+      this.note_id = parseInt(json.note_id);
     }
 
     return Comment;
@@ -128,32 +129,37 @@
   Note = (function() {
     function Note(json) {
       var comment, o;
-      this.note_id = parseInt(json.note_id);
-      this.user = new User(json.user);
-      this.description = json.description;
-      this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
-      this.thumb_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.thumb_url;
-      this.latitude = parseFloat(json.latitude);
-      this.longitude = parseFloat(json.longitude);
-      this.tag_id = parseInt(json.tag_id);
-      this.created = new Date(json.created.replace(' ', 'T') + 'Z');
-      this.player_liked = parseInt(json.player_liked) !== 0;
-      this.note_likes = parseInt(json.note_likes);
-      this.comments = (function() {
-        var _i, _len, _ref, _results;
-        _ref = json.comments.data;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          o = _ref[_i];
-          comment = new Comment(o);
-          if (!comment.description.match(/\S/)) {
-            continue;
+      if (json == null) {
+        json = null;
+      }
+      if (json != null) {
+        this.note_id = parseInt(json.note_id);
+        this.user = new User(json.user);
+        this.description = json.description;
+        this.photo_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.url;
+        this.thumb_url = parseInt(json.media.data.media_id) === 0 ? null : json.media.data.thumb_url;
+        this.latitude = parseFloat(json.latitude);
+        this.longitude = parseFloat(json.longitude);
+        this.tag_id = parseInt(json.tag_id);
+        this.created = new Date(json.created.replace(' ', 'T') + 'Z');
+        this.player_liked = parseInt(json.player_liked) !== 0;
+        this.note_likes = parseInt(json.note_likes);
+        this.comments = (function() {
+          var _i, _len, _ref, _results;
+          _ref = json.comments.data;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            o = _ref[_i];
+            comment = new Comment(o);
+            if (!comment.description.match(/\S/)) {
+              continue;
+            }
+            _results.push(comment);
           }
-          _results.push(comment);
-        }
-        return _results;
-      })();
-      this.published = json.published;
+          return _results;
+        })();
+        this.published = json.published;
+      }
     }
 
     return Note;
@@ -320,6 +326,12 @@
     Aris.prototype.createTag = function(tag, cb) {
       return this.callWrapped('tags.createTag', tag.createJSON(), cb, function(data) {
         return new Tag(data);
+      });
+    };
+
+    Aris.prototype.createNoteComment = function(json, cb) {
+      return this.callWrapped('note_comments.createNoteComment', json, cb, function(data) {
+        return new Comment(data);
       });
     };
 

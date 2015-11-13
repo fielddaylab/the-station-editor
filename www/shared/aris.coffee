@@ -87,33 +87,35 @@ class Comment
     @comment_id  = parseInt json.note_comment_id
     @user        = new User json.user
     @created     = new Date(json.created.replace(' ', 'T') + 'Z')
+    @note_id     = parseInt json.note_id
 
 class Note
-  constructor: (json) ->
-    @note_id      = parseInt json.note_id
-    @user         = new User json.user
-    @description  = json.description
-    @photo_url    =
-      if parseInt(json.media.data.media_id) is 0
-        null
-      else
-        json.media.data.url
-    @thumb_url    =
-      if parseInt(json.media.data.media_id) is 0
-        null
-      else
-        json.media.data.thumb_url
-    @latitude     = parseFloat json.latitude
-    @longitude    = parseFloat json.longitude
-    @tag_id       = parseInt json.tag_id
-    @created      = new Date(json.created.replace(' ', 'T') + 'Z')
-    @player_liked = parseInt(json.player_liked) isnt 0
-    @note_likes   = parseInt json.note_likes
-    @comments     = for o in json.comments.data
-      comment = new Comment o
-      continue unless comment.description.match(/\S/)
-      comment
-    @published    = json.published
+  constructor: (json = null) ->
+    if json?
+      @note_id      = parseInt json.note_id
+      @user         = new User json.user
+      @description  = json.description
+      @photo_url    =
+        if parseInt(json.media.data.media_id) is 0
+          null
+        else
+          json.media.data.url
+      @thumb_url    =
+        if parseInt(json.media.data.media_id) is 0
+          null
+        else
+          json.media.data.thumb_url
+      @latitude     = parseFloat json.latitude
+      @longitude    = parseFloat json.longitude
+      @tag_id       = parseInt json.tag_id
+      @created      = new Date(json.created.replace(' ', 'T') + 'Z')
+      @player_liked = parseInt(json.player_liked) isnt 0
+      @note_likes   = parseInt json.note_likes
+      @comments     = for o in json.comments.data
+        comment = new Comment o
+        continue unless comment.description.match(/\S/)
+        comment
+      @published    = json.published
 
 # Handles Aris v2 authentication and API calls.
 class Aris
@@ -200,6 +202,9 @@ class Aris
 
   createTag: (tag, cb) ->
     @callWrapped 'tags.createTag', tag.createJSON(), cb, (data) -> new Tag data
+
+  createNoteComment: (json, cb) ->
+    @callWrapped 'note_comments.createNoteComment', json, cb, (data) -> new Comment data
 
 for k, v of {Game, User, Tag, Comment, Note, Aris, ARIS_URL, SIFTR_URL}
   exports[k] = v
