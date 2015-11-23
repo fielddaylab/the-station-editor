@@ -35,36 +35,67 @@ App = React.createClass
     max_latitude: null
     min_longitude: null
     max_longitude: null
+    search: ''
+    mine: false
+    order: 'recent'
+    checked_tags: do =>
+      o = {}
+      for tag in @props.game.tags
+        o[tag.tag_id] = false
+      o
 
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
-    map_params =
-      latitude: lat
-      longitude: lng
-      zoom: zoom
-      min_latitude: se.lat
-      max_latitude: nw.lat
-      min_longitude: nw.lng
-      max_longitude: se.lng
-    @setState map_params
-    @search map_params
+    @searchParam 0,
+      latitude:
+        $set: lat
+      longitude:
+        $set: lng
+      zoom:
+        $set: zoom
+      min_latitude:
+        $set: se.lat
+      max_latitude:
+        $set: nw.lat
+      min_longitude:
+        $set: nw.lng
+      max_longitude:
+        $set: se.lng
 
-  search: (map_params = @state) ->
-    @props.aris.call 'notes.siftrSearch',
-      game_id: @props.game.game_id
-      min_latitude: map_params.min_latitude
-      max_latitude: map_params.max_latitude
-      min_longitude: map_params.min_longitude
-      max_longitude: map_params.max_longitude
-      zoom: @state.zoom
-    , ({data, returnCode}) =>
-      @setState
-        notes:        data.notes
-        map_notes:    data.map_notes
-        map_clusters: data.map_clusters
+  searchParam: (wait, updater) ->
+    @setState (previousState) =>
+      newState = update previousState, updater
+      @search wait, newState
+      newState
+
+  search: (wait = 0, state = @state) ->
+    thisSearch = @lastSearch = Date.now()
+    setTimeout =>
+      return unless thisSearch is @lastSearch
+      @props.aris.call 'notes.siftrSearch',
+        game_id: @props.game.game_id
+        min_latitude: state.min_latitude
+        max_latitude: state.max_latitude
+        min_longitude: state.min_longitude
+        max_longitude: state.max_longitude
+        zoom: state.zoom
+        limit: 50
+        order: state.order
+        filter: if state.mine then 'mine' else undefined
+        tag_ids:
+          tag_id for tag_id, checked of state.checked_tags when checked
+        search: state.search
+      , ({data, returnCode}) =>
+        return unless thisSearch is @lastSearch
+        if returnCode is 0 and data?
+          @setState
+            notes:        data.notes
+            map_notes:    data.map_notes
+            map_clusters: data.map_clusters
+    , wait
 
   render: ->
     <div>
-      <div style={position: 'fixed', top: 0, left: 0, width: '100%', height: '100%'}>
+      <div style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
         <GoogleMap
           center={[@state.latitude, @state.longitude]}
           zoom={Math.max 2, @state.zoom}
@@ -91,6 +122,73 @@ App = React.createClass
                 continue
           }
         </GoogleMap>
+      </div>
+      <div style={position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
+        <p>
+          <input type="text" value={@state.search} placeholder="Search..."
+            onChange={(e) => @searchParam 200,
+              search:
+                $set: e.target.value
+            }
+          />
+        </p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.order is 'recent'}
+              onClick={=> @searchParam 0,
+                order:
+                  $set: 'recent'
+              }
+            />
+            Recent
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.order is 'popular'}
+              onClick={=> @searchParam 0,
+                order:
+                  $set: 'popular'
+              }
+            />
+            Popular
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="checkbox" checked={@state.mine}
+              onClick={=> @searchParam 0,
+                mine:
+                  $apply: (x) => not x
+              }
+            />
+            My Notes
+          </label>
+        </p>
+        <p>
+          <b>Tags</b>
+        </p>
+        { @props.game.tags.map (tag) =>
+            <p key={tag.tag_id}>
+              <label>
+                <input type="checkbox" checked={@state.checked_tags[tag.tag_id]}
+                  onClick={=> @searchParam 0,
+                    checked_tags: do =>
+                      o = {}
+                      o[tag.tag_id] =
+                        $apply: (x) => not x
+                      o
+                  }
+                />
+                { tag.tag }
+              </label>
+            </p>
+        }
+      </div>
+      <div style={position: 'fixed', top: '50%', left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
+        { for note in @state.notes
+            <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5} />
+        }
       </div>
     </div>
 
