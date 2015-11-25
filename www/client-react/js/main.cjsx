@@ -28,6 +28,7 @@ App = React.createClass
     notes: []
     map_notes: []
     map_clusters: []
+    page: 1
     latitude: @props.game.latitude
     longitude: @props.game.longitude
     zoom: @props.game.zoom
@@ -45,7 +46,7 @@ App = React.createClass
       o
 
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
-    @searchParam 0,
+    @search 0,
       latitude:
         $set: lat
       longitude:
@@ -61,37 +62,58 @@ App = React.createClass
       max_longitude:
         $set: se.lng
 
-  searchParam: (wait, updater) ->
+  search: (wait, updater) ->
     @setState (previousState) =>
-      newState = update previousState, updater
-      @search wait, newState
+      newState = update update(previousState, updater), page: {$set: 1}
+      thisSearch = @lastSearch = Date.now()
+      setTimeout =>
+        return unless thisSearch is @lastSearch
+        @props.aris.call 'notes.siftrSearch',
+          game_id: @props.game.game_id
+          min_latitude: newState.min_latitude
+          max_latitude: newState.max_latitude
+          min_longitude: newState.min_longitude
+          max_longitude: newState.max_longitude
+          zoom: newState.zoom
+          limit: 50
+          order: newState.order
+          filter: if newState.mine then 'mine' else undefined
+          tag_ids:
+            tag_id for tag_id, checked of newState.checked_tags when checked
+          search: newState.search
+        , ({data, returnCode}) =>
+          return unless thisSearch is @lastSearch
+          if returnCode is 0 and data?
+            @setState
+              notes:        data.notes
+              map_notes:    data.map_notes
+              map_clusters: data.map_clusters
+      , wait
       newState
 
-  search: (wait = 0, state = @state) ->
+  setPage: (page) ->
     thisSearch = @lastSearch = Date.now()
-    setTimeout =>
+    @props.aris.call 'notes.siftrSearch',
+      game_id: @props.game.game_id
+      min_latitude: @state.min_latitude
+      max_latitude: @state.max_latitude
+      min_longitude: @state.min_longitude
+      max_longitude: @state.max_longitude
+      zoom: @state.zoom
+      limit: 50
+      offset: (page - 1) * 50
+      order: @state.order
+      filter: if @state.mine then 'mine' else undefined
+      tag_ids:
+        tag_id for tag_id, checked of @state.checked_tags when checked
+      search: @state.search
+      map_data: false
+    , ({data, returnCode}) =>
       return unless thisSearch is @lastSearch
-      @props.aris.call 'notes.siftrSearch',
-        game_id: @props.game.game_id
-        min_latitude: state.min_latitude
-        max_latitude: state.max_latitude
-        min_longitude: state.min_longitude
-        max_longitude: state.max_longitude
-        zoom: state.zoom
-        limit: 50
-        order: state.order
-        filter: if state.mine then 'mine' else undefined
-        tag_ids:
-          tag_id for tag_id, checked of state.checked_tags when checked
-        search: state.search
-      , ({data, returnCode}) =>
-        return unless thisSearch is @lastSearch
-        if returnCode is 0 and data?
-          @setState
-            notes:        data.notes
-            map_notes:    data.map_notes
-            map_clusters: data.map_clusters
-    , wait
+      if returnCode is 0 and data?
+        @setState
+          notes: data.notes
+          page:  page
 
   render: ->
     <div>
@@ -126,7 +148,7 @@ App = React.createClass
       <div style={position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
         <p>
           <input type="text" value={@state.search} placeholder="Search..."
-            onChange={(e) => @searchParam 200,
+            onChange={(e) => @search 200,
               search:
                 $set: e.target.value
             }
@@ -135,7 +157,7 @@ App = React.createClass
         <p>
           <label>
             <input type="radio" checked={@state.order is 'recent'}
-              onClick={=> @searchParam 0,
+              onClick={=> @search 0,
                 order:
                   $set: 'recent'
               }
@@ -146,7 +168,7 @@ App = React.createClass
         <p>
           <label>
             <input type="radio" checked={@state.order is 'popular'}
-              onClick={=> @searchParam 0,
+              onClick={=> @search 0,
                 order:
                   $set: 'popular'
               }
@@ -157,7 +179,7 @@ App = React.createClass
         <p>
           <label>
             <input type="checkbox" checked={@state.mine}
-              onClick={=> @searchParam 0,
+              onClick={=> @search 0,
                 mine:
                   $apply: (x) => not x
               }
@@ -172,7 +194,7 @@ App = React.createClass
             <p key={tag.tag_id}>
               <label>
                 <input type="checkbox" checked={@state.checked_tags[tag.tag_id]}
-                  onClick={=> @searchParam 0,
+                  onClick={=> @search 0,
                     checked_tags: do =>
                       o = {}
                       o[tag.tag_id] =
@@ -186,8 +208,18 @@ App = React.createClass
         }
       </div>
       <div style={position: 'fixed', top: '50%', left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
+        { if @state.page isnt 1
+            <p>
+              <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
+            </p>
+        }
         { for note in @state.notes
             <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5} />
+        }
+        { if @state.notes.length is 50
+            <p>
+              <button type="button" onClick={=> @setPage(@state.page + 1)}>Next Page</button>
+            </p>
         }
       </div>
     </div>
