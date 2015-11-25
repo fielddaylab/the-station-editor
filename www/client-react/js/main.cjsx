@@ -4,6 +4,7 @@ update = require 'react-addons-update'
 {markdown} = require 'markdown'
 {Game, Colors, User, Tag, Comment, Note, Aris} = require '../../shared/aris.js'
 GoogleMap = require 'google-map-react'
+{fitBounds} = require 'google-map-react/utils'
 
 T = React.PropTypes
 
@@ -117,7 +118,7 @@ App = React.createClass
 
   render: ->
     <div>
-      <div style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
+      <div ref="theMapDiv" style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
         <GoogleMap
           center={[@state.latitude, @state.longitude]}
           zoom={Math.max 2, @state.zoom}
@@ -134,12 +135,37 @@ App = React.createClass
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
               if -180 < lng < 180 && -90 < lat < 90
-                <div key={"#{lat}-#{lng}"}
-                  lat={lat}
-                  lng={lng}
-                  style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', backgroundColor: 'green', color: 'white', cursor: 'pointer'}>
-                  { cluster.note_count }
-                </div>
+                do (cluster) =>
+                  <div key={"#{lat}-#{lng}"}
+                    lat={lat}
+                    lng={lng}
+                    onClick={=>
+                      if cluster.min_latitude is cluster.max_latitude and cluster.min_longitude is cluster.min_longitude
+                        # Calling fitBounds on a single point breaks for some reason
+                        @setState
+                          latitude: cluster.min_latitude
+                          longitude: cluster.min_longitude
+                          zoom: 21
+                      else
+                        bounds =
+                          nw:
+                            lat: cluster.max_latitude
+                            lng: cluster.min_longitude
+                          se:
+                            lat: cluster.min_latitude
+                            lng: cluster.max_longitude
+                        size =
+                          width: @refs.theMapDiv.clientWidth
+                          height: @refs.theMapDiv.clientHeight
+                        {center, zoom} = fitBounds bounds, size
+                        @setState
+                          latitude: center.lat
+                          longitude: center.lng
+                          zoom: zoom
+                    }
+                    style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', backgroundColor: 'green', color: 'white', cursor: 'pointer'}>
+                    { cluster.note_count }
+                  </div>
               else
                 continue
           }
