@@ -335,6 +335,18 @@
       });
     };
 
+    Aris.prototype.getNoteCommentsForNote = function(json, cb) {
+      return this.callWrapped('note_comments.getNoteCommentsForNote', json, cb, function(data) {
+        var o, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          o = data[_i];
+          _results.push(new Comment(o));
+        }
+        return _results;
+      });
+    };
+
     return Aris;
 
   })();

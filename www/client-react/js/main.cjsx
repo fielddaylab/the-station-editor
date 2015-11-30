@@ -45,6 +45,8 @@ App = React.createClass
       for tag in @props.game.tags
         o[tag.tag_id] = false
       o
+    viewing_note: null
+    viewing_note_comments: null
 
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
     @search 0,
@@ -116,6 +118,20 @@ App = React.createClass
           notes: data.notes
           page:  page
 
+  fetchComments: (note) ->
+    @props.aris.getNoteCommentsForNote
+      game_id: @props.game.game_id
+      note_id: note.note_id
+    , ({data, returnCode}) =>
+      if returnCode is 0 and data?
+        @setState (previousState) =>
+          if previousState.viewing_note is note
+            update previousState,
+              viewing_note_comments:
+                $set: data
+          else
+            previousState
+
   render: ->
     <div>
       <div ref="theMapDiv" style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
@@ -124,11 +140,17 @@ App = React.createClass
           zoom={Math.max 2, @state.zoom}
           options={minZoom: 2}
           onChange={@handleMapChange}>
-          { for note in @state.map_notes
+          { @state.map_notes.map (note) =>
               <div key={note.note_id}
                 lat={note.latitude}
                 lng={note.longitude}
-                style={marginLeft: '-5px', marginTop: '-5px', width: '10px', height: '10px', backgroundColor: 'magenta', cursor: 'pointer'}
+                onClick={=>
+                  @setState
+                    viewing_note: note
+                    viewing_note_comments: null
+                  @fetchComments note
+                }
+                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
                 />
           }
           { for cluster, i in @state.map_clusters
@@ -163,8 +185,8 @@ App = React.createClass
                           longitude: center.lng
                           zoom: zoom
                     }
-                    style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', backgroundColor: 'green', color: 'white', cursor: 'pointer'}>
-                    { cluster.note_count }
+                    style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', backgroundColor: 'white', color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
+                    <span style={display: 'table-cell', verticalAlign: 'middle'}>{ cluster.note_count }</span>
                   </div>
               else
                 continue
@@ -239,8 +261,14 @@ App = React.createClass
               <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
             </p>
         }
-        { for note in @state.notes
-            <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5} />
+        { @state.notes.map (note) =>
+            <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5, cursor: 'pointer'}
+              onClick={=>
+                @setState
+                  viewing_note: note
+                  viewing_note_comments: null
+                @fetchComments note
+              } />
         }
         { if @state.notes.length is 50
             <p>
@@ -248,6 +276,24 @@ App = React.createClass
             </p>
         }
       </div>
+      { if @state.viewing_note?
+          <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+            <div style={padding: '20px'}>
+              <p><button onClick={=> @setState viewing_note: null}>Close</button></p>
+              <img src={@state.viewing_note.media.url} style={width: '100%'} />
+              <p>{ @state.viewing_note.description }</p>
+              { if @state.viewing_note_comments?
+                  for comment in @state.viewing_note_comments
+                    <div key={comment.comment_id}>
+                      <h4>{ comment.user.display_name } at { comment.created.toLocaleString() }</h4>
+                      <p>{ comment.description } </p>
+                    </div>
+                else
+                  <p>Loading comments...</p>
+              }
+            </div>
+          </div>
+      }
     </div>
 
 document.addEventListener 'DOMContentLoaded', ->

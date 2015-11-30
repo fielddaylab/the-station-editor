@@ -206,5 +206,8 @@ class Aris
   createNoteComment: (json, cb) ->
     @callWrapped 'note_comments.createNoteComment', json, cb, (data) -> new Comment data
 
+  getNoteCommentsForNote: (json, cb) ->
+    @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
+
 for k, v of {Game, User, Tag, Comment, Note, Aris, ARIS_URL, SIFTR_URL}
   exports[k] = v
