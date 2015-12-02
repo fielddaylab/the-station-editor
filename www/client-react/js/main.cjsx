@@ -2,9 +2,10 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 update = require 'react-addons-update'
 {markdown} = require 'markdown'
-{Game, Colors, User, Tag, Comment, Note, Aris} = require '../../shared/aris.js'
+{Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require '../../shared/aris.js'
 GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
+$ = require 'jquery'
 
 T = React.PropTypes
 
@@ -45,8 +46,15 @@ App = React.createClass
       for tag in @props.game.tags
         o[tag.tag_id] = false
       o
-    viewing_note: null
-    viewing_note_comments: null
+    modal:
+      nothing: {}
+    login_status:
+      logged_out:
+        username: ''
+        password: ''
+
+  componentDidMount: ->
+    @login()
 
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
     @search 0,
@@ -125,12 +133,38 @@ App = React.createClass
     , ({data, returnCode}) =>
       if returnCode is 0 and data?
         @setState (previousState) =>
-          if previousState.viewing_note is note
+          if previousState.modal.viewing_note?.note is note
             update previousState,
-              viewing_note_comments:
-                $set: data
+              modal:
+                viewing_note:
+                  comments:
+                    $set: data
           else
             previousState
+
+  login: ->
+    match @state.login_status,
+      logged_out: ({username, password}) =>
+        @props.aris.login (username or undefined), (password or undefined), =>
+          @setState
+            login_status:
+              if @props.aris.auth?
+                logged_in:
+                  auth: @props.aris.auth
+              else
+                logged_out:
+                  username: username
+                  password: ''
+
+  logout: ->
+    @props.aris.logout()
+    @setState
+      login_status:
+        logged_out:
+          username: ''
+          password: ''
+
+  startNote: ->
 
   render: ->
     <div>
@@ -146,8 +180,10 @@ App = React.createClass
                 lng={note.longitude}
                 onClick={=>
                   @setState
-                    viewing_note: note
-                    viewing_note_comments: null
+                    modal:
+                      viewing_note:
+                        note: note
+                        comments: null
                   @fetchComments note
                 }
                 style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
@@ -265,8 +301,10 @@ App = React.createClass
             <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5, cursor: 'pointer'}
               onClick={=>
                 @setState
-                  viewing_note: note
-                  viewing_note_comments: null
+                  modal:
+                    viewing_note:
+                      note: note
+                      comments: null
                 @fetchComments note
               } />
         }
@@ -276,23 +314,125 @@ App = React.createClass
             </p>
         }
       </div>
-      { if @state.viewing_note?
-          <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
-            <div style={padding: '20px'}>
-              <p><button onClick={=> @setState viewing_note: null}>Close</button></p>
-              <img src={@state.viewing_note.media.url} style={width: '100%'} />
-              <p>{ @state.viewing_note.description }</p>
-              { if @state.viewing_note_comments?
-                  for comment in @state.viewing_note_comments
-                    <div key={comment.comment_id}>
-                      <h4>{ comment.user.display_name } at { comment.created.toLocaleString() }</h4>
-                      <p>{ comment.description } </p>
-                    </div>
-                else
-                  <p>Loading comments...</p>
-              }
+      <div style={position: 'fixed', top: 5, left: 5, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
+        { match @state.login_status,
+            logged_out: ({username, password}) =>
+              <div>
+                <p>
+                  <input type="text" value={username} placeholder="Username"
+                    onChange={(e) =>
+                      @setState
+                        login_status:
+                          logged_out:
+                            username: e.target.value
+                            password: password
+                    }
+                    />
+                </p>
+                <p>
+                  <input type="password" value={password} placeholder="Password"
+                    onChange={(e) =>
+                      @setState
+                        login_status:
+                          logged_out:
+                            username: username
+                            password: e.target.value
+                    }
+                    />
+                </p>
+                <p>
+                  <button type="button" onClick={@login}>Login</button>
+                </p>
+              </div>
+            logged_in: ({auth}) =>
+              <div>
+                <p>
+                  Logged in as {auth.username}
+                </p>
+                <p>
+                  <button type="button" onClick={@logout}>Logout</button>
+                </p>
+                <p>
+                  <button type="button"
+                    onClick={=>
+                      @setState
+                        modal:
+                          select_photo: {}
+                    }>
+                    New Note
+                  </button>
+                </p>
+              </div>
+        }
+      </div>
+      { match @state.modal,
+          nothing: => ''
+          viewing_note: ({note, comments}) =>
+            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+              <div style={padding: '20px'}>
+                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <img src={note.media.url} style={width: '100%'} />
+                <p>{ note.description }</p>
+                { if comments?
+                    for comment in comments
+                      <div key={comment.comment_id}>
+                        <h4>{ comment.user.display_name } at { comment.created.toLocaleString() }</h4>
+                        <p>{ comment.description }</p>
+                      </div>
+                  else
+                    <p>Loading comments...</p>
+                }
+              </div>
             </div>
-          </div>
+          select_photo: =>
+            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+              <div style={padding: '20px'}>
+                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <form ref="file_form">
+                  <p><input type="file" name="raw_upload" onChange={(e) =>
+                    if e.target.files[0]?
+                      name = e.target.files[0].name
+                      ext = name[name.indexOf('.') + 1 ..]
+                      @setState
+                        modal:
+                          uploading_photo: {}
+                      $.ajax
+                        url: "#{ARIS_URL}/rawupload.php"
+                        type: 'POST'
+                        success: (raw_upload_id) =>
+                          @props.aris.call 'media.createMediaFromRawUpload',
+                            file_name: "upload.#{ext}"
+                            raw_upload_id: raw_upload_id
+                            game_id: @props.game.game_id
+                          , ({data: media, returnCode}) =>
+                            if returnCode is 0 and media?
+                              if @state.modal.uploading_photo?
+                                @setState
+                                  modal:
+                                    photo_details:
+                                      media: media
+                        data: new FormData @refs.file_form
+                        cache: false
+                        contentType: false
+                        processData: false
+                  }/></p>
+                </form>
+              </div>
+            </div>
+          uploading_photo: =>
+            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+              <div style={padding: '20px'}>
+                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p>Uploading, please wait...</p>
+              </div>
+            </div>
+          photo_details: ({media}) =>
+            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+              <div style={padding: '20px'}>
+                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><img src={media.thumb_url} /></p>
+              </div>
+            </div>
       }
     </div>
 
