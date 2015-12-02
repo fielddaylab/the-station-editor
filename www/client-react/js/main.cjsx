@@ -73,7 +73,7 @@ App = React.createClass
       max_longitude:
         $set: se.lng
 
-  search: (wait, updater) ->
+  search: (wait = 0, updater = {}, logged_in = @state.login_status.logged_in?) ->
     @setState (previousState) =>
       newState = update update(previousState, updater), page: {$set: 1}
       thisSearch = @lastSearch = Date.now()
@@ -88,7 +88,7 @@ App = React.createClass
           zoom: newState.zoom
           limit: 50
           order: newState.order
-          filter: if newState.mine then 'mine' else undefined
+          filter: if newState.mine and logged_in then 'mine' else undefined
           tag_ids:
             tag_id for tag_id, checked of newState.checked_tags when checked
           search: newState.search
@@ -146,6 +146,7 @@ App = React.createClass
     match @state.login_status,
       logged_out: ({username, password}) =>
         @props.aris.login (username or undefined), (password or undefined), =>
+          @search undefined, undefined, true if @props.aris.auth?
           @setState
             login_status:
               if @props.aris.auth?
@@ -163,87 +164,126 @@ App = React.createClass
         logged_out:
           username: ''
           password: ''
-
-  startNote: ->
+      mine: false
+    @search undefined, undefined, false
 
   render: ->
-    <div>
+    <div style={fontFamily: 'sans-serif'}>
       <div ref="theMapDiv" style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
         <GoogleMap
           center={[@state.latitude, @state.longitude]}
           zoom={Math.max 2, @state.zoom}
           options={minZoom: 2}
-          onChange={@handleMapChange}>
-          { @state.map_notes.map (note) =>
-              <div key={note.note_id}
-                lat={note.latitude}
-                lng={note.longitude}
-                onClick={=>
-                  @setState
-                    modal:
-                      viewing_note:
-                        note: note
-                        comments: null
-                  @fetchComments note
-                }
-                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
-                />
+          draggable={not (@state.modal.move_point?.dragging ? false)}
+          onChildMouseDown={(hoverKey, childProps, mouse) =>
+            if hoverKey is 'draggable-point'
+              @setState (previousState) =>
+                update previousState,
+                  modal:
+                    move_point:
+                      dragging: {$set: true}
           }
-          { for cluster, i in @state.map_clusters
-              lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
-              lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
-              if -180 < lng < 180 && -90 < lat < 90
-                do (cluster) =>
-                  <div key={"#{lat}-#{lng}"}
-                    lat={lat}
-                    lng={lng}
-                    onClick={=>
-                      if cluster.min_latitude is cluster.max_latitude and cluster.min_longitude is cluster.min_longitude
-                        # Calling fitBounds on a single point breaks for some reason
-                        @setState
-                          latitude: cluster.min_latitude
-                          longitude: cluster.min_longitude
-                          zoom: 21
-                      else
-                        bounds =
-                          nw:
-                            lat: cluster.max_latitude
-                            lng: cluster.min_longitude
-                          se:
-                            lat: cluster.min_latitude
-                            lng: cluster.max_longitude
-                        size =
-                          width: @refs.theMapDiv.clientWidth
-                          height: @refs.theMapDiv.clientHeight
-                        {center, zoom} = fitBounds bounds, size
-                        @setState
-                          latitude: center.lat
-                          longitude: center.lng
-                          zoom: zoom
-                    }
-                    style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', backgroundColor: 'white', color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
-                    <span style={display: 'table-cell', verticalAlign: 'middle'}>{ cluster.note_count }</span>
-                  </div>
-              else
-                continue
+          onChildMouseUp={(hoverKey, childProps, mouse) =>
+            if hoverKey is 'draggable-point'
+              @setState (previousState) =>
+                update previousState,
+                  modal:
+                    move_point:
+                      dragging: {$set: false}
+          }
+          onChildMouseMove={(hoverKey, childProps, mouse) =>
+            if hoverKey is 'draggable-point'
+              @setState (previousState) =>
+                update previousState,
+                  modal:
+                    move_point:
+                      latitude: {$set: mouse.lat}
+                      longitude: {$set: mouse.lng}
+          }
+          onChange={@handleMapChange}>
+          { if @state.modal.move_point?
+              <div
+                key="draggable-point"
+                lat={@state.modal.move_point.latitude}
+                lng={@state.modal.move_point.longitude}
+                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
+              />
+            else
+              []
+          }
+          { if @state.modal.move_point?
+              []
+            else
+              @state.map_notes.map (note) =>
+                <div key={note.note_id}
+                  lat={note.latitude}
+                  lng={note.longitude}
+                  onClick={=>
+                    @setState
+                      modal:
+                        viewing_note:
+                          note: note
+                          comments: null
+                    @fetchComments note
+                  }
+                  style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
+                  />
+          }
+          { if @state.modal.move_point?
+              []
+            else
+              for cluster, i in @state.map_clusters
+                lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
+                lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
+                if -180 < lng < 180 && -90 < lat < 90
+                  do (cluster) =>
+                    <div key={"#{lat}-#{lng}"}
+                      lat={lat}
+                      lng={lng}
+                      onClick={=>
+                        if cluster.min_latitude is cluster.max_latitude and cluster.min_longitude is cluster.min_longitude
+                          # Calling fitBounds on a single point breaks for some reason
+                          @setState
+                            latitude: cluster.min_latitude
+                            longitude: cluster.min_longitude
+                            zoom: 21
+                        else
+                          bounds =
+                            nw:
+                              lat: cluster.max_latitude
+                              lng: cluster.min_longitude
+                            se:
+                              lat: cluster.min_latitude
+                              lng: cluster.max_longitude
+                          size =
+                            width: @refs.theMapDiv.clientWidth
+                            height: @refs.theMapDiv.clientHeight
+                          {center, zoom} = fitBounds bounds, size
+                          @setState
+                            latitude: center.lat
+                            longitude: center.lng
+                            zoom: zoom
+                      }
+                      style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', backgroundColor: 'white', color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
+                      <span style={display: 'table-cell', verticalAlign: 'middle'}>{ cluster.note_count }</span>
+                    </div>
+                else
+                  continue
           }
         </GoogleMap>
       </div>
       <div style={position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
         <p>
           <input type="text" value={@state.search} placeholder="Search..."
-            onChange={(e) => @search 200,
-              search:
-                $set: e.target.value
-            }
+            onChange={(e) => @search 200, search: {$set: e.target.value}}
           />
         </p>
         <p>
           <label>
             <input type="radio" checked={@state.order is 'recent'}
-              onClick={=> @search 0,
-                order:
-                  $set: 'recent'
+              onChange={(e) =>
+                if e.target.checked
+                  @search 0, order: {$set: 'recent'}
               }
             />
             Recent
@@ -252,25 +292,26 @@ App = React.createClass
         <p>
           <label>
             <input type="radio" checked={@state.order is 'popular'}
-              onClick={=> @search 0,
-                order:
-                  $set: 'popular'
+              onChange={(e) =>
+                if e.target.checked
+                  @search 0, order: {$set: 'popular'}
               }
             />
             Popular
           </label>
         </p>
-        <p>
-          <label>
-            <input type="checkbox" checked={@state.mine}
-              onClick={=> @search 0,
-                mine:
-                  $apply: (x) => not x
-              }
-            />
-            My Notes
-          </label>
-        </p>
+        { if @state.login_status.logged_in?
+            <p>
+              <label>
+                <input type="checkbox" checked={@state.mine}
+                  onChange={(e) =>
+                    @search 0, mine: {$set: e.target.checked}
+                  }
+                />
+                My Notes
+              </label>
+            </p>
+        }
         <p>
           <b>Tags</b>
         </p>
@@ -370,7 +411,7 @@ App = React.createClass
           viewing_note: ({note, comments}) =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
-                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <img src={note.media.url} style={width: '100%'} />
                 <p>{ note.description }</p>
                 { if comments?
@@ -387,7 +428,7 @@ App = React.createClass
           select_photo: =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
-                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <form ref="file_form">
                   <p><input type="file" name="raw_upload" onChange={(e) =>
                     if e.target.files[0]?
@@ -411,6 +452,8 @@ App = React.createClass
                                   modal:
                                     photo_details:
                                       media: media
+                                      tag: @props.game.tags[0]
+                                      description: ''
                         data: new FormData @refs.file_form
                         cache: false
                         contentType: false
@@ -422,17 +465,54 @@ App = React.createClass
           uploading_photo: =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
-                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <p>Uploading, please wait...</p>
               </div>
             </div>
-          photo_details: ({media}) =>
+          photo_details: (obj) =>
+            {media, tag, description} = obj
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
-                <p><button onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <p><img src={media.thumb_url} /></p>
+                { @props.game.tags.map (some_tag) =>
+                    <p key={some_tag.tag_id}>
+                      <label>
+                        <input type="radio" checked={some_tag is tag}
+                          onChange={(e) =>
+                            if e.target.checked
+                              @setState
+                                modal:
+                                  photo_details:
+                                    update obj, tag: {$set: some_tag}
+                          }
+                        />
+                        { some_tag.tag }
+                      </label>
+                    </p>
+                }
+                <p>
+                  <textarea style={width: '100%', height: '100px'} value={description} onChange={(e) =>
+                    @setState
+                      modal:
+                        photo_details:
+                          update obj, description: {$set: e.target.value}
+                  }/>
+                </p>
+                <p>
+                  <button type="button" onClick={=>
+                    @setState
+                      modal:
+                        move_point:
+                          update obj,
+                            latitude: {$set: @props.game.latitude}
+                            longitude: {$set: @props.game.longitude}
+                            dragging: {$set: false}
+                  }>Next Step</button>
+                </p>
               </div>
             </div>
+          move_point: => ''
       }
     </div>
 
