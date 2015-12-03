@@ -512,7 +512,30 @@ App = React.createClass
                 </p>
               </div>
             </div>
-          move_point: => ''
+          move_point: ({media, tag, description, latitude, longitude}) =>
+            <div style={position: 'fixed', left: 200, top: 5, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
+              <p>
+                <button type="button" onClick={=>
+                  @props.aris.call 'notes.createNote',
+                    game_id: @props.game.game_id
+                    description: description
+                    media_id: media.media_id
+                    trigger: {latitude, longitude}
+                    tag_id: tag.tag_id
+                  , ({data: note, returnCode}) =>
+                    if returnCode is 0 and note?
+                      @setState
+                        modal:
+                          nothing: {} # TODO: fetch and view note
+                      @search()
+                }>Create Note</button>
+              </p>
+              <p>
+                <button type="button" onClick={=> @setState modal: {nothing: {}}}>
+                  Cancel
+                </button>
+              </p>
+            </div>
       }
     </div>
 
