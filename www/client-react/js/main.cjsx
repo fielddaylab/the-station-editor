@@ -52,6 +52,8 @@ App = React.createClass
       logged_out:
         username: ''
         password: ''
+    view_focus: 'map' # 'map' or 'thumbnails'
+    search_controls: null # null, 'not_time', or 'time'
 
   componentDidMount: ->
     @login()
@@ -168,8 +170,28 @@ App = React.createClass
     @search undefined, undefined, false
 
   render: ->
+    leftPanel = {position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}
+    topRightPanel = {position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%'}
+    bottomRightPanel = {position: 'fixed', top: '50%', left: 'calc(100% - 300px)', width: '300px', height: '50%'}
+    rightPanel = {position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '100%'}
+    mapPanel = if @state.view_focus is 'map'
+      leftPanel
+    else if @state.search_controls is null
+      rightPanel
+    else
+      bottomRightPanel
+    searchPanel = if @state.search_controls is null
+      display: 'none'
+    else
+      topRightPanel
+    thumbnailsPanel = if @state.view_focus is 'thumbnails'
+      leftPanel
+    else if @state.search_controls is null
+      rightPanel
+    else
+      bottomRightPanel
     <div style={fontFamily: 'sans-serif'}>
-      <div ref="theMapDiv" style={position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}>
+      <div ref="theMapDiv" style={mapPanel}>
         <GoogleMap
           center={[@state.latitude, @state.longitude]}
           zoom={Math.max 2, @state.zoom}
@@ -177,6 +199,8 @@ App = React.createClass
           draggable={not (@state.modal.move_point?.dragging ? false)}
           onChildMouseDown={(hoverKey, childProps, mouse) =>
             if hoverKey is 'draggable-point'
+              # window.p = @refs.draggable_point
+              # console.log [p, mouse.x, mouse.y]
               @setState (previousState) =>
                 update previousState,
                   modal:
@@ -184,12 +208,14 @@ App = React.createClass
                       dragging: {$set: true}
           }
           onChildMouseUp={(hoverKey, childProps, mouse) =>
-            if hoverKey is 'draggable-point'
-              @setState (previousState) =>
+            @setState (previousState) =>
+              if previousState.modal.move_point?
                 update previousState,
                   modal:
                     move_point:
                       dragging: {$set: false}
+              else
+                previousState
           }
           onChildMouseMove={(hoverKey, childProps, mouse) =>
             if hoverKey is 'draggable-point'
@@ -204,6 +230,7 @@ App = React.createClass
           { if @state.modal.move_point?
               <div
                 key="draggable-point"
+                ref="draggable_point"
                 lat={@state.modal.move_point.latitude}
                 lng={@state.modal.move_point.longitude}
                 style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
@@ -272,7 +299,7 @@ App = React.createClass
           }
         </GoogleMap>
       </div>
-      <div style={position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
+      <div style={update searchPanel, overflowY: {$set: 'scroll'}}>
         <p>
           <input type="text" value={@state.search} placeholder="Search..."
             onChange={(e) => @search 200, search: {$set: e.target.value}}
@@ -332,7 +359,7 @@ App = React.createClass
             </p>
         }
       </div>
-      <div style={position: 'fixed', top: '50%', left: 'calc(100% - 300px)', width: '300px', height: '50%', overflowY: 'scroll'}>
+      <div style={update thumbnailsPanel, overflowY: {$set: 'scroll'}}>
         { if @state.page isnt 1
             <p>
               <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
@@ -360,7 +387,7 @@ App = React.createClass
             logged_out: ({username, password}) =>
               <div>
                 <p>
-                  <input type="text" value={username} placeholder="Username"
+                  <input autoCapitalize="off" autoCorrect="off" type="text" value={username} placeholder="Username"
                     onChange={(e) =>
                       @setState
                         login_status:
@@ -371,7 +398,7 @@ App = React.createClass
                     />
                 </p>
                 <p>
-                  <input type="password" value={password} placeholder="Password"
+                  <input autoCapitalize="off" autoCorrect="off" type="password" value={password} placeholder="Password"
                     onChange={(e) =>
                       @setState
                         login_status:
@@ -405,6 +432,63 @@ App = React.createClass
                 </p>
               </div>
         }
+        <p><b>Focus</b></p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.view_focus is 'map'}
+              onChange={(e) =>
+                if e.target.checked
+                  @setState
+                    view_focus: 'map'
+              } />
+            Map
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.view_focus is 'thumbnails'}
+              onChange={(e) =>
+                if e.target.checked
+                  @setState
+                    view_focus: 'thumbnails'
+              } />
+            Thumbnails
+          </label>
+        </p>
+        <p><b>Search</b></p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.search_controls is null}
+              onChange={(e) =>
+                if e.target.checked
+                  @setState
+                    search_controls: null
+              } />
+            Hide
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.search_controls is 'not_time'}
+              onChange={(e) =>
+                if e.target.checked
+                  @setState
+                    search_controls: 'not_time'
+              } />
+            Search
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="radio" checked={@state.search_controls is 'time'}
+              onChange={(e) =>
+                if e.target.checked
+                  @setState
+                    search_controls: 'time'
+              } />
+            Time
+          </label>
+        </p>
       </div>
       { match @state.modal,
           nothing: => ''
@@ -430,35 +514,41 @@ App = React.createClass
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <form ref="file_form">
-                  <p><input type="file" name="raw_upload" onChange={(e) =>
-                    if e.target.files[0]?
-                      name = e.target.files[0].name
-                      ext = name[name.indexOf('.') + 1 ..]
-                      @setState
-                        modal:
-                          uploading_photo: {}
-                      $.ajax
-                        url: "#{ARIS_URL}/rawupload.php"
-                        type: 'POST'
-                        success: (raw_upload_id) =>
-                          @props.aris.call 'media.createMediaFromRawUpload',
-                            file_name: "upload.#{ext}"
-                            raw_upload_id: raw_upload_id
-                            game_id: @props.game.game_id
-                          , ({data: media, returnCode}) =>
-                            if returnCode is 0 and media?
-                              if @state.modal.uploading_photo?
-                                @setState
-                                  modal:
-                                    photo_details:
-                                      media: media
-                                      tag: @props.game.tags[0]
-                                      description: ''
-                        data: new FormData @refs.file_form
-                        cache: false
-                        contentType: false
-                        processData: false
-                  }/></p>
+                  <p><input type="file" accept="image/*" capture="camera" name="raw_upload" ref="file_input" /></p>
+                  <p>
+                    <button type="button" onClick={=>
+                      if @refs.file_input.files[0]?
+                        name = @refs.file_input.files[0].name
+                        ext = name[name.indexOf('.') + 1 ..]
+                        @setState
+                          modal:
+                            uploading_photo: {}
+                        $.ajax
+                          url: "#{ARIS_URL}/rawupload.php"
+                          type: 'POST'
+                          success: (raw_upload_id) =>
+                            @props.aris.call 'media.createMediaFromRawUpload',
+                              file_name: "upload.#{ext}"
+                              raw_upload_id: raw_upload_id
+                              game_id: @props.game.game_id
+                              resize: 800
+                            , ({data: media, returnCode}) =>
+                              if returnCode is 0 and media?
+                                if @state.modal.uploading_photo?
+                                  @setState
+                                    modal:
+                                      photo_details:
+                                        media: media
+                                        tag: @props.game.tags[0]
+                                        description: ''
+                          data: new FormData @refs.file_form
+                          cache: false
+                          contentType: false
+                          processData: false
+                      }>
+                      Begin Upload
+                    </button>
+                  </p>
                 </form>
               </div>
             </div>
