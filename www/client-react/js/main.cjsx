@@ -54,6 +54,7 @@ App = React.createClass
         password: ''
     view_focus: 'map' # 'map' or 'thumbnails'
     search_controls: null # null, 'not_time', or 'time'
+    account_menu: false
 
   componentDidMount: ->
     @login()
@@ -170,10 +171,10 @@ App = React.createClass
     @search undefined, undefined, false
 
   render: ->
-    leftPanel = {position: 'fixed', top: 0, left: 0, width: 'calc(100% - 300px)', height: '100%'}
-    topRightPanel = {position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '50%'}
-    bottomRightPanel = {position: 'fixed', top: '50%', left: 'calc(100% - 300px)', width: '300px', height: '50%'}
-    rightPanel = {position: 'fixed', top: 0, left: 'calc(100% - 300px)', width: '300px', height: '100%'}
+    leftPanel = {position: 'fixed', top: 77, left: 0, width: 'calc(100% - 300px)', height: 'calc(100% - 77px)'}
+    topRightPanel = {position: 'fixed', top: 77, left: 'calc(100% - 300px)', width: 300, height: 400}
+    bottomRightPanel = {position: 'fixed', top: 477, left: 'calc(100% - 300px)', width: 300, height: 'calc(100% - 477px)'}
+    rightPanel = {position: 'fixed', top: 77, left: 'calc(100% - 300px)', width: 300, height: 'calc(100% - 77px)'}
     mapPanel = if @state.view_focus is 'map'
       leftPanel
     else if @state.search_controls is null
@@ -382,7 +383,66 @@ App = React.createClass
             </p>
         }
       </div>
-      <div style={position: 'fixed', top: 5, left: 5, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
+      <div style={position: 'fixed', top: 0, left: 0, height: 77, width: '100%', backgroundColor: 'rgb(44,48,59)'}>
+        <div style={float: 'left', cursor: 'pointer'}>
+          <a href="..">
+            <img src="img/brand.png" />
+          </a>
+        </div>
+        <div style={float: 'left', cursor: 'pointer'}>
+          <img src={if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'}
+            onClick={=>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @setState view_focus: if @state.view_focus is 'map' then 'thumbnails' else 'map'
+            }
+          />
+        </div>
+        <div style={float: 'left', cursor: 'pointer'}>
+          <img src={if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'}
+            onClick={=>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @setState view_focus: if @state.view_focus is 'thumbnails' then 'map' else 'thumbnails'
+            }
+          />
+        </div>
+        <div style={float: 'right', cursor: 'pointer'}>
+          <img src={if @state.search_controls? then 'img/search-menu.png' else 'img/search-menu.png'}
+            onClick={=>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @setState search_controls: if @state.search_controls? then null else 'not_time'
+            }
+          />
+        </div>
+        <div style={float: 'right', cursor: 'pointer'}>
+          <img src="img/discover.png" />
+        </div>
+        <div style={float: 'right', cursor: 'pointer'}>
+          <img src="img/my-account.png"
+            onClick={=>
+              @setState account_menu: not @state.account_menu
+            }
+          />
+        </div>
+        <div style={float: 'right', cursor: 'pointer'}>
+          <img src="img/my-siftrs.png" />
+        </div>
+      </div>
+      <div style={
+        display: if @state.account_menu then 'block' else 'none'
+        position: 'fixed'
+        top: 100
+        left: 'calc(100% - 350px)'
+        backgroundColor: 'rgb(44,48,59)'
+        color: 'white'
+        paddingLeft: 10
+        paddingRight: 10
+      }>
         { match @state.login_status,
             logged_out: ({username, password}) =>
               <div>
@@ -395,6 +455,7 @@ App = React.createClass
                             username: e.target.value
                             password: password
                     }
+                    onKeyDown={(e) => @login() if e.keyCode is 13}
                     />
                 </p>
                 <p>
@@ -406,6 +467,7 @@ App = React.createClass
                             username: username
                             password: e.target.value
                     }
+                    onKeyDown={(e) => @login() if e.keyCode is 13}
                     />
                 </p>
                 <p>
@@ -420,75 +482,8 @@ App = React.createClass
                 <p>
                   <button type="button" onClick={@logout}>Logout</button>
                 </p>
-                <p>
-                  <button type="button"
-                    onClick={=>
-                      @setState
-                        modal:
-                          select_photo: {}
-                    }>
-                    New Note
-                  </button>
-                </p>
               </div>
         }
-        <p><b>Focus</b></p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.view_focus is 'map'}
-              onChange={(e) =>
-                if e.target.checked
-                  @setState
-                    view_focus: 'map'
-              } />
-            Map
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.view_focus is 'thumbnails'}
-              onChange={(e) =>
-                if e.target.checked
-                  @setState
-                    view_focus: 'thumbnails'
-              } />
-            Thumbnails
-          </label>
-        </p>
-        <p><b>Search</b></p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.search_controls is null}
-              onChange={(e) =>
-                if e.target.checked
-                  @setState
-                    search_controls: null
-              } />
-            Hide
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.search_controls is 'not_time'}
-              onChange={(e) =>
-                if e.target.checked
-                  @setState
-                    search_controls: 'not_time'
-              } />
-            Search
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.search_controls is 'time'}
-              onChange={(e) =>
-                if e.target.checked
-                  @setState
-                    search_controls: 'time'
-              } />
-            Time
-          </label>
-        </p>
       </div>
       { match @state.modal,
           nothing: => ''
