@@ -159,6 +159,7 @@ App = React.createClass
                 logged_out:
                   username: username
                   password: ''
+            account_menu: false
 
   logout: ->
     @props.aris.logout()
@@ -191,6 +192,7 @@ App = React.createClass
       rightPanel
     else
       bottomRightPanel
+    tag_ids = @props.game.tags.map (tag) => tag.tag_id
     <div style={fontFamily: 'sans-serif'}>
       <div ref="theMapDiv" style={mapPanel}>
         <GoogleMap
@@ -243,6 +245,7 @@ App = React.createClass
               []
             else
               @state.map_notes.map (note) =>
+                color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
                 <div key={note.note_id}
                   lat={note.latitude}
                   lng={note.longitude}
@@ -254,7 +257,7 @@ App = React.createClass
                           comments: null
                     @fetchComments note
                   }
-                  style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
+                  style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
                   />
           }
           { if @state.modal.move_point?
@@ -265,6 +268,14 @@ App = React.createClass
                 lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
                 if -180 < lng < 180 && -90 < lat < 90
                   do (cluster) =>
+                    colors =
+                      for tag_id of cluster.tags
+                        @props.game.colors["tag_#{tag_ids.indexOf(parseInt tag_id) + 1}"]
+                    gradient =
+                      if colors.length is 1
+                        colors[0]
+                      else
+                        "linear-gradient(to bottom right, #{colors.join(', ')})"
                     <div key={"#{lat}-#{lng}"}
                       lat={lat}
                       lng={lng}
@@ -292,7 +303,7 @@ App = React.createClass
                             longitude: center.lng
                             zoom: zoom
                       }
-                      style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', backgroundColor: 'white', color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
+                      style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
                       <span style={display: 'table-cell', verticalAlign: 'middle'}>{ cluster.note_count }</span>
                     </div>
                 else
@@ -395,7 +406,7 @@ App = React.createClass
               setTimeout =>
                 window.dispatchEvent new Event 'resize'
               , 500
-              @setState view_focus: if @state.view_focus is 'map' then 'thumbnails' else 'map'
+              @setState view_focus: 'map'
             }
           />
         </div>
@@ -405,12 +416,12 @@ App = React.createClass
               setTimeout =>
                 window.dispatchEvent new Event 'resize'
               , 500
-              @setState view_focus: if @state.view_focus is 'thumbnails' then 'map' else 'thumbnails'
+              @setState view_focus: 'thumbnails'
             }
           />
         </div>
         <div style={float: 'right', cursor: 'pointer'}>
-          <img src={if @state.search_controls? then 'img/search-menu.png' else 'img/search-menu.png'}
+          <img src={if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'}
             onClick={=>
               setTimeout =>
                 window.dispatchEvent new Event 'resize'
@@ -432,6 +443,21 @@ App = React.createClass
         <div style={float: 'right', cursor: 'pointer'}>
           <img src="img/my-siftrs.png" />
         </div>
+      </div>
+      <div style={
+        display: if @state.login_status.logged_in? then 'block' else 'none'
+        position: 'fixed'
+        cursor: 'pointer'
+        top: 95
+        left: 'calc(100% - 503px)'
+      }>
+        <img src="img/add-item.png"
+          onClick={=>
+            @setState
+              modal:
+                select_photo: {}
+          }
+        />
       </div>
       <div style={
         display: if @state.account_menu then 'block' else 'none'
@@ -641,13 +667,19 @@ document.addEventListener 'DOMContentLoaded', ->
       if returnCode is 0 and tags?
         game.tags = tags
 
-        aris.getUsersForGame
-          game_id: game.game_id
-        , ({data: owners, returnCode}) =>
-          if returnCode is 0 and owners?
-            game.owners = owners
+        aris.getColors
+          colors_id: game.colors_id ? 1
+        , ({data: colors, returnCode}) =>
+          if returnCode is 0 and colors?
+            game.colors = colors
 
-            ReactDOM.render <App game={game} aris={aris} />, document.getElementById('the-container')
+            aris.getUsersForGame
+              game_id: game.game_id
+            , ({data: owners, returnCode}) =>
+              if returnCode is 0 and owners?
+                game.owners = owners
+
+                ReactDOM.render <App game={game} aris={aris} />, document.getElementById('the-container')
 
   if siftr_id?
     aris.getGame
