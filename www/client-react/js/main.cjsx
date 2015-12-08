@@ -55,6 +55,7 @@ App = React.createClass
     view_focus: 'map' # 'map' or 'thumbnails'
     search_controls: null # null, 'not_time', or 'time'
     account_menu: false
+    message: null
 
   componentDidMount: ->
     @login()
@@ -95,13 +96,12 @@ App = React.createClass
           tag_ids:
             tag_id for tag_id, checked of newState.checked_tags when checked
           search: newState.search
-        , ({data, returnCode}) =>
+        , @successAt 'performing your search', (data) =>
           return unless thisSearch is @lastSearch
-          if returnCode is 0 and data?
-            @setState
-              notes:        data.notes
-              map_notes:    data.map_notes
-              map_clusters: data.map_clusters
+          @setState
+            notes:        data.notes
+            map_notes:    data.map_notes
+            map_clusters: data.map_clusters
       , wait
       newState
 
@@ -122,34 +122,33 @@ App = React.createClass
         tag_id for tag_id, checked of @state.checked_tags when checked
       search: @state.search
       map_data: false
-    , ({data, returnCode}) =>
+    , @successAt 'loading your search results', (data) =>
       return unless thisSearch is @lastSearch
-      if returnCode is 0 and data?
-        @setState
-          notes: data.notes
-          page:  page
+      @setState
+        notes: data.notes
+        page:  page
 
   fetchComments: (note) ->
     @props.aris.getNoteCommentsForNote
       game_id: @props.game.game_id
       note_id: note.note_id
-    , ({data, returnCode}) =>
-      if returnCode is 0 and data?
-        @setState (previousState) =>
-          if previousState.modal.viewing_note?.note is note
-            update previousState,
-              modal:
-                viewing_note:
-                  comments:
-                    $set: data
-          else
-            previousState
+    , @successAt 'fetching comments', (data) =>
+      @setState (previousState) =>
+        if previousState.modal.viewing_note?.note is note
+          update previousState,
+            modal:
+              viewing_note:
+                comments:
+                  $set: data
+        else
+          previousState
 
   login: ->
     match @state.login_status,
       logged_out: ({username, password}) =>
         @props.aris.login (username or undefined), (password or undefined), =>
           @search undefined, undefined, true if @props.aris.auth?
+          failed_login = @state.account_menu and not @props.aris.auth?
           @setState
             login_status:
               if @props.aris.auth?
@@ -159,7 +158,8 @@ App = React.createClass
                 logged_out:
                   username: username
                   password: ''
-            account_menu: false
+            account_menu: failed_login
+            message: if failed_login then 'Incorrect username or password.' else null
 
   logout: ->
     @props.aris.logout()
@@ -169,13 +169,26 @@ App = React.createClass
           username: ''
           password: ''
       mine: false
+      modal:
+        nothing: {}
+      account_menu: false
+      message: null
     @search undefined, undefined, false
 
+  successAt: (doingSomething, fn) -> (arisResult) =>
+    {data, returnCode} = arisResult
+    if data? and returnCode is 0
+      fn data
+    else
+      @setState
+        message:
+          "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
+
   render: ->
-    leftPanel = {position: 'fixed', top: 77, left: 0, width: 'calc(100% - 300px)', height: 'calc(100% - 77px)'}
-    topRightPanel = {position: 'fixed', top: 77, left: 'calc(100% - 300px)', width: 300, height: 400}
-    bottomRightPanel = {position: 'fixed', top: 477, left: 'calc(100% - 300px)', width: 300, height: 'calc(100% - 477px)'}
-    rightPanel = {position: 'fixed', top: 77, left: 'calc(100% - 300px)', width: 300, height: 'calc(100% - 77px)'}
+    leftPanel = {position: 'fixed', top: 77, left: 0, width: '70%', height: 'calc(100% - 77px)'}
+    topRightPanel = {position: 'fixed', top: 77, left: '70%', width: '30%', height: 400}
+    bottomRightPanel = {position: 'fixed', top: 477, left: '70%', width: '30%', height: 'calc(100% - 477px)'}
+    rightPanel = {position: 'fixed', top: 77, left: '70%', width: '30%', height: 'calc(100% - 77px)'}
     mapPanel = if @state.view_focus is 'map'
       leftPanel
     else if @state.search_controls is null
@@ -395,7 +408,7 @@ App = React.createClass
         }
       </div>
       <div style={position: 'fixed', top: 0, left: 0, height: 77, width: '100%', backgroundColor: 'rgb(44,48,59)'}>
-        <div style={float: 'left', cursor: 'pointer'}>
+        <div style={float: 'left'}>
           <a href="..">
             <img src="img/brand.png" />
           </a>
@@ -430,8 +443,10 @@ App = React.createClass
             }
           />
         </div>
-        <div style={float: 'right', cursor: 'pointer'}>
-          <img src="img/discover.png" />
+        <div style={float: 'right'}>
+          <a href="..">
+            <img src="img/discover.png" />
+          </a>
         </div>
         <div style={float: 'right', cursor: 'pointer'}>
           <img src="img/my-account.png"
@@ -440,8 +455,10 @@ App = React.createClass
             }
           />
         </div>
-        <div style={float: 'right', cursor: 'pointer'}>
-          <img src="img/my-siftrs.png" />
+        <div style={float: 'right'}>
+          <a href="../editor">
+            <img src="img/my-siftrs.png" />
+          </a>
         </div>
       </div>
       <div style={
@@ -449,7 +466,7 @@ App = React.createClass
         position: 'fixed'
         cursor: 'pointer'
         top: 95
-        left: 'calc(100% - 503px)'
+        left: 'calc(70% - 203px)'
       }>
         <img src="img/add-item.png"
           onClick={=>
@@ -457,22 +474,24 @@ App = React.createClass
               modal:
                 select_photo: {}
           }
+          style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
         />
       </div>
       <div style={
         display: if @state.account_menu then 'block' else 'none'
         position: 'fixed'
-        top: 100
+        top: 77
         left: 'calc(100% - 350px)'
         backgroundColor: 'rgb(44,48,59)'
         color: 'white'
         paddingLeft: 10
         paddingRight: 10
+        width: 175
       }>
         { match @state.login_status,
             logged_out: ({username, password}) =>
               <div>
-                <p>
+                <p style={width: '100%'}>
                   <input autoCapitalize="off" autoCorrect="off" type="text" value={username} placeholder="Username"
                     onChange={(e) =>
                       @setState
@@ -481,10 +500,11 @@ App = React.createClass
                             username: e.target.value
                             password: password
                     }
+                    style={width: '100%', boxSizing: 'border-box'}
                     onKeyDown={(e) => @login() if e.keyCode is 13}
                     />
                 </p>
-                <p>
+                <p style={width: '100%'}>
                   <input autoCapitalize="off" autoCorrect="off" type="password" value={password} placeholder="Password"
                     onChange={(e) =>
                       @setState
@@ -493,6 +513,7 @@ App = React.createClass
                             username: username
                             password: e.target.value
                     }
+                    style={width: '100%', boxSizing: 'border-box'}
                     onKeyDown={(e) => @login() if e.keyCode is 13}
                     />
                 </p>
@@ -553,15 +574,15 @@ App = React.createClass
                               raw_upload_id: raw_upload_id
                               game_id: @props.game.game_id
                               resize: 800
-                            , ({data: media, returnCode}) =>
-                              if returnCode is 0 and media?
-                                if @state.modal.uploading_photo?
-                                  @setState
-                                    modal:
-                                      photo_details:
-                                        media: media
-                                        tag: @props.game.tags[0]
-                                        description: ''
+                            , @successAt 'uploading your photo', (media) =>
+                              if @state.modal.uploading_photo?
+                                @setState
+                                  modal:
+                                    photo_details:
+                                      media: media
+                                      tag: @props.game.tags[0]
+                                      description: ''
+                                  message: null
                           data: new FormData @refs.file_form
                           cache: false
                           contentType: false
@@ -612,13 +633,17 @@ App = React.createClass
                 </p>
                 <p>
                   <button type="button" onClick={=>
-                    @setState
-                      modal:
-                        move_point:
-                          update obj,
-                            latitude: {$set: @props.game.latitude}
-                            longitude: {$set: @props.game.longitude}
-                            dragging: {$set: false}
+                    if description is ''
+                      @setState
+                        message: 'Please type a caption for your photo.'
+                    else
+                      @setState
+                        modal:
+                          move_point:
+                            update obj,
+                              latitude: {$set: @props.game.latitude}
+                              longitude: {$set: @props.game.longitude}
+                              dragging: {$set: false}
                   }>Next Step</button>
                 </p>
               </div>
@@ -633,12 +658,11 @@ App = React.createClass
                     media_id: media.media_id
                     trigger: {latitude, longitude}
                     tag_id: tag.tag_id
-                  , ({data: note, returnCode}) =>
-                    if returnCode is 0 and note?
-                      @setState
-                        modal:
-                          nothing: {} # TODO: fetch and view note
-                      @search()
+                  , @successAt 'creating your note', (note) =>
+                    @setState
+                      modal:
+                        nothing: {} # TODO: fetch and view note
+                    @search()
                 }>Create Note</button>
               </p>
               <p>
@@ -647,6 +671,14 @@ App = React.createClass
                 </button>
               </p>
             </div>
+      }
+      { if @state.message?
+          <div style={position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}>
+            { @state.message }
+            <div style={position: 'absolute', left: 10, top: 10, cursor: 'pointer'} onClick={=> @setState message: null}>
+              X
+            </div>
+          </div>
       }
     </div>
 
