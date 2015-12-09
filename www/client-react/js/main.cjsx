@@ -27,15 +27,15 @@ App = React.createClass
     aris: T.instanceOf Aris
 
   getInitialState: ->
-    notes: []
-    map_notes: []
+    notes:        []
+    map_notes:    []
     map_clusters: []
     page: 1
-    latitude: @props.game.latitude
+    latitude:  @props.game.latitude
     longitude: @props.game.longitude
-    zoom: @props.game.zoom
-    min_latitude: null
-    max_latitude: null
+    zoom:      @props.game.zoom
+    min_latitude:  null
+    max_latitude:  null
     min_longitude: null
     max_longitude: null
     search: ''
@@ -46,8 +46,7 @@ App = React.createClass
       for tag in @props.game.tags
         o[tag.tag_id] = false
       o
-    modal:
-      nothing: {}
+    modal: nothing: {}
     login_status:
       logged_out:
         username: ''
@@ -57,25 +56,22 @@ App = React.createClass
     account_menu: false
     message: null
 
+  updateState: (obj) ->
+    @setState (previousState) =>
+      update previousState, obj
+
   componentDidMount: ->
     @login()
 
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
     @search 0,
-      latitude:
-        $set: lat
-      longitude:
-        $set: lng
-      zoom:
-        $set: zoom
-      min_latitude:
-        $set: se.lat
-      max_latitude:
-        $set: nw.lat
-      min_longitude:
-        $set: nw.lng
-      max_longitude:
-        $set: se.lng
+      latitude:      $set: lat
+      longitude:     $set: lng
+      zoom:          $set: zoom
+      min_latitude:  $set: se.lat
+      max_latitude:  $set: nw.lat
+      min_longitude: $set: nw.lng
+      max_longitude: $set: se.lng
 
   search: (wait = 0, updater = {}, logged_in = @state.login_status.logged_in?) ->
     @setState (previousState) =>
@@ -133,15 +129,14 @@ App = React.createClass
       game_id: @props.game.game_id
       note_id: note.note_id
     , @successAt 'fetching comments', (data) =>
-      @setState (previousState) =>
-        if previousState.modal.viewing_note?.note is note
-          update previousState,
-            modal:
-              viewing_note:
-                comments:
-                  $set: data
-        else
-          previousState
+      @updateState
+        modal:
+          viewing_note:
+            $apply: (view) =>
+              if view.note is note
+                update view, comments: {$set: data}
+              else
+                view
 
   login: ->
     match @state.login_status,
@@ -169,8 +164,7 @@ App = React.createClass
           username: ''
           password: ''
       mine: false
-      modal:
-        nothing: {}
+      modal: nothing: {}
       account_menu: false
       message: null
     @search undefined, undefined, false
@@ -180,9 +174,8 @@ App = React.createClass
     if data? and returnCode is 0
       fn data
     else
-      @setState
-        message:
-          "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
+      @setState message:
+        "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
 
   render: ->
     leftPanel = {position: 'fixed', top: 77, left: 0, width: '70%', height: 'calc(100% - 77px)'}
@@ -217,30 +210,22 @@ App = React.createClass
             if hoverKey is 'draggable-point'
               # window.p = @refs.draggable_point
               # console.log [p, mouse.x, mouse.y]
-              @setState (previousState) =>
-                update previousState,
-                  modal:
-                    move_point:
-                      dragging: {$set: true}
+              @updateState modal: move_point: dragging: $set: true
           }
           onChildMouseUp={(hoverKey, childProps, mouse) =>
             @setState (previousState) =>
               if previousState.modal.move_point?
-                update previousState,
-                  modal:
-                    move_point:
-                      dragging: {$set: false}
+                update previousState, modal: move_point: dragging: $set: false
               else
                 previousState
           }
           onChildMouseMove={(hoverKey, childProps, mouse) =>
             if hoverKey is 'draggable-point'
-              @setState (previousState) =>
-                update previousState,
-                  modal:
-                    move_point:
-                      latitude: {$set: mouse.lat}
-                      longitude: {$set: mouse.lng}
+              @updateState
+                modal:
+                  move_point:
+                    latitude: {$set: mouse.lat}
+                    longitude: {$set: mouse.lng}
           }
           onChange={@handleMapChange}>
           { if @state.modal.move_point?
@@ -268,6 +253,7 @@ App = React.createClass
                         viewing_note:
                           note: note
                           comments: null
+                          new_comment: ''
                     @fetchComments note
                   }
                   style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
@@ -398,6 +384,7 @@ App = React.createClass
                     viewing_note:
                       note: note
                       comments: null
+                      new_comment: ''
                 @fetchComments note
               } />
         }
@@ -469,11 +456,7 @@ App = React.createClass
         left: 'calc(70% - 203px)'
       }>
         <img src="img/add-item.png"
-          onClick={=>
-            @setState
-              modal:
-                select_photo: {}
-          }
+          onClick={=> @setState modal: select_photo: {}}
           style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
         />
       </div>
@@ -534,7 +517,7 @@ App = React.createClass
       </div>
       { match @state.modal,
           nothing: => ''
-          viewing_note: ({note, comments}) =>
+          viewing_note: ({note, comments, new_comment}) =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
@@ -549,6 +532,31 @@ App = React.createClass
                   else
                     <p>Loading comments...</p>
                 }
+                { if @state.login_status.logged_in?
+                    <div>
+                      <textarea placeholder="Post a new comment..." value={new_comment}
+                        onChange={(e) =>
+                          @updateState modal: viewing_note: new_comment: $set: e.target.value
+                        }
+                      />
+                      <p>
+                        <button type="button" onClick={=>
+                          @props.aris.createNoteComment
+                            game_id: @props.game.game_id
+                            note_id: note.note_id
+                            description: new_comment
+                          , @successAt 'posting your comment', (comment) =>
+                            @fetchComments note
+                            @updateState modal: viewing_note: new_comment: $set: ''
+                        }>Submit</button>
+                      </p>
+                    </div>
+                  else
+                    <p>
+                      <b onClick={=> @setState account_menu: true} style={cursor: 'pointer'}>Login</b>
+                      to post a new comment
+                    </p>
+                }
               </div>
             </div>
           select_photo: =>
@@ -562,9 +570,7 @@ App = React.createClass
                       if @refs.file_input.files[0]?
                         name = @refs.file_input.files[0].name
                         ext = name[name.indexOf('.') + 1 ..]
-                        @setState
-                          modal:
-                            uploading_photo: {}
+                        @setState modal: uploading_photo: {}
                         $.ajax
                           url: "#{ARIS_URL}/rawupload.php"
                           type: 'POST'
@@ -601,8 +607,7 @@ App = React.createClass
                 <p>Uploading, please wait...</p>
               </div>
             </div>
-          photo_details: (obj) =>
-            {media, tag, description} = obj
+          photo_details: ({media, tag, description}) =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
@@ -613,10 +618,7 @@ App = React.createClass
                         <input type="radio" checked={some_tag is tag}
                           onChange={(e) =>
                             if e.target.checked
-                              @setState
-                                modal:
-                                  photo_details:
-                                    update obj, tag: {$set: some_tag}
+                              @updateState modal: photo_details: tag: $set: some_tag
                           }
                         />
                         { some_tag.tag }
@@ -625,25 +627,22 @@ App = React.createClass
                 }
                 <p>
                   <textarea style={width: '100%', height: '100px'} value={description} onChange={(e) =>
-                    @setState
-                      modal:
-                        photo_details:
-                          update obj, description: {$set: e.target.value}
+                    @updateState modal: photo_details: description: $set: e.target.value
                   }/>
                 </p>
                 <p>
                   <button type="button" onClick={=>
                     if description is ''
-                      @setState
-                        message: 'Please type a caption for your photo.'
+                      @setState message: 'Please type a caption for your photo.'
                     else
-                      @setState
+                      @updateState
                         modal:
-                          move_point:
-                            update obj,
-                              latitude: {$set: @props.game.latitude}
-                              longitude: {$set: @props.game.longitude}
-                              dragging: {$set: false}
+                          $apply: ({photo_details}) =>
+                            move_point:
+                              update photo_details,
+                                latitude: $set: @props.game.latitude
+                                longitude: $set: @props.game.longitude
+                                dragging: $set: false
                   }>Next Step</button>
                 </p>
               </div>
@@ -659,9 +658,7 @@ App = React.createClass
                     trigger: {latitude, longitude}
                     tag_id: tag.tag_id
                   , @successAt 'creating your note', (note) =>
-                    @setState
-                      modal:
-                        nothing: {} # TODO: fetch and view note
+                    @setState modal: nothing: {} # TODO: fetch and view note
                     @search()
                 }>Create Note</button>
               </p>
