@@ -255,6 +255,7 @@ App = React.createClass
                           comments: null
                           new_comment: ''
                           confirm_delete: false
+                          confirm_delete_comment_id: null
                     @fetchComments note
                   }
                   style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
@@ -387,6 +388,7 @@ App = React.createClass
                       comments: null
                       new_comment: ''
                       confirm_delete: false
+                      confirm_delete_comment_id: null
                 @fetchComments note
               } />
         }
@@ -519,7 +521,7 @@ App = React.createClass
       </div>
       { match @state.modal,
           nothing: => ''
-          viewing_note: ({note, comments, new_comment, confirm_delete}) =>
+          viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
@@ -556,10 +558,38 @@ App = React.createClass
                 }
                 <hr />
                 { if comments?
-                    for comment in comments
+                    comments.map (comment) =>
                       <div key={comment.comment_id}>
                         <h4>{ comment.user.display_name } at { comment.created.toLocaleString() }</h4>
                         <p>{ comment.description }</p>
+                        { if @state.login_status.logged_in?
+                            user_id = @state.login_status.logged_in.auth.user_id
+                            owners =
+                              owner.user_id for owner in @props.game.owners
+                            if user_id is comment.user.user_id or user_id in owners
+                              if confirm_delete_comment_id is comment.comment_id
+                                <p>
+                                  Are you sure you want to delete this comment?
+                                  {' '}
+                                  <button type="button" onClick={=>
+                                    @props.aris.call 'note_comments.deleteNoteComment',
+                                      note_comment_id: comment.comment_id
+                                    , @successAt 'deleting this comment', =>
+                                      @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                      @fetchComments note
+                                  }>Delete</button>
+                                  {' '}
+                                  <button type="button" onClick={=>
+                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                  }>Cancel</button>
+                                </p>
+                              else
+                                <p>
+                                  <button type="button" onClick={=>
+                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
+                                  }>Delete Comment</button>
+                                </p>
+                        }
                       </div>
                   else
                     <p>Loading comments...</p>
@@ -573,13 +603,14 @@ App = React.createClass
                       />
                       <p>
                         <button type="button" onClick={=>
-                          @props.aris.createNoteComment
-                            game_id: @props.game.game_id
-                            note_id: note.note_id
-                            description: new_comment
-                          , @successAt 'posting your comment', (comment) =>
-                            @fetchComments note
-                            @updateState modal: viewing_note: new_comment: $set: ''
+                          if new_comment isnt ''
+                            @props.aris.createNoteComment
+                              game_id: @props.game.game_id
+                              note_id: note.note_id
+                              description: new_comment
+                            , @successAt 'posting your comment', (comment) =>
+                              @fetchComments note
+                              @updateState modal: viewing_note: new_comment: $set: ''
                         }>Submit</button>
                       </p>
                     </div>
