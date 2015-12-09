@@ -312,10 +312,14 @@ App = React.createClass
           }
         </GoogleMap>
       </div>
-      <div style={update searchPanel, overflowY: {$set: 'scroll'}}>
+      <div style={update searchPanel, overflowY: {$set: 'scroll'}, textAlign: {$set: 'center'}, padding: {$set: 10}, boxSizing: {$set: 'border-box'}}>
         <p>
           <input type="text" value={@state.search} placeholder="Search..."
             onChange={(e) => @search 200, search: {$set: e.target.value}}
+            style={
+              width: '100%'
+              boxSizing: 'border-box'
+            }
           />
         </p>
         <p>
@@ -353,24 +357,34 @@ App = React.createClass
             </p>
         }
         <p>
-          <b>Tags</b>
+          <b>By Category:</b>
         </p>
-        { @props.game.tags.map (tag) =>
-            <p key={tag.tag_id}>
-              <label>
-                <input type="checkbox" checked={@state.checked_tags[tag.tag_id]}
-                  onClick={=> @search 0,
+        <p>
+          { @props.game.tags.map (tag) =>
+              checked = @state.checked_tags[tag.tag_id]
+              color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+              <span key={tag.tag_id}
+                style={
+                  margin: 5
+                  padding: 5
+                  border: "1px solid #{color}"
+                  color: if checked then 'white' else color
+                  backgroundColor: if checked then color else 'white'
+                  borderRadius: 5
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @search 0,
                     checked_tags: do =>
                       o = {}
                       o[tag.tag_id] =
                         $apply: (x) => not x
                       o
-                  }
-                />
-                { tag.tag }
-              </label>
-            </p>
-        }
+                }>
+                { "#{if checked then '✓' else '●'} #{tag.tag}" }
+              </span>
+          }
+        </p>
       </div>
       <div style={update thumbnailsPanel, overflowY: {$set: 'scroll'}}>
         { if @state.page isnt 1
@@ -453,11 +467,19 @@ App = React.createClass
         </div>
       </div>
       <div style={
-        display: if @state.login_status.logged_in? then 'block' else 'none'
+        display:
+          if @state.login_status.logged_in? and @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
+            'block'
+          else
+            'none'
         position: 'fixed'
         cursor: 'pointer'
         top: 95
-        left: 'calc(70% - 203px)'
+        left:
+          if @state.view_focus is 'map'
+            'calc(70% - 203px)'
+          else
+            'calc(70% + 17px)'
       }>
         <img src="img/add-item.png"
           onClick={=> @setState modal: select_photo: {}}
@@ -522,7 +544,7 @@ App = React.createClass
       { match @state.modal,
           nothing: => ''
           viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
-            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <img src={note.media.url} style={width: '100%'} />
@@ -623,7 +645,7 @@ App = React.createClass
               </div>
             </div>
           select_photo: =>
-            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <form ref="file_form">
@@ -664,14 +686,14 @@ App = React.createClass
               </div>
             </div>
           uploading_photo: =>
-            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <p>Uploading, please wait...</p>
               </div>
             </div>
           photo_details: ({media, tag, description}) =>
-            <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
+            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <p><img src={media.thumb_url} /></p>
@@ -699,6 +721,9 @@ App = React.createClass
                       @setState message: 'Please type a caption for your photo.'
                     else
                       @updateState
+                        latitude: $set: @props.game.latitude
+                        longitude: $set: @props.game.longitude
+                        zoom: $set: @props.game.zoom
                         modal:
                           $apply: ({photo_details}) =>
                             move_point:
@@ -711,7 +736,7 @@ App = React.createClass
               </div>
             </div>
           move_point: ({media, tag, description, latitude, longitude}) =>
-            <div style={position: 'fixed', left: 200, top: 5, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
+            <div style={position: 'fixed', left: 5, top: 82, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
               <p>
                 <button type="button" onClick={=>
                   @props.aris.call 'notes.createNote',
