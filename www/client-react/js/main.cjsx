@@ -171,7 +171,7 @@ App = React.createClass
 
   successAt: (doingSomething, fn) -> (arisResult) =>
     {data, returnCode} = arisResult
-    if data? and returnCode is 0
+    if returnCode is 0
       fn data
     else
       @setState message:
@@ -254,6 +254,7 @@ App = React.createClass
                           note: note
                           comments: null
                           new_comment: ''
+                          confirm_delete: false
                     @fetchComments note
                   }
                   style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
@@ -385,6 +386,7 @@ App = React.createClass
                       note: note
                       comments: null
                       new_comment: ''
+                      confirm_delete: false
                 @fetchComments note
               } />
         }
@@ -517,12 +519,42 @@ App = React.createClass
       </div>
       { match @state.modal,
           nothing: => ''
-          viewing_note: ({note, comments, new_comment}) =>
+          viewing_note: ({note, comments, new_comment, confirm_delete}) =>
             <div style={position: 'fixed', top: '10%', height: '80%', left: 'calc((100% - 300px) * 0.1)', width: 'calc((100% - 300px) * 0.8)', overflowY: 'scroll', backgroundColor: 'white', border: '1px solid black'}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <img src={note.media.url} style={width: '100%'} />
+                <h4>Posted by { note.display_name } at { new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString() }</h4>
                 <p>{ note.description }</p>
+                { if @state.login_status.logged_in?
+                    user_id = @state.login_status.logged_in.auth.user_id
+                    owners =
+                      owner.user_id for owner in @props.game.owners
+                    if user_id is parseInt(note.user_id) or user_id in owners
+                      if confirm_delete
+                        <p>
+                          Are you sure you want to delete this note?
+                          {' '}
+                          <button type="button" onClick={=>
+                            @props.aris.call 'notes.deleteNote',
+                              note_id: note.note_id
+                            , @successAt 'deleting this note', =>
+                              @setState modal: nothing: {}
+                              @search()
+                          }>Delete</button>
+                          {' '}
+                          <button type="button" onClick={=>
+                            @updateState modal: viewing_note: confirm_delete: $set: false
+                          }>Cancel</button>
+                        </p>
+                      else
+                        <p>
+                          <button type="button" onClick={=>
+                            @updateState modal: viewing_note: confirm_delete: $set: true
+                          }>Delete Note</button>
+                        </p>
+                }
+                <hr />
                 { if comments?
                     for comment in comments
                       <div key={comment.comment_id}>
