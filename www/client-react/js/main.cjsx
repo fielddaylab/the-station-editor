@@ -372,6 +372,8 @@ App = React.createClass
                   backgroundColor: if checked then color else 'white'
                   borderRadius: 5
                   cursor: 'pointer'
+                  whiteSpace: 'nowrap'
+                  display: 'inline-block'
                 }
                 onClick={=>
                   @search 0,
@@ -669,10 +671,17 @@ App = React.createClass
                   if file?
                     name = file.name
                     ext = name[name.indexOf('.') + 1 ..]
-                    @setState modal: uploading_photo: {}
+                    @setState modal: uploading_photo: progress: 0
                     $.ajax
                       url: "#{ARIS_URL}/rawupload.php"
                       type: 'POST'
+                      xhr: =>
+                        xhr = new window.XMLHttpRequest
+                        xhr.upload.addEventListener 'progress', (evt) =>
+                          if evt.lengthComputable
+                            @updateState modal: uploading_photo: progress: $set: evt.loaded / evt.total
+                        , false
+                        xhr
                       success: (raw_upload_id) =>
                         @props.aris.call 'media.createMediaFromRawUpload',
                           file_name: "upload.#{ext}"
@@ -683,12 +692,21 @@ App = React.createClass
                           if @state.modal.uploading_photo?
                             @setState
                               modal:
-                                photo_details:
+                                enter_description:
                                   media: media
                                   tag: @props.game.tags[0]
                                   description: ''
                               message: null
-                      data: new FormData @refs.file_form
+                      error: (jqXHR, textStatus, errorThrown) =>
+                        @setState message:
+                          """
+                          There was a problem uploading your photo. Please report this error:
+                          #{JSON.stringify [jqXHR, textStatus, errorThrown]}
+                          """
+                      data: do =>
+                        form = new FormData
+                        form.append 'raw_upload', file
+                        form
                       cache: false
                       contentType: false
                       processData: false
@@ -727,40 +745,38 @@ App = React.createClass
               <form ref="file_form" style={position: 'fixed', left: 9999}>
                 <input type="file" accept="image/*" capture="camera" name="raw_upload" ref="file_input"
                   onChange={(e) =>
-                    if (file = e.target.files[0])?
-                      @updateState modal: select_photo: file: $set: file
+                    if (newFile = e.target.files[0])?
+                      @updateState modal: select_photo: file: $set: newFile
                   }
                 />
               </form>
             </div>
-          uploading_photo: =>
-            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
-              <div style={padding: '20px'}>
-                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
-                <p>Uploading, please wait...</p>
-              </div>
+          uploading_photo: ({progress}) =>
+
+            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+              <img src="img/cancel.png"
+                style={
+                  position: 'absolute'
+                  top: 'calc(100% - 56px)'
+                  left: 20
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              />
+              <p style={position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}>
+                Uploading... ({ Math.floor(progress * 100) }%)
+              </p>
             </div>
-          photo_details: ({media, tag, description}) =>
+          enter_description: ({media, description}) =>
             <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
               <div style={padding: '20px'}>
                 <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
                 <p><img src={media.thumb_url} /></p>
-                { @props.game.tags.map (some_tag) =>
-                    <p key={some_tag.tag_id}>
-                      <label>
-                        <input type="radio" checked={some_tag is tag}
-                          onChange={(e) =>
-                            if e.target.checked
-                              @updateState modal: photo_details: tag: $set: some_tag
-                          }
-                        />
-                        { some_tag.tag }
-                      </label>
-                    </p>
-                }
                 <p>
                   <textarea style={width: '100%', height: '100px'} value={description} onChange={(e) =>
-                    @updateState modal: photo_details: description: $set: e.target.value
+                    @updateState modal: enter_description: description: $set: e.target.value
                   }/>
                 </p>
                 <p>
@@ -773,9 +789,9 @@ App = React.createClass
                         longitude: $set: @props.game.longitude
                         zoom: $set: @props.game.zoom
                         modal:
-                          $apply: ({photo_details}) =>
+                          $apply: ({enter_description}) =>
                             move_point:
-                              update photo_details,
+                              update enter_description,
                                 latitude: $set: @props.game.latitude
                                 longitude: $set: @props.game.longitude
                                 dragging: $set: false
@@ -783,26 +799,56 @@ App = React.createClass
                 </p>
               </div>
             </div>
-          move_point: ({media, tag, description, latitude, longitude}) =>
+          move_point: ({media, description, latitude, longitude}) =>
             <div style={position: 'fixed', left: 5, top: 82, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
               <p>
                 <button type="button" onClick={=>
-                  @props.aris.call 'notes.createNote',
-                    game_id: @props.game.game_id
-                    description: description
-                    media_id: media.media_id
-                    trigger: {latitude, longitude}
-                    tag_id: tag.tag_id
-                  , @successAt 'creating your note', (note) =>
-                    @setState modal: nothing: {} # TODO: fetch and view note
-                    @search()
-                }>Create Note</button>
+                  @updateState
+                    modal:
+                      $apply: ({move_point}) =>
+                        select_category:
+                          update move_point,
+                            tag: $set: @props.game.tags[0]
+                }>Next Step</button>
               </p>
               <p>
                 <button type="button" onClick={=> @setState modal: {nothing: {}}}>
                   Cancel
                 </button>
               </p>
+            </div>
+          select_category: ({media, description, latitude, longitude, tag}) =>
+            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
+              <div style={padding: '20px'}>
+                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
+                <p><img src={media.thumb_url} /></p>
+                { @props.game.tags.map (some_tag) =>
+                    <p key={some_tag.tag_id}>
+                      <label>
+                        <input type="radio" checked={some_tag is tag}
+                          onChange={(e) =>
+                            if e.target.checked
+                              @updateState modal: select_category: tag: $set: some_tag
+                          }
+                        />
+                        { some_tag.tag }
+                      </label>
+                    </p>
+                }
+                <p>
+                  <button type="button" onClick={=>
+                    @props.aris.call 'notes.createNote',
+                      game_id: @props.game.game_id
+                      description: description
+                      media_id: media.media_id
+                      trigger: {latitude, longitude}
+                      tag_id: tag.tag_id
+                    , @successAt 'creating your note', (note) =>
+                      @setState modal: nothing: {} # TODO: fetch and view note
+                      @search()
+                  }>Create Note</button>
+                </p>
+              </div>
             </div>
       }
       { if @state.message?
