@@ -639,51 +639,99 @@ App = React.createClass
                   else
                     <p>
                       <b onClick={=> @setState account_menu: true} style={cursor: 'pointer'}>Login</b>
+                      {' '}
                       to post a new comment
                     </p>
                 }
               </div>
             </div>
-          select_photo: =>
-            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
-              <div style={padding: '20px'}>
-                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
-                <form ref="file_form">
-                  <p><input type="file" accept="image/*" capture="camera" name="raw_upload" ref="file_input" /></p>
-                  <p>
-                    <button type="button" onClick={=>
-                      if @refs.file_input.files[0]?
-                        name = @refs.file_input.files[0].name
-                        ext = name[name.indexOf('.') + 1 ..]
-                        @setState modal: uploading_photo: {}
-                        $.ajax
-                          url: "#{ARIS_URL}/rawupload.php"
-                          type: 'POST'
-                          success: (raw_upload_id) =>
-                            @props.aris.call 'media.createMediaFromRawUpload',
-                              file_name: "upload.#{ext}"
-                              raw_upload_id: raw_upload_id
-                              game_id: @props.game.game_id
-                              resize: 800
-                            , @successAt 'uploading your photo', (media) =>
-                              if @state.modal.uploading_photo?
-                                @setState
-                                  modal:
-                                    photo_details:
-                                      media: media
-                                      tag: @props.game.tags[0]
-                                      description: ''
-                                  message: null
-                          data: new FormData @refs.file_form
-                          cache: false
-                          contentType: false
-                          processData: false
-                      }>
-                      Begin Upload
-                    </button>
-                  </p>
-                </form>
-              </div>
+          select_photo: ({file}) =>
+            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+              <img src="img/cancel.png"
+                style={
+                  position: 'absolute'
+                  top: 'calc(100% - 56px)'
+                  left: 20
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              />
+              <img src="img/description.png"
+                style={
+                  position: 'absolute'
+                  top: 'calc(100% - 56px)'
+                  left: 'calc(100% - 182px)'
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  if file?
+                    name = file.name
+                    ext = name[name.indexOf('.') + 1 ..]
+                    @setState modal: uploading_photo: {}
+                    $.ajax
+                      url: "#{ARIS_URL}/rawupload.php"
+                      type: 'POST'
+                      success: (raw_upload_id) =>
+                        @props.aris.call 'media.createMediaFromRawUpload',
+                          file_name: "upload.#{ext}"
+                          raw_upload_id: raw_upload_id
+                          game_id: @props.game.game_id
+                          resize: 800
+                        , @successAt 'uploading your photo', (media) =>
+                          if @state.modal.uploading_photo?
+                            @setState
+                              modal:
+                                photo_details:
+                                  media: media
+                                  tag: @props.game.tags[0]
+                                  description: ''
+                              message: null
+                      data: new FormData @refs.file_form
+                      cache: false
+                      contentType: false
+                      processData: false
+                }
+              />
+              { if file?
+                  <div
+                    style={
+                      position: 'absolute'
+                      top: '25%'
+                      left: '25%'
+                      height: '50%'
+                      width: '50%'
+                      backgroundImage: "url(#{URL.createObjectURL file})"
+                      backgroundSize: 'contain'
+                      backgroundRepeat: 'no-repeat'
+                      backgroundPosition: 'center'
+                    }
+                    onClick={=>
+                      @refs.file_input.click()
+                    }
+                  />
+                else
+                  <img src="img/select-image.png"
+                    style={
+                      position: 'absolute'
+                      top: 'calc(50% - 69.5px)'
+                      left: 'calc(50% - 56px)'
+                      cursor: 'pointer'
+                    }
+                    onClick={=>
+                      @refs.file_input.click()
+                    }
+                  />
+              }
+              <form ref="file_form" style={position: 'fixed', left: 9999}>
+                <input type="file" accept="image/*" capture="camera" name="raw_upload" ref="file_input"
+                  onChange={(e) =>
+                    if (file = e.target.files[0])?
+                      @updateState modal: select_photo: file: $set: file
+                  }
+                />
+              </form>
             </div>
           uploading_photo: =>
             <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
