@@ -649,23 +649,49 @@ App = React.createClass
             </div>
           select_photo: ({file}) =>
             <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
-              <img src="img/cancel.png"
+              <div
                 style={
                   position: 'absolute'
-                  top: 'calc(100% - 56px)'
+                  bottom: 20
                   left: 20
                   cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#cfcbcc'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
                 }
                 onClick={=>
                   @setState modal: nothing: {}
                 }
-              />
-              <img src="img/description.png"
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  CANCEL
+                </div>
+              </div>
+              <div
                 style={
                   position: 'absolute'
-                  top: 'calc(100% - 56px)'
-                  left: 'calc(100% - 182px)'
+                  bottom: 20
+                  right: 20
                   cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
                 }
                 onClick={=>
                   if file?
@@ -711,7 +737,21 @@ App = React.createClass
                       contentType: false
                       processData: false
                 }
-              />
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  DESCRIPTION {' >'}
+                </div>
+              </div>
               { if file?
                   <div
                     style={
@@ -752,52 +792,145 @@ App = React.createClass
               </form>
             </div>
           uploading_photo: ({progress}) =>
-
             <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
-              <img src="img/cancel.png"
+              <div
                 style={
                   position: 'absolute'
-                  top: 'calc(100% - 56px)'
+                  bottom: 20
                   left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#cfcbcc'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  CANCEL
+                </div>
+              </div>
+              <p style={position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}>
+                Uploading... ({ Math.floor(progress * 100) }%)
+              </p>
+            </div>
+          enter_description: ({media, description}) =>
+            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  @setState modal: select_photo: {}
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  {'< '} IMAGE
+                </div>
+              </div>
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  if description is ''
+                    @setState message: 'Please type a caption for your photo.'
+                  else
+                    @updateState
+                      latitude: $set: @props.game.latitude
+                      longitude: $set: @props.game.longitude
+                      zoom: $set: @props.game.zoom
+                      modal:
+                        $apply: ({enter_description}) =>
+                          move_point:
+                            update enter_description,
+                              latitude: $set: @props.game.latitude
+                              longitude: $set: @props.game.longitude
+                              dragging: $set: false
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  LOCATION {' >'}
+                </div>
+              </div>
+              <img src="img/x.png"
+                style={
+                  position: 'absolute'
+                  top: 20
+                  right: 20
                   cursor: 'pointer'
                 }
                 onClick={=>
                   @setState modal: nothing: {}
                 }
               />
-              <p style={position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}>
-                Uploading... ({ Math.floor(progress * 100) }%)
-              </p>
-            </div>
-          enter_description: ({media, description}) =>
-            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
-              <div style={padding: '20px'}>
-                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
-                <p><img src={media.thumb_url} /></p>
-                <p>
-                  <textarea style={width: '100%', height: '100px'} value={description} onChange={(e) =>
-                    @updateState modal: enter_description: description: $set: e.target.value
-                  }/>
-                </p>
-                <p>
-                  <button type="button" onClick={=>
-                    if description is ''
-                      @setState message: 'Please type a caption for your photo.'
-                    else
-                      @updateState
-                        latitude: $set: @props.game.latitude
-                        longitude: $set: @props.game.longitude
-                        zoom: $set: @props.game.zoom
-                        modal:
-                          $apply: ({enter_description}) =>
-                            move_point:
-                              update enter_description,
-                                latitude: $set: @props.game.latitude
-                                longitude: $set: @props.game.longitude
-                                dragging: $set: false
-                  }>Next Step</button>
-                </p>
-              </div>
+              <textarea
+                style={
+                  position: 'absolute'
+                  top: 75
+                  left: 50
+                  width: 'calc(100% - 100px)'
+                  height: 'calc(100% - 200px)'
+                  fontSize: '20px'
+                }
+                value={description}
+                placeholder="Enter a caption..."
+                onChange={(e) =>
+                  @updateState modal: enter_description: description: $set: e.target.value
+                }
+              />
             </div>
           move_point: ({media, description, latitude, longitude}) =>
             <div style={position: 'fixed', left: 5, top: 82, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
