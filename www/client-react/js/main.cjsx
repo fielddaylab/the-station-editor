@@ -234,12 +234,20 @@ App = React.createClass
                 ref="draggable_point"
                 lat={@state.modal.move_point.latitude}
                 lng={@state.modal.move_point.longitude}
-                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: '#e26', border: '2px solid black', cursor: 'pointer'}
+                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black', cursor: 'pointer'}
+              />
+            else if @state.modal.select_category?
+              tag = @state.modal.select_category.tag
+              color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+              <div
+                lat={@state.modal.select_category.latitude}
+                lng={@state.modal.select_category.longitude}
+                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
               />
             else
               []
           }
-          { if @state.modal.move_point?
+          { if @state.modal.move_point? or @state.modal.select_category?
               []
             else
               @state.map_notes.map (note) =>
@@ -261,7 +269,7 @@ App = React.createClass
                   style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
                   />
           }
-          { if @state.modal.move_point?
+          { if @state.modal.move_point? or @state.modal.select_category?
               []
             else
               for cluster, i in @state.map_clusters
@@ -933,54 +941,211 @@ App = React.createClass
               />
             </div>
           move_point: ({media, description, latitude, longitude}) =>
-            <div style={position: 'fixed', left: 5, top: 82, padding: 5, backgroundColor: 'gray', color: 'white', border: '1px solid black'}>
-              <p>
-                <button type="button" onClick={=>
+            <div style={position: 'fixed', bottom: 0, left: 0, width: '70%', height: 150, backgroundColor: 'white'}>
+              <p
+                style={
+                  width: '100%'
+                  textAlign: 'center'
+                  top: 30
+                  position: 'absolute'
+                }
+              >
+                Drag the map to drop a pin
+              </p>
+              <img src="img/x.png"
+                style={
+                  position: 'absolute'
+                  top: 20
+                  right: 20
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              />
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  @setState modal: enter_description: {media, description}
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  {'< '} DESCRIPTION
+                </div>
+              </div>
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
                   @updateState
                     modal:
                       $apply: ({move_point}) =>
                         select_category:
                           update move_point,
                             tag: $set: @props.game.tags[0]
-                }>Next Step</button>
-              </p>
-              <p>
-                <button type="button" onClick={=> @setState modal: {nothing: {}}}>
-                  Cancel
-                </button>
-              </p>
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  CATEGORY {' >'}
+                </div>
+              </div>
             </div>
           select_category: ({media, description, latitude, longitude, tag}) =>
-            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
-              <div style={padding: '20px'}>
-                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
-                <p><img src={media.thumb_url} /></p>
-                { @props.game.tags.map (some_tag) =>
-                    <p key={some_tag.tag_id}>
-                      <label>
-                        <input type="radio" checked={some_tag is tag}
-                          onChange={(e) =>
-                            if e.target.checked
-                              @updateState modal: select_category: tag: $set: some_tag
-                          }
-                        />
-                        { some_tag.tag }
-                      </label>
-                    </p>
+            <div style={position: 'fixed', bottom: 0, left: 0, width: '70%', height: 200, backgroundColor: 'white'}>
+              <div
+                style={
+                  width: '100%'
+                  textAlign: 'center'
+                  top: 30
+                  position: 'absolute'
                 }
+              >
+                <p>Select a Category</p>
                 <p>
-                  <button type="button" onClick={=>
-                    @props.aris.call 'notes.createNote',
-                      game_id: @props.game.game_id
-                      description: description
-                      media_id: media.media_id
-                      trigger: {latitude, longitude}
-                      tag_id: tag.tag_id
-                    , @successAt 'creating your note', (note) =>
-                      @setState modal: nothing: {} # TODO: fetch and view note
-                      @search()
-                  }>Create Note</button>
+                  { @props.game.tags.map (some_tag) =>
+                      checked = some_tag is tag
+                      color = @props.game.colors["tag_#{tag_ids.indexOf(some_tag.tag_id) + 1}"] ? 'black'
+                      <span key={some_tag.tag_id}
+                        style={
+                          margin: 5
+                          padding: 5
+                          border: "1px solid #{color}"
+                          color: if checked then 'white' else color
+                          backgroundColor: if checked then color else 'white'
+                          borderRadius: 5
+                          cursor: 'pointer'
+                          whiteSpace: 'nowrap'
+                          display: 'inline-block'
+                        }
+                        onClick={=>
+                          @updateState modal: select_category: tag: $set: some_tag
+                        }>
+                        { "#{if checked then '✓' else '●'} #{some_tag.tag}" }
+                      </span>
+                  }
                 </p>
+              </div>
+              <img src="img/x.png"
+                style={
+                  position: 'absolute'
+                  top: 20
+                  right: 20
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              />
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  @setState modal: move_point: {media, description, latitude, longitude}
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  {'< '} LOCATION
+                </div>
+              </div>
+              <div
+                style={
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                }
+                onClick={=>
+                  @props.aris.call 'notes.createNote',
+                    game_id: @props.game.game_id
+                    description: description
+                    media_id: media.media_id
+                    trigger: {latitude, longitude}
+                    tag_id: tag.tag_id
+                  , @successAt 'creating your note', (note) =>
+                    @setState modal: nothing: {} # TODO: fetch and view note
+                    @search()
+                }
+              >
+                <div
+                  style={
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                  }
+                >
+                  PUBLISH! {' >'}
+                </div>
               </div>
             </div>
       }
