@@ -398,7 +398,7 @@ App = React.createClass
           }
         </p>
       </div>
-      <div style={update thumbnailsPanel, overflowY: {$set: 'scroll'}}>
+      <div style={update thumbnailsPanel, overflowY: {$set: 'scroll'}, textAlign: {$set: 'center'}}>
         { if @state.page isnt 1
             <p>
               <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
@@ -436,7 +436,13 @@ App = React.createClass
               setTimeout =>
                 window.dispatchEvent new Event 'resize'
               , 500
-              @setState view_focus: 'map'
+              @updateState
+                view_focus: $set: 'map'
+                modal: $apply: (modal) =>
+                  if modal.viewing_note?
+                    nothing: {}
+                  else
+                    modal
             }
           />
         </div>
@@ -446,7 +452,13 @@ App = React.createClass
               setTimeout =>
                 window.dispatchEvent new Event 'resize'
               , 500
-              @setState view_focus: 'thumbnails'
+              @updateState
+                view_focus: $set: 'thumbnails'
+                modal: $apply: (modal) =>
+                  if modal.viewing_note?
+                    nothing: {}
+                  else
+                    modal
             }
           />
         </div>
@@ -480,7 +492,7 @@ App = React.createClass
       </div>
       <div style={
         display:
-          if @state.login_status.logged_in? and @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
+          if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
             'block'
           else
             'none'
@@ -494,7 +506,12 @@ App = React.createClass
             'calc(70% + 17px)'
       }>
         <img src="img/add-item.png"
-          onClick={=> @setState modal: select_photo: {}}
+          onClick={=>
+            if @state.login_status.logged_in?
+              @setState modal: select_photo: {}
+            else
+              @setState account_menu: true
+          }
           style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
         />
       </div>
@@ -557,10 +574,29 @@ App = React.createClass
           nothing: => ''
           viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
             <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
-              <div style={padding: '20px'}>
-                <p><button type="button" onClick={=> @setState modal: {nothing: {}}}>Close</button></p>
-                <img src={note.media.url} style={width: '100%'} />
-                <h4>Posted by { note.display_name } at { new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString() }</h4>
+              <img src="img/x.png"
+                style={
+                  position: 'absolute'
+                  top: 20
+                  right: 20
+                  cursor: 'pointer'
+                }
+                onClick={=>
+                  @setState modal: nothing: {}
+                }
+              />
+              <div style={padding: 20, paddingLeft: 100, paddingRight: 100}>
+                <div style={
+                  backgroundImage: "url(#{note.media.url})"
+                  backgroundSize: 'contain'
+                  backgroundRepeat: 'no-repeat'
+                  backgroundPosition: 'center'
+                  width: '100%'
+                  height: 'calc(100vh - 200px)'
+                } />
+                <h4>
+                  { note.display_name } at { new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString() }
+                </h4>
                 <p>{ note.description }</p>
                 { if @state.login_status.logged_in?
                     user_id = @state.login_status.logged_in.auth.user_id
@@ -633,6 +669,10 @@ App = React.createClass
                       <textarea placeholder="Post a new comment..." value={new_comment}
                         onChange={(e) =>
                           @updateState modal: viewing_note: new_comment: $set: e.target.value
+                        }
+                        style={
+                          width: '100%'
+                          height: 100
                         }
                       />
                       <p>
