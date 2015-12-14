@@ -210,7 +210,9 @@ App = React.createClass
             if hoverKey is 'draggable-point'
               # window.p = @refs.draggable_point
               # console.log [p, mouse.x, mouse.y]
-              @updateState modal: move_point: dragging: $set: true
+              @updateState modal: move_point:
+                dragging: $set: true
+                can_reposition: $set: false
           }
           onChildMouseUp={(hoverKey, childProps, mouse) =>
             @setState (previousState) =>
@@ -892,11 +894,24 @@ App = React.createClass
                       zoom: $set: @props.game.zoom
                       modal:
                         $apply: ({enter_description}) =>
+                          if 'geolocation' of navigator
+                            navigator.geolocation.getCurrentPosition (posn) =>
+                              @setState (previousState) =>
+                                if previousState.modal.move_point?.can_reposition
+                                  update previousState,
+                                    modal: move_point:
+                                      latitude: $set: posn.coords.latitude
+                                      longitude: $set: posn.coords.longitude
+                                    latitude: $set: posn.coords.latitude
+                                    longitude: $set: posn.coords.longitude
+                                else
+                                  previousState
                           move_point:
                             update enter_description,
                               latitude: $set: @props.game.latitude
                               longitude: $set: @props.game.longitude
                               dragging: $set: false
+                              can_reposition: $set: true
                 }
               >
                 <div
