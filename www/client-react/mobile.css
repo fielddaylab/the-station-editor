@@ -1,0 +1,42 @@
+.primaryPane, .secondaryPane, .searchPane {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 77px);
+}
+
+.primaryPane {
+  z-index: 0;
+}
+
+.secondaryPane {
+  z-index: -1;
+}
+
+.searchPane {
+  z-index: -1;
+}
+.searching .searchPane {
+  z-index: 1;
+}
+
+.desktopMenu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 77px;
+  width: 100%;
+  background-color: rgb(44,48,59);
+}
+
+.menuBrand { display: none; }
+.menuMap { float: left; }
+.menuThumbs { float: left; }
+.menuSift { float: right; }
+.menuDiscover { display: none; }
+.menuMyAccount { display: none; }
+.menuMySiftrs { display: none; }
+
+.addItemDesktop { display: none; }
+.addItemMobile {}

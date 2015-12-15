@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 update = require 'react-addons-update'
-{markdown} = require 'markdown'
+# {markdown} = require 'markdown'
 {Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require '../../shared/aris.js'
 GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
@@ -9,8 +9,8 @@ $ = require 'jquery'
 
 T = React.PropTypes
 
-renderMarkdown = (str) ->
-  __html: markdown.toHTML str
+# renderMarkdown = (str) ->
+#   __html: markdown.toHTML str
 
 # This is Haskell right? It uses indentation and everything
 match = (val, branches, def = (-> throw 'Match failed')) ->
@@ -178,29 +178,9 @@ App = React.createClass
         "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
 
   render: ->
-    leftPanel = {position: 'fixed', top: 77, left: 0, width: '70%', height: 'calc(100% - 77px)'}
-    topRightPanel = {position: 'fixed', top: 77, left: '70%', width: '30%', height: 400}
-    bottomRightPanel = {position: 'fixed', top: 477, left: '70%', width: '30%', height: 'calc(100% - 477px)'}
-    rightPanel = {position: 'fixed', top: 77, left: '70%', width: '30%', height: 'calc(100% - 77px)'}
-    mapPanel = if @state.view_focus is 'map'
-      leftPanel
-    else if @state.search_controls is null
-      rightPanel
-    else
-      bottomRightPanel
-    searchPanel = if @state.search_controls is null
-      display: 'none'
-    else
-      topRightPanel
-    thumbnailsPanel = if @state.view_focus is 'thumbnails'
-      leftPanel
-    else if @state.search_controls is null
-      rightPanel
-    else
-      bottomRightPanel
     tag_ids = @props.game.tags.map (tag) => tag.tag_id
-    <div style={fontFamily: 'sans-serif'}>
-      <div ref="theMapDiv" style={mapPanel}>
+    <div style={fontFamily: 'sans-serif'} className={if @state.search_controls? then 'searching' else ''}>
+      <div ref="theMapDiv" className={if @state.view_focus is 'map' then 'primaryPane' else 'secondaryPane'}>
         <GoogleMap
           center={[@state.latitude, @state.longitude]}
           zoom={Math.max 2, @state.zoom}
@@ -322,7 +302,7 @@ App = React.createClass
           }
         </GoogleMap>
       </div>
-      <div style={update searchPanel, overflowY: {$set: 'scroll'}, textAlign: {$set: 'center'}, padding: {$set: 10}, boxSizing: {$set: 'border-box'}}>
+      <div className="searchPane" style={overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}>
         <p>
           <input type="text" value={@state.search} placeholder="Search..."
             onChange={(e) => @search 200, search: {$set: e.target.value}}
@@ -398,7 +378,7 @@ App = React.createClass
           }
         </p>
       </div>
-      <div style={update thumbnailsPanel, overflowY: {$set: 'scroll'}, textAlign: {$set: 'center'}}>
+      <div className={if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'} style={overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}>
         { if @state.page isnt 1
             <p>
               <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
@@ -424,13 +404,13 @@ App = React.createClass
             </p>
         }
       </div>
-      <div style={position: 'fixed', top: 0, left: 0, height: 77, width: '100%', backgroundColor: 'rgb(44,48,59)'}>
-        <div style={float: 'left'}>
+      <div className="desktopMenu">
+        <div className="menuBrand">
           <a href="..">
             <img src="img/brand.png" />
           </a>
         </div>
-        <div style={float: 'left', cursor: 'pointer'}>
+        <div className="menuMap" style={cursor: 'pointer'}>
           <img src={if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'}
             onClick={=>
               setTimeout =>
@@ -446,7 +426,7 @@ App = React.createClass
             }
           />
         </div>
-        <div style={float: 'left', cursor: 'pointer'}>
+        <div className="menuThumbs" style={cursor: 'pointer'}>
           <img src={if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'}
             onClick={=>
               setTimeout =>
@@ -462,7 +442,7 @@ App = React.createClass
             }
           />
         </div>
-        <div style={float: 'right', cursor: 'pointer'}>
+        <div className="menuSift" style={cursor: 'pointer'}>
           <img src={if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'}
             onClick={=>
               setTimeout =>
@@ -472,49 +452,66 @@ App = React.createClass
             }
           />
         </div>
-        <div style={float: 'right'}>
+        <div className="menuDiscover">
           <a href="..">
             <img src="img/discover.png" />
           </a>
         </div>
-        <div style={float: 'right', cursor: 'pointer'}>
+        <div className="menuMyAccount" style={cursor: 'pointer'}>
           <img src="img/my-account.png"
             onClick={=>
               @setState account_menu: not @state.account_menu
             }
           />
         </div>
-        <div style={float: 'right'}>
+        <div className="menuMySiftrs">
           <a href="../editor">
             <img src="img/my-siftrs.png" />
           </a>
         </div>
       </div>
-      <div style={
-        display:
-          if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
-            'block'
+      { if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
+          <div
+            className="addItemDesktop"
+            style={
+              position: 'fixed'
+              cursor: 'pointer'
+              top: 95
+              left:
+                if @state.view_focus is 'map'
+                  'calc(70% - 203px)'
+                else
+                  'calc(70% + 17px)'
+              }
+            }
+          >
+            <img src="img/add-item.png"
+              onClick={=>
+                if @state.login_status.logged_in?
+                  @setState modal: select_photo: {}
+                else
+                  @setState account_menu: true
+              }
+              style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
+            />
+          </div>
+      }
+      <img
+        className="addItemMobile"
+        src="img/mobile-plus.png"
+        style={
+          position: 'fixed'
+          bottom: 0
+          left: 'calc(50% - (77px * 0.5))'
+          cursor: 'pointer'
+        }
+        onClick={=>
+          if @state.login_status.logged_in?
+            @setState modal: select_photo: {}
           else
-            'none'
-        position: 'fixed'
-        cursor: 'pointer'
-        top: 95
-        left:
-          if @state.view_focus is 'map'
-            'calc(70% - 203px)'
-          else
-            'calc(70% + 17px)'
-      }>
-        <img src="img/add-item.png"
-          onClick={=>
-            if @state.login_status.logged_in?
-              @setState modal: select_photo: {}
-            else
-              @setState account_menu: true
-          }
-          style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
-        />
-      </div>
+            @setState account_menu: true
+        }
+      />
       <div style={
         display: if @state.account_menu then 'block' else 'none'
         position: 'fixed'
@@ -573,7 +570,7 @@ App = React.createClass
       { match @state.modal,
           nothing: => ''
           viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
-            <div style={update leftPanel, overflowY: {$set: 'scroll'}, backgroundColor: {$set: 'white'}}>
+            <div className="primaryPane" style={overflowY: 'scroll', backgroundColor: 'white'}>
               <img src="img/x.png"
                 style={
                   position: 'absolute'
@@ -698,7 +695,7 @@ App = React.createClass
               </div>
             </div>
           select_photo: ({file}) =>
-            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+            <div className="primaryPane" style={backgroundColor: 'white'}>
               <div
                 style={
                   position: 'absolute'
@@ -842,7 +839,7 @@ App = React.createClass
               </form>
             </div>
           uploading_photo: ({progress}) =>
-            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+            <div className="primaryPane" style={backgroundColor: 'white'}>
               <div
                 style={
                   position: 'absolute'
@@ -879,7 +876,7 @@ App = React.createClass
               </p>
             </div>
           enter_description: ({media, description}) =>
-            <div style={update leftPanel, backgroundColor: {$set: 'white'}}>
+            <div className="primaryPane" style={backgroundColor: 'white'}>
               <div
                 style={
                   position: 'absolute'
