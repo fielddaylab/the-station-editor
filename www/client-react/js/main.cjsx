@@ -19,6 +19,27 @@ match = (val, branches, def = (-> throw 'Match failed')) ->
       return v val[k]
   def()
 
+# Why yes, the following functions form an imperative layer (writer monad) over a functional layer (React) over an imperative layer (DOM manipulation) over a functional layer (HTML), problem?
+make = (tag, fn = (->)) ->
+  prevParent = window.theParent
+  window.theParent =
+    props: {}
+    children: []
+  fn()
+  me = React.createElement tag, window.theParent.props, window.theParent.children...
+  window.theParent = prevParent
+  me
+child = (tag, fn = (->)) ->
+  me = make tag, fn
+  window.theParent = update window.theParent,
+    children: $push: [me]
+raw = (raws...) ->
+  window.theParent = update window.theParent,
+    children: $push: raws
+props = (obj) ->
+  window.theParent = update window.theParent,
+    props: $merge: obj
+
 App = React.createClass
   displayName: 'App'
 
@@ -179,65 +200,72 @@ App = React.createClass
 
   render: ->
     tag_ids = @props.game.tags.map (tag) => tag.tag_id
-    <div style={fontFamily: 'sans-serif'} className={if @state.search_controls? then 'searching' else ''}>
-      <div ref="theMapDiv" className={if @state.view_focus is 'map' then 'primaryPane' else 'secondaryPane'}>
-        <GoogleMap
-          center={[@state.latitude, @state.longitude]}
-          zoom={Math.max 2, @state.zoom}
-          options={minZoom: 2}
-          draggable={not (@state.modal.move_point?.dragging ? false)}
-          onChildMouseDown={(hoverKey, childProps, mouse) =>
-            if hoverKey is 'draggable-point'
-              # window.p = @refs.draggable_point
-              # console.log [p, mouse.x, mouse.y]
-              @updateState modal: move_point:
-                dragging: $set: true
-                can_reposition: $set: false
-          }
-          onChildMouseUp={(hoverKey, childProps, mouse) =>
-            @setState (previousState) =>
-              if previousState.modal.move_point?
-                update previousState, modal: move_point: dragging: $set: false
-              else
-                previousState
-          }
-          onChildMouseMove={(hoverKey, childProps, mouse) =>
-            if hoverKey is 'draggable-point'
-              @updateState
-                modal:
-                  move_point:
-                    latitude: {$set: mouse.lat}
-                    longitude: {$set: mouse.lng}
-          }
-          onChange={@handleMapChange}>
-          { if @state.modal.move_point?
-              <div
-                key="draggable-point"
-                ref="draggable_point"
-                lat={@state.modal.move_point.latitude}
-                lng={@state.modal.move_point.longitude}
-                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black', cursor: 'pointer'}
-              />
-            else if @state.modal.select_category?
-              tag = @state.modal.select_category.tag
-              color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
-              <div
-                lat={@state.modal.select_category.latitude}
-                lng={@state.modal.select_category.longitude}
-                style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
-              />
-            else
-              []
-          }
-          { if @state.modal.move_point? or @state.modal.select_category?
-              []
-            else
-              @state.map_notes.map (note) =>
-                color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
-                <div key={note.note_id}
-                  lat={note.latitude}
-                  lng={note.longitude}
-                  onClick={=>
+
+    make 'div', =>
+      props
+        style:
+          fontFamily: 'sans-serif'
+        className: if @state.search_controls? then 'searching' else ''
+
+      child 'div', =>
+        props
+          ref: 'theMapDiv'
+          className: if @state.view_focus is 'map' then 'primaryPane' else 'secondaryPane'
+
+        child GoogleMap, =>
+          props
+            center: [@state.latitude, @state.longitude]
+            zoom: Math.max 2, @state.zoom
+            options: minZoom: 2
+            draggable: not (@state.modal.move_point?.dragging ? false)
+            onChildMouseDown: (hoverKey, childProps, mouse) =>
+              if hoverKey is 'draggable-point'
+                # window.p = @refs.draggable_point
+                # console.log [p, mouse.x, mouse.y]
+                @updateState modal: move_point:
+                  dragging: $set: true
+                  can_reposition: $set: false
+            onChildMouseUp: (hoverKey, childProps, mouse) =>
+              @setState (previousState) =>
+                if previousState.modal.move_point?
+                  update previousState, modal: move_point: dragging: $set: false
+                else
+                  previousState
+            onChildMouseMove: (hoverKey, childProps, mouse) =>
+              if hoverKey is 'draggable-point'
+                @updateState
+                  modal:
+                    move_point:
+                      latitude: {$set: mouse.lat}
+                      longitude: {$set: mouse.lng}
+            onChange: @handleMapChange
+
+          if @state.modal.move_point?
+            child 'div', =>
+              props
+                key: 'draggable-point'
+                ref: 'draggable_point'
+                lat: @state.modal.move_point.latitude
+                lng: @state.modal.move_point.longitude
+                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black', cursor: 'pointer'}
+          else if @state.modal.select_category?
+            tag = @state.modal.select_category.tag
+            color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+            child 'div', =>
+              props
+                lat: @state.modal.select_category.latitude
+                lng: @state.modal.select_category.longitude
+                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
+
+          unless @state.modal.move_point? or @state.modal.select_category?
+            @state.map_notes.forEach (note) =>
+              color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
+              child 'div', =>
+                props
+                  key: note.note_id
+                  lat: note.latitude
+                  lng: note.longitude
+                  onClick: =>
                     @setState
                       modal:
                         viewing_note:
@@ -247,30 +275,28 @@ App = React.createClass
                           confirm_delete: false
                           confirm_delete_comment_id: null
                     @fetchComments note
-                  }
-                  style={marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
-                  />
-          }
-          { if @state.modal.move_point? or @state.modal.select_category?
-              []
-            else
-              for cluster, i in @state.map_clusters
-                lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
-                lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
-                if -180 < lng < 180 && -90 < lat < 90
-                  do (cluster) =>
-                    colors =
-                      for tag_id of cluster.tags
-                        @props.game.colors["tag_#{tag_ids.indexOf(parseInt tag_id) + 1}"]
-                    gradient =
-                      if colors.length is 1
-                        colors[0]
-                      else
-                        "linear-gradient(to bottom right, #{colors.join(', ')})"
-                    <div key={"#{lat}-#{lng}"}
-                      lat={lat}
-                      lng={lng}
-                      onClick={=>
+                  style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
+
+          unless @state.modal.move_point? or @state.modal.select_category?
+            for cluster, i in @state.map_clusters
+              lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
+              lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
+              if -180 < lng < 180 && -90 < lat < 90
+                do (cluster) =>
+                  colors =
+                    for tag_id of cluster.tags
+                      @props.game.colors["tag_#{tag_ids.indexOf(parseInt tag_id) + 1}"]
+                  gradient =
+                    if colors.length is 1
+                      colors[0]
+                    else
+                      "linear-gradient(to bottom right, #{colors.join(', ')})"
+                  child 'div', =>
+                    props
+                      key: "#{lat}-#{lng}"
+                      lat: lat
+                      lng: lng
+                      onClick: =>
                         if cluster.min_latitude is cluster.max_latitude and cluster.min_longitude is cluster.min_longitude
                           # Calling fitBounds on a single point breaks for some reason
                           @setState
@@ -293,281 +319,289 @@ App = React.createClass
                             latitude: center.lat
                             longitude: center.lng
                             zoom: zoom
-                      }
-                      style={marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}>
-                      <span style={display: 'table-cell', verticalAlign: 'middle'}>{ cluster.note_count }</span>
-                    </div>
-                else
-                  continue
-          }
-        </GoogleMap>
-      </div>
-      <div className="searchPane" style={overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}>
-        <p>
-          <input type="text" value={@state.search} placeholder="Search..."
-            onChange={(e) => @search 200, search: {$set: e.target.value}}
-            style={
-              width: '100%'
-              boxSizing: 'border-box'
-            }
-          />
-        </p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.order is 'recent'}
-              onChange={(e) =>
-                if e.target.checked
-                  @search 0, order: {$set: 'recent'}
-              }
-            />
-            Recent
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="radio" checked={@state.order is 'popular'}
-              onChange={(e) =>
-                if e.target.checked
-                  @search 0, order: {$set: 'popular'}
-              }
-            />
-            Popular
-          </label>
-        </p>
-        { if @state.login_status.logged_in?
-            <p>
-              <label>
-                <input type="checkbox" checked={@state.mine}
-                  onChange={(e) =>
-                    @search 0, mine: {$set: e.target.checked}
-                  }
-                />
-                My Notes
-              </label>
-            </p>
-        }
-        <p>
-          <b>By Category:</b>
-        </p>
-        <p>
-          { @props.game.tags.map (tag) =>
+                      style: {marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}
+                    child 'span', =>
+                      props style: {display: 'table-cell', verticalAlign: 'middle'}
+                      raw cluster.note_count
+
+        child 'div', =>
+          props
+            className: 'searchPane'
+            style: {overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}
+
+          child 'p', =>
+            child 'input', =>
+              props
+                type: 'text'
+                value: @state.search
+                placeholder: 'Search...'
+                onChange: (e) => @search 200, search: {$set: e.target.value}
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+
+          child 'p', =>
+            child 'label', =>
+              child 'input', =>
+                props
+                  type: 'radio'
+                  checked: @state.order is 'recent'
+                  onChange: (e) => @search 0, order: {$set: 'recent'} if e.target.checked
+              raw 'Recent'
+
+          child 'p', =>
+            child 'label', =>
+              child 'input', =>
+                props
+                  type: 'radio'
+                  checked: @state.order is 'popular'
+                  onChange: (e) => @search 0, order: {$set: 'popular'} if e.target.checked
+              raw 'Popular'
+
+          if @state.login_status.logged_in?
+            child 'p', =>
+              child 'label', =>
+                child 'input', =>
+                  props
+                    type: 'checkbox'
+                    checked: @state.mine
+                    onChange: (e) => @search 0, mine: {$set: e.target.checked}
+                raw 'My Notes'
+
+          child 'p', => child 'b', => raw 'By Category:'
+
+          child 'p', =>
+            @props.game.tags.forEach (tag) =>
               checked = @state.checked_tags[tag.tag_id]
               color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
-              <span key={tag.tag_id}
-                style={
-                  margin: 5
-                  padding: 5
-                  border: "1px solid #{color}"
-                  color: if checked then 'white' else color
-                  backgroundColor: if checked then color else 'white'
-                  borderRadius: 5
-                  cursor: 'pointer'
-                  whiteSpace: 'nowrap'
-                  display: 'inline-block'
-                }
-                onClick={=>
-                  @search 0,
-                    checked_tags: do =>
-                      o = {}
-                      o[tag.tag_id] =
-                        $apply: (x) => not x
-                      o
-                }>
-                { "#{if checked then '✓' else '●'} #{tag.tag}" }
-              </span>
-          }
-        </p>
-      </div>
-      <div className={if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'} style={overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}>
-        { if @state.page isnt 1
-            <p>
-              <button type="button" onClick={=> @setPage(@state.page - 1)}>Previous Page</button>
-            </p>
-        }
-        { @state.notes.map (note) =>
-            <img key={note.note_id} src={note.media.thumb_url} style={width: 120, padding: 5, cursor: 'pointer'}
-              onClick={=>
-                @setState
-                  modal:
-                    viewing_note:
-                      note: note
-                      comments: null
-                      new_comment: ''
-                      confirm_delete: false
-                      confirm_delete_comment_id: null
-                @fetchComments note
-              } />
-        }
-        { if @state.notes.length is 50
-            <p>
-              <button type="button" onClick={=> @setPage(@state.page + 1)}>Next Page</button>
-            </p>
-        }
-      </div>
-      <div className="desktopMenu">
-        <div className="menuBrand">
-          <a href="..">
-            <img src="img/brand.png" />
-          </a>
-        </div>
-        <div className="menuMap" style={cursor: 'pointer'}>
-          <img src={if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'}
-            onClick={=>
-              setTimeout =>
-                window.dispatchEvent new Event 'resize'
-              , 500
-              @updateState
-                view_focus: $set: 'map'
-                modal: $apply: (modal) =>
-                  if modal.viewing_note?
-                    nothing: {}
+              child 'span', =>
+                props
+                  key: tag.tag_id
+                  style:
+                    margin: 5
+                    padding: 5
+                    border: "1px solid #{color}"
+                    color: if checked then 'white' else color
+                    backgroundColor: if checked then color else 'white'
+                    borderRadius: 5
+                    cursor: 'pointer'
+                    whiteSpace: 'nowrap'
+                    display: 'inline-block'
+                  onClick: =>
+                    @search 0,
+                      checked_tags: do =>
+                        o = {}
+                        o[tag.tag_id] =
+                          $apply: (x) => not x
+                        o
+                raw "#{if checked then '✓' else '●'} #{tag.tag}"
+
+        child 'div', =>
+          props
+            className: if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'
+            style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
+
+          if @state.page isnt 1
+            child 'p', => child 'button', =>
+              props
+                type: 'button'
+                onClick: => @setPage(@state.page - 1)
+              raw 'Previous Page'
+
+          @state.notes.forEach (note) =>
+            child 'img', =>
+              props
+                key: note.note_id
+                src: note.media.thumb_url
+                style: {width: 120, padding: 5, cursor: 'pointer'}
+                onClick: =>
+                  @setState
+                    modal:
+                      viewing_note:
+                        note: note
+                        comments: null
+                        new_comment: ''
+                        confirm_delete: false
+                        confirm_delete_comment_id: null
+                  @fetchComments note
+
+          if @state.notes.length is 50
+            child 'p', => child 'button', =>
+              props
+                type: 'button'
+                onClick: => @setPage(@state.page + 1)
+              raw 'Next Page'
+
+        child 'div', =>
+          props className: 'desktopMenu'
+
+          child 'div', =>
+            props className: 'menuBrand'
+            child 'a', =>
+              props href: '..'
+              child 'img', =>
+                props src: 'img/brand.png'
+
+          child 'div', =>
+            props className: 'menuMap', style: {cursor: 'pointer'}
+            child 'img', =>
+              props
+                src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
+                onClick: =>
+                  setTimeout =>
+                    window.dispatchEvent new Event 'resize'
+                  , 500
+                  @updateState
+                    view_focus: $set: 'map'
+                    modal: $apply: (modal) =>
+                      if modal.viewing_note?
+                        nothing: {}
+                      else
+                        modal
+
+          child 'div', =>
+            props className: 'menuThumbs', style: {cursor: 'pointer'}
+            child 'img', =>
+              props
+                src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
+                onClick: =>
+                  setTimeout =>
+                    window.dispatchEvent new Event 'resize'
+                  , 500
+                  @updateState
+                    view_focus: $set: 'thumbnails'
+                    modal: $apply: (modal) =>
+                      if modal.viewing_note?
+                        nothing: {}
+                      else
+                        modal
+
+          child 'div', =>
+            props className: 'menuSift', style: {cursor: 'pointer'}
+            child 'img', =>
+              props
+                src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
+                onClick: =>
+                  setTimeout =>
+                    window.dispatchEvent new Event 'resize'
+                  , 500
+                  @setState search_controls: if @state.search_controls? then null else 'not_time'
+
+          child 'div', =>
+            props className: 'menuDiscover'
+            child 'a', =>
+              props href: '..'
+              child 'img', =>
+                props src: 'img/discover.png'
+
+          child 'div', =>
+            props className: 'menuMyAccount', style: {cursor: 'pointer'}
+            child 'img', =>
+              props
+                src: "img/my-account.png"
+                onClick: => @setState account_menu: not @state.account_menu
+
+          child 'div', =>
+            props className: 'menuMySiftrs'
+            child 'a', =>
+              props href: '../editor'
+              child 'img', =>
+                props src: 'img/my-siftrs.png'
+
+        if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
+          child 'div', =>
+            props
+              className: 'addItemDesktop'
+              style:
+                position: 'fixed'
+                cursor: 'pointer'
+                top: 95
+                left:
+                  if @state.view_focus is 'map'
+                    'calc(70% - 203px)'
                   else
-                    modal
-            }
-          />
-        </div>
-        <div className="menuThumbs" style={cursor: 'pointer'}>
-          <img src={if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'}
-            onClick={=>
-              setTimeout =>
-                window.dispatchEvent new Event 'resize'
-              , 500
-              @updateState
-                view_focus: $set: 'thumbnails'
-                modal: $apply: (modal) =>
-                  if modal.viewing_note?
-                    nothing: {}
+                    'calc(70% + 17px)'
+            child 'img', =>
+              props
+                src: 'img/add-item.png'
+                onClick: =>
+                  if @state.login_status.logged_in?
+                    @setState modal: select_photo: {}
                   else
-                    modal
-            }
-          />
-        </div>
-        <div className="menuSift" style={cursor: 'pointer'}>
-          <img src={if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'}
-            onClick={=>
-              setTimeout =>
-                window.dispatchEvent new Event 'resize'
-              , 500
-              @setState search_controls: if @state.search_controls? then null else 'not_time'
-            }
-          />
-        </div>
-        <div className="menuDiscover">
-          <a href="..">
-            <img src="img/discover.png" />
-          </a>
-        </div>
-        <div className="menuMyAccount" style={cursor: 'pointer'}>
-          <img src="img/my-account.png"
-            onClick={=>
-              @setState account_menu: not @state.account_menu
-            }
-          />
-        </div>
-        <div className="menuMySiftrs">
-          <a href="../editor">
-            <img src="img/my-siftrs.png" />
-          </a>
-        </div>
-      </div>
-      { if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
-          <div
-            className="addItemDesktop"
-            style={
+                    @setState account_menu: true
+                style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
+
+        child 'img', =>
+          props
+            className: 'addItemMobile'
+            src: 'img/mobile-plus.png'
+            style:
               position: 'fixed'
+              bottom: 0
+              left: 'calc(50% - (77px * 0.5))'
               cursor: 'pointer'
-              top: 95
-              left:
-                if @state.view_focus is 'map'
-                  'calc(70% - 203px)'
-                else
-                  'calc(70% + 17px)'
-              }
-            }
-          >
-            <img src="img/add-item.png"
-              onClick={=>
-                if @state.login_status.logged_in?
-                  @setState modal: select_photo: {}
-                else
-                  @setState account_menu: true
-              }
-              style={boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
-            />
-          </div>
-      }
-      <img
-        className="addItemMobile"
-        src="img/mobile-plus.png"
-        style={
-          position: 'fixed'
-          bottom: 0
-          left: 'calc(50% - (77px * 0.5))'
-          cursor: 'pointer'
-        }
-        onClick={=>
-          if @state.login_status.logged_in?
-            @setState modal: select_photo: {}
-          else
-            @setState account_menu: true
-        }
-      />
-      <div style={
-        display: if @state.account_menu then 'block' else 'none'
-        position: 'fixed'
-        top: 77
-        left: 'calc(100% - 350px)'
-        backgroundColor: 'rgb(44,48,59)'
-        color: 'white'
-        paddingLeft: 10
-        paddingRight: 10
-        width: 175
-      }>
-        { match @state.login_status,
+            onClick: =>
+              if @state.login_status.logged_in?
+                @setState modal: select_photo: {}
+              else
+                @setState account_menu: true
+
+        child 'div', =>
+          props
+            style:
+              display: if @state.account_menu then 'block' else 'none'
+              position: 'fixed'
+              top: 77
+              left: 'calc(100% - 350px)'
+              backgroundColor: 'rgb(44,48,59)'
+              color: 'white'
+              paddingLeft: 10
+              paddingRight: 10
+              width: 175
+          match @state.login_status,
             logged_out: ({username, password}) =>
-              <div>
-                <p style={width: '100%'}>
-                  <input autoCapitalize="off" autoCorrect="off" type="text" value={username} placeholder="Username"
-                    onChange={(e) =>
-                      @setState
-                        login_status:
-                          logged_out:
-                            username: e.target.value
-                            password: password
-                    }
-                    style={width: '100%', boxSizing: 'border-box'}
-                    onKeyDown={(e) => @login() if e.keyCode is 13}
-                    />
-                </p>
-                <p style={width: '100%'}>
-                  <input autoCapitalize="off" autoCorrect="off" type="password" value={password} placeholder="Password"
-                    onChange={(e) =>
-                      @setState
-                        login_status:
-                          logged_out:
-                            username: username
-                            password: e.target.value
-                    }
-                    style={width: '100%', boxSizing: 'border-box'}
-                    onKeyDown={(e) => @login() if e.keyCode is 13}
-                    />
-                </p>
-                <p>
-                  <button type="button" onClick={@login}>Login</button>
-                </p>
-              </div>
+              child 'div', =>
+                child 'p', =>
+                  props style: {width: '100%'}
+                  child 'input', =>
+                    props
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'text'
+                      value: username
+                      placeholder: 'Username'
+                      onChange: (e) => @updateState login_status: logged_out: username: $set: e.target.value
+                      style: {width: '100%', boxSizing: 'border-box'}
+                      onKeyDown: (e) => @login() if e.keyCode is 13
+                child 'p', =>
+                  props style: {width: '100%'}
+                  child 'input', =>
+                    props
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'password'
+                      value: password
+                      placeholder: 'Password'
+                      onChange: (e) => @updateState login_status: logged_out: password: $set: e.target.value
+                      style: {width: '100%', boxSizing: 'border-box'}
+                      onKeyDown: (e) => @login() if e.keyCode is 13
+                child 'p', =>
+                  child 'button', =>
+                    props
+                      type: 'button'
+                      onClick: @login
+                    raw 'Login'
             logged_in: ({auth}) =>
-              <div>
-                <p>
-                  Logged in as {auth.username}
-                </p>
-                <p>
-                  <button type="button" onClick={@logout}>Logout</button>
-                </p>
-              </div>
-        }
-      </div>
-      { match @state.modal,
+              child 'div', =>
+                child 'p', => raw "Logged in as #{auth.username}"
+                child 'p', =>
+                  child 'button', =>
+                    props
+                      type: 'button'
+                      onClick: @logout
+                    raw 'Logout'
+
+        raw match @state.modal,
           nothing: => ''
           viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
             <div className="primaryPane" style={overflowY: 'scroll', backgroundColor: 'white'}>
@@ -1200,16 +1234,16 @@ App = React.createClass
                 </div>
               </div>
             </div>
-      }
-      { if @state.message?
-          <div style={position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}>
-            { @state.message }
-            <div style={position: 'absolute', left: 10, top: 10, cursor: 'pointer'} onClick={=> @setState message: null}>
-              X
-            </div>
-          </div>
-      }
-    </div>
+
+        if @state.message?
+          child 'div', =>
+            props style: {position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}
+            raw @state.message
+            child 'div', =>
+              props
+                style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer'}
+                onClick: => @setState message: null
+              raw 'X'
 
 document.addEventListener 'DOMContentLoaded', ->
 
