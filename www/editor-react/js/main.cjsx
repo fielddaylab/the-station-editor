@@ -5,6 +5,7 @@ GoogleMap = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
   window[k] = v
+{make, child, raw, props} = require '../../shared/react-writer.js'
 
 renderMarkdown = (str) ->
   __html: markdown.toHTML(str ? '')
@@ -322,34 +323,31 @@ SiftrList = React.createClass
   displayName: 'SiftrList'
 
   render: ->
-    <ul>
-      { for game in @props.games
-          do (game) =>
-            notes = @props.notes[game.game_id]
-            <li key={"game-#{game.game_id}"}>
-              <p>
-                { game.name }
-                {' '} <a href={"#{SIFTR_URL}#{game.siftr_url or game.game_id}"}>[View]</a>
-                {' '} <a href={"\#edit#{game.game_id}"}>[Edit]</a>
-              </p>
-              <p>
-                { notes?.length ? '...' } items
-                {' | '} { if notes? then countContributors(notes) else '...' } contributors
-                {' | '} { if game.published then 'Public' else 'Private' }
-                {' | '} { if game.moderated then 'Moderated' else 'Non-Moderated' }
-              </p>
-              { if (colors = @props.colors[game.colors_id])?
-                  rgbs =
-                    colors["tag_#{i}"] for i in [1..5]
-                  <div style={
-                    backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-                    height: '20px'
-                    width: '100%'
-                    } />
-              }
-            </li>
-      }
-    </ul>
+    make 'ul', =>
+      @props.games.forEach (game) =>
+        notes = @props.notes[game.game_id]
+        child 'li', key: "game-#{game.game_id}", =>
+          child 'p', =>
+            raw game.name
+            raw ' '
+            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", => raw '[View]'
+            raw ' '
+            child 'a', href: "\#edit#{game.game_id}", => raw '[Edit]'
+          child 'p', =>
+            raw "#{notes?.length ? '...'} items"
+            raw ' | '
+            raw "#{if notes? then countContributors(notes) else '...'} contributors"
+            raw ' | '
+            raw (if game.published then 'Public' else 'Private')
+            raw ' | '
+            raw (if game.moderated then 'Moderated' else 'Non-Moderated')
+          if (colors = @props.colors[game.colors_id])?
+            rgbs =
+              colors["tag_#{i}"] for i in [1..5]
+            child 'div', style:
+              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
+              height: '20px'
+              width: '100%'
 
 EditSiftr = React.createClass
   displayName: 'EditSiftr'
@@ -615,30 +613,26 @@ NewStep3 = React.createClass
   displayName: 'NewStep3'
 
   render: ->
-    <div>
-      <h2>New Siftr 3</h2>
-      <p>
-        <a href="#new2">Back, setup</a>
-      </p>
-      <p>
-        <button type="button" onClick={@props.onCreate}>Create!</button>
-      </p>
-      <form>
-        <p>
-          <label>
-            <input ref="published" type="checkbox" checked={@props.game.published} onChange={@handleChange} />
-            Public
-          </label>
-        </p>
-        <p>
-          <label>
-            <input ref="moderated" type="checkbox" checked={@props.game.moderated} onChange={@handleChange} />
-            Moderation
-          </label>
-        </p>
-      </form>
-      <p><a href="#">Cancel</a></p>
-    </div>
+    make 'div', =>
+      child 'h2', => raw 'New Siftr 3'
+      child 'p', =>
+        child 'a', href: '#new2', => raw 'Back, setup'
+      child 'p', =>
+        child 'button', =>
+          props
+            type: 'button'
+            onClick: @props.onCreate
+          raw 'Create!'
+      child 'form', =>
+        child 'p', =>
+          child 'label', =>
+            child 'input', => props ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
+            raw 'Public'
+        child 'p', =>
+          child 'label', =>
+            child 'input', => props ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
+            raw 'Moderation'
+      child 'p', => child 'a', href: '#', => raw 'Cancel'
 
   handleChange: ->
     game = update @props.game,

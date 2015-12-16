@@ -6,6 +6,7 @@ update = require 'react-addons-update'
 GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
 $ = require 'jquery'
+{make, child, raw, props} = require '../../shared/react-writer.js'
 
 T = React.PropTypes
 
@@ -18,27 +19,6 @@ match = (val, branches, def = (-> throw 'Match failed')) ->
     if k of val
       return v val[k]
   def()
-
-# Why yes, the following functions form an imperative layer (writer monad) over a functional layer (React) over an imperative layer (DOM manipulation) over a functional layer (HTML), problem?
-make = (tag, fn = (->)) ->
-  prevParent = window.theParent
-  window.theParent =
-    props: {}
-    children: []
-  fn()
-  me = React.createElement tag, window.theParent.props, window.theParent.children...
-  window.theParent = prevParent
-  me
-child = (tag, fn = (->)) ->
-  me = make tag, fn
-  window.theParent = update window.theParent,
-    children: $push: [me]
-raw = (raws...) ->
-  window.theParent = update window.theParent,
-    children: $push: raws
-props = (obj) ->
-  window.theParent = update window.theParent,
-    props: $merge: obj
 
 App = React.createClass
   displayName: 'App'
@@ -324,9 +304,8 @@ App = React.createClass
                       props style: {display: 'table-cell', verticalAlign: 'middle'}
                       raw cluster.note_count
 
-        child 'div', =>
+        child 'div.searchPane', =>
           props
-            className: 'searchPane'
             style: {overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}
 
           child 'p', =>
@@ -409,21 +388,20 @@ App = React.createClass
               raw 'Previous Page'
 
           @state.notes.forEach (note) =>
-            child 'img', =>
-              props
-                key: note.note_id
-                src: note.media.thumb_url
-                style: {width: 120, padding: 5, cursor: 'pointer'}
-                onClick: =>
-                  @setState
-                    modal:
-                      viewing_note:
-                        note: note
-                        comments: null
-                        new_comment: ''
-                        confirm_delete: false
-                        confirm_delete_comment_id: null
-                  @fetchComments note
+            child 'img',
+              key: note.note_id
+              src: note.media.thumb_url
+              style: {width: 120, padding: 5, cursor: 'pointer'}
+              onClick: =>
+                @setState
+                  modal:
+                    viewing_note:
+                      note: note
+                      comments: null
+                      new_comment: ''
+                      confirm_delete: false
+                      confirm_delete_comment_id: null
+                @fetchComments note
 
           if @state.notes.length is 50
             child 'p', => child 'button', =>
@@ -432,86 +410,67 @@ App = React.createClass
                 onClick: => @setPage(@state.page + 1)
               raw 'Next Page'
 
-        child 'div', =>
-          props className: 'desktopMenu'
+        child 'div.desktopMenu', =>
 
-          child 'div', =>
-            props className: 'menuBrand'
-            child 'a', =>
-              props href: '..'
-              child 'img', =>
-                props src: 'img/brand.png'
+          child 'div.menuBrand', =>
+            child 'a', href: '..', =>
+              child 'img', src: 'img/brand.png'
 
-          child 'div', =>
-            props className: 'menuMap', style: {cursor: 'pointer'}
-            child 'img', =>
-              props
-                src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
-                onClick: =>
-                  setTimeout =>
-                    window.dispatchEvent new Event 'resize'
-                  , 500
-                  @updateState
-                    view_focus: $set: 'map'
-                    modal: $apply: (modal) =>
-                      if modal.viewing_note?
-                        nothing: {}
-                      else
-                        modal
+          child 'div.menuMap', style: {cursor: 'pointer'}, =>
+            child 'img',
+              src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
+              onClick: =>
+                setTimeout =>
+                  window.dispatchEvent new Event 'resize'
+                , 500
+                @updateState
+                  view_focus: $set: 'map'
+                  modal: $apply: (modal) =>
+                    if modal.viewing_note?
+                      nothing: {}
+                    else
+                      modal
 
-          child 'div', =>
-            props className: 'menuThumbs', style: {cursor: 'pointer'}
-            child 'img', =>
-              props
-                src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
-                onClick: =>
-                  setTimeout =>
-                    window.dispatchEvent new Event 'resize'
-                  , 500
-                  @updateState
-                    view_focus: $set: 'thumbnails'
-                    modal: $apply: (modal) =>
-                      if modal.viewing_note?
-                        nothing: {}
-                      else
-                        modal
+          child 'div.menuThumbs', style: {cursor: 'pointer'}, =>
+            child 'img',
+              src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
+              onClick: =>
+                setTimeout =>
+                  window.dispatchEvent new Event 'resize'
+                , 500
+                @updateState
+                  view_focus: $set: 'thumbnails'
+                  modal: $apply: (modal) =>
+                    if modal.viewing_note?
+                      nothing: {}
+                    else
+                      modal
 
-          child 'div', =>
-            props className: 'menuSift', style: {cursor: 'pointer'}
-            child 'img', =>
-              props
-                src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
-                onClick: =>
-                  setTimeout =>
-                    window.dispatchEvent new Event 'resize'
-                  , 500
-                  @setState search_controls: if @state.search_controls? then null else 'not_time'
+          child 'div.menuSift', style: {cursor: 'pointer'}, =>
+            child 'img',
+              src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
+              onClick: =>
+                setTimeout =>
+                  window.dispatchEvent new Event 'resize'
+                , 500
+                @setState search_controls: if @state.search_controls? then null else 'not_time'
 
-          child 'div', =>
-            props className: 'menuDiscover'
-            child 'a', =>
-              props href: '..'
-              child 'img', =>
-                props src: 'img/discover.png'
+          child 'div.menuDiscover', =>
+            child 'a', href: '..', =>
+              child 'img', src: 'img/discover.png'
 
-          child 'div', =>
-            props className: 'menuMyAccount', style: {cursor: 'pointer'}
-            child 'img', =>
-              props
-                src: "img/my-account.png"
-                onClick: => @setState account_menu: not @state.account_menu
+          child 'div.menuMyAccount', style: {cursor: 'pointer'}, =>
+            child 'img',
+              src: "img/my-account.png"
+              onClick: => @setState account_menu: not @state.account_menu
 
-          child 'div', =>
-            props className: 'menuMySiftrs'
-            child 'a', =>
-              props href: '../editor'
-              child 'img', =>
-                props src: 'img/my-siftrs.png'
+          child 'div.menuMySiftrs', =>
+            child 'a', href: '../editor', =>
+              child 'img', src: 'img/my-siftrs.png'
 
         if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
-          child 'div', =>
+          child 'div.addItemDesktop', =>
             props
-              className: 'addItemDesktop'
               style:
                 position: 'fixed'
                 cursor: 'pointer'
@@ -521,30 +480,27 @@ App = React.createClass
                     'calc(70% - 203px)'
                   else
                     'calc(70% + 17px)'
-            child 'img', =>
-              props
-                src: 'img/add-item.png'
-                onClick: =>
-                  if @state.login_status.logged_in?
-                    @setState modal: select_photo: {}
-                  else
-                    @setState account_menu: true
-                style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
+            child 'img',
+              src: 'img/add-item.png'
+              onClick: =>
+                if @state.login_status.logged_in?
+                  @setState modal: select_photo: {}
+                else
+                  @setState account_menu: true
+              style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
 
-        child 'img', =>
-          props
-            className: 'addItemMobile'
-            src: 'img/mobile-plus.png'
-            style:
-              position: 'fixed'
-              bottom: 0
-              left: 'calc(50% - (77px * 0.5))'
-              cursor: 'pointer'
-            onClick: =>
-              if @state.login_status.logged_in?
-                @setState modal: select_photo: {}
-              else
-                @setState account_menu: true
+        child 'img.addItemMobile',
+          src: 'img/mobile-plus.png'
+          style:
+            position: 'fixed'
+            bottom: 0
+            left: 'calc(50% - (77px * 0.5))'
+            cursor: 'pointer'
+          onClick: =>
+            if @state.login_status.logged_in?
+              @setState modal: select_photo: {}
+            else
+              @setState account_menu: true
 
         child 'div', =>
           props
@@ -604,21 +560,19 @@ App = React.createClass
         match @state.modal,
           nothing: => null
           viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
-            child 'div', =>
+            child 'div.primaryPane', =>
               props
-                className: 'primaryPane'
                 style:
                   overflowY: 'scroll'
                   backgroundColor: 'white'
-              child 'img', =>
-                props
-                  src: 'img/x.png'
-                  style:
-                    position: 'absolute'
-                    top: 20
-                    right: 20
-                    cursor: 'pointer'
-                  onClick: => @setState modal: nothing: {}
+              child 'img',
+                src: 'img/x.png'
+                style:
+                  position: 'absolute'
+                  top: 20
+                  right: 20
+                  cursor: 'pointer'
+                onClick: => @setState modal: nothing: {}
               child 'div', =>
                 props style: {padding: 20, paddingLeft: 100, paddingRight: 100}
                 child 'div', =>
@@ -741,10 +695,8 @@ App = React.createClass
                       raw 'Login'
                     raw ' to post a new comment'
           select_photo: ({file}) =>
-            child 'div', =>
-              props
-                className: 'primaryPane'
-                style: backgroundColor: 'white'
+            child 'div.primaryPane', =>
+              props style: backgroundColor: 'white'
               child 'div', =>
                 props
                   style:
@@ -871,8 +823,7 @@ App = React.createClass
                       if (newFile = e.target.files[0])?
                         @updateState modal: select_photo: file: $set: newFile
           uploading_photo: ({progress}) =>
-            child 'div', =>
-              props className: 'primaryPane', style: {backgroundColor: 'white'}
+            child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
               child 'div', =>
                 props
                   style:
@@ -902,8 +853,7 @@ App = React.createClass
                 props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
                 raw "Uploading... (#{Math.floor(progress * 100)}%)"
           enter_description: ({media, description}) =>
-            child 'div', =>
-              props className: 'primaryPane', style: {backgroundColor: 'white'}
+            child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
               child 'div', =>
                 props
                   style:
