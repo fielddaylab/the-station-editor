@@ -860,7 +860,7 @@ App = React.createClass
               props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
         enter_description: ({media, description}) =>
-          child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
+          child 'div.bottomModal', style: {height: 250}, =>
             child 'div', =>
               props
                 style:
@@ -951,19 +951,17 @@ App = React.createClass
               props
                 style:
                   position: 'absolute'
-                  top: 75
-                  left: 50
-                  width: 'calc(100% - 100px)'
-                  height: 'calc(100% - 200px)'
+                  top: 20
+                  left: 20
+                  width: 'calc(100% - 86px)'
+                  height: 'calc(100% - 100px)'
                   fontSize: '20px'
                 value: description
                 placeholder: 'Enter a caption...'
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
         move_point: ({media, description, latitude, longitude}) =>
-          ###
-          child 'div', =>
-            props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 150, backgroundColor: 'white'}
+          child 'div.bottomModal', style: {height: 150}, =>
             child 'p', =>
               props
                 style:
@@ -1038,11 +1036,8 @@ App = React.createClass
                     height: '100%'
                     boxSizing: 'border-box'
                 raw 'CATEGORY >'
-          ###
         select_category: ({media, description, latitude, longitude, tag}) =>
-          ###
-          child 'div', =>
-            props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 200, backgroundColor: 'white'}
+          child 'div.bottomModal', style: {height: 200}, =>
             child 'div', =>
               props style: {width: '100%', textAlign: 'center', top: 30, position: 'absolute'}
               child 'p', => raw 'Select a Category'
@@ -1129,7 +1124,6 @@ App = React.createClass
                     height: '100%'
                     boxSizing: 'border-box'
                 raw 'PUBLISH! >'
-          ###
 
       # Message box (for errors)
       if @state.message?

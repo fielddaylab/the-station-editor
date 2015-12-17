@@ -54,3 +54,11 @@
 
 .accountMenuDesktop { display: none; }
 .accountMenuOpen .accountMenuDesktop { display: block; }
+
+.bottomModal {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 70%;
+  background-color: white;
+}

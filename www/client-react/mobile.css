@@ -45,3 +45,11 @@
 #the-contained.accountMenuOpen {
   left: 300px;
 }
+
+.bottomModal {
+  position: absolute;
+  bottom: 77px;
+  left: 0;
+  width: 100%;
+  background-color: white;
+}
