@@ -563,6 +563,36 @@ App = React.createClass
                   props type: 'button', onClick: @logout
                   raw 'Logout'
 
+      # Mobile account menu
+      child 'div.accountMenuMobile', =>
+        props
+          style:
+            backgroundColor: 'rgb(44,48,59)'
+            color: 'white'
+            paddingLeft: 10
+            paddingRight: 10
+            boxSizing: 'border-box'
+        match @state.login_status,
+          logged_out: ({username, password}) =>
+            child 'div', =>
+              child 'p', =>
+                props style: {width: '100%'}
+                usernameBox username, width: '100%', boxSizing: 'border-box'
+              child 'p', =>
+                props style: {width: '100%'}
+                passwordBox password, width: '100%', boxSizing: 'border-box'
+              child 'p', =>
+                child 'button', =>
+                  props type: 'button', onClick: @login
+                  raw 'Login'
+          logged_in: ({auth}) =>
+            child 'div', =>
+              child 'p', => raw "Logged in as #{auth.username}"
+              child 'p', =>
+                child 'button', =>
+                  props type: 'button', onClick: @logout
+                  raw 'Logout'
+
       # Main modal
       match @state.modal,
         nothing: => null
@@ -580,8 +610,7 @@ App = React.createClass
                 right: 20
                 cursor: 'pointer'
               onClick: => @setState modal: nothing: {}
-            child 'div', =>
-              props style: {padding: 20, paddingLeft: 100, paddingRight: 100}
+            child 'div.noteView', =>
               child 'div', =>
                 props
                   style:
@@ -1135,6 +1164,16 @@ App = React.createClass
               style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer'}
               onClick: => @setState message: null
             raw 'X'
+
+      # Mobile title and hamburger menu button
+      child 'div.mobileTitle', =>
+        child 'span.hamburgerButton', =>
+          props
+            style: cursor: 'pointer'
+            onClick: => @setState account_menu: not @state.account_menu
+          raw '☰'
+        raw ' '
+        raw @props.game.name
 
 document.addEventListener 'DOMContentLoaded', ->
 

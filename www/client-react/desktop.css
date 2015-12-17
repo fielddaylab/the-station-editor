@@ -53,7 +53,9 @@
 .addItemMobile { display: none; }
 
 .accountMenuDesktop { display: none; }
-.accountMenuOpen .accountMenuDesktop { display: block; }
+.accountMenuOpen .accountMenuDesktop { display: block; z-index: 1; }
+
+.accountMenuMobile { display: none; }
 
 .bottomModal {
   position: absolute;
@@ -62,3 +64,11 @@
   width: 70%;
   background-color: white;
 }
+
+.noteView {
+  padding: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.mobileTitle { display: none; }
