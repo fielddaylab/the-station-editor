@@ -1,5 +1,5 @@
 .primaryPane, .secondaryPane, .searchPane {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -22,7 +22,7 @@
 }
 
 .desktopMenu {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   height: 77px;
@@ -40,3 +40,8 @@
 
 .addItemDesktop { display: none; }
 .addItemMobile {}
+
+.accountMenuDesktop { display: none; }
+#the-contained.accountMenuOpen {
+  left: 300px;
+}

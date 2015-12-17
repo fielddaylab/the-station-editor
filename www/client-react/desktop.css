@@ -1,5 +1,5 @@
 .primaryPane {
-  position: fixed;
+  position: absolute;
   top: 77px;
   left: 0;
   width: 70%;
@@ -11,7 +11,7 @@
 }
 .searching .searchPane {
   display: block;
-  position: fixed;
+  position: absolute;
   top: 77px;
   left: 70%;
   width: 30%;
@@ -19,7 +19,7 @@
 }
 
 .secondaryPane {
-  position: fixed;
+  position: absolute;
   top: 77px;
   left: 70%;
   width: 30%;
@@ -33,7 +33,7 @@
 }
 
 .desktopMenu {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   height: 77px;
@@ -51,3 +51,6 @@
 
 .addItemDesktop {}
 .addItemMobile { display: none; }
+
+.accountMenuDesktop { display: none; }
+.accountMenuOpen .accountMenuDesktop { display: block; }

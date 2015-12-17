@@ -181,12 +181,18 @@ App = React.createClass
   render: ->
     tag_ids = @props.game.tags.map (tag) => tag.tag_id
 
-    make 'div', =>
+    make 'div#the-contained', =>
       props
+        className: """
+          #{if @state.search_controls? then 'searching' else ''}
+          #{if @state.account_menu then 'accountMenuOpen' else ''}
+          """
         style:
-          fontFamily: 'sans-serif'
-        className: if @state.search_controls? then 'searching' else ''
+          width: '100%'
+          height: '100%'
+          overflow: 'visible'
 
+      # Map
       child 'div', =>
         props
           ref: 'theMapDiv'
@@ -236,8 +242,7 @@ App = React.createClass
                 lat: @state.modal.select_category.latitude
                 lng: @state.modal.select_category.longitude
                 style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
-
-          unless @state.modal.move_point? or @state.modal.select_category?
+          else
             @state.map_notes.forEach (note) =>
               color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
               child 'div', =>
@@ -256,8 +261,6 @@ App = React.createClass
                           confirm_delete_comment_id: null
                     @fetchComments note
                   style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
-
-          unless @state.modal.move_point? or @state.modal.select_category?
             for cluster, i in @state.map_clusters
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
@@ -304,268 +307,639 @@ App = React.createClass
                       props style: {display: 'table-cell', verticalAlign: 'middle'}
                       raw cluster.note_count
 
-        child 'div.searchPane', =>
-          props
-            style: {overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}
+      # Search
+      child 'div.searchPane', =>
+        props
+          style: {overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}
 
-          child 'p', =>
+        child 'p', =>
+          child 'input', =>
+            props
+              type: 'text'
+              value: @state.search
+              placeholder: 'Search...'
+              onChange: (e) => @search 200, search: {$set: e.target.value}
+              style:
+                width: '100%'
+                boxSizing: 'border-box'
+
+        child 'p', =>
+          child 'label', =>
             child 'input', =>
               props
-                type: 'text'
-                value: @state.search
-                placeholder: 'Search...'
-                onChange: (e) => @search 200, search: {$set: e.target.value}
+                type: 'radio'
+                checked: @state.order is 'recent'
+                onChange: (e) => @search 0, order: {$set: 'recent'} if e.target.checked
+            raw 'Recent'
+
+        child 'p', =>
+          child 'label', =>
+            child 'input', =>
+              props
+                type: 'radio'
+                checked: @state.order is 'popular'
+                onChange: (e) => @search 0, order: {$set: 'popular'} if e.target.checked
+            raw 'Popular'
+
+        if @state.login_status.logged_in?
+          child 'p', =>
+            child 'label', =>
+              child 'input', =>
+                props
+                  type: 'checkbox'
+                  checked: @state.mine
+                  onChange: (e) => @search 0, mine: {$set: e.target.checked}
+              raw 'My Notes'
+
+        child 'p', => child 'b', => raw 'By Category:'
+
+        child 'p', =>
+          @props.game.tags.forEach (tag) =>
+            checked = @state.checked_tags[tag.tag_id]
+            color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+            child 'span', =>
+              props
+                key: tag.tag_id
                 style:
-                  width: '100%'
-                  boxSizing: 'border-box'
+                  margin: 5
+                  padding: 5
+                  border: "1px solid #{color}"
+                  color: if checked then 'white' else color
+                  backgroundColor: if checked then color else 'white'
+                  borderRadius: 5
+                  cursor: 'pointer'
+                  whiteSpace: 'nowrap'
+                  display: 'inline-block'
+                onClick: =>
+                  @search 0,
+                    checked_tags: do =>
+                      o = {}
+                      o[tag.tag_id] =
+                        $apply: (x) => not x
+                      o
+              raw "#{if checked then '✓' else '●'} #{tag.tag}"
 
-          child 'p', =>
-            child 'label', =>
-              child 'input', =>
-                props
-                  type: 'radio'
-                  checked: @state.order is 'recent'
-                  onChange: (e) => @search 0, order: {$set: 'recent'} if e.target.checked
-              raw 'Recent'
+      # Thumbnails
+      child 'div', =>
+        props
+          className: if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'
+          style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
 
-          child 'p', =>
-            child 'label', =>
-              child 'input', =>
-                props
-                  type: 'radio'
-                  checked: @state.order is 'popular'
-                  onChange: (e) => @search 0, order: {$set: 'popular'} if e.target.checked
-              raw 'Popular'
-
-          if @state.login_status.logged_in?
-            child 'p', =>
-              child 'label', =>
-                child 'input', =>
-                  props
-                    type: 'checkbox'
-                    checked: @state.mine
-                    onChange: (e) => @search 0, mine: {$set: e.target.checked}
-                raw 'My Notes'
-
-          child 'p', => child 'b', => raw 'By Category:'
-
-          child 'p', =>
-            @props.game.tags.forEach (tag) =>
-              checked = @state.checked_tags[tag.tag_id]
-              color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
-              child 'span', =>
-                props
-                  key: tag.tag_id
-                  style:
-                    margin: 5
-                    padding: 5
-                    border: "1px solid #{color}"
-                    color: if checked then 'white' else color
-                    backgroundColor: if checked then color else 'white'
-                    borderRadius: 5
-                    cursor: 'pointer'
-                    whiteSpace: 'nowrap'
-                    display: 'inline-block'
-                  onClick: =>
-                    @search 0,
-                      checked_tags: do =>
-                        o = {}
-                        o[tag.tag_id] =
-                          $apply: (x) => not x
-                        o
-                raw "#{if checked then '✓' else '●'} #{tag.tag}"
-
-        child 'div', =>
-          props
-            className: if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'
-            style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
-
-          if @state.page isnt 1
-            child 'p', => child 'button', =>
-              props
-                type: 'button'
-                onClick: => @setPage(@state.page - 1)
-              raw 'Previous Page'
-
-          @state.notes.forEach (note) =>
-            child 'img',
-              key: note.note_id
-              src: note.media.thumb_url
-              style: {width: 120, padding: 5, cursor: 'pointer'}
-              onClick: =>
-                @setState
-                  modal:
-                    viewing_note:
-                      note: note
-                      comments: null
-                      new_comment: ''
-                      confirm_delete: false
-                      confirm_delete_comment_id: null
-                @fetchComments note
-
-          if @state.notes.length is 50
-            child 'p', => child 'button', =>
-              props
-                type: 'button'
-                onClick: => @setPage(@state.page + 1)
-              raw 'Next Page'
-
-        child 'div.desktopMenu', =>
-
-          child 'div.menuBrand', =>
-            child 'a', href: '..', =>
-              child 'img', src: 'img/brand.png'
-
-          child 'div.menuMap', style: {cursor: 'pointer'}, =>
-            child 'img',
-              src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
-              onClick: =>
-                setTimeout =>
-                  window.dispatchEvent new Event 'resize'
-                , 500
-                @updateState
-                  view_focus: $set: 'map'
-                  modal: $apply: (modal) =>
-                    if modal.viewing_note?
-                      nothing: {}
-                    else
-                      modal
-
-          child 'div.menuThumbs', style: {cursor: 'pointer'}, =>
-            child 'img',
-              src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
-              onClick: =>
-                setTimeout =>
-                  window.dispatchEvent new Event 'resize'
-                , 500
-                @updateState
-                  view_focus: $set: 'thumbnails'
-                  modal: $apply: (modal) =>
-                    if modal.viewing_note?
-                      nothing: {}
-                    else
-                      modal
-
-          child 'div.menuSift', style: {cursor: 'pointer'}, =>
-            child 'img',
-              src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
-              onClick: =>
-                setTimeout =>
-                  window.dispatchEvent new Event 'resize'
-                , 500
-                @setState search_controls: if @state.search_controls? then null else 'not_time'
-
-          child 'div.menuDiscover', =>
-            child 'a', href: '..', =>
-              child 'img', src: 'img/discover.png'
-
-          child 'div.menuMyAccount', style: {cursor: 'pointer'}, =>
-            child 'img',
-              src: "img/my-account.png"
-              onClick: => @setState account_menu: not @state.account_menu
-
-          child 'div.menuMySiftrs', =>
-            child 'a', href: '../editor', =>
-              child 'img', src: 'img/my-siftrs.png'
-
-        if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
-          child 'div.addItemDesktop', =>
+        if @state.page isnt 1
+          child 'p', => child 'button', =>
             props
-              style:
-                position: 'fixed'
-                cursor: 'pointer'
-                top: 95
-                left:
-                  if @state.view_focus is 'map'
-                    'calc(70% - 203px)'
+              type: 'button'
+              onClick: => @setPage(@state.page - 1)
+            raw 'Previous Page'
+
+        @state.notes.forEach (note) =>
+          child 'img',
+            key: note.note_id
+            src: note.media.thumb_url
+            style: {width: 120, padding: 5, cursor: 'pointer'}
+            onClick: =>
+              @setState
+                modal:
+                  viewing_note:
+                    note: note
+                    comments: null
+                    new_comment: ''
+                    confirm_delete: false
+                    confirm_delete_comment_id: null
+              @fetchComments note
+
+        if @state.notes.length is 50
+          child 'p', => child 'button', =>
+            props
+              type: 'button'
+              onClick: => @setPage(@state.page + 1)
+            raw 'Next Page'
+
+      # Desktop menu, also mobile bottom bar
+      child 'div.desktopMenu', =>
+
+        child 'div.menuBrand', =>
+          child 'a', href: '..', =>
+            child 'img', src: 'img/brand.png'
+
+        child 'div.menuMap', style: {cursor: 'pointer'}, =>
+          child 'img',
+            src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
+            onClick: =>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @updateState
+                view_focus: $set: 'map'
+                modal: $apply: (modal) =>
+                  if modal.viewing_note?
+                    nothing: {}
                   else
-                    'calc(70% + 17px)'
-            child 'img',
-              src: 'img/add-item.png'
-              onClick: =>
-                if @state.login_status.logged_in?
-                  @setState modal: select_photo: {}
-                else
-                  @setState account_menu: true
-              style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
+                    modal
 
-        child 'img.addItemMobile',
-          src: 'img/mobile-plus.png'
-          style:
-            position: 'fixed'
-            bottom: 0
-            left: 'calc(50% - (77px * 0.5))'
-            cursor: 'pointer'
-          onClick: =>
-            if @state.login_status.logged_in?
-              @setState modal: select_photo: {}
-            else
-              @setState account_menu: true
+        child 'div.menuThumbs', style: {cursor: 'pointer'}, =>
+          child 'img',
+            src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
+            onClick: =>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @updateState
+                view_focus: $set: 'thumbnails'
+                modal: $apply: (modal) =>
+                  if modal.viewing_note?
+                    nothing: {}
+                  else
+                    modal
 
-        child 'div', =>
+        child 'div.menuSift', style: {cursor: 'pointer'}, =>
+          child 'img',
+            src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
+            onClick: =>
+              setTimeout =>
+                window.dispatchEvent new Event 'resize'
+              , 500
+              @setState search_controls: if @state.search_controls? then null else 'not_time'
+
+        child 'div.menuDiscover', =>
+          child 'a', href: '..', =>
+            child 'img', src: 'img/discover.png'
+
+        child 'div.menuMyAccount', style: {cursor: 'pointer'}, =>
+          child 'img',
+            src: "img/my-account.png"
+            onClick: => @setState account_menu: not @state.account_menu
+
+        child 'div.menuMySiftrs', =>
+          child 'a', href: '../editor', =>
+            child 'img', src: 'img/my-siftrs.png'
+
+      # Desktop and mobile add buttons
+      if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
+        child 'div.addItemDesktop', =>
           props
             style:
-              display: if @state.account_menu then 'block' else 'none'
-              position: 'fixed'
-              top: 77
-              left: 'calc(100% - 350px)'
-              backgroundColor: 'rgb(44,48,59)'
-              color: 'white'
-              paddingLeft: 10
-              paddingRight: 10
-              width: 175
-          match @state.login_status,
-            logged_out: ({username, password}) =>
-              child 'div', =>
-                child 'p', =>
-                  props style: {width: '100%'}
-                  child 'input', =>
-                    props
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'text'
-                      value: username
-                      placeholder: 'Username'
-                      onChange: (e) => @updateState login_status: logged_out: username: $set: e.target.value
-                      style: {width: '100%', boxSizing: 'border-box'}
-                      onKeyDown: (e) => @login() if e.keyCode is 13
-                child 'p', =>
-                  props style: {width: '100%'}
-                  child 'input', =>
-                    props
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'password'
-                      value: password
-                      placeholder: 'Password'
-                      onChange: (e) => @updateState login_status: logged_out: password: $set: e.target.value
-                      style: {width: '100%', boxSizing: 'border-box'}
-                      onKeyDown: (e) => @login() if e.keyCode is 13
-                child 'p', =>
-                  child 'button', =>
-                    props
-                      type: 'button'
-                      onClick: @login
-                    raw 'Login'
-            logged_in: ({auth}) =>
-              child 'div', =>
-                child 'p', => raw "Logged in as #{auth.username}"
-                child 'p', =>
-                  child 'button', =>
-                    props
-                      type: 'button'
-                      onClick: @logout
-                    raw 'Logout'
+              position: 'absolute'
+              cursor: 'pointer'
+              top: 95
+              left:
+                if @state.view_focus is 'map'
+                  'calc(70% - 203px)'
+                else
+                  'calc(70% + 17px)'
+          child 'img',
+            src: 'img/add-item.png'
+            onClick: =>
+              if @state.login_status.logged_in?
+                @setState modal: select_photo: {}
+              else
+                @setState account_menu: true
+            style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
+      child 'img.addItemMobile',
+        src: 'img/mobile-plus.png'
+        style:
+          position: 'absolute'
+          bottom: 0
+          left: 'calc(50% - (77px * 0.5))'
+          cursor: 'pointer'
+        onClick: =>
+          if @state.login_status.logged_in?
+            @setState modal: select_photo: {}
+          else
+            @setState account_menu: true
 
-        match @state.modal,
-          nothing: => null
-          viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
-            child 'div.primaryPane', =>
+      # Desktop account menu
+      usernameBox = (username, style = {}) =>
+        child 'input', =>
+          props
+            autoCapitalize: 'off'
+            autoCorrect: 'off'
+            type: 'text'
+            value: username
+            placeholder: 'Username'
+            onChange: (e) => @updateState login_status: logged_out: username: $set: e.target.value
+            style: style
+            onKeyDown: (e) => @login() if e.keyCode is 13
+      passwordBox = (password, style = {}) =>
+        child 'input', =>
+          props
+            autoCapitalize: 'off'
+            autoCorrect: 'off'
+            type: 'password'
+            value: password
+            placeholder: 'Password'
+            onChange: (e) => @updateState login_status: logged_out: password: $set: e.target.value
+            style: style
+            onKeyDown: (e) => @login() if e.keyCode is 13
+      child 'div.accountMenuDesktop', =>
+        props
+          style:
+            position: 'absolute'
+            top: 77
+            left: 'calc(100% - 350px)'
+            backgroundColor: 'rgb(44,48,59)'
+            color: 'white'
+            paddingLeft: 10
+            paddingRight: 10
+            width: 175
+        match @state.login_status,
+          logged_out: ({username, password}) =>
+            child 'div', =>
+              child 'p', =>
+                props style: {width: '100%'}
+                usernameBox username, width: '100%', boxSizing: 'border-box'
+              child 'p', =>
+                props style: {width: '100%'}
+                passwordBox password, width: '100%', boxSizing: 'border-box'
+              child 'p', =>
+                child 'button', =>
+                  props type: 'button', onClick: @login
+                  raw 'Login'
+          logged_in: ({auth}) =>
+            child 'div', =>
+              child 'p', => raw "Logged in as #{auth.username}"
+              child 'p', =>
+                child 'button', =>
+                  props type: 'button', onClick: @logout
+                  raw 'Logout'
+
+      # Main modal
+      match @state.modal,
+        nothing: => null
+        viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
+          child 'div.primaryPane', =>
+            props
+              style:
+                overflowY: 'scroll'
+                backgroundColor: 'white'
+            child 'img',
+              src: 'img/x.png'
+              style:
+                position: 'absolute'
+                top: 20
+                right: 20
+                cursor: 'pointer'
+              onClick: => @setState modal: nothing: {}
+            child 'div', =>
+              props style: {padding: 20, paddingLeft: 100, paddingRight: 100}
+              child 'div', =>
+                props
+                  style:
+                    backgroundImage: "url(#{note.media.url})"
+                    backgroundSize: 'contain'
+                    backgroundRepeat: 'no-repeat'
+                    backgroundPosition: 'center'
+                    width: '100%'
+                    height: 'calc(100vh - 200px)'
+              child 'h4', =>
+                raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
+              child 'p', => raw note.description
+              if @state.login_status.logged_in?
+                user_id = @state.login_status.logged_in.auth.user_id
+                owners =
+                  owner.user_id for owner in @props.game.owners
+                if user_id is parseInt(note.user_id) or user_id in owners
+                  if confirm_delete
+                    child 'p', =>
+                      raw 'Are you sure you want to delete this note? '
+                      child 'button', =>
+                        props
+                          type: 'button'
+                          onClick: =>
+                            @props.aris.call 'notes.deleteNote',
+                              note_id: note.note_id
+                            , @successAt 'deleting this note', =>
+                              @setState modal: nothing: {}
+                              @search()
+                        raw 'Delete'
+                      raw ' '
+                      child 'button', =>
+                        props
+                          type: 'button'
+                          onClick: =>
+                            @updateState modal: viewing_note: confirm_delete: $set: false
+                        raw 'Cancel'
+                  else
+                    child 'p', =>
+                      child 'button', =>
+                        props
+                          type: 'button'
+                          onClick: =>
+                            @updateState modal: viewing_note: confirm_delete: $set: true
+                        raw 'Delete Note'
+              child 'hr'
+              if comments?
+                comments.forEach (comment) =>
+                  child 'div', =>
+                    props key: comment.comment_id
+                    child 'h4', =>
+                      raw "#{comment.user.display_name} at #{comment.created.toLocaleString()}"
+                    child 'p', => raw comment.description
+                    if @state.login_status.logged_in?
+                      user_id = @state.login_status.logged_in.auth.user_id
+                      owners =
+                        owner.user_id for owner in @props.game.owners
+                      if user_id is comment.user.user_id or user_id in owners
+                        if confirm_delete_comment_id is comment.comment_id
+                          child 'p', =>
+                            raw 'Are you sure you want to delete this comment? '
+                            child 'button', =>
+                              props
+                                type: 'button'
+                                onClick: =>
+                                  @props.aris.call 'note_comments.deleteNoteComment',
+                                    note_comment_id: comment.comment_id
+                                  , @successAt 'deleting this comment', =>
+                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                    @fetchComments note
+                            raw ' '
+                            child 'button', =>
+                              props
+                                type: 'button'
+                                onClick: =>
+                                  @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                              raw 'Cancel'
+                        else
+                          child 'p', =>
+                            child 'button', =>
+                              props
+                                type: 'button'
+                                onClick: =>
+                                  @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
+                              raw 'Delete Comment'
+              else
+                child 'p', => raw 'Loading comments...'
+              if @state.login_status.logged_in?
+                child 'div', =>
+                  child 'textarea', =>
+                    props
+                      placeholder: 'Post a new comment...'
+                      value: new_comment
+                      onChange: (e) => @updateState modal: viewing_note: new_comment: $set: e.target.value
+                      style:
+                        width: '100%'
+                        height: 100
+                  child 'p', =>
+                    child 'button', =>
+                      props
+                        type: 'button'
+                        onClick: =>
+                          if new_comment isnt ''
+                            @props.aris.createNoteComment
+                              game_id: @props.game.game_id
+                              note_id: note.note_id
+                              description: new_comment
+                            , @successAt 'posting your comment', (comment) =>
+                              @fetchComments note
+                              @updateState modal: viewing_note: new_comment: $set: ''
+                      raw 'Submit'
+              else
+                child 'p', =>
+                  child 'b', =>
+                    props
+                      onClick: => @setState account_menu: true
+                      style: cursor: 'pointer'
+                    raw 'Login'
+                  raw ' to post a new comment'
+        select_photo: ({file}) =>
+          child 'div.primaryPane', =>
+            props style: backgroundColor: 'white'
+            child 'div', =>
               props
                 style:
-                  overflowY: 'scroll'
-                  backgroundColor: 'white'
-              child 'img',
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#cfcbcc'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: => @setState modal: nothing: {}
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'CANCEL'
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: =>
+                  if file?
+                    name = file.name
+                    ext = name[name.indexOf('.') + 1 ..]
+                    @setState modal: uploading_photo: progress: 0
+                    $.ajax
+                      url: "#{ARIS_URL}/rawupload.php"
+                      type: 'POST'
+                      xhr: =>
+                        xhr = new window.XMLHttpRequest
+                        xhr.upload.addEventListener 'progress', (evt) =>
+                          if evt.lengthComputable
+                            @updateState modal: uploading_photo: progress: $set: evt.loaded / evt.total
+                        , false
+                        xhr
+                      success: (raw_upload_id) =>
+                        @props.aris.call 'media.createMediaFromRawUpload',
+                          file_name: "upload.#{ext}"
+                          raw_upload_id: raw_upload_id
+                          game_id: @props.game.game_id
+                          resize: 800
+                        , @successAt 'uploading your photo', (media) =>
+                          if @state.modal.uploading_photo?
+                            @setState
+                              modal:
+                                enter_description:
+                                  media: media
+                                  tag: @props.game.tags[0]
+                                  description: ''
+                              message: null
+                      error: (jqXHR, textStatus, errorThrown) =>
+                        @setState message:
+                          """
+                          There was a problem uploading your photo. Please report this error:
+                          #{JSON.stringify [jqXHR, textStatus, errorThrown]}
+                          """
+                      data: do =>
+                        form = new FormData
+                        form.append 'raw_upload', file
+                        form
+                      cache: false
+                      contentType: false
+                      processData: false
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'DESCRIPTION >'
+            if file?
+              child 'div', =>
+                props
+                  style:
+                    position: 'absolute'
+                    top: '25%'
+                    left: '25%'
+                    height: '50%'
+                    width: '50%'
+                    backgroundImage: "url(#{URL.createObjectURL file})"
+                    backgroundSize: 'contain'
+                    backgroundRepeat: 'no-repeat'
+                    backgroundPosition: 'center'
+                    cursor: 'pointer'
+                  onClick: => @refs.file_input.click()
+            else
+              child 'img', =>
+                props
+                  src: 'img/select-image.png'
+                  style:
+                    position: 'absolute'
+                    top: 'calc(50% - 56px)'
+                    left: 'calc(50% - 69.5px)'
+                    cursor: 'pointer'
+                  onClick: => @refs.file_input.click()
+            child 'form', =>
+              props ref: 'file_form', style: {position: 'fixed', left: 9999}
+              child 'input', =>
+                props
+                  type: 'file', accept: 'image/*', capture: 'camera', name: 'raw_upload', ref: 'file_input'
+                  onChange: (e) =>
+                    if (newFile = e.target.files[0])?
+                      @updateState modal: select_photo: file: $set: newFile
+        uploading_photo: ({progress}) =>
+          child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#cfcbcc'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: => @setState modal: nothing: {}
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'CANCEL'
+            child 'p', =>
+              props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
+              raw "Uploading... (#{Math.floor(progress * 100)}%)"
+        enter_description: ({media, description}) =>
+          child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: => @setState modal: select_photo: {}
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw '< IMAGE'
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: =>
+                  if description is ''
+                    @setState message: 'Please type a caption for your photo.'
+                  else
+                    @updateState
+                      latitude: $set: @props.game.latitude
+                      longitude: $set: @props.game.longitude
+                      zoom: $set: @props.game.zoom
+                      modal:
+                        $apply: ({enter_description}) =>
+                          if 'geolocation' of navigator
+                            navigator.geolocation.getCurrentPosition (posn) =>
+                              @setState (previousState) =>
+                                if previousState.modal.move_point?.can_reposition
+                                  update previousState,
+                                    modal: move_point:
+                                      latitude: $set: posn.coords.latitude
+                                      longitude: $set: posn.coords.longitude
+                                    latitude: $set: posn.coords.latitude
+                                    longitude: $set: posn.coords.longitude
+                                else
+                                  previousState
+                          move_point:
+                            update enter_description,
+                              latitude: $set: @props.game.latitude
+                              longitude: $set: @props.game.longitude
+                              dragging: $set: false
+                              can_reposition: $set: true
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'LOCATION >'
+            child 'img', =>
+              props
                 src: 'img/x.png'
                 style:
                   position: 'absolute'
@@ -573,562 +947,200 @@ App = React.createClass
                   right: 20
                   cursor: 'pointer'
                 onClick: => @setState modal: nothing: {}
-              child 'div', =>
-                props style: {padding: 20, paddingLeft: 100, paddingRight: 100}
-                child 'div', =>
-                  props
-                    style:
-                      backgroundImage: "url(#{note.media.url})"
-                      backgroundSize: 'contain'
-                      backgroundRepeat: 'no-repeat'
-                      backgroundPosition: 'center'
-                      width: '100%'
-                      height: 'calc(100vh - 200px)'
-                child 'h4', =>
-                  raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
-                child 'p', => raw note.description
-                if @state.login_status.logged_in?
-                  user_id = @state.login_status.logged_in.auth.user_id
-                  owners =
-                    owner.user_id for owner in @props.game.owners
-                  if user_id is parseInt(note.user_id) or user_id in owners
-                    if confirm_delete
-                      child 'p', =>
-                        raw 'Are you sure you want to delete this note? '
-                        child 'button', =>
-                          props
-                            type: 'button'
-                            onClick: =>
-                              @props.aris.call 'notes.deleteNote',
-                                note_id: note.note_id
-                              , @successAt 'deleting this note', =>
-                                @setState modal: nothing: {}
-                                @search()
-                          raw 'Delete'
-                        raw ' '
-                        child 'button', =>
-                          props
-                            type: 'button'
-                            onClick: =>
-                              @updateState modal: viewing_note: confirm_delete: $set: false
-                          raw 'Cancel'
-                    else
-                      child 'p', =>
-                        child 'button', =>
-                          props
-                            type: 'button'
-                            onClick: =>
-                              @updateState modal: viewing_note: confirm_delete: $set: true
-                          raw 'Delete Note'
-                child 'hr'
-                if comments?
-                  comments.forEach (comment) =>
-                    child 'div', =>
-                      props key: comment.comment_id
-                      child 'h4', =>
-                        raw "#{comment.user.display_name} at #{comment.created.toLocaleString()}"
-                      child 'p', => raw comment.description
-                      if @state.login_status.logged_in?
-                        user_id = @state.login_status.logged_in.auth.user_id
-                        owners =
-                          owner.user_id for owner in @props.game.owners
-                        if user_id is comment.user.user_id or user_id in owners
-                          if confirm_delete_comment_id is comment.comment_id
-                            child 'p', =>
-                              raw 'Are you sure you want to delete this comment? '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @props.aris.call 'note_comments.deleteNoteComment',
-                                      note_comment_id: comment.comment_id
-                                    , @successAt 'deleting this comment', =>
-                                      @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                                      @fetchComments note
-                              raw ' '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                                raw 'Cancel'
-                          else
-                            child 'p', =>
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
-                                raw 'Delete Comment'
-                else
-                  child 'p', => raw 'Loading comments...'
-                if @state.login_status.logged_in?
-                  child 'div', =>
-                    child 'textarea', =>
-                      props
-                        placeholder: 'Post a new comment...'
-                        value: new_comment
-                        onChange: (e) => @updateState modal: viewing_note: new_comment: $set: e.target.value
-                        style:
-                          width: '100%'
-                          height: 100
-                    child 'p', =>
-                      child 'button', =>
-                        props
-                          type: 'button'
-                          onClick: =>
-                            if new_comment isnt ''
-                              @props.aris.createNoteComment
-                                game_id: @props.game.game_id
-                                note_id: note.note_id
-                                description: new_comment
-                              , @successAt 'posting your comment', (comment) =>
-                                @fetchComments note
-                                @updateState modal: viewing_note: new_comment: $set: ''
-                        raw 'Submit'
-                else
-                  child 'p', =>
-                    child 'b', =>
-                      props
-                        onClick: => @setState account_menu: true
-                        style: cursor: 'pointer'
-                      raw 'Login'
-                    raw ' to post a new comment'
-          select_photo: ({file}) =>
-            child 'div.primaryPane', =>
-              props style: backgroundColor: 'white'
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#cfcbcc'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: => @setState modal: nothing: {}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'CANCEL'
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    right: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: =>
-                    if file?
-                      name = file.name
-                      ext = name[name.indexOf('.') + 1 ..]
-                      @setState modal: uploading_photo: progress: 0
-                      $.ajax
-                        url: "#{ARIS_URL}/rawupload.php"
-                        type: 'POST'
-                        xhr: =>
-                          xhr = new window.XMLHttpRequest
-                          xhr.upload.addEventListener 'progress', (evt) =>
-                            if evt.lengthComputable
-                              @updateState modal: uploading_photo: progress: $set: evt.loaded / evt.total
-                          , false
-                          xhr
-                        success: (raw_upload_id) =>
-                          @props.aris.call 'media.createMediaFromRawUpload',
-                            file_name: "upload.#{ext}"
-                            raw_upload_id: raw_upload_id
-                            game_id: @props.game.game_id
-                            resize: 800
-                          , @successAt 'uploading your photo', (media) =>
-                            if @state.modal.uploading_photo?
-                              @setState
-                                modal:
-                                  enter_description:
-                                    media: media
-                                    tag: @props.game.tags[0]
-                                    description: ''
-                                message: null
-                        error: (jqXHR, textStatus, errorThrown) =>
-                          @setState message:
-                            """
-                            There was a problem uploading your photo. Please report this error:
-                            #{JSON.stringify [jqXHR, textStatus, errorThrown]}
-                            """
-                        data: do =>
-                          form = new FormData
-                          form.append 'raw_upload', file
-                          form
-                        cache: false
-                        contentType: false
-                        processData: false
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'DESCRIPTION >'
-              if file?
-                child 'div', =>
-                  props
-                    style:
-                      position: 'absolute'
-                      top: '25%'
-                      left: '25%'
-                      height: '50%'
-                      width: '50%'
-                      backgroundImage: "url(#{URL.createObjectURL file})"
-                      backgroundSize: 'contain'
-                      backgroundRepeat: 'no-repeat'
-                      backgroundPosition: 'center'
-                      cursor: 'pointer'
-                    onClick: => @refs.file_input.click()
-              else
-                child 'img', =>
-                  props
-                    src: 'img/select-image.png'
-                    style:
-                      position: 'absolute'
-                      top: 'calc(50% - 69.5px)'
-                      left: 'calc(50% - 56px)'
-                      cursor: 'pointer'
-                    onClick: => @refs.file_input.click()
-              child 'form', =>
-                props ref: 'file_form', style: {position: 'fixed', left: 9999}
-                child 'input', =>
-                  props
-                    type: 'file', accept: 'image/*', capture: 'camera', name: 'raw_upload', ref: 'file_input'
-                    onChange: (e) =>
-                      if (newFile = e.target.files[0])?
-                        @updateState modal: select_photo: file: $set: newFile
-          uploading_photo: ({progress}) =>
-            child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#cfcbcc'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: => @setState modal: nothing: {}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'CANCEL'
-              child 'p', =>
-                props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
-                raw "Uploading... (#{Math.floor(progress * 100)}%)"
-          enter_description: ({media, description}) =>
-            child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: => @setState modal: select_photo: {}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw '< IMAGE'
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    right: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: =>
-                    if description is ''
-                      @setState message: 'Please type a caption for your photo.'
-                    else
-                      @updateState
-                        latitude: $set: @props.game.latitude
-                        longitude: $set: @props.game.longitude
-                        zoom: $set: @props.game.zoom
-                        modal:
-                          $apply: ({enter_description}) =>
-                            if 'geolocation' of navigator
-                              navigator.geolocation.getCurrentPosition (posn) =>
-                                @setState (previousState) =>
-                                  if previousState.modal.move_point?.can_reposition
-                                    update previousState,
-                                      modal: move_point:
-                                        latitude: $set: posn.coords.latitude
-                                        longitude: $set: posn.coords.longitude
-                                      latitude: $set: posn.coords.latitude
-                                      longitude: $set: posn.coords.longitude
-                                  else
-                                    previousState
-                            move_point:
-                              update enter_description,
-                                latitude: $set: @props.game.latitude
-                                longitude: $set: @props.game.longitude
-                                dragging: $set: false
-                                can_reposition: $set: true
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'LOCATION >'
-              child 'img', =>
-                props
-                  src: 'img/x.png'
-                  style:
-                    position: 'absolute'
-                    top: 20
-                    right: 20
-                    cursor: 'pointer'
-                  onClick: => @setState modal: nothing: {}
-              child 'textarea', =>
-                props
-                  style:
-                    position: 'absolute'
-                    top: 75
-                    left: 50
-                    width: 'calc(100% - 100px)'
-                    height: 'calc(100% - 200px)'
-                    fontSize: '20px'
-                  value: description
-                  placeholder: 'Enter a caption...'
-                  onChange: (e) =>
-                    @updateState modal: enter_description: description: $set: e.target.value
-          move_point: ({media, description, latitude, longitude}) =>
-            child 'div', =>
-              props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 150, backgroundColor: 'white'}
-              child 'p', =>
-                props
-                  style:
-                    width: '100%'
-                    textAlign: 'center'
-                    top: 30
-                    position: 'absolute'
-                raw 'Drag the map to drop a pin'
-              child 'img', =>
-                props
-                  src: 'img/x.png'
-                  style:
-                    position: 'absolute'
-                    top: 20
-                    right: 20
-                    cursor: 'pointer'
-                  onClick: => @setState modal: nothing: {}
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: =>
-                    @setState modal: enter_description: {media, description}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw '< DESCRIPTION'
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    right: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: =>
-                    @updateState
-                      modal:
-                        $apply: ({move_point}) =>
-                          select_category:
-                            update move_point,
-                              tag: $set: @props.game.tags[0]
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'CATEGORY >'
-          select_category: ({media, description, latitude, longitude, tag}) =>
-            child 'div', =>
-              props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 200, backgroundColor: 'white'}
-              child 'div', =>
-                props style: {width: '100%', textAlign: 'center', top: 30, position: 'absolute'}
-                child 'p', => raw 'Select a Category'
-                child 'p', =>
-                  @props.game.tags.forEach (some_tag) =>
-                    checked = some_tag is tag
-                    color = @props.game.colors["tag_#{tag_ids.indexOf(some_tag.tag_id) + 1}"] ? 'black'
-                    child 'span', =>
-                      props
-                        key: some_tag.tag_id
-                        style:
-                          margin: 5
-                          padding: 5
-                          border: "1px solid #{color}"
-                          color: if checked then 'white' else color
-                          backgroundColor: if checked then color else 'white'
-                          borderRadius: 5
-                          cursor: 'pointer'
-                          whiteSpace: 'nowrap'
-                          display: 'inline-block'
-                        onClick: => @updateState modal: select_category: tag: $set: some_tag
-                      raw "#{if checked then '✓' else '●'} #{some_tag.tag}"
-              child 'img', =>
-                props
-                  src: 'img/x.png'
-                  style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
-                  onClick: => @setState modal: nothing: {}
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: => @setState modal: move_point: {media, description, latitude, longitude}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw '< LOCATION'
-              child 'div', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    right: 20
-                    cursor: 'pointer'
-                    height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
-                    display: 'table'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
-                  onClick: =>
-                    @props.aris.call 'notes.createNote',
-                      game_id: @props.game.game_id
-                      description: description
-                      media_id: media.media_id
-                      trigger: {latitude, longitude}
-                      tag_id: tag.tag_id
-                    , @successAt 'creating your note', (note) =>
-                      @setState modal: nothing: {} # TODO: fetch and view note
-                      @search()
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
-                  raw 'PUBLISH! >'
-
-        if @state.message?
+            child 'textarea', =>
+              props
+                style:
+                  position: 'absolute'
+                  top: 75
+                  left: 50
+                  width: 'calc(100% - 100px)'
+                  height: 'calc(100% - 200px)'
+                  fontSize: '20px'
+                value: description
+                placeholder: 'Enter a caption...'
+                onChange: (e) =>
+                  @updateState modal: enter_description: description: $set: e.target.value
+        move_point: ({media, description, latitude, longitude}) =>
+          ###
           child 'div', =>
-            props style: {position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}
-            raw @state.message
+            props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 150, backgroundColor: 'white'}
+            child 'p', =>
+              props
+                style:
+                  width: '100%'
+                  textAlign: 'center'
+                  top: 30
+                  position: 'absolute'
+              raw 'Drag the map to drop a pin'
+            child 'img', =>
+              props
+                src: 'img/x.png'
+                style:
+                  position: 'absolute'
+                  top: 20
+                  right: 20
+                  cursor: 'pointer'
+                onClick: => @setState modal: nothing: {}
             child 'div', =>
               props
-                style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer'}
-                onClick: => @setState message: null
-              raw 'X'
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: =>
+                  @setState modal: enter_description: {media, description}
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw '< DESCRIPTION'
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: =>
+                  @updateState
+                    modal:
+                      $apply: ({move_point}) =>
+                        select_category:
+                          update move_point,
+                            tag: $set: @props.game.tags[0]
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'CATEGORY >'
+          ###
+        select_category: ({media, description, latitude, longitude, tag}) =>
+          ###
+          child 'div', =>
+            props style: {position: 'fixed', bottom: 0, left: 0, width: '70%', height: 200, backgroundColor: 'white'}
+            child 'div', =>
+              props style: {width: '100%', textAlign: 'center', top: 30, position: 'absolute'}
+              child 'p', => raw 'Select a Category'
+              child 'p', =>
+                @props.game.tags.forEach (some_tag) =>
+                  checked = some_tag is tag
+                  color = @props.game.colors["tag_#{tag_ids.indexOf(some_tag.tag_id) + 1}"] ? 'black'
+                  child 'span', =>
+                    props
+                      key: some_tag.tag_id
+                      style:
+                        margin: 5
+                        padding: 5
+                        border: "1px solid #{color}"
+                        color: if checked then 'white' else color
+                        backgroundColor: if checked then color else 'white'
+                        borderRadius: 5
+                        cursor: 'pointer'
+                        whiteSpace: 'nowrap'
+                        display: 'inline-block'
+                      onClick: => @updateState modal: select_category: tag: $set: some_tag
+                    raw "#{if checked then '✓' else '●'} #{some_tag.tag}"
+            child 'img', =>
+              props
+                src: 'img/x.png'
+                style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
+                onClick: => @setState modal: nothing: {}
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  left: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: => @setState modal: move_point: {media, description, latitude, longitude}
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw '< LOCATION'
+            child 'div', =>
+              props
+                style:
+                  position: 'absolute'
+                  bottom: 20
+                  right: 20
+                  cursor: 'pointer'
+                  height: 36
+                  backgroundColor: '#61c9e2'
+                  color: 'white'
+                  display: 'table'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                onClick: =>
+                  @props.aris.call 'notes.createNote',
+                    game_id: @props.game.game_id
+                    description: description
+                    media_id: media.media_id
+                    trigger: {latitude, longitude}
+                    tag_id: tag.tag_id
+                  , @successAt 'creating your note', (note) =>
+                    @setState modal: nothing: {} # TODO: fetch and view note
+                    @search()
+              child 'div', =>
+                props
+                  style:
+                    display: 'table-cell'
+                    verticalAlign: 'middle'
+                    paddingLeft: 23
+                    paddingRight: 23
+                    width: '100%'
+                    height: '100%'
+                    boxSizing: 'border-box'
+                raw 'PUBLISH! >'
+          ###
+
+      # Message box (for errors)
+      if @state.message?
+        child 'div', =>
+          props style: {position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}
+          raw @state.message
+          child 'div', =>
+            props
+              style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer'}
+              onClick: => @setState message: null
+            raw 'X'
 
 document.addEventListener 'DOMContentLoaded', ->
 
