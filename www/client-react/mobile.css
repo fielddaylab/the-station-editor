@@ -1,6 +1,6 @@
-.primaryPane, .secondaryPane, .searchPane {
+.primaryPane, .primaryModal, .secondaryPane, .searchPane {
   position: absolute;
-  top: 0;
+  bottom: 77px;
   left: 0;
   width: 100%;
   height: calc(100% - 77px);
@@ -10,15 +10,24 @@
   z-index: 0;
 }
 
+.primaryModal {
+  z-index: 3;
+}
+
 .secondaryPane {
   z-index: -1;
 }
 
 .searchPane {
-  z-index: -1;
+  z-index: 2;
+  max-height: 0;
+  transition-property: max-height;
+  transition-duration: 0.25s;
+  padding: 0;
 }
 .searching .searchPane {
-  z-index: 2;
+  max-height: calc(100% - 77px);
+  padding: 10px;
 }
 
 .desktopMenu {
@@ -42,6 +51,10 @@
 .addItemMobile {}
 
 .accountMenuDesktop { display: none; }
+#the-contained {
+  transition-property: left;
+  transition-duration: 0.25s;
+}
 #the-contained.accountMenuOpen {
   left: 250px;
 }

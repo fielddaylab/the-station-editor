@@ -19,3 +19,11 @@ body {
   height: 100%;
   overflow: visible;
 }
+
+.searchPane {
+  overflow-y: scroll;
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: white;
+}

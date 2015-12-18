@@ -1,4 +1,4 @@
-.primaryPane {
+.primaryPane, .primaryModal {
   position: absolute;
   top: 77px;
   left: 0;
@@ -7,14 +7,16 @@
 }
 
 .searchPane {
-  display: none;
-}
-.searching .searchPane {
   display: block;
   position: absolute;
   top: 77px;
   left: 70%;
   width: 30%;
+  height: 0;
+  transition-property: height;
+  transition-duration: 0.25s;
+}
+.searching .searchPane {
   height: 400px;
 }
 
@@ -24,11 +26,11 @@
   left: 70%;
   width: 30%;
   height: calc(100% - 77px);
+  transition-property: top, height;
+  transition-duration: 0.25s;
 }
 .searching .secondaryPane {
   top: 477px;
-  left: 70%;
-  width: 30%;
   height: calc(100% - 477px);
 }
 
@@ -52,8 +54,16 @@
 .addItemDesktop {}
 .addItemMobile { display: none; }
 
-.accountMenuDesktop { display: none; }
-.accountMenuOpen .accountMenuDesktop { display: block; z-index: 1; }
+.accountMenuDesktop {
+  z-index: 1;
+  max-height: 0;
+  transition-property: max-height;
+  transition-duration: 0.25s;
+  overflow: hidden;
+}
+.accountMenuOpen .accountMenuDesktop {
+  max-height: 500px;
+}
 
 .accountMenuMobile { display: none; }
 

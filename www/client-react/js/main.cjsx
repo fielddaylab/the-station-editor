@@ -309,9 +309,6 @@ App = React.createClass
 
       # Search
       child 'div.searchPane', =>
-        props
-          style: {overflowY: 'scroll', textAlign: 'center', padding: 10, boxSizing: 'border-box', backgroundColor: 'white'}
-
         child 'p', =>
           child 'input', =>
             props
@@ -475,6 +472,11 @@ App = React.createClass
             child 'img', src: 'img/my-siftrs.png'
 
       # Desktop and mobile add buttons
+      clickAdd = =>
+        if @state.login_status.logged_in?
+          @setState modal: select_photo: {}
+        else
+          @setState account_menu: true
       if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
         child 'div.addItemDesktop', =>
           props
@@ -489,11 +491,7 @@ App = React.createClass
                   'calc(70% + 17px)'
           child 'img',
             src: 'img/add-item.png'
-            onClick: =>
-              if @state.login_status.logged_in?
-                @setState modal: select_photo: {}
-              else
-                @setState account_menu: true
+            onClick: clickAdd
             style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
       child 'img.addItemMobile',
         src: 'img/mobile-plus.png'
@@ -502,11 +500,7 @@ App = React.createClass
           bottom: 0
           left: 'calc(50% - (77px * 0.5))'
           cursor: 'pointer'
-        onClick: =>
-          if @state.login_status.logged_in?
-            @setState modal: select_photo: {}
-          else
-            @setState account_menu: true
+        onClick: clickAdd
 
       # Desktop account menu
       usernameBox = (username, style = {}) =>
@@ -542,6 +536,11 @@ App = React.createClass
             paddingLeft: 10
             paddingRight: 10
             width: 175
+        child 'div', =>
+          child 'img',
+            src: 'img/x-white.png'
+            style: cursor: 'pointer'
+            onClick: => @setState account_menu: false
         match @state.login_status,
           logged_out: ({username, password}) =>
             child 'div', =>
@@ -571,7 +570,13 @@ App = React.createClass
             color: 'white'
             paddingLeft: 10
             paddingRight: 10
+            paddingTop: 10
             boxSizing: 'border-box'
+        child 'div', =>
+          child 'img',
+            src: 'img/x-white.png'
+            style: cursor: 'pointer'
+            onClick: => @setState account_menu: false
         match @state.login_status,
           logged_out: ({username, password}) =>
             child 'div', =>
@@ -597,13 +602,13 @@ App = React.createClass
       match @state.modal,
         nothing: => null
         viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
-          child 'div.primaryPane', =>
+          child 'div.primaryModal', =>
             props
               style:
                 overflowY: 'scroll'
                 backgroundColor: 'white'
             child 'img',
-              src: 'img/x.png'
+              src: 'img/x-blue.png'
               style:
                 position: 'absolute'
                 top: 20
@@ -731,7 +736,7 @@ App = React.createClass
                     raw 'Login'
                   raw ' to post a new comment'
         select_photo: ({file}) =>
-          child 'div.primaryPane', =>
+          child 'div.primaryModal', =>
             props style: backgroundColor: 'white'
             child 'div', =>
               props
@@ -859,7 +864,7 @@ App = React.createClass
                     if (newFile = e.target.files[0])?
                       @updateState modal: select_photo: file: $set: newFile
         uploading_photo: ({progress}) =>
-          child 'div.primaryPane', style: {backgroundColor: 'white'}, =>
+          child 'div.primaryModal', style: {backgroundColor: 'white'}, =>
             child 'div', =>
               props
                 style:
@@ -969,7 +974,7 @@ App = React.createClass
                 raw 'LOCATION >'
             child 'img', =>
               props
-                src: 'img/x.png'
+                src: 'img/x-blue.png'
                 style:
                   position: 'absolute'
                   top: 20
@@ -1001,7 +1006,7 @@ App = React.createClass
               raw 'Drag the map to drop a pin'
             child 'img', =>
               props
-                src: 'img/x.png'
+                src: 'img/x-blue.png'
                 style:
                   position: 'absolute'
                   top: 20
@@ -1091,7 +1096,7 @@ App = React.createClass
                     raw "#{if checked then '✓' else '●'} #{some_tag.tag}"
             child 'img', =>
               props
-                src: 'img/x.png'
+                src: 'img/x-blue.png'
                 style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
                 onClick: => @setState modal: nothing: {}
             child 'div', =>
