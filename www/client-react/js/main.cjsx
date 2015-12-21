@@ -601,7 +601,7 @@ App = React.createClass
       # Main modal
       match @state.modal,
         nothing: => null
-        viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id}) =>
+        viewing_note: ({note, comments, new_comment, confirm_delete, confirm_delete_comment_id, edit_comment_id, edit_comment_text}) =>
           child 'div.primaryModal', =>
             props
               style:
@@ -664,43 +664,83 @@ App = React.createClass
               child 'hr'
               if comments?
                 comments.forEach (comment) =>
-                  child 'div', =>
-                    props key: comment.comment_id
+                  child 'div', key: comment.comment_id, =>
                     child 'h4', =>
                       raw "#{comment.user.display_name} at #{comment.created.toLocaleString()}"
-                    child 'p', => raw comment.description
-                    if @state.login_status.logged_in?
-                      user_id = @state.login_status.logged_in.auth.user_id
-                      owners =
-                        owner.user_id for owner in @props.game.owners
-                      if user_id is comment.user.user_id or user_id in owners
-                        if confirm_delete_comment_id is comment.comment_id
-                          child 'p', =>
-                            raw 'Are you sure you want to delete this comment? '
-                            child 'button', =>
-                              props
-                                type: 'button'
-                                onClick: =>
-                                  @props.aris.call 'note_comments.deleteNoteComment',
-                                    note_comment_id: comment.comment_id
-                                  , @successAt 'deleting this comment', =>
+                    if edit_comment_id is comment.comment_id
+                      child 'p', =>
+                        child 'textarea', =>
+                          props
+                            placeholder: 'Edit your comment...'
+                            value: edit_comment_text
+                            onChange: (e) => @updateState modal: viewing_note: edit_comment_text: $set: e.target.value
+                            style:
+                              width: '100%'
+                              height: 100
+                      child 'p', =>
+                        child 'button', =>
+                          props
+                            type: 'button'
+                            onClick: =>
+                              if edit_comment_text isnt ''
+                                @props.aris.updateNoteComment
+                                  note_comment_id: comment.comment_id
+                                  description: edit_comment_text
+                                , @successAt 'editing your comment', (comment) =>
+                                  @fetchComments note
+                                  @updateState modal: viewing_note: edit_comment_id: $set: null
+                          raw 'Save Comment'
+                        raw ' '
+                        child 'button', =>
+                          props
+                            type: 'button'
+                            onClick: => @updateState modal: viewing_note: edit_comment_id: $set: null
+                          raw 'Cancel'
+                    else
+                      child 'p', => raw comment.description
+                      if @state.login_status.logged_in?
+                        user_id = @state.login_status.logged_in.auth.user_id
+                        owners =
+                          owner.user_id for owner in @props.game.owners
+                        child 'p', =>
+                          if user_id is comment.user.user_id or user_id in owners
+                            if confirm_delete_comment_id is comment.comment_id
+                              raw 'Are you sure you want to delete this comment? '
+                              child 'button', =>
+                                props
+                                  type: 'button'
+                                  onClick: =>
+                                    @props.aris.call 'note_comments.deleteNoteComment',
+                                      note_comment_id: comment.comment_id
+                                    , @successAt 'deleting this comment', =>
+                                      @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                      @fetchComments note
+                                raw 'Delete'
+                              raw ' '
+                              child 'button', =>
+                                props
+                                  type: 'button'
+                                  onClick: =>
                                     @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                                    @fetchComments note
-                            raw ' '
-                            child 'button', =>
-                              props
-                                type: 'button'
-                                onClick: =>
-                                  @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                              raw 'Cancel'
-                        else
-                          child 'p', =>
-                            child 'button', =>
-                              props
-                                type: 'button'
-                                onClick: =>
-                                  @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
-                              raw 'Delete Comment'
+                                raw 'Cancel'
+                            else
+                              raw ' '
+                              child 'button', =>
+                                props
+                                  type: 'button'
+                                  onClick: =>
+                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
+                                raw 'Delete Comment'
+                          if user_id is comment.user.user_id
+                              raw ' '
+                              child 'button', =>
+                                props
+                                  type: 'button'
+                                  onClick: =>
+                                    @updateState modal: viewing_note:
+                                      edit_comment_id: $set: comment.comment_id
+                                      edit_comment_text: $set: comment.description
+                                raw 'Edit Comment'
               else
                 child 'p', => raw 'Loading comments...'
               if @state.login_status.logged_in?

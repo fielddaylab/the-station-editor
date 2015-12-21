@@ -335,6 +335,12 @@
       });
     };
 
+    Aris.prototype.updateNoteComment = function(json, cb) {
+      return this.callWrapped('note_comments.updateNoteComment', json, cb, function(data) {
+        return new Comment(data);
+      });
+    };
+
     Aris.prototype.getNoteCommentsForNote = function(json, cb) {
       return this.callWrapped('note_comments.getNoteCommentsForNote', json, cb, function(data) {
         var o, _i, _len, _results;

@@ -206,6 +206,9 @@ class Aris
   createNoteComment: (json, cb) ->
     @callWrapped 'note_comments.createNoteComment', json, cb, (data) -> new Comment data
 
+  updateNoteComment: (json, cb) ->
+    @callWrapped 'note_comments.updateNoteComment', json, cb, (data) -> new Comment data
+
   getNoteCommentsForNote: (json, cb) ->
     @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
 
