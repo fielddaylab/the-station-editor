@@ -139,6 +139,16 @@ App = React.createClass
               else
                 view
 
+  refreshEditedNote: ->
+    @search()
+    if @state.modal.viewing_note?
+      @props.aris.call 'notes.siftrSearch',
+        game_id: @props.game.game_id
+        note_id: @state.modal.viewing_note.note.note_id
+        map_data: false
+      , @successAt 'refreshing this note', (data) =>
+        @updateState modal: viewing_note: note: $set: data.notes[0]
+
   login: ->
     match @state.login_status,
       logged_out: ({username, password}) =>
@@ -632,6 +642,22 @@ App = React.createClass
                 user_id = @state.login_status.logged_in.auth.user_id
                 owners =
                   owner.user_id for owner in @props.game.owners
+                if note.published is 'PENDING'
+                  if user_id in owners
+                    child 'p', =>
+                      raw 'This note needs your approval to be visible.'
+                      raw ' '
+                      child 'button', =>
+                        props
+                          type: 'button'
+                          onClick: =>
+                            @props.aris.call 'notes.approveNote',
+                              note_id: note.note_id
+                            , @successAt 'approving this note', => @refreshEditedNote()
+                        raw 'Approve'
+                  else
+                    child 'p', =>
+                      raw 'This note is only visible to you until an administrator approves it.'
                 if user_id is parseInt(note.user_id) or user_id in owners
                   if confirm_delete
                     child 'p', =>
