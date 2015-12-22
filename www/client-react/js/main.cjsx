@@ -139,15 +139,16 @@ App = React.createClass
               else
                 view
 
-  refreshEditedNote: ->
+  refreshEditedNote: (note_id = @state.modal.viewing_note.note.note_id) ->
     @search()
-    if @state.modal.viewing_note?
-      @props.aris.call 'notes.siftrSearch',
-        game_id: @props.game.game_id
-        note_id: @state.modal.viewing_note.note.note_id
-        map_data: false
-      , @successAt 'refreshing this note', (data) =>
-        @updateState modal: viewing_note: note: $set: data.notes[0]
+    @props.aris.call 'notes.siftrSearch',
+      game_id: @props.game.game_id
+      note_id: note_id
+      map_data: false
+    , @successAt 'refreshing this note', (data) =>
+      note = data.notes[0]
+      @setState modal: viewing_note: note: note
+      @fetchComments note
 
   login: ->
     match @state.login_status,
@@ -245,12 +246,13 @@ App = React.createClass
                 lng: @state.modal.move_point.longitude
                 style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black', cursor: 'pointer'}
           else if @state.modal.select_category?
-            tag = @state.modal.select_category.tag
+            modal = @state.modal.select_category
+            tag = modal.tag
             color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
             child 'div', =>
               props
-                lat: @state.modal.select_category.latitude
-                lng: @state.modal.select_category.longitude
+                lat: modal.editing_note?.latitude ? modal.latitude
+                lng: modal.editing_note?.longitude ? modal.longitude
                 style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
           else
             @state.map_notes.forEach (note) =>
@@ -658,9 +660,9 @@ App = React.createClass
                   else
                     child 'p', =>
                       raw 'This note is only visible to you until an administrator approves it.'
-                if user_id is parseInt(note.user_id) or user_id in owners
-                  if confirm_delete
-                    child 'p', =>
+                child 'p', =>
+                  if user_id is parseInt(note.user_id) or user_id in owners
+                    if confirm_delete
                       raw 'Are you sure you want to delete this note? '
                       child 'button', =>
                         props
@@ -679,14 +681,46 @@ App = React.createClass
                           onClick: =>
                             @updateState modal: viewing_note: confirm_delete: $set: false
                         raw 'Cancel'
-                  else
-                    child 'p', =>
+                    else
                       child 'button', =>
                         props
                           type: 'button'
                           onClick: =>
                             @updateState modal: viewing_note: confirm_delete: $set: true
                         raw 'Delete Note'
+                if user_id is parseInt(note.user_id)
+                  child 'p', =>
+                    child 'button', =>
+                      raw 'Edit Caption'
+                      props onClick: =>
+                        @setState modal: enter_description:
+                          editing_note: note
+                          description: note.description
+                    raw ' '
+                    child 'button', =>
+                      raw 'Edit Location'
+                      props onClick: =>
+                        @setState
+                          modal:
+                            move_point:
+                              editing_note: note
+                              latitude: parseFloat note.latitude
+                              longitude: parseFloat note.longitude
+                          latitude: parseFloat note.latitude
+                          longitude: parseFloat note.longitude
+                    raw ' '
+                    child 'button', =>
+                      raw 'Edit Category'
+                      props onClick: =>
+                        @setState
+                          modal:
+                            select_category:
+                              editing_note: note
+                              tag: do =>
+                                for tag in @props.game.tags
+                                  return tag if tag.tag_id is parseInt note.tag_id
+                          latitude: parseFloat note.latitude
+                          longitude: parseFloat note.longitude
               child 'hr'
               if comments?
                 comments.forEach (comment) =>
@@ -959,7 +993,7 @@ App = React.createClass
             child 'p', =>
               props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
-        enter_description: ({media, description}) =>
+        enter_description: ({media, description, editing_note}) =>
           child 'div.bottomModal', style: {height: 250}, =>
             child 'div', =>
               props
@@ -975,17 +1009,18 @@ App = React.createClass
                   textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: => @setState modal: select_photo: {}
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
-                raw '< IMAGE'
+              unless editing_note?
+                child 'div', =>
+                  props
+                    style:
+                      display: 'table-cell'
+                      verticalAlign: 'middle'
+                      paddingLeft: 23
+                      paddingRight: 23
+                      width: '100%'
+                      height: '100%'
+                      boxSizing: 'border-box'
+                  raw '< IMAGE'
             child 'div', =>
               props
                 style:
@@ -1002,6 +1037,12 @@ App = React.createClass
                 onClick: =>
                   if description is ''
                     @setState message: 'Please type a caption for your photo.'
+                  else if editing_note?
+                    @props.aris.call 'notes.updateNote',
+                      note_id: editing_note.note_id
+                      game_id: @props.game.game_id
+                      description: description
+                    , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
                   else
                     @updateState
                       latitude: $set: @props.game.latitude
@@ -1037,7 +1078,7 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                raw 'LOCATION >'
+                if editing_note? then raw 'SAVE' else raw 'LOCATION >'
             child 'img', =>
               props
                 src: 'img/x-blue.png'
@@ -1046,7 +1087,12 @@ App = React.createClass
                   top: 20
                   right: 20
                   cursor: 'pointer'
-                onClick: => @setState modal: nothing: {}
+                onClick: =>
+                  if editing_note?
+                    @setState modal: viewing_note: note: editing_note
+                    @fetchComments editing_note
+                  else
+                    @setState modal: nothing: {}
             child 'textarea', =>
               props
                 style:
@@ -1060,7 +1106,7 @@ App = React.createClass
                 placeholder: 'Enter a caption...'
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
-        move_point: ({media, description, latitude, longitude}) =>
+        move_point: ({media, description, latitude, longitude, editing_note}) =>
           child 'div.bottomModal', style: {height: 150}, =>
             child 'p', =>
               props
@@ -1078,33 +1124,39 @@ App = React.createClass
                   top: 20
                   right: 20
                   cursor: 'pointer'
-                onClick: => @setState modal: nothing: {}
-            child 'div', =>
-              props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  left: 20
-                  cursor: 'pointer'
-                  height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
-                  display: 'table'
-                  textAlign: 'center'
-                  boxSizing: 'border-box'
                 onClick: =>
-                  @setState modal: enter_description: {media, description}
+                  if editing_note?
+                    @setState modal: viewing_note: note: editing_note
+                    @fetchComments editing_note
+                  else
+                    @setState modal: nothing: {}
+            unless editing_note?
               child 'div', =>
                 props
                   style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
+                    position: 'absolute'
+                    bottom: 20
+                    left: 20
+                    cursor: 'pointer'
+                    height: 36
+                    backgroundColor: '#61c9e2'
+                    color: 'white'
+                    display: 'table'
+                    textAlign: 'center'
                     boxSizing: 'border-box'
-                raw '< DESCRIPTION'
+                  onClick: =>
+                    @setState modal: enter_description: {media, description}
+                child 'div', =>
+                  props
+                    style:
+                      display: 'table-cell'
+                      verticalAlign: 'middle'
+                      paddingLeft: 23
+                      paddingRight: 23
+                      width: '100%'
+                      height: '100%'
+                      boxSizing: 'border-box'
+                  raw '< DESCRIPTION'
             child 'div', =>
               props
                 style:
@@ -1119,12 +1171,21 @@ App = React.createClass
                   textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
-                  @updateState
-                    modal:
-                      $apply: ({move_point}) =>
-                        select_category:
-                          update move_point,
-                            tag: $set: @props.game.tags[0]
+                  if editing_note?
+                    @props.aris.call 'notes.updateNote',
+                      note_id: editing_note.note_id
+                      game_id: @props.game.game_id
+                      trigger:
+                        latitude: latitude
+                        longitude: longitude
+                    , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
+                  else
+                    @updateState
+                      modal:
+                        $apply: ({move_point}) =>
+                          select_category:
+                            update move_point,
+                              tag: $set: @props.game.tags[0]
               child 'div', =>
                 props
                   style:
@@ -1135,8 +1196,8 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                raw 'CATEGORY >'
-        select_category: ({media, description, latitude, longitude, tag}) =>
+                if editing_note? then raw 'SAVE' else raw 'CATEGORY >'
+        select_category: ({media, description, latitude, longitude, tag, editing_note}) =>
           child 'div.bottomModal', style: {height: 200}, =>
             child 'div', =>
               props style: {width: '100%', textAlign: 'center', top: 30, position: 'absolute'}
@@ -1165,31 +1226,32 @@ App = React.createClass
                 src: 'img/x-blue.png'
                 style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
                 onClick: => @setState modal: nothing: {}
-            child 'div', =>
-              props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  left: 20
-                  cursor: 'pointer'
-                  height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
-                  display: 'table'
-                  textAlign: 'center'
-                  boxSizing: 'border-box'
-                onClick: => @setState modal: move_point: {media, description, latitude, longitude}
+            unless editing_note?
               child 'div', =>
                 props
                   style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
+                    position: 'absolute'
+                    bottom: 20
+                    left: 20
+                    cursor: 'pointer'
+                    height: 36
+                    backgroundColor: '#61c9e2'
+                    color: 'white'
+                    display: 'table'
+                    textAlign: 'center'
                     boxSizing: 'border-box'
-                raw '< LOCATION'
+                  onClick: => @setState modal: move_point: {media, description, latitude, longitude}
+                child 'div', =>
+                  props
+                    style:
+                      display: 'table-cell'
+                      verticalAlign: 'middle'
+                      paddingLeft: 23
+                      paddingRight: 23
+                      width: '100%'
+                      height: '100%'
+                      boxSizing: 'border-box'
+                  raw '< LOCATION'
             child 'div', =>
               props
                 style:
@@ -1204,15 +1266,20 @@ App = React.createClass
                   textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
-                  @props.aris.call 'notes.createNote',
-                    game_id: @props.game.game_id
-                    description: description
-                    media_id: media.media_id
-                    trigger: {latitude, longitude}
-                    tag_id: tag.tag_id
-                  , @successAt 'creating your note', (note) =>
-                    @setState modal: nothing: {} # TODO: fetch and view note
-                    @search()
+                  if editing_note?
+                    @props.aris.call 'notes.updateNote',
+                      note_id: editing_note.note_id
+                      game_id: @props.game.game_id
+                      tag_id: tag.tag_id
+                    , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
+                  else
+                    @props.aris.call 'notes.createNote',
+                      game_id: @props.game.game_id
+                      description: description
+                      media_id: media.media_id
+                      trigger: {latitude, longitude}
+                      tag_id: tag.tag_id
+                    , @successAt 'creating your note', (note) => @refreshEditedNote note.note_id
               child 'div', =>
                 props
                   style:
@@ -1223,7 +1290,7 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                raw 'PUBLISH! >'
+                if editing_note? then raw 'SAVE' else raw 'PUBLISH! >'
 
       # Message box (for errors)
       if @state.message?
