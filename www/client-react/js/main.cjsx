@@ -64,6 +64,33 @@ App = React.createClass
   componentDidMount: ->
     @login()
 
+  componentWillMount: ->
+    @hashChanged()
+    window.addEventListener 'hashchange', (=> @hashChanged()), false
+
+  hashChanged: ->
+    if md = window.location.hash.match /^#(\d+)$/
+      note_id = parseInt md[1]
+      alreadyViewing =
+        if @state.modal.viewing_note?
+          note_id is parseInt @state.modal.viewing_note.note.note_id
+        else
+          false
+      unless alreadyViewing
+        # fetch the right note and view it
+        @props.aris.call 'notes.siftrSearch',
+          game_id: @props.game.game_id
+          note_id: note_id
+          map_data: false
+        , @successAt 'loading a note', (data) =>
+          note = data.notes[0]
+          @setState modal: viewing_note: note: note
+          @fetchComments note
+    else
+      # Close any note views
+      if @state.modal.viewing_note?
+        @setState modal: nothing: {}
+
   handleMapChange: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
     @search 0,
       latitude:      $set: lat
@@ -87,7 +114,7 @@ App = React.createClass
           min_longitude: newState.min_longitude
           max_longitude: newState.max_longitude
           zoom: newState.zoom
-          limit: 50
+          limit: 48
           order: newState.order
           filter: if newState.mine and logged_in then 'mine' else undefined
           tag_ids:
@@ -111,8 +138,8 @@ App = React.createClass
       min_longitude: @state.min_longitude
       max_longitude: @state.max_longitude
       zoom: @state.zoom
-      limit: 50
-      offset: (page - 1) * 50
+      limit: 48
+      offset: (page - 1) * 48
       order: @state.order
       filter: if @state.mine then 'mine' else undefined
       tag_ids:
@@ -191,6 +218,14 @@ App = React.createClass
 
   render: ->
     tag_ids = @props.game.tags.map (tag) => tag.tag_id
+
+    hash =
+      if @state.modal.viewing_note?
+        "##{@state.modal.viewing_note.note.note_id}"
+      else
+        ""
+    if window.location.hash isnt hash
+      window.location.hash = hash
 
     make 'div#the-contained', =>
       props
@@ -395,9 +430,14 @@ App = React.createClass
           style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
 
         if @state.page isnt 1
-          child 'p', => child 'button', =>
+          child 'div', =>
             props
-              type: 'button'
+              style:
+                backgroundColor: 'rgb(97,201,226)'
+                padding: 15
+                boxSizing: 'border-box'
+                cursor: 'pointer'
+                color: 'white'
               onClick: => @setPage(@state.page - 1)
             raw 'Previous Page'
 
@@ -417,10 +457,15 @@ App = React.createClass
                     confirm_delete_comment_id: null
               @fetchComments note
 
-        if @state.notes.length is 50
-          child 'p', => child 'button', =>
+        if @state.notes.length is 48
+          child 'div', =>
             props
-              type: 'button'
+              style:
+                backgroundColor: 'rgb(97,201,226)'
+                padding: 15
+                boxSizing: 'border-box'
+                cursor: 'pointer'
+                color: 'white'
               onClick: => @setPage(@state.page + 1)
             raw 'Next Page'
 
@@ -959,7 +1004,7 @@ App = React.createClass
               props ref: 'file_form', style: {position: 'fixed', left: 9999}
               child 'input', =>
                 props
-                  type: 'file', accept: 'image/*', capture: 'camera', name: 'raw_upload', ref: 'file_input'
+                  type: 'file', name: 'raw_upload', ref: 'file_input'
                   onChange: (e) =>
                     if (newFile = e.target.files[0])?
                       @updateState modal: select_photo: file: $set: newFile
@@ -1225,7 +1270,12 @@ App = React.createClass
               props
                 src: 'img/x-blue.png'
                 style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
-                onClick: => @setState modal: nothing: {}
+                onClick: =>
+                  if editing_note?
+                    @setState modal: viewing_note: note: editing_note
+                    @fetchComments editing_note
+                  else
+                    @setState modal: nothing: {}
             unless editing_note?
               child 'div', =>
                 props
