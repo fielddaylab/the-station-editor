@@ -249,37 +249,15 @@ App = React.createClass
             center: [@state.latitude, @state.longitude]
             zoom: Math.max 2, @state.zoom
             options: minZoom: 2
-            draggable: not (@state.modal.move_point?.dragging ? false)
-            onChildMouseDown: (hoverKey, childProps, mouse) =>
-              if hoverKey is 'draggable-point'
-                # window.p = @refs.draggable_point
-                # console.log [p, mouse.x, mouse.y]
-                @updateState modal: move_point:
-                  dragging: $set: true
-                  can_reposition: $set: false
-            onChildMouseUp: (hoverKey, childProps, mouse) =>
-              @setState (previousState) =>
-                if previousState.modal.move_point?
-                  update previousState, modal: move_point: dragging: $set: false
-                else
-                  previousState
-            onChildMouseMove: (hoverKey, childProps, mouse) =>
-              if hoverKey is 'draggable-point'
-                @updateState
-                  modal:
-                    move_point:
-                      latitude: {$set: mouse.lat}
-                      longitude: {$set: mouse.lng}
+            draggable: true
             onChange: @handleMapChange
 
           if @state.modal.move_point?
             child 'div', =>
               props
-                key: 'draggable-point'
-                ref: 'draggable_point'
-                lat: @state.modal.move_point.latitude
-                lng: @state.modal.move_point.longitude
-                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black', cursor: 'pointer'}
+                lat: @state.latitude
+                lng: @state.longitude
+                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black'}
           else if @state.modal.select_category?
             modal = @state.modal.select_category
             tag = modal.tag
@@ -288,7 +266,7 @@ App = React.createClass
               props
                 lat: modal.editing_note?.latitude ? modal.latitude
                 lng: modal.editing_note?.longitude ? modal.longitude
-                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
+                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black'}
           else
             @state.map_notes.forEach (note) =>
               color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
@@ -430,14 +408,11 @@ App = React.createClass
           style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
 
         if @state.page isnt 1
-          child 'div', =>
+          child 'div.blueButton', =>
             props
               style:
-                backgroundColor: 'rgb(97,201,226)'
                 padding: 15
                 boxSizing: 'border-box'
-                cursor: 'pointer'
-                color: 'white'
               onClick: => @setPage(@state.page - 1)
             raw 'Previous Page'
 
@@ -458,14 +433,11 @@ App = React.createClass
               @fetchComments note
 
         if @state.notes.length is 48
-          child 'div', =>
+          child 'div.blueButton', =>
             props
               style:
-                backgroundColor: 'rgb(97,201,226)'
                 padding: 15
                 boxSizing: 'border-box'
-                cursor: 'pointer'
-                color: 'white'
               onClick: => @setPage(@state.page + 1)
             raw 'Next Page'
 
@@ -749,8 +721,6 @@ App = React.createClass
                           modal:
                             move_point:
                               editing_note: note
-                              latitude: parseFloat note.latitude
-                              longitude: parseFloat note.longitude
                           latitude: parseFloat note.latitude
                           longitude: parseFloat note.longitude
                     raw ' '
@@ -908,18 +878,14 @@ App = React.createClass
                     height: '100%'
                     boxSizing: 'border-box'
                 raw 'CANCEL'
-            child 'div', =>
+            child 'div.blueButton', =>
               props
                 style:
                   position: 'absolute'
                   bottom: 20
                   right: 20
-                  cursor: 'pointer'
                   height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
                   display: 'table'
-                  textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
                   if file?
@@ -1040,18 +1006,14 @@ App = React.createClass
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
         enter_description: ({media, description, editing_note}) =>
           child 'div.bottomModal', style: {height: 250}, =>
-            child 'div', =>
+            child 'div.blueButton', =>
               props
                 style:
                   position: 'absolute'
                   bottom: 20
                   left: 20
-                  cursor: 'pointer'
                   height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
                   display: 'table'
-                  textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: => @setState modal: select_photo: {}
               unless editing_note?
@@ -1066,18 +1028,14 @@ App = React.createClass
                       height: '100%'
                       boxSizing: 'border-box'
                   raw '< IMAGE'
-            child 'div', =>
+            child 'div.blueButton', =>
               props
                 style:
                   position: 'absolute'
                   bottom: 20
                   right: 20
-                  cursor: 'pointer'
                   height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
                   display: 'table'
-                  textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
                   if description is ''
@@ -1100,9 +1058,6 @@ App = React.createClass
                               @setState (previousState) =>
                                 if previousState.modal.move_point?.can_reposition
                                   update previousState,
-                                    modal: move_point:
-                                      latitude: $set: posn.coords.latitude
-                                      longitude: $set: posn.coords.longitude
                                     latitude: $set: posn.coords.latitude
                                     longitude: $set: posn.coords.longitude
                                 else
@@ -1151,7 +1106,7 @@ App = React.createClass
                 placeholder: 'Enter a caption...'
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
-        move_point: ({media, description, latitude, longitude, editing_note}) =>
+        move_point: ({media, description, editing_note}) =>
           child 'div.bottomModal', style: {height: 150}, =>
             child 'p', =>
               props
@@ -1176,18 +1131,14 @@ App = React.createClass
                   else
                     @setState modal: nothing: {}
             unless editing_note?
-              child 'div', =>
+              child 'div.blueButton', =>
                 props
                   style:
                     position: 'absolute'
                     bottom: 20
                     left: 20
-                    cursor: 'pointer'
                     height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
                     display: 'table'
-                    textAlign: 'center'
                     boxSizing: 'border-box'
                   onClick: =>
                     @setState modal: enter_description: {media, description}
@@ -1202,18 +1153,14 @@ App = React.createClass
                       height: '100%'
                       boxSizing: 'border-box'
                   raw '< DESCRIPTION'
-            child 'div', =>
+            child 'div.blueButton', =>
               props
                 style:
                   position: 'absolute'
                   bottom: 20
                   right: 20
-                  cursor: 'pointer'
                   height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
                   display: 'table'
-                  textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
                   if editing_note?
@@ -1221,8 +1168,8 @@ App = React.createClass
                       note_id: editing_note.note_id
                       game_id: @props.game.game_id
                       trigger:
-                        latitude: latitude
-                        longitude: longitude
+                        latitude: @state.latitude
+                        longitude: @state.longitude
                     , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
                   else
                     @updateState
@@ -1230,6 +1177,8 @@ App = React.createClass
                         $apply: ({move_point}) =>
                           select_category:
                             update move_point,
+                              latitude: $set: @state.latitude
+                              longitude: $set: @state.longitude
                               tag: $set: @props.game.tags[0]
               child 'div', =>
                 props
@@ -1277,18 +1226,14 @@ App = React.createClass
                   else
                     @setState modal: nothing: {}
             unless editing_note?
-              child 'div', =>
+              child 'div.blueButton', =>
                 props
                   style:
                     position: 'absolute'
                     bottom: 20
                     left: 20
-                    cursor: 'pointer'
                     height: 36
-                    backgroundColor: '#61c9e2'
-                    color: 'white'
                     display: 'table'
-                    textAlign: 'center'
                     boxSizing: 'border-box'
                   onClick: => @setState modal: move_point: {media, description, latitude, longitude}
                 child 'div', =>
@@ -1302,18 +1247,14 @@ App = React.createClass
                       height: '100%'
                       boxSizing: 'border-box'
                   raw '< LOCATION'
-            child 'div', =>
+            child 'div.blueButton', =>
               props
                 style:
                   position: 'absolute'
                   bottom: 20
                   right: 20
-                  cursor: 'pointer'
                   height: 36
-                  backgroundColor: '#61c9e2'
-                  color: 'white'
                   display: 'table'
-                  textAlign: 'center'
                   boxSizing: 'border-box'
                 onClick: =>
                   if editing_note?

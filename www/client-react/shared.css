@@ -27,3 +27,10 @@ body {
   box-sizing: border-box;
   background-color: white;
 }
+
+.blueButton {
+  background-color: rgb(97,201,226);
+  cursor: pointer;
+  color: white;
+  text-align: center;
+}
