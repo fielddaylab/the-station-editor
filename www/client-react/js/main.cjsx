@@ -56,6 +56,8 @@ App = React.createClass
     search_controls: null # null, 'not_time', or 'time'
     account_menu: false
     message: null
+    min_date: null
+    max_date: null
 
   updateState: (obj) ->
     @setState (previousState) =>
@@ -67,6 +69,11 @@ App = React.createClass
   componentWillMount: ->
     @hashChanged()
     window.addEventListener 'hashchange', (=> @hashChanged()), false
+    window.addEventListener 'mouseup', =>
+      if @dragListener?
+        window.removeEventListener('mousemove', @dragListener)
+        delete @dragListener
+        @search()
 
   hashChanged: ->
     if md = window.location.hash.match /^#(\d+)$/
@@ -101,6 +108,27 @@ App = React.createClass
       min_longitude: $set: nw.lng
       max_longitude: $set: se.lng
 
+  searchParams: (state = @state, logged_in = @state.login_status.logged_in?) ->
+    unixTimeToString = (t) ->
+      return undefined unless t?
+      new Date(t).toISOString().replace('T', ' ').replace(/\.\d\d\dZ$/, '')
+      # ISO string is in format "yyyy-mm-ddThh:mm:ss.sssZ"
+      # we change it into "yyyy-mm-dd hh:mm:ss" for the ARIS SQL format
+    game_id: @props.game.game_id
+    min_latitude: state.min_latitude
+    max_latitude: state.max_latitude
+    min_longitude: state.min_longitude
+    max_longitude: state.max_longitude
+    zoom: state.zoom
+    limit: 48
+    order: state.order
+    filter: if state.mine and logged_in then 'mine' else undefined
+    tag_ids:
+      tag_id for tag_id, checked of state.checked_tags when checked
+    search: state.search
+    min_time: unixTimeToString state.min_date
+    max_time: unixTimeToString state.max_date
+
   search: (wait = 0, updater = {}, logged_in = @state.login_status.logged_in?) ->
     @setState (previousState) =>
       newState = update update(previousState, updater), page: {$set: 1}
@@ -108,18 +136,7 @@ App = React.createClass
       setTimeout =>
         return unless thisSearch is @lastSearch
         @props.aris.call 'notes.siftrSearch',
-          game_id: @props.game.game_id
-          min_latitude: newState.min_latitude
-          max_latitude: newState.max_latitude
-          min_longitude: newState.min_longitude
-          max_longitude: newState.max_longitude
-          zoom: newState.zoom
-          limit: 48
-          order: newState.order
-          filter: if newState.mine and logged_in then 'mine' else undefined
-          tag_ids:
-            tag_id for tag_id, checked of newState.checked_tags when checked
-          search: newState.search
+          @searchParams(newState, logged_in)
         , @successAt 'performing your search', (data) =>
           return unless thisSearch is @lastSearch
           @setState
@@ -131,21 +148,11 @@ App = React.createClass
 
   setPage: (page) ->
     thisSearch = @lastSearch = Date.now()
+    params = update @searchParams(),
+      offset: $set: (page - 1) * 48
+      map_data: $set: false
     @props.aris.call 'notes.siftrSearch',
-      game_id: @props.game.game_id
-      min_latitude: @state.min_latitude
-      max_latitude: @state.max_latitude
-      min_longitude: @state.min_longitude
-      max_longitude: @state.max_longitude
-      zoom: @state.zoom
-      limit: 48
-      offset: (page - 1) * 48
-      order: @state.order
-      filter: if @state.mine then 'mine' else undefined
-      tag_ids:
-        tag_id for tag_id, checked of @state.checked_tags when checked
-      search: @state.search
-      map_data: false
+      params
     , @successAt 'loading your search results', (data) =>
       return unless thisSearch is @lastSearch
       @setState
@@ -344,6 +351,55 @@ App = React.createClass
               style:
                 width: '100%'
                 boxSizing: 'border-box'
+
+        child 'div', =>
+          minTimeSlider = @props.game.created.getTime()
+          maxTimeSlider = Date.now()
+          minTimeFraction = ((@state.min_date ? minTimeSlider) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+          maxTimeFraction = ((@state.max_date ? maxTimeSlider) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+          child 'div', =>
+            props
+              ref: 'timeSlider'
+              style:
+                height: 10
+                width: '100%'
+                backgroundColor: '#888'
+                marginTop: 10
+                marginBottom: 10
+                position: 'relative'
+            [false, true].forEach (isMinSlider) =>
+              child 'div', =>
+                props
+                  style:
+                    height: 20
+                    width: 20
+                    backgroundColor: '#444'
+                    position: 'absolute'
+                    top: -5
+                    left: "calc((100% - 20px) * #{if isMinSlider then minTimeFraction else maxTimeFraction})"
+                    borderRadius: 4
+                    cursor: 'pointer'
+                  onMouseDown: (e) =>
+                    unless @dragListener?
+                      @dragListener = (e) =>
+                        rect = @refs.timeSlider.getBoundingClientRect()
+                        frac = (e.clientX - (rect.left + 10)) / (rect.width - 20)
+                        frac = Math.max(0, Math.min(1, frac))
+                        if isMinSlider
+                          @setState
+                            min_date:
+                              if frac is 0
+                                null
+                              else
+                                minTimeSlider + (maxTimeSlider - minTimeSlider) * frac
+                        else
+                          @setState
+                            max_date:
+                              if frac is 1
+                                null
+                              else
+                                minTimeSlider + (maxTimeSlider - minTimeSlider) * frac
+                      window.addEventListener 'mousemove', @dragListener
 
         child 'p', =>
           child 'label', =>

@@ -23,6 +23,7 @@
         this.moderated = parseInt(json.moderated) ? true : false;
         this.colors_id = parseInt(json.colors_id) || null;
         this.icon_media_id = parseInt(json.icon_media_id);
+        this.created = new Date(json.created.replace(' ', 'T') + 'Z');
       } else {
         this.game_id = null;
         this.name = null;
@@ -36,6 +37,7 @@
         this.moderated = null;
         this.colors_id = null;
         this.icon_media_id = null;
+        this.created = null;
       }
     }
 

@@ -20,6 +20,7 @@ class Game
       @moderated   = if parseInt json.moderated then true else false
       @colors_id   = parseInt(json.colors_id) or null
       @icon_media_id = parseInt json.icon_media_id
+      @created     = new Date(json.created.replace(' ', 'T') + 'Z')
     else
       @game_id     = null
       @name        = null
@@ -33,6 +34,7 @@ class Game
       @moderated   = null
       @colors_id   = null
       @icon_media_id = null
+      @created     = null
 
   createJSON: ->
     game_id: @game_id or undefined
