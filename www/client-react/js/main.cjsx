@@ -56,8 +56,8 @@ App = React.createClass
     search_controls: null # null, 'not_time', or 'time'
     account_menu: false
     message: null
-    min_date: null
-    max_date: null
+    date_1: 'min'
+    date_2: 'max'
 
   updateState: (obj) ->
     @setState (previousState) =>
@@ -69,11 +69,13 @@ App = React.createClass
   componentWillMount: ->
     @hashChanged()
     window.addEventListener 'hashchange', (=> @hashChanged()), false
-    window.addEventListener 'mouseup', =>
-      if @dragListener?
-        window.removeEventListener('mousemove', @dragListener)
-        delete @dragListener
-        @search()
+    ['mouseup', 'touchend'].forEach (e) =>
+      window.addEventListener e, =>
+        if @dragListener?
+          window.removeEventListener('mousemove', @dragListener)
+          window.removeEventListener('touchmove', @dragListener)
+          delete @dragListener
+          @search()
 
   hashChanged: ->
     if md = window.location.hash.match /^#(\d+)$/
@@ -110,10 +112,39 @@ App = React.createClass
 
   searchParams: (state = @state, logged_in = @state.login_status.logged_in?) ->
     unixTimeToString = (t) ->
-      return undefined unless t?
       new Date(t).toISOString().replace('T', ' ').replace(/\.\d\d\dZ$/, '')
       # ISO string is in format "yyyy-mm-ddThh:mm:ss.sssZ"
       # we change it into "yyyy-mm-dd hh:mm:ss" for the ARIS SQL format
+    switch state.date_1
+      when 'min'
+        min_time = undefined
+        switch state.date_2
+          when 'min'
+            max_time = undefined # whatever
+          when 'max'
+            max_time = undefined
+          else
+            max_time = unixTimeToString state.date_2
+      when 'max'
+        max_time = undefined
+        switch state.date_2
+          when 'min'
+            min_time = undefined
+          when 'max'
+            min_time = undefined # whatever
+          else
+            min_time = unixTimeToString state.date_2
+      else
+        switch state.date_2
+          when 'min'
+            min_time = undefined
+            max_time = unixTimeToString state.date_1
+          when 'max'
+            min_time = unixTimeToString state.date_1
+            max_time = undefined
+          else
+            min_time = unixTimeToString Math.min(state.date_1, state.date_2)
+            max_time = unixTimeToString Math.max(state.date_1, state.date_2)
     game_id: @props.game.game_id
     min_latitude: state.min_latitude
     max_latitude: state.max_latitude
@@ -126,8 +157,8 @@ App = React.createClass
     tag_ids:
       tag_id for tag_id, checked of state.checked_tags when checked
     search: state.search
-    min_time: unixTimeToString state.min_date
-    max_time: unixTimeToString state.max_date
+    min_time: min_time
+    max_time: max_time
 
   search: (wait = 0, updater = {}, logged_in = @state.login_status.logged_in?) ->
     @setState (previousState) =>
@@ -355,8 +386,12 @@ App = React.createClass
         child 'div', =>
           minTimeSlider = @props.game.created.getTime()
           maxTimeSlider = Date.now()
-          minTimeFraction = ((@state.min_date ? minTimeSlider) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
-          maxTimeFraction = ((@state.max_date ? maxTimeSlider) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+          getTime = (t) -> switch t
+            when 'min' then minTimeSlider
+            when 'max' then maxTimeSlider
+            else            t
+          time1Fraction = (getTime(@state.date_1) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+          time2Fraction = (getTime(@state.date_2) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
           child 'div', =>
             props
               ref: 'timeSlider'
@@ -367,8 +402,29 @@ App = React.createClass
                 marginTop: 10
                 marginBottom: 10
                 position: 'relative'
-            [false, true].forEach (isMinSlider) =>
+            [false, true].forEach (isSlider1) =>
               child 'div', =>
+                pointerDown = (movement) => (e) =>
+                  unless @dragListener?
+                    @dragListener = (e) =>
+                      rect = @refs.timeSlider.getBoundingClientRect()
+                      switch movement
+                        when 'mousemove'
+                          frac = (e.clientX - (rect.left + 10)) / (rect.width - 20)
+                        when 'touchmove'
+                          frac = (e.touches[0].clientX - (rect.left + 10)) / (rect.width - 20)
+                      frac = Math.max(0, Math.min(1, frac))
+                      encodedTime = switch frac
+                        when 0 then 'min'
+                        when 1 then 'max'
+                        else minTimeSlider + (maxTimeSlider - minTimeSlider) * frac
+                      if isSlider1
+                        @setState
+                          date_1: encodedTime
+                      else
+                        @setState
+                          date_2: encodedTime
+                    window.addEventListener movement, @dragListener
                 props
                   style:
                     height: 20
@@ -376,30 +432,11 @@ App = React.createClass
                     backgroundColor: '#444'
                     position: 'absolute'
                     top: -5
-                    left: "calc((100% - 20px) * #{if isMinSlider then minTimeFraction else maxTimeFraction})"
+                    left: "calc((100% - 20px) * #{if isSlider1 then time1Fraction else time2Fraction})"
                     borderRadius: 4
                     cursor: 'pointer'
-                  onMouseDown: (e) =>
-                    unless @dragListener?
-                      @dragListener = (e) =>
-                        rect = @refs.timeSlider.getBoundingClientRect()
-                        frac = (e.clientX - (rect.left + 10)) / (rect.width - 20)
-                        frac = Math.max(0, Math.min(1, frac))
-                        if isMinSlider
-                          @setState
-                            min_date:
-                              if frac is 0
-                                null
-                              else
-                                minTimeSlider + (maxTimeSlider - minTimeSlider) * frac
-                        else
-                          @setState
-                            max_date:
-                              if frac is 1
-                                null
-                              else
-                                minTimeSlider + (maxTimeSlider - minTimeSlider) * frac
-                      window.addEventListener 'mousemove', @dragListener
+                  onMouseDown: pointerDown 'mousemove'
+                  onTouchStart: pointerDown 'touchmove'
 
         child 'p', =>
           child 'label', =>
