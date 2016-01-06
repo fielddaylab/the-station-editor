@@ -320,6 +320,8 @@ App = React.createClass
           else
             @state.map_notes.forEach (note) =>
               color = @getColor note
+              hovering = @state.hover_note_id is note.note_id
+              width = if hovering then 25 else 14
               child 'div', =>
                 props
                   key: note.note_id
@@ -335,10 +337,12 @@ App = React.createClass
                           confirm_delete: false
                           confirm_delete_comment_id: null
                     @fetchComments note
-                  style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
+                  style: {marginLeft: -(width / 2), marginTop: -(width / 2), width: width, height: width, backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
             for cluster, i in @state.map_clusters
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
+              hovering = @state.hover_note_id? and @state.hover_note_id in cluster.note_ids
+              width = if hovering then 30 else 20
               if -180 < lng < 180 && -90 < lat < 90
                 do (cluster) =>
                   colors =
@@ -376,7 +380,7 @@ App = React.createClass
                             latitude: center.lat
                             longitude: center.lng
                             zoom: zoom
-                      style: {marginLeft: '-10px', marginTop: '-10px', width: '20px', height: '20px', border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}
+                      style: {marginLeft: -(width / 2), marginTop: -(width / 2), width: width, height: width, border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}
                     child 'span', =>
                       props style: {display: 'table-cell', verticalAlign: 'middle'}
                       raw cluster.note_count
@@ -533,6 +537,12 @@ App = React.createClass
                 cursor: 'pointer'
                 position: 'relative'
                 display: 'inline-block'
+              onMouseOver: =>
+                @setState
+                  hover_note_id: note.note_id
+              onMouseOut: =>
+                if @state.hover_note_id?
+                  @setState hover_note_id: null
               onClick: =>
                 @setState
                   modal:
