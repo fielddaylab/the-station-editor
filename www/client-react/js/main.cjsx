@@ -373,8 +373,10 @@ App = React.createClass
                               lat: cluster.min_latitude
                               lng: cluster.max_longitude
                           size =
-                            width: @refs.theMapDiv.clientWidth
-                            height: @refs.theMapDiv.clientHeight
+                            width: @refs.theMapDiv.clientWidth * 0.9
+                            height: @refs.theMapDiv.clientHeight * 0.9
+                            # we shrink the stated map size a bit,
+                            # to make sure we end up with some buffer around the points
                           {center, zoom} = fitBounds bounds, size
                           @setState
                             latitude: center.lat
@@ -398,15 +400,25 @@ App = React.createClass
                 width: '100%'
                 boxSizing: 'border-box'
 
+        minTimeSlider = @props.game.created.getTime()
+        maxTimeSlider = Date.now()
+        getTime = (t) -> switch t
+          when 'min' then minTimeSlider
+          when 'max' then maxTimeSlider
+          else            t
+        time1Fraction = (getTime(@state.date_1) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+        time2Fraction = (getTime(@state.date_2) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
         child 'div', =>
-          minTimeSlider = @props.game.created.getTime()
-          maxTimeSlider = Date.now()
-          getTime = (t) -> switch t
-            when 'min' then minTimeSlider
-            when 'max' then maxTimeSlider
-            else            t
-          time1Fraction = (getTime(@state.date_1) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
-          time2Fraction = (getTime(@state.date_2) - minTimeSlider) / (maxTimeSlider - minTimeSlider)
+          minTime = getTime @state.date_1
+          maxTime = getTime @state.date_2
+          if minTime > maxTime
+            [minTime, maxTime] = [maxTime, minTime]
+          child 'span', style: {float: 'left'}, =>
+            raw new Date(minTime).toLocaleDateString()
+          child 'span', style: {float: 'right'}, =>
+            raw new Date(maxTime).toLocaleDateString()
+          child 'div', style: {clear: 'both'}
+        child 'div', =>
           child 'div', =>
             props
               ref: 'timeSlider'
