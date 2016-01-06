@@ -59,6 +59,17 @@ App = React.createClass
     date_1: 'min'
     date_2: 'max'
 
+  getColor: (x) ->
+    if x instanceof Tag
+      tag = x
+    else if x.tag_id?
+      tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt(x.tag_id))[0]
+    else if typeof x in ['number', 'string']
+      tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt x)[0]
+    else
+      return 'black'
+    @props.game.colors["tag_#{@props.game.tags.indexOf(tag) + 1}"] ? 'black'
+
   updateState: (obj) ->
     @setState (previousState) =>
       update previousState, obj
@@ -255,8 +266,6 @@ App = React.createClass
         "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
 
   render: ->
-    tag_ids = @props.game.tags.map (tag) => tag.tag_id
-
     hash =
       if @state.modal.viewing_note?
         "##{@state.modal.viewing_note.note.note_id}"
@@ -289,6 +298,10 @@ App = React.createClass
             options: minZoom: 2
             draggable: true
             onChange: @handleMapChange
+            options:
+              styles:
+                # from https://snazzymaps.com/style/83/muted-blue
+                [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
 
           if @state.modal.move_point?
             child 'div', =>
@@ -298,8 +311,7 @@ App = React.createClass
                 style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black'}
           else if @state.modal.select_category?
             modal = @state.modal.select_category
-            tag = modal.tag
-            color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+            color = @getColor modal.tag
             child 'div', =>
               props
                 lat: modal.editing_note?.latitude ? modal.latitude
@@ -307,7 +319,7 @@ App = React.createClass
                 style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black'}
           else
             @state.map_notes.forEach (note) =>
-              color = @props.game.colors["tag_#{tag_ids.indexOf(parseInt note.tag_id) + 1}"] ? 'white'
+              color = @getColor note
               child 'div', =>
                 props
                   key: note.note_id
@@ -330,8 +342,7 @@ App = React.createClass
               if -180 < lng < 180 && -90 < lat < 90
                 do (cluster) =>
                   colors =
-                    for tag_id of cluster.tags
-                      @props.game.colors["tag_#{tag_ids.indexOf(parseInt tag_id) + 1}"]
+                    @getColor(tag_id) for tag_id of cluster.tags
                   gradient =
                     if colors.length is 1
                       colors[0]
@@ -471,7 +482,7 @@ App = React.createClass
         child 'p', =>
           @props.game.tags.forEach (tag) =>
             checked = @state.checked_tags[tag.tag_id]
-            color = @props.game.colors["tag_#{tag_ids.indexOf(tag.tag_id) + 1}"] ? 'black'
+            color = @getColor tag
             child 'span', =>
               props
                 key: tag.tag_id
@@ -510,20 +521,38 @@ App = React.createClass
             raw 'Previous Page'
 
         @state.notes.forEach (note) =>
-          child 'img',
-            key: note.note_id
-            src: note.media.thumb_url
-            style: {width: 120, padding: 5, cursor: 'pointer'}
-            onClick: =>
-              @setState
-                modal:
-                  viewing_note:
-                    note: note
-                    comments: null
-                    new_comment: ''
-                    confirm_delete: false
-                    confirm_delete_comment_id: null
-              @fetchComments note
+          child 'div', =>
+            props
+              key: note.note_id
+              style:
+                backgroundImage: "url(#{note.media.thumb_url})"
+                width: 120
+                height: 120
+                backgroundSize: '100% 100%'
+                margin: 5
+                cursor: 'pointer'
+                position: 'relative'
+                display: 'inline-block'
+              onClick: =>
+                @setState
+                  modal:
+                    viewing_note:
+                      note: note
+                      comments: null
+                      new_comment: ''
+                      confirm_delete: false
+                      confirm_delete_comment_id: null
+                @fetchComments note
+            tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt(note.tag_id))[0]
+            child 'div',
+              style:
+                position: 'absolute'
+                right: 5
+                top: 5
+                width: 14
+                height: 14
+                borderRadius: 7
+                backgroundColor: @getColor tag
 
         if @state.notes.length is 48
           child 'div.blueButton', =>
@@ -580,18 +609,18 @@ App = React.createClass
               , 500
               @setState search_controls: if @state.search_controls? then null else 'not_time'
 
-        child 'div.menuDiscover', =>
-          child 'a', href: '..', =>
-            child 'img', src: 'img/discover.png'
+        child 'div.menuDiscover.menuTable', =>
+          child 'a.menuTableCell', href: '..', =>
+            raw 'DISCOVER'
 
-        child 'div.menuMyAccount', style: {cursor: 'pointer'}, =>
-          child 'img',
-            src: "img/my-account.png"
-            onClick: => @setState account_menu: not @state.account_menu
+        child 'div.menuMyAccount.menuTable', =>
+          child 'div.menuTableCell', =>
+            props onClick: => @setState account_menu: not @state.account_menu
+            raw 'MY ACCOUNT'
 
-        child 'div.menuMySiftrs', =>
-          child 'a', href: '../editor', =>
-            child 'img', src: 'img/my-siftrs.png'
+        child 'div.menuMySiftrs.menuTable', =>
+          child 'a.menuTableCell', href: '../editor', =>
+            raw 'MY SIFTRS'
 
       # Desktop and mobile add buttons
       clickAdd = =>
@@ -1292,7 +1321,7 @@ App = React.createClass
               child 'p', =>
                 @props.game.tags.forEach (some_tag) =>
                   checked = some_tag is tag
-                  color = @props.game.colors["tag_#{tag_ids.indexOf(some_tag.tag_id) + 1}"] ? 'black'
+                  color = @getColor some_tag
                   child 'span', =>
                     props
                       key: some_tag.tag_id

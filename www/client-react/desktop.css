@@ -47,9 +47,26 @@
 .menuMap { float: left; }
 .menuThumbs { float: left; }
 .menuSift { float: right; }
-.menuDiscover { float: right; }
-.menuMyAccount { float: right; }
-.menuMySiftrs { float: right; }
+.menuDiscover, .menuMyAccount, .menuMySiftrs {
+  float: right;
+  height: 100%;
+  color: white;
+  cursor: pointer;
+}
+.menuTable {
+  display: table;
+  color: white;
+  height: 100%;
+}
+.menuTableCell {
+  display: table-cell;
+  color: white;
+  vertical-align: middle;
+  text-align: center;
+  height: 100%;
+  text-decoration: none;
+  padding-right: 30px;
+}
 
 .addItemDesktop {}
 .addItemMobile { display: none; }
