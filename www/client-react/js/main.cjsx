@@ -277,7 +277,7 @@ App = React.createClass
     make 'div#the-contained', =>
       props
         className: """
-          #{if @state.search_controls? then 'searching' else ''}
+          #{if @state.search_controls? then 'searching' else 'notSearching'}
           #{if @state.account_menu then 'accountMenuOpen' else ''}
           #{if @state.view_focus is 'map' then 'primaryMap' else 'primaryThumbs'}
           """
@@ -559,7 +559,6 @@ App = React.createClass
                       confirm_delete: false
                       confirm_delete_comment_id: null
                 @fetchComments note
-            tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt(note.tag_id))[0]
             child 'div',
               style:
                 position: 'absolute'
@@ -568,7 +567,7 @@ App = React.createClass
                 width: 14
                 height: 14
                 borderRadius: 7
-                backgroundColor: @getColor tag
+                backgroundColor: @getColor note
 
         if @state.notes.length is 48
           child 'div.blueButton', =>
@@ -773,97 +772,100 @@ App = React.createClass
                 cursor: 'pointer'
               onClick: => @setState modal: nothing: {}
             child 'div.noteView', =>
+              child 'h4', =>
+                raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
+              child 'img', =>
+                props
+                  src: note.media.url
+                  style:
+                    width: '100%'
+                    display: 'block'
+              user_id =
+                if @state.login_status.logged_in?
+                  @state.login_status.logged_in.auth.user_id
+                else
+                  null
+              owners =
+                owner.user_id for owner in @props.game.owners
               child 'div', =>
                 props
                   style:
-                    backgroundImage: "url(#{note.media.url})"
-                    backgroundSize: 'contain'
-                    backgroundRepeat: 'no-repeat'
-                    backgroundPosition: 'center'
+                    backgroundColor: 'rgb(97,201,226)'
                     width: '100%'
-                    height: 'calc(100vh - 200px)'
-              child 'h4', =>
-                raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
-              child 'p', => raw note.description
+                    height: 50
+                barButton = (img, action) =>
+                  child 'img',
+                    src: img
+                    style:
+                      marginTop: 9
+                      marginLeft: 12
+                      cursor: 'pointer'
+                    onClick: action
+                if user_id is parseInt(note.user_id) or user_id in owners
+                  barButton 'img/freepik/delete81.png', =>
+                    @updateState modal: viewing_note: confirm_delete: $set: true
+                if user_id is parseInt(note.user_id)
+                  barButton 'img/freepik/edit45.png', =>
+                    @setState modal: enter_description:
+                      editing_note: note
+                      description: note.description
+                  barButton 'img/freepik/location73.png', =>
+                    @setState
+                      modal:
+                        move_point:
+                          editing_note: note
+                      latitude: parseFloat note.latitude
+                      longitude: parseFloat note.longitude
+                  barButton 'img/freepik/tag79.png', =>
+                    @setState
+                      modal:
+                        select_category:
+                          editing_note: note
+                          tag: do =>
+                            for tag in @props.game.tags
+                              return tag if tag.tag_id is parseInt note.tag_id
+                      latitude: parseFloat note.latitude
+                      longitude: parseFloat note.longitude
               if @state.login_status.logged_in?
-                user_id = @state.login_status.logged_in.auth.user_id
-                owners =
-                  owner.user_id for owner in @props.game.owners
                 if note.published is 'PENDING'
                   if user_id in owners
+                    child 'p', => child 'b', => raw 'This note needs your approval to be visible.'
                     child 'p', =>
-                      raw 'This note needs your approval to be visible.'
-                      raw ' '
-                      child 'button', =>
+                      child 'span.blueButton', =>
                         props
-                          type: 'button'
+                          style:
+                            padding: 5
                           onClick: =>
                             @props.aris.call 'notes.approveNote',
                               note_id: note.note_id
                             , @successAt 'approving this note', => @refreshEditedNote()
-                        raw 'Approve'
+                        raw 'APPROVE'
                   else
-                    child 'p', =>
+                    child 'p', => child 'b', =>
                       raw 'This note is only visible to you until an administrator approves it.'
-                child 'p', =>
-                  if user_id is parseInt(note.user_id) or user_id in owners
-                    if confirm_delete
-                      raw 'Are you sure you want to delete this note? '
-                      child 'button', =>
-                        props
-                          type: 'button'
-                          onClick: =>
-                            @props.aris.call 'notes.deleteNote',
-                              note_id: note.note_id
-                            , @successAt 'deleting this note', =>
-                              @setState modal: nothing: {}
-                              @search()
-                        raw 'Delete'
-                      raw ' '
-                      child 'button', =>
-                        props
-                          type: 'button'
-                          onClick: =>
-                            @updateState modal: viewing_note: confirm_delete: $set: false
-                        raw 'Cancel'
-                    else
-                      child 'button', =>
-                        props
-                          type: 'button'
-                          onClick: =>
-                            @updateState modal: viewing_note: confirm_delete: $set: true
-                        raw 'Delete Note'
-                if user_id is parseInt(note.user_id)
+                if confirm_delete
+                  child 'p', => child 'b', => raw 'Are you sure you want to delete this note?'
                   child 'p', =>
-                    child 'button', =>
-                      raw 'Edit Caption'
-                      props onClick: =>
-                        @setState modal: enter_description:
-                          editing_note: note
-                          description: note.description
-                    raw ' '
-                    child 'button', =>
-                      raw 'Edit Location'
-                      props onClick: =>
-                        @setState
-                          modal:
-                            move_point:
-                              editing_note: note
-                          latitude: parseFloat note.latitude
-                          longitude: parseFloat note.longitude
-                    raw ' '
-                    child 'button', =>
-                      raw 'Edit Category'
-                      props onClick: =>
-                        @setState
-                          modal:
-                            select_category:
-                              editing_note: note
-                              tag: do =>
-                                for tag in @props.game.tags
-                                  return tag if tag.tag_id is parseInt note.tag_id
-                          latitude: parseFloat note.latitude
-                          longitude: parseFloat note.longitude
+                    child 'span.blueButton', =>
+                      props
+                        style:
+                          padding: 5
+                          marginRight: 10
+                        onClick: =>
+                          @props.aris.call 'notes.deleteNote',
+                            note_id: note.note_id
+                          , @successAt 'deleting this note', =>
+                            @setState modal: nothing: {}
+                            @search()
+                      raw 'DELETE'
+                    child 'span.blueButton', =>
+                      props
+                        style:
+                          padding: 5
+                        onClick: =>
+                          @updateState modal: viewing_note: confirm_delete: $set: false
+                      raw 'CANCEL'
+              child 'p', => raw note.description
               child 'hr'
               if comments?
                 comments.forEach (comment) =>
@@ -879,7 +881,9 @@ App = React.createClass
                             onChange: (e) => @updateState modal: viewing_note: edit_comment_text: $set: e.target.value
                             style:
                               width: '100%'
-                              height: 100
+                              height: 75
+                              resize: 'none'
+                              boxSizing: 'border-box'
                       child 'p', =>
                         child 'button', =>
                           props
@@ -947,7 +951,7 @@ App = React.createClass
               else
                 child 'p', => raw 'Loading comments...'
               if @state.login_status.logged_in?
-                child 'div', =>
+                child 'p', =>
                   child 'textarea', =>
                     props
                       placeholder: 'Post a new comment...'
@@ -955,21 +959,23 @@ App = React.createClass
                       onChange: (e) => @updateState modal: viewing_note: new_comment: $set: e.target.value
                       style:
                         width: '100%'
-                        height: 100
-                  child 'p', =>
-                    child 'button', =>
-                      props
-                        type: 'button'
-                        onClick: =>
-                          if new_comment isnt ''
-                            @props.aris.createNoteComment
-                              game_id: @props.game.game_id
-                              note_id: note.note_id
-                              description: new_comment
-                            , @successAt 'posting your comment', (comment) =>
-                              @fetchComments note
-                              @updateState modal: viewing_note: new_comment: $set: ''
-                      raw 'Submit'
+                        height: 75
+                        resize: 'none'
+                        boxSizing: 'border-box'
+                child 'p', =>
+                  child 'button', =>
+                    props
+                      type: 'button'
+                      onClick: =>
+                        if new_comment isnt ''
+                          @props.aris.createNoteComment
+                            game_id: @props.game.game_id
+                            note_id: note.note_id
+                            description: new_comment
+                          , @successAt 'posting your comment', (comment) =>
+                            @fetchComments note
+                            @updateState modal: viewing_note: new_comment: $set: ''
+                    raw 'Submit'
               else
                 child 'p', =>
                   child 'b', =>

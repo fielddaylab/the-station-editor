@@ -29,7 +29,8 @@ body {
 .searchPane {
   overflow-y: scroll;
   text-align: center;
-  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
   box-sizing: border-box;
   background-color: white;
 }
@@ -45,4 +46,9 @@ body {
   content: "";
   display: block;
   padding-bottom: 100%;
+}
+
+.noteView h4, .noteView p {
+  padding-left: 15px;
+  padding-right: 15px;
 }
