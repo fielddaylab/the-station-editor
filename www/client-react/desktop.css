@@ -1,8 +1,8 @@
-.primaryPane, .primaryModal {
+.primaryMap .theMap, .primaryThumbs .theThumbs, .primaryModal {
   position: absolute;
   top: 77px;
   left: 0;
-  width: 70%;
+  width: 60%;
   height: calc(100% - 77px);
 }
 
@@ -10,26 +10,27 @@
   display: block;
   position: absolute;
   top: 77px;
-  left: 70%;
-  width: 30%;
+  left: 60%;
+  width: 40%;
   height: 0;
   transition-property: height;
   transition-duration: 0.25s;
+  z-index: -1;
 }
 .searching .searchPane {
   height: 400px;
 }
 
-.secondaryPane {
+.primaryMap .theThumbs, .primaryThumbs .theMap {
   position: absolute;
   top: 77px;
-  left: 70%;
-  width: 30%;
+  left: 60%;
+  width: 40%;
   height: calc(100% - 77px);
   transition-property: top, height;
   transition-duration: 0.25s;
 }
-.searching .secondaryPane {
+.searching.primaryMap .theThumbs, .searching.primaryThumbs .theMap {
   top: 477px;
   height: calc(100% - 477px);
 }
@@ -68,7 +69,17 @@
   padding-right: 30px;
 }
 
-.addItemDesktop {}
+.addItemDesktop {
+  position: absolute;
+  cursor: pointer;
+  top: 95px;
+}
+.primaryMap .addItemDesktop {
+  left: calc(60% - 203px);
+}
+.primaryThumbs .addItemDesktop {
+  left: calc(60% + 17px);
+}
 .addItemMobile { display: none; }
 
 .accountMenuDesktop {
@@ -88,7 +99,7 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 70%;
+  width: 60%;
   background-color: white;
 }
 
@@ -99,3 +110,41 @@
 }
 
 .mobileTitle { display: none; }
+
+.primaryMap .thumbnail {
+  width: 45%;
+}
+@media(min-width:1300px) {
+  .primaryMap .thumbnail {
+    width: 31%;
+  }
+}
+@media(min-width:1600px) {
+  .primaryMap .thumbnail {
+    width: 23%;
+  }
+}
+@media(min-width:2000px) {
+  .primaryMap .thumbnail {
+    width: 18.5%;
+  }
+}
+
+.primaryThumbs .thumbnail {
+  width: 31%;
+}
+@media(min-width:1200px) {
+  .primaryThumbs .thumbnail {
+    width: 23%;
+  }
+}
+@media(min-width:1450px) {
+  .primaryThumbs .thumbnail {
+    width: 18.5%;
+  }
+}
+@media(min-width:1750px) {
+  .primaryThumbs .thumbnail {
+    width: 15.5%;
+  }
+}

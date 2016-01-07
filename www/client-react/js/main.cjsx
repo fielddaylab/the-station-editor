@@ -279,6 +279,7 @@ App = React.createClass
         className: """
           #{if @state.search_controls? then 'searching' else ''}
           #{if @state.account_menu then 'accountMenuOpen' else ''}
+          #{if @state.view_focus is 'map' then 'primaryMap' else 'primaryThumbs'}
           """
         style:
           width: '100%'
@@ -286,11 +287,7 @@ App = React.createClass
           overflow: 'visible'
 
       # Map
-      child 'div', =>
-        props
-          ref: 'theMapDiv'
-          className: if @state.view_focus is 'map' then 'primaryPane' else 'secondaryPane'
-
+      child 'div.theMap', ref: 'theMapDiv', =>
         child GoogleMap, =>
           props
             center: [@state.latitude, @state.longitude]
@@ -522,9 +519,8 @@ App = React.createClass
               raw "#{if checked then '✓' else '●'} #{tag.tag}"
 
       # Thumbnails
-      child 'div', =>
+      child 'div.theThumbs', =>
         props
-          className: if @state.view_focus is 'thumbnails' then 'primaryPane' else 'secondaryPane'
           style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
 
         if @state.page isnt 1
@@ -537,13 +533,11 @@ App = React.createClass
             raw 'Previous Page'
 
         @state.notes.forEach (note) =>
-          child 'div', =>
+          child 'div.thumbnail', =>
             props
               key: note.note_id
               style:
                 backgroundImage: "url(#{note.media.thumb_url})"
-                width: 120
-                height: 120
                 backgroundSize: '100% 100%'
                 margin: 5
                 cursor: 'pointer'
@@ -652,16 +646,6 @@ App = React.createClass
           @setState account_menu: true
       if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
         child 'div.addItemDesktop', =>
-          props
-            style:
-              position: 'absolute'
-              cursor: 'pointer'
-              top: 95
-              left:
-                if @state.view_focus is 'map'
-                  'calc(70% - 203px)'
-                else
-                  'calc(70% + 17px)'
           child 'img',
             src: 'img/add-item.png'
             onClick: clickAdd

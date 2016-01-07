@@ -1,4 +1,4 @@
-.primaryPane, .primaryModal, .secondaryPane, .searchPane {
+.theMap, .primaryModal, .theThumbs, .searchPane {
   position: absolute;
   bottom: 77px;
   left: 0;
@@ -6,7 +6,7 @@
   height: calc(100% - 77px);
 }
 
-.primaryPane {
+.primaryMap .theMap, .primaryThumbs .theThumbs {
   z-index: 0;
 }
 
@@ -14,7 +14,7 @@
   z-index: 3;
 }
 
-.secondaryPane {
+.primaryMap .theThumbs, .primaryThumbs .theMap {
   z-index: -1;
 }
 
@@ -91,7 +91,25 @@
   padding: 15px;
 }
 
+.primaryThumbs .mobileTitle {
+  display: none;
+}
+
 .hamburgerButton {
   font-size: 23px;
   padding-right: 15px;
+}
+
+.thumbnail {
+  width: 45%;
+}
+@media(min-width:550px) {
+  .thumbnail {
+    width: 31%;
+  }
+}
+@media(min-width:700px) {
+  .thumbnail {
+    width: 23%;
+  }
 }

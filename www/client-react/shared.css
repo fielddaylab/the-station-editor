@@ -40,3 +40,9 @@ body {
   color: white;
   text-align: center;
 }
+
+.thumbnail:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
