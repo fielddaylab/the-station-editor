@@ -208,12 +208,13 @@ App = React.createClass
     , @successAt 'fetching comments', (data) =>
       @updateState
         modal:
-          viewing_note:
-            $apply: (view) =>
-              if view.note is note
-                update view, comments: {$set: data}
-              else
-                view
+          $apply: (modal) =>
+            if modal.viewing_note?.note is note
+              update modal,
+                viewing_note:
+                  comments: $set: data
+            else
+              modal
 
   refreshEditedNote: (note_id = @state.modal.viewing_note.note.note_id) ->
     @search()
