@@ -871,7 +871,22 @@ App = React.createClass
                 comments.forEach (comment) =>
                   child 'div', key: comment.comment_id, =>
                     child 'h4', =>
-                      raw "#{comment.user.display_name} at #{comment.created.toLocaleString()}"
+                      raw "#{comment.user.display_name} at #{comment.created.toLocaleString()} "
+                      if user_id is comment.user.user_id or user_id in owners
+                        child 'img',
+                          src: 'img/freepik/delete81_blue.png'
+                          style: cursor: 'pointer'
+                          onClick: =>
+                            @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
+                      raw ' '
+                      if user_id is comment.user.user_id
+                        child 'img',
+                          src: 'img/freepik/edit45_blue.png'
+                          style: cursor: 'pointer'
+                          onClick: =>
+                            @updateState modal: viewing_note:
+                              edit_comment_id: $set: comment.comment_id
+                              edit_comment_text: $set: comment.description
                     if edit_comment_id is comment.comment_id
                       child 'p', =>
                         child 'textarea', =>
@@ -885,9 +900,11 @@ App = React.createClass
                               resize: 'none'
                               boxSizing: 'border-box'
                       child 'p', =>
-                        child 'button', =>
+                        child 'span.blueButton', =>
                           props
-                            type: 'button'
+                            style:
+                              padding: 5
+                              marginRight: 10
                             onClick: =>
                               if edit_comment_text isnt ''
                                 @props.aris.updateNoteComment
@@ -896,58 +913,38 @@ App = React.createClass
                                 , @successAt 'editing your comment', (comment) =>
                                   @fetchComments note
                                   @updateState modal: viewing_note: edit_comment_id: $set: null
-                          raw 'Save Comment'
-                        raw ' '
-                        child 'button', =>
+                          raw 'SAVE COMMENT'
+                        child 'span.blueButton', =>
                           props
-                            type: 'button'
+                            style:
+                              padding: 5
+                              marginRight: 10
                             onClick: => @updateState modal: viewing_note: edit_comment_id: $set: null
-                          raw 'Cancel'
+                          raw 'CANCEL'
                     else
-                      child 'p', => raw comment.description
-                      if @state.login_status.logged_in?
-                        user_id = @state.login_status.logged_in.auth.user_id
-                        owners =
-                          owner.user_id for owner in @props.game.owners
+                      if confirm_delete_comment_id is comment.comment_id
+                        child 'p', => child 'b', => raw 'Are you sure you want to delete this comment?'
                         child 'p', =>
-                          if user_id is comment.user.user_id or user_id in owners
-                            if confirm_delete_comment_id is comment.comment_id
-                              raw 'Are you sure you want to delete this comment? '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @props.aris.call 'note_comments.deleteNoteComment',
-                                      note_comment_id: comment.comment_id
-                                    , @successAt 'deleting this comment', =>
-                                      @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                                      @fetchComments note
-                                raw 'Delete'
-                              raw ' '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
-                                raw 'Cancel'
-                            else
-                              raw ' '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @updateState modal: viewing_note: confirm_delete_comment_id: $set: comment.comment_id
-                                raw 'Delete Comment'
-                          if user_id is comment.user.user_id
-                              raw ' '
-                              child 'button', =>
-                                props
-                                  type: 'button'
-                                  onClick: =>
-                                    @updateState modal: viewing_note:
-                                      edit_comment_id: $set: comment.comment_id
-                                      edit_comment_text: $set: comment.description
-                                raw 'Edit Comment'
+                          child 'span.blueButton', =>
+                            props
+                              style:
+                                padding: 5
+                                marginRight: 10
+                              onClick: =>
+                                @props.aris.call 'note_comments.deleteNoteComment',
+                                  note_comment_id: comment.comment_id
+                                , @successAt 'deleting this comment', =>
+                                  @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                  @fetchComments note
+                            raw 'DELETE'
+                          child 'span.blueButton', =>
+                            props
+                              style:
+                                padding: 5
+                              onClick: =>
+                                @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                            raw 'CANCEL'
+                      child 'p', => raw comment.description
               else
                 child 'p', => raw 'Loading comments...'
               if @state.login_status.logged_in?
@@ -963,9 +960,11 @@ App = React.createClass
                         resize: 'none'
                         boxSizing: 'border-box'
                 child 'p', =>
-                  child 'button', =>
+                  child 'span.blueButton', =>
                     props
-                      type: 'button'
+                      style:
+                        padding: 5
+                        marginRight: 10
                       onClick: =>
                         if new_comment isnt ''
                           @props.aris.createNoteComment
@@ -975,15 +974,17 @@ App = React.createClass
                           , @successAt 'posting your comment', (comment) =>
                             @fetchComments note
                             @updateState modal: viewing_note: new_comment: $set: ''
-                    raw 'Submit'
+                    raw 'POST COMMENT'
               else
                 child 'p', =>
-                  child 'b', =>
+                  child 'span.blueButton', =>
                     props
+                      style:
+                        padding: 5
+                        marginRight: 10
                       onClick: => @setState account_menu: true
-                      style: cursor: 'pointer'
-                    raw 'Login'
-                  raw ' to post a new comment'
+                    raw 'LOGIN'
+                  raw 'to post a new comment'
         select_photo: ({file}) =>
           child 'div.primaryModal', =>
             props style: backgroundColor: 'white'
