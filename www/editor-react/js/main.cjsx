@@ -313,31 +313,80 @@ SiftrList = React.createClass
   displayName: 'SiftrList'
 
   render: ->
-    make 'ul', =>
+    make 'div', =>
+      props
+        style:
+          width: '70%'
+          paddingLeft: '15%'
+          paddingRight: '15%'
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
-        child 'li', key: "game-#{game.game_id}", =>
-          child 'p', =>
-            raw game.name
-            raw ' '
-            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", => raw '[View]'
-            raw ' '
-            child 'a', href: "\#edit#{game.game_id}", => raw '[Edit]'
-          child 'p', =>
+        child 'div', key: "game-#{game.game_id}", =>
+          props
+            style:
+              marginBottom: 50
+          child 'div', =>
+            props
+              style:
+                marginBottom: 10
+            child 'span', =>
+              props
+                style:
+                  float: 'left'
+                  fontSize: '23px'
+              raw game.name
+            child 'a', href: "\#edit#{game.game_id}", =>
+              child 'span', =>
+                props
+                  style:
+                    float: 'right'
+                    border: '1px solid black'
+                    padding: 5
+                    marginLeft: 5
+                    color: 'black'
+                  raw 'EDIT'
+            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", =>
+              child 'span', =>
+                props
+                  style:
+                    float: 'right'
+                    border: '1px solid black'
+                    padding: 5
+                    marginLeft: 5
+                    color: 'black'
+                  raw 'VIEW'
+            child 'div', style: clear: 'both'
+          child 'div', =>
+            props
+              style:
+                width: '100%'
+                height: '10px'
+                margin: 0
+                padding: 0
+                backgroundImage:
+                  if (colors = @props.colors[game.colors_id])?
+                    percent = 0
+                    points = []
+                    for i in [1..5]
+                      rgb = colors["tag_#{i}"]
+                      points.push "#{rgb} #{percent}%"
+                      percent += 20
+                      points.push "#{rgb} #{percent}%"
+                    "linear-gradient(to right, #{points.join(', ')})"
+                  else
+                    'linear-gradient(to right, gray, gray)'
+          child 'div', =>
+            props
+              style:
+                marginTop: 10
+            sep = => child 'span', style: {paddingLeft: 20, paddingRight: 20}, => raw '|'
             raw "#{notes?.length ? '...'} items"
-            raw ' | '
+            sep()
             raw "#{if notes? then countContributors(notes) else '...'} contributors"
-            raw ' | '
+            sep()
             raw (if game.published then 'Public' else 'Private')
-            raw ' | '
+            sep()
             raw (if game.moderated then 'Moderated' else 'Non-Moderated')
-          if (colors = @props.colors[game.colors_id])?
-            rgbs =
-              colors["tag_#{i}"] for i in [1..5]
-            child 'div', style:
-              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-              height: '20px'
-              width: '100%'
 
 EditSiftr = React.createClass
   displayName: 'EditSiftr'
