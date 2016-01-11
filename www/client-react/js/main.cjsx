@@ -774,6 +774,9 @@ App = React.createClass
               onClick: => @setState modal: nothing: {}
             child 'div.noteView', =>
               child 'h4', =>
+                props
+                  style:
+                    width: 'calc(100% - 80px)'
                 raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
               child 'img', =>
                 props

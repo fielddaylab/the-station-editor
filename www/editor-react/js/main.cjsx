@@ -249,75 +249,65 @@ App = React.createClass
               $set: null
 
   render: ->
-    <div>
-      <div id="the-nav-bar">
-        <div id="the-logo">Siftr</div>
-        <div id="the-discover-button">Discover</div>
-        <div id="the-my-account-button">My Account</div>
-        <div id="the-my-siftrs-button">My Siftrs</div>
-      </div>
-      { if @state.auth?
-          <div>
-            <p><code>{ JSON.stringify @state.auth }</code></p>
-            <button type="button" onClick={@logout}>Logout</button>
-            {
-              switch @state.screen
-                when 'edit'
-                  <EditSiftr
-                    game={@state.edit_game}
-                    colors={@state.colors}
-                    onChange={(game) => @setState edit_game: game}
-                    onSave={@handleSave} />
-                when 'main'
-                  <div>
-                    <SiftrList
-                      games={@state.games}
-                      colors={@state.colors}
-                      notes={@state.notes}
-                      tags={@state.tags} />
-                    <p>
-                      <a href="#new1">
-                        New Siftr
-                      </a>
-                    </p>
-                  </div>
-                when 'new1'
-                  f = (game, tag_string) => @setState
-                    new_game: game
-                    new_tag_string: tag_string
-                  <NewStep1
-                    game={@state.new_game}
-                    tag_string={@state.new_tag_string}
-                    icon={@state.new_icon}
-                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}}
-                    onIconChange={(new_icon) => @setState {new_icon}} />
-                when 'new2'
-                  <NewStep2
-                    game={@state.new_game}
-                    tag_string={@state.new_tag_string}
-                    colors={@state.colors}
-                    onChange={(new_game, new_tag_string) => @setState {new_game, new_tag_string}} />
-                when 'new3'
-                  <NewStep3
-                    game={@state.new_game}
-                    onChange={(new_game) => @setState {new_game}}
-                    onCreate={@createGame} />
-            }
-          </div>
-        else
-          <form>
-            <p>
-              <input type="text" placeholder="Username" value={@state.username} onChange={(e) => @setState username: e.target.value} />
-            </p>
-            <p>
-              <input type="password" placeholder="Password" value={@state.password} onChange={(e) => @setState password: e.target.value} />
-            </p>
-            <p>
-              <button type="submit" onClick={(e) => e.preventDefault(); @login(@state.username, @state.password)}>Login</button>
-            </p>
-          </form>
-      }
-    </div>
+    make 'div', =>
+      child 'div#the-nav-bar', =>
+        child 'div#the-logo', => raw 'Siftr'
+        child 'div#the-discover-button', => raw 'Discover'
+        child 'div#the-my-account-button', => raw 'My Account'
+        child 'div#the-my-siftrs-button', => raw 'My Siftrs'
+      if @state.auth?
+        child 'div', =>
+          child 'p', => child 'code', => raw JSON.stringify @state.auth
+          child 'button', type: 'button', onClick: @logout, => raw 'Logout'
+          switch @state.screen
+            when 'edit'
+              child EditSiftr,
+                game: @state.edit_game
+                colors: @state.colors
+                onChange: (game) => @setState edit_game: game
+                onSave: @handleSave
+            when 'main'
+              child 'div', =>
+                child SiftrList,
+                  games: @state.games
+                  colors: @state.colors
+                  notes: @state.notes
+                  tags: @state.tags
+                child 'p', => child 'a', href: '#new1', => raw 'New Siftr'
+            when 'new1'
+              f = (game, tag_string) => @setState
+                new_game: game
+                new_tag_string: tag_string
+              child NewStep1,
+                game: @state.new_game
+                tag_string: @state.new_tag_string
+                icon: @state.new_icon
+                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+                onIconChange: (new_icon) => @setState {new_icon}
+            when 'new2'
+              child NewStep2,
+                game: @state.new_game
+                tag_string: @state.new_tag_string
+                colors: @state.colors
+                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+            when 'new3'
+              child NewStep3,
+                game: @state.new_game
+                onChange: (new_game) => @setState {new_game}
+                onCreate: @createGame
+      else
+        child 'form', =>
+          child 'p', =>
+            child 'input', type: 'text', placeholder: 'Username', value: @state.username, onChange: (e) => @setState username: e.target.value
+          child 'p', =>
+            child 'input', type: 'password', placeholder: 'Password', value: @state.password, onChange: (e) => @setState password: e.target.value
+          child 'p', =>
+            child 'button',
+              type: 'submit'
+              onClick: (e) =>
+                e.preventDefault()
+                @login @state.username, @state.password
+            , => raw 'Login'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'
@@ -353,74 +343,62 @@ EditSiftr = React.createClass
   displayName: 'EditSiftr'
 
   render: ->
-    <form>
-      <p>
-        <label>
-          Name <br />
-          <input ref="name" type="text" value={@props.game.name} onChange={@handleChange} />
-        </label>
-      </p>
-      <p>
-        <label>
-          Description <br />
-          <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
-        </label>
-      </p>
-      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} style={border: '1px solid black'} />
-      <p>
-        <label>
-          URL <br />
-          <input ref="siftr_url" type="text" value={@props.game.siftr_url} onChange={@handleChange} />
-        </label>
-      </p>
-      <p>
-        Your Siftr's URL will be <code>{"#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"}</code>
-      </p>
-      <p>
-        <label>
-          <input ref="published" type="checkbox" checked={@props.game.published} onChange={@handleChange} />
-          Published
-        </label>
-      </p>
-      <p>
-        <label>
-          <input ref="moderated" type="checkbox" checked={@props.game.moderated} onChange={@handleChange} />
-          Moderated
-        </label>
-      </p>
-      { for i in [1..6]
-          colors = @props.colors[i]
-          rgbs =
-            if colors?
-              colors["tag_#{j}"] for j in [1..5]
-            else
-              []
-          <label key={"colors-#{i}"}>
-            <p>
-              <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
-              {colors?.name}
-            </p>
-            <div style={
-              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-              height: '20px'
-              width: '100%'
-              } />
-          </label>
-      }
-      <div style={width: '500px', height: '500px'}>
-        <GoogleMap
-          ref="map"
-          center={[@props.game.latitude, @props.game.longitude]}
-          zoom={Math.max 2, @props.game.zoom}
-          options={minZoom: 2}
-          onChange={@handleMapChange}>
-        </GoogleMap>
-      </div>
-      <p>
-        <button type="button" onClick={@props.onSave}>Save changes</button>
-      </p>
-      <p><a href="#">Back to Siftr list</a></p>
-    </form>
+    make 'form', =>
+      child 'p', =>
+        child 'label', =>
+          raw 'Name'
+          child 'br'
+          child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
+      child 'p', =>
+        child 'label', =>
+          raw 'Description'
+          child 'br'
+          child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
+      child 'div',
+        dangerouslySetInnerHTML: renderMarkdown @props.game.description
+        style: border: '1px solid black'
+      child 'p', =>
+        child 'label', =>
+          raw 'URL'
+          child 'br'
+          child 'input', ref: 'siftr_url', type: 'text', value: @props.game.siftr_url, onChange: @handleChange
+      child 'p', =>
+        raw "Your Siftr's URL will be "
+        child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"
+      child 'p', =>
+        child 'label', =>
+          child 'input', ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
+          raw 'Published'
+      child 'p', =>
+        child 'label', =>
+          child 'input', ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
+          raw 'Moderated'
+      for i in [1..6]
+        colors = @props.colors[i]
+        rgbs =
+          if colors?
+            colors["tag_#{j}"] for j in [1..5]
+          else
+            []
+        child 'label', key: "colors-#{i}", =>
+          child 'p', =>
+            child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+            raw colors?.name
+          child 'div', style:
+            backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
+            height: '20px'
+            width: '100%'
+      child 'div', style: {width: '500px', height: '500px'}, =>
+        child GoogleMap,
+          ref: 'map'
+          center: [@props.game.latitude, @props.game.longitude]
+          zoom: Math.max(2, @props.game.zoom)
+          options: minZoom: 2
+          onChange: @handleMapChange
+      child 'p', =>
+        child 'button', type: 'button', onClick: @props.onSave, =>
+          raw 'Save changes'
+      child 'p', => child 'a', href: '#', => raw 'Back to Siftr list'
 
   handleChange: ->
     game = update @props.game,
@@ -456,43 +434,36 @@ NewStep1 = React.createClass
   displayName: 'NewStep1'
 
   render: ->
-    <div>
-      <h2>New Siftr</h2>
-      <p>
-        <a href="#new2">Next, appearance</a>
-      </p>
-      <p>What kind of Siftr do you want to make?</p>
-      <label>
-        <p>Name</p>
-        <input ref="name" type="text" value={@props.game.name} onChange={@handleChange} />
-      </label>
-      <label>
-        <p>Tags, separated by comma</p>
-        <input ref="tag_string" type="text" value={@props.tag_string} onChange={@handleChange} />
-      </label>
-      <label>
-        <p>Description</p>
-        <textarea ref="description" value={@props.game.description} onChange={@handleChange} />
-      </label>
-      <div dangerouslySetInnerHTML={renderMarkdown @props.game.description} style={border: '1px solid black'} />
-      <label>
-        <p>Siftr Icon</p>
-        { if @props.icon?
-            <div style={
-              backgroundImage: "url(#{@props.icon})"
-              backgroundSize: 'contain'
-              backgroundRepeat: 'no-repeat'
-              backgroundPosition: 'center'
-              width: '100px'
-              height: '100px'
-            } />
-          else
-            ''
-        }
-        <p><button type="button" onClick={@selectImage}>Select Image</button></p>
-      </label>
-      <p><a href="#">Cancel</a></p>
-    </div>
+    make 'div', =>
+      child 'h2', => raw 'New Siftr'
+      child 'p', =>
+        child 'a', href: '#new2', => raw 'Next, appearance'
+      child 'label', =>
+        child 'p', => raw 'Name'
+        child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
+      child 'label', =>
+        child 'p', => raw 'Tags, separated by comma'
+        child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange
+      child 'label', =>
+        child 'p', => raw 'Description'
+        child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
+      child 'div', =>
+        dangerouslySetInnerHTML: renderMarkdown @props.game.description
+        style: border: '1px solid black'
+      child 'label', =>
+        child 'p', => raw 'Siftr Icon'
+        if @props.icon?
+          raw 'div', style:
+            backgroundImage: "url(#{@props.icon})"
+            backgroundSize: 'contain'
+            backgroundRepeat: 'no-repeat'
+            backgroundPosition: 'center'
+            width: '100px'
+            height: '100px'
+        child 'p', =>
+          child 'button', type: 'button', onClick: @selectImage, =>
+            raw 'Select Image'
+      child 'p', => child 'a', href: '#', => raw 'Cancel'
 
   selectImage: ->
     input = document.createElement 'input'
@@ -519,63 +490,46 @@ NewStep2 = React.createClass
 
   render: ->
     @tag_boxes = []
-    <div>
-      <h2>New Siftr 2</h2>
-      <p>
-        <a href="#new1">Back, setup</a>
-      </p>
-      <p>
-        <a href="#new3">Next, settings</a>
-      </p>
-      <form>
-        { for i in [1..6]
-            colors = @props.colors[i]
-            rgbs =
-              if colors?
-                colors["tag_#{j}"] for j in [1..5]
-              else
-                []
-            <label key={"colors-#{i}"}>
-              <p>
-                <input ref={"colors_#{i}"} type="radio" onChange={@handleChange} name="colors" checked={@props.game.colors_id is i} />
-                {colors?.name}
-              </p>
-              <div style={
-                backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-                height: '20px'
-                width: '100%'
-                } />
-            </label>
-        }
-      </form>
-      <form>
-        <p><b>TAGS</b></p>
-        <ul>
-          { for tag, i in @props.tag_string.split(',')
-              do (i) =>
-                tag = tag.replace(/^\s+/, '')
-                <li key={"tag-#{i}"}>
-                  <input type="text" value={tag} onChange={@handleChange} ref={(elt) => @tag_boxes.push(elt) unless elt is null} />
-                  <button type="button" onClick={=> @deleteTag i}>Delete</button>
-                </li>
-          }
-          <li>
-            <button type="button" onClick={@addTag}>Add Tag</button>
-          </li>
-        </ul>
-      </form>
-      <p>Position Map Center</p>
-      <div style={width: '500px', height: '500px'}>
-        <GoogleMap
-          ref="map"
-          center={[@props.game.latitude, @props.game.longitude]}
-          zoom={Math.max 2, @props.game.zoom}
-          options={minZoom: 2}
-          onChange={@handleMapChange}>
-        </GoogleMap>
-      </div>
-      <p><a href="#">Cancel</a></p>
-    </div>
+    make 'div', =>
+      child 'h2', => raw 'New Siftr 2'
+      child 'p', => child 'a', href: '#new1', => raw 'Back, setup'
+      child 'p', => child 'a', href: '#new3', => raw 'Next, settings'
+      child 'form', =>
+        for i in [1..6]
+          colors = @props.colors[i]
+          rgbs =
+            if colors?
+              colors["tag_#{j}"] for j in [1..5]
+            else
+              []
+          child 'label', key: "colors-#{i}", =>
+            child 'p', =>
+              child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+              raw colors?.name
+            child 'div', style:
+              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
+              height: '20px'
+              width: '100%'
+      child 'form', =>
+        child 'p', => child 'b', => raw 'TAGS'
+        child 'ul', =>
+          for tag, i in @props.tag_string.split(',')
+            do (i) =>
+              tag = tag.replace(/^\s+/, '')
+              child 'li', key: "tag-#{i}", =>
+                child 'input', type: 'text', value: tag, onChange: @handleChange, ref: (elt) => @tag_boxes.push(elt) unless elt is null
+                child 'button', type: 'button', onClick: (=> @deleteTag i), => raw 'Delete'
+          child 'li', =>
+            child 'button', type: 'button', onClick: @addTag, => raw 'Add Tag'
+      child 'p', => raw 'Position Map Center'
+      child 'div', style: {width: '500px', height: '500px'}, =>
+        child GoogleMap,
+          ref: 'map'
+          center: [@props.game.latitude, @props.game.longitude]
+          zoom: Math.max(2, @props.game.zoom)
+          options: minZoom: 2
+          onChange: @handleMapChange
+      child 'p', => child 'a', href: '#', => raw 'Cancel'
 
   deleteTag: (index) ->
     tags =
