@@ -522,7 +522,9 @@ NewStep1 = React.createClass
           child 'div', =>
             props style:
               width: '50%'
+              paddingLeft: 10
               float: 'right'
+              boxSizing: 'border-box'
             child 'label', =>
               child 'p', => raw 'NAME'
               child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
@@ -533,26 +535,61 @@ NewStep1 = React.createClass
               child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
               child 'p', => raw 'DESCRIPTION'
-              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%'}
+              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
           child 'div', =>
             props style:
               width: '50%'
+              paddingRight: 10
               float: 'left'
+              boxSizing: 'border-box'
             child 'label', =>
               child 'p', => raw 'SIFTR ICON'
-              if @props.icon?
-                child 'div', style:
-                  backgroundImage: "url(#{@props.icon})"
-                  backgroundSize: 'contain'
-                  backgroundRepeat: 'no-repeat'
-                  backgroundPosition: 'center'
-                  width: '100px'
-                  height: '100px'
-              child 'p', =>
-                child 'button', type: 'button', onClick: @selectImage, =>
-                  raw 'Select Image'
+              child 'div', =>
+                s =
+                  width: '100%'
+                  height: 260
+                  cursor: 'pointer'
+                  backgroundColor: '#eee'
+                  textAlign: 'center'
+                  boxSizing: 'border-box'
+                if @props.icon?
+                  props style: update s, $merge:
+                    backgroundImage: "url(#{@props.icon})"
+                    backgroundSize: 'contain'
+                    backgroundRepeat: 'no-repeat'
+                    backgroundPosition: 'center'
+                else
+                  props style: update s, $merge:
+                    paddingLeft: 40
+                    paddingRight: 40
+                    paddingTop: 30
+                  child 'div', style:
+                    backgroundColor: '#ccc'
+                    height: 80
+                    width: 80
+                    borderRadius: '40px'
+                    marginLeft: 'auto'
+                    marginRight: 'auto'
+                  child 'h3', =>
+                    raw 'Drag an image here or '
+                    child 'span', style: {color: 'rgb(20,156,201)'}, => raw 'browse'
+                    raw ' to upload one.'
+                  child 'p', => child 'i', =>
+                    raw '200px by 200px recommended'
+                props
+                  onClick: @selectImage
+                  onDragOver: (e) =>
+                    e.stopPropagation()
+                    e.preventDefault()
+                  onDrop: (e) =>
+                    e.stopPropagation()
+                    e.preventDefault()
+                    for file in e.dataTransfer.files
+                      @loadImageFile file
+                      break
+
           child 'div', style: clear: 'both'
         child 'p', =>
           child 'a', href: '#', =>
@@ -570,13 +607,14 @@ NewStep1 = React.createClass
   selectImage: ->
     input = document.createElement 'input'
     input.type = 'file'
-    input.onchange = (e) =>
-      file = e.target.files[0]
-      fr = new FileReader
-      fr.onload = =>
-        @props.onIconChange fr.result
-      fr.readAsDataURL file
+    input.onchange = (e) => @loadImageFile e.target.files[0]
     input.click()
+
+  loadImageFile: (file) ->
+    fr = new FileReader
+    fr.onload = =>
+      @props.onIconChange fr.result
+    fr.readAsDataURL file
 
   handleChange: ->
     game = update @props.game,
