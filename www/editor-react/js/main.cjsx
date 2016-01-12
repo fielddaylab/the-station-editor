@@ -797,25 +797,96 @@ NewStep3 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'h2', => raw 'New Siftr 3'
-      child 'p', =>
-        child 'a', href: '#new2', => raw 'Back, setup'
-      child 'p', =>
-        child 'button', =>
+      child 'div', =>
+        props
+          style:
+            width: '100%'
+            textAlign: 'center'
+            backgroundColor: 'gray'
+            color: 'white'
+            paddingTop: 60
+            paddingBottom: 60
+            position: 'relative'
+        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
+        child 'a', href: '#new2', =>
+          child 'div', =>
+            props
+              style:
+                position: 'absolute'
+                backgroundColor: 'rgb(97,201,226)'
+                color: 'white'
+                top: 0
+                left: '20%'
+                top: 60
+                paddingLeft: 20
+                paddingRight: 20
+                paddingTop: 10
+                paddingBottom: 10
+            raw '< BACK, APPEARANCE'
+        child 'div', =>
           props
-            type: 'button'
+            style:
+              position: 'absolute'
+              backgroundColor: 'rgb(254,212,0)'
+              color: 'white'
+              top: 0
+              right: '20%'
+              top: 60
+              paddingLeft: 20
+              paddingRight: 20
+              paddingTop: 10
+              paddingBottom: 10
+              cursor: 'pointer'
             onClick: @props.onCreate
-          raw 'Create!'
-      child 'form', =>
+          raw 'PUBLISH!'
+
+      child 'div', =>
+        props style:
+          width: '30%'
+          paddingLeft: '35%'
+        child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
+        child 'h4', => raw 'PRIVACY'
         child 'p', =>
-          child 'label', =>
-            child 'input', => props ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
-            raw 'Public'
+          raw 'Do you want '
+          child 'b', => raw @props.game.name
+          raw ' to be public or private?'
+        button = (str, checked, check) =>
+          child 'span', =>
+            props
+              style:
+                boxSizing: 'border-box'
+                width: 120
+                padding: 10
+                display: 'inline-block'
+                textAlign: 'center'
+                border: '3px solid rgb(51,191,224)'
+                cursor: 'pointer'
+                # TODO: ask Eric if the below colors are right, or if they should be flipped
+                color: if checked then 'white' else 'rgb(51,191,224)'
+                backgroundColor: if checked then 'rgb(51,191,224)' else 'white'
+              onClick: check
+            raw str
         child 'p', =>
-          child 'label', =>
-            child 'input', => props ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
-            raw 'Moderation'
-      child 'p', => child 'a', href: '#', => raw 'Cancel'
+          props style:
+            marginTop: 30
+            marginBottom: 30
+          button 'PUBLIC', @props.game.published, =>
+            @props.onChange update @props.game, published: $set: true
+          button 'PRIVATE', not @props.game.published, =>
+            @props.onChange update @props.game, published: $set: false
+        child 'h4', => raw 'MODERATION'
+        child 'p', =>
+          raw 'Do new user submissions have to be approved by you before they are added to '
+          child 'b', => raw @props.game.name
+          raw '?'
+        child 'p', =>
+          props style:
+            marginTop: 30
+            marginBottom: 30
+          button 'YES', @props.game.moderated, =>
+            @props.onChange update @props.game, moderated: $set: true
+          button 'NO', not @props.game.moderated, =>
+            @props.onChange update @props.game, moderated: $set: false
 
   handleChange: ->
     game = update @props.game,
