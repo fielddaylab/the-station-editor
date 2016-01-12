@@ -629,47 +629,136 @@ NewStep2 = React.createClass
   displayName: 'NewStep2'
 
   render: ->
-    @tag_boxes = []
     make 'div', =>
-      child 'h2', => raw 'New Siftr 2'
-      child 'p', => child 'a', href: '#new1', => raw 'Back, setup'
-      child 'p', => child 'a', href: '#new3', => raw 'Next, settings'
-      child 'form', =>
-        for i in [1..6]
-          colors = @props.colors[i]
-          rgbs =
-            if colors?
-              colors["tag_#{j}"] for j in [1..5]
-            else
-              []
-          child 'label', key: "colors-#{i}", =>
-            child 'p', =>
+      child 'div', =>
+        props
+          style:
+            width: '100%'
+            textAlign: 'center'
+            backgroundColor: 'gray'
+            color: 'white'
+            paddingTop: 60
+            paddingBottom: 60
+            position: 'relative'
+        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
+        child 'a', href: '#new1', =>
+          child 'div', =>
+            props
+              style:
+                position: 'absolute'
+                backgroundColor: 'rgb(97,201,226)'
+                color: 'white'
+                top: 0
+                left: '20%'
+                top: 60
+                paddingLeft: 20
+                paddingRight: 20
+                paddingTop: 10
+                paddingBottom: 10
+            raw '< BACK, SETUP'
+        child 'a', href: '#new3', =>
+          child 'div', =>
+            props
+              style:
+                position: 'absolute'
+                backgroundColor: 'rgb(97,201,226)'
+                color: 'white'
+                top: 0
+                right: '20%'
+                top: 60
+                paddingLeft: 20
+                paddingRight: 20
+                paddingTop: 10
+                paddingBottom: 10
+            raw 'NEXT, SETTINGS >'
+
+      child 'div', =>
+        props
+          style:
+            width: '80%'
+            marginLeft: '10%'
+        child 'h3', style: {textAlign: 'center'}, =>
+          raw 'Choose a color scheme for your new Siftr!'
+        @tag_boxes = []
+        child 'div', =>
+          props style:
+            display: 'table'
+            width: '100%'
+            tableLayout: 'fixed'
+            fontSize: '13px'
+          for i in [1..6]
+            colors = @props.colors[i]
+            rgbs =
+              if colors?
+                colors["tag_#{j}"] for j in [1..5]
+              else
+                []
+            child 'label', key: "colors-#{i}", =>
+              props style: display: 'table-cell'
+              child 'p', => raw colors?.name
               child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-              raw colors?.name
-            child 'div', style:
-              backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-              height: '20px'
-              width: '100%'
-      child 'form', =>
-        child 'p', => child 'b', => raw 'TAGS'
-        child 'ul', =>
-          for tag, i in @props.tag_string.split(',')
-            do (i) =>
-              tag = tag.replace(/^\s+/, '')
-              child 'li', key: "tag-#{i}", =>
-                child 'input', type: 'text', value: tag, onChange: @handleChange, ref: (elt) => @tag_boxes.push(elt) unless elt is null
-                child 'button', type: 'button', onClick: (=> @deleteTag i), => raw 'Delete'
-          child 'li', =>
-            child 'button', type: 'button', onClick: @addTag, => raw 'Add Tag'
-      child 'p', => raw 'Position Map Center'
-      child 'div', style: {width: '500px', height: '500px'}, =>
-        child GoogleMap,
-          ref: 'map'
-          center: [@props.game.latitude, @props.game.longitude]
-          zoom: Math.max(2, @props.game.zoom)
-          options: minZoom: 2
-          onChange: @handleMapChange
-      child 'p', => child 'a', href: '#', => raw 'Cancel'
+              gradient = do =>
+                percent = 0
+                points = []
+                for rgb in rgbs
+                  points.push "#{rgb} #{percent}%"
+                  percent += 20
+                  points.push "#{rgb} #{percent}%"
+                "linear-gradient(to right, #{points.join(', ')})"
+              child 'div', style:
+                width: 90
+                height: 35
+                marginLeft: 10
+                backgroundImage: gradient
+                display: 'inline-block'
+
+        child 'div', =>
+          props style: paddingTop: 20
+          child 'div', =>
+            props style:
+              width: '50%'
+              paddingRight: 10
+              float: 'left'
+              boxSizing: 'border-box'
+            child 'form', =>
+              child 'p', => child 'b', => raw 'TAGS'
+              child 'ul', =>
+                for tag, i in @props.tag_string.split(',')
+                  do (i) =>
+                    tag = tag.replace(/^\s+/, '')
+                    child 'li', key: "tag-#{i}", =>
+                      child 'input', type: 'text', value: tag, onChange: @handleChange, ref: (elt) => @tag_boxes.push(elt) unless elt is null
+                      child 'button', type: 'button', onClick: (=> @deleteTag i), => raw 'Delete'
+                child 'li', =>
+                  child 'button', type: 'button', onClick: @addTag, => raw 'Add Tag'
+          child 'div', =>
+            props style:
+              width: '50%'
+              paddingLeft: 10
+              float: 'right'
+              boxSizing: 'border-box'
+            # child 'p', => raw 'Position Map Center'
+            child 'div', style: {width: '100%', height: '500px'}, =>
+              child GoogleMap,
+                ref: 'map'
+                center: [@props.game.latitude, @props.game.longitude]
+                zoom: Math.max(2, @props.game.zoom)
+                options: minZoom: 2
+                onChange: @handleMapChange
+
+          child 'div', style: clear: 'both'
+        child 'p', =>
+          child 'a', href: '#', =>
+            child 'span', =>
+              props style:
+                float: 'right'
+                color: 'white'
+                backgroundColor: 'lightgray'
+                paddingLeft: 35
+                paddingRight: 35
+                paddingTop: 8
+                paddingBottom: 8
+              raw 'CANCEL'
 
   deleteTag: (index) ->
     tags =
