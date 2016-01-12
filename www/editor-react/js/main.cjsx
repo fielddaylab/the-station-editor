@@ -484,35 +484,88 @@ NewStep1 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'h2', => raw 'New Siftr'
-      child 'p', =>
-        child 'a', href: '#new2', => raw 'Next, appearance'
-      child 'label', =>
-        child 'p', => raw 'Name'
-        child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
-      child 'label', =>
-        child 'p', => raw 'Tags, separated by comma'
-        child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange
-      child 'label', =>
-        child 'p', => raw 'Description'
-        child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
       child 'div', =>
-        dangerouslySetInnerHTML: renderMarkdown @props.game.description
-        style: border: '1px solid black'
-      child 'label', =>
-        child 'p', => raw 'Siftr Icon'
-        if @props.icon?
-          raw 'div', style:
-            backgroundImage: "url(#{@props.icon})"
-            backgroundSize: 'contain'
-            backgroundRepeat: 'no-repeat'
-            backgroundPosition: 'center'
-            width: '100px'
-            height: '100px'
+        props
+          style:
+            width: '100%'
+            textAlign: 'center'
+            backgroundColor: 'gray'
+            color: 'white'
+            paddingTop: 60
+            paddingBottom: 60
+            position: 'relative'
+        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
+        child 'a', href: '#new2', =>
+          child 'div', =>
+            props
+              style:
+                position: 'absolute'
+                backgroundColor: 'rgb(97,201,226)'
+                color: 'white'
+                top: 0
+                right: '20%'
+                top: 60
+                paddingLeft: 20
+                paddingRight: 20
+                paddingTop: 10
+                paddingBottom: 10
+            raw 'NEXT, APPEARANCE >'
+
+      child 'div', =>
+        props
+          style:
+            width: '60%'
+            marginLeft: '20%'
+        child 'h3', style: {textAlign: 'center'}, =>
+          raw 'What kind of Siftr do you want to make?'
+        child 'div', =>
+          child 'div', =>
+            props style:
+              width: '50%'
+              float: 'right'
+            child 'label', =>
+              child 'p', => raw 'NAME'
+              child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
+            child 'label', =>
+              child 'p', =>
+                raw 'TAGS '
+                child 'i', => raw 'separated by comma'
+              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange, style: {width: '100%'}
+            child 'label', =>
+              child 'p', => raw 'DESCRIPTION'
+              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%'}
+            child 'div',
+              dangerouslySetInnerHTML: renderMarkdown @props.game.description
+          child 'div', =>
+            props style:
+              width: '50%'
+              float: 'left'
+            child 'label', =>
+              child 'p', => raw 'SIFTR ICON'
+              if @props.icon?
+                child 'div', style:
+                  backgroundImage: "url(#{@props.icon})"
+                  backgroundSize: 'contain'
+                  backgroundRepeat: 'no-repeat'
+                  backgroundPosition: 'center'
+                  width: '100px'
+                  height: '100px'
+              child 'p', =>
+                child 'button', type: 'button', onClick: @selectImage, =>
+                  raw 'Select Image'
+          child 'div', style: clear: 'both'
         child 'p', =>
-          child 'button', type: 'button', onClick: @selectImage, =>
-            raw 'Select Image'
-      child 'p', => child 'a', href: '#', => raw 'Cancel'
+          child 'a', href: '#', =>
+            child 'span', =>
+              props style:
+                float: 'right'
+                color: 'white'
+                backgroundColor: 'lightgray'
+                paddingLeft: 35
+                paddingRight: 35
+                paddingTop: 8
+                paddingBottom: 8
+              raw 'CANCEL'
 
   selectImage: ->
     input = document.createElement 'input'
