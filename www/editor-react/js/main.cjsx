@@ -721,31 +721,88 @@ NewStep2 = React.createClass
               float: 'left'
               boxSizing: 'border-box'
             child 'form', =>
-              child 'p', => child 'b', => raw 'TAGS'
-              child 'ul', =>
-                for tag, i in @props.tag_string.split(',')
-                  do (i) =>
-                    tag = tag.replace(/^\s+/, '')
-                    child 'li', key: "tag-#{i}", =>
-                      child 'input', type: 'text', value: tag, onChange: @handleChange, ref: (elt) => @tag_boxes.push(elt) unless elt is null
-                      child 'button', type: 'button', onClick: (=> @deleteTag i), => raw 'Delete'
-                child 'li', =>
-                  child 'button', type: 'button', onClick: @addTag, => raw 'Add Tag'
+              child 'h3', => raw 'TAGS'
+              for tag, i in @props.tag_string.split(',')
+                tag = tag.replace(/^\s+/, '')
+                do (i) =>
+                  child 'div', key: "tag-#{i}", =>
+                    props style:
+                      display: 'table'
+                      width: '100%'
+                      marginTop: 30
+                      marginBottom: 30
+                    child 'div', =>
+                      props style:
+                        display: 'table-cell'
+                        width: 30
+                      child 'div', style:
+                        width: 30
+                        height: 30
+                        borderRadius: 15
+                        backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 5) + 1}"] or 'black'
+                        marginTop: 'auto'
+                        marginBottom: 'auto'
+                    child 'div', =>
+                      props style:
+                        display: 'table-cell'
+                        position: 'relative'
+                      child 'input',
+                        type: 'text'
+                        value: tag
+                        onChange: @handleChange
+                        ref: (elt) => @tag_boxes.push(elt) unless elt is null
+                        style:
+                          position: 'absolute'
+                          width: 'calc(100% - 40px)'
+                          boxSizing: 'border-box'
+                          marginLeft: 20
+                          top: 5
+                    child 'div', =>
+                      props
+                        style:
+                          display: 'table-cell'
+                          width: 30
+                          color: 'rgb(255,87,61)'
+                          fontSize: '25px'
+                          cursor: 'pointer'
+                          position: 'relative'
+                        onClick: => @deleteTag i
+                      child 'span', style: {position: 'absolute', top: -3}, => raw '×'
+              child 'p', =>
+                props style: marginTop: 40
+                child 'span', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(97,201,226)'
+                      color: 'white'
+                      paddingLeft: 25
+                      paddingRight: 25
+                      paddingTop: 10
+                      paddingBottom: 10
+                      cursor: 'pointer'
+                    onClick: @addTag
+                  raw 'ADD TAG'
           child 'div', =>
             props style:
               width: '50%'
               paddingLeft: 10
               float: 'right'
               boxSizing: 'border-box'
-            # child 'p', => raw 'Position Map Center'
-            child 'div', style: {width: '100%', height: '500px'}, =>
+            child 'div', style: {width: '100%', height: '500px', position: 'relative'}, =>
               child GoogleMap,
                 ref: 'map'
                 center: [@props.game.latitude, @props.game.longitude]
                 zoom: Math.max(2, @props.game.zoom)
                 options: minZoom: 2
                 onChange: @handleMapChange
-
+              child 'h3', =>
+                props style:
+                  position: 'absolute'
+                  top: 20
+                  left: 20
+                  padding: 0
+                  margin: 0
+                raw 'POSITION MAP CENTER'
           child 'div', style: clear: 'both'
         child 'p', =>
           child 'a', href: '#', =>
