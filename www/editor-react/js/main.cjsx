@@ -320,7 +320,7 @@ SiftrList = React.createClass
           width: '70%'
           paddingLeft: '15%'
           paddingRight: '15%'
-          paddingTop: 20
+          paddingTop: 40
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
         child 'div', key: "game-#{game.game_id}", =>
@@ -405,54 +405,139 @@ EditSiftr = React.createClass
             paddingRight: 35
           child 'form', =>
             child 'h2', => raw @props.game.name
-            child 'p', =>
-              child 'label', =>
-                raw 'Name'
-                child 'br'
-                child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
-            child 'p', =>
-              child 'label', =>
-                raw 'Description'
-                child 'br'
-                child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
+            child 'label', =>
+              child 'h4', => raw 'NAME'
+              child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
+            child 'label', =>
+              child 'h4', => raw 'DESCRIPTION'
+              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
-              style: border: '1px solid black'
+            child 'label', =>
+              child 'h4', => raw 'URL'
+              child 'p', =>
+                child 'input',
+                  type: 'text'
+                  placeholder: 'URL (optional)'
+                  value: @props.game.siftr_url
+                  onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
+                  style: width: '100%'
             child 'p', =>
-              child 'label', =>
-                raw 'URL'
-                child 'br'
-                child 'input', ref: 'siftr_url', type: 'text', value: @props.game.siftr_url, onChange: @handleChange
+              child 'b', => raw @props.game.name
+              raw " will be located at "
+              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
+            child 'h2', => raw 'SETTINGS'
+            child 'h4', => raw 'PRIVACY'
             child 'p', =>
-              raw "Your Siftr's URL will be "
-              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"
+              raw 'Do you want '
+              child 'b', => raw @props.game.name
+              raw ' to be public or private?'
+            button = (str, checked, check) =>
+              child 'span', =>
+                props
+                  style:
+                    boxSizing: 'border-box'
+                    width: 120
+                    padding: 10
+                    display: 'inline-block'
+                    textAlign: 'center'
+                    border: '3px solid rgb(51,191,224)'
+                    cursor: 'pointer'
+                    # TODO: ask Eric if the below colors are right, or if they should be flipped
+                    color: if checked then 'white' else 'rgb(51,191,224)'
+                    backgroundColor: if checked then 'rgb(51,191,224)' else 'white'
+                  onClick: check
+                raw str
             child 'p', =>
-              child 'label', =>
-                child 'input', ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
-                raw 'Published'
+              props style:
+                marginTop: 30
+                marginBottom: 30
+              button 'PUBLIC', @props.game.published, =>
+                @props.onChange update @props.game, published: $set: true
+              button 'PRIVATE', not @props.game.published, =>
+                @props.onChange update @props.game, published: $set: false
+            child 'h4', => raw 'MODERATION'
             child 'p', =>
-              child 'label', =>
-                child 'input', ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
-                raw 'Moderated'
-            for i in [1..6]
-              colors = @props.colors[i]
-              rgbs =
-                if colors?
-                  colors["tag_#{j}"] for j in [1..5]
-                else
-                  []
-              child 'label', key: "colors-#{i}", =>
-                child 'p', =>
-                  child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-                  raw colors?.name
-                child 'div', style:
-                  backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-                  height: '20px'
+              raw 'Do new user submissions have to be approved by you before they are added to '
+              child 'b', => raw @props.game.name
+              raw '?'
+            child 'p', =>
+              props style:
+                marginTop: 30
+                marginBottom: 30
+              button 'YES', @props.game.moderated, =>
+                @props.onChange update @props.game, moderated: $set: true
+              button 'NO', not @props.game.moderated, =>
+                @props.onChange update @props.game, moderated: $set: false
+
+            child 'h2', => raw 'APPEARANCE'
+            child 'p', =>
+              raw 'What color palette should '
+              child 'b', => raw @props.game.name
+              raw ' use?'
+            colorsRow = (colors_ids) =>
+              child 'div', =>
+                props style:
+                  display: 'table'
                   width: '100%'
+                  tableLayout: 'fixed'
+                  fontSize: '13px'
+                for i in colors_ids
+                  colors = @props.colors[i]
+                  rgbs =
+                    if colors?
+                      colors["tag_#{j}"] for j in [1..5]
+                    else
+                      []
+                  child 'label', key: "colors-#{i}", =>
+                    props style: display: 'table-cell'
+                    child 'p', => raw colors?.name
+                    child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                    gradient = do =>
+                      percent = 0
+                      points = []
+                      for rgb in rgbs
+                        points.push "#{rgb} #{percent}%"
+                        percent += 20
+                        points.push "#{rgb} #{percent}%"
+                      "linear-gradient(to right, #{points.join(', ')})"
+                    child 'div', style:
+                      width: 90
+                      height: 35
+                      marginLeft: 10
+                      backgroundImage: gradient
+                      display: 'inline-block'
+            colorsRow [1, 2, 3]
+            colorsRow [4, 5, 6]
+
             child 'p', =>
-              child 'button', type: 'button', onClick: @props.onSave, =>
-                raw 'Save changes'
-            child 'p', => child 'a', href: '#', => raw 'Back to Siftr list'
+              props style:
+                marginTop: 60
+                marginBottom: 30
+              child 'span', =>
+                props
+                  style:
+                    backgroundColor: 'rgb(51,191,224)'
+                    color: 'white'
+                    cursor: 'pointer'
+                    paddingLeft: 35
+                    paddingRight: 35
+                    paddingTop: 10
+                    paddingBottom: 10
+                    marginRight: 20
+                  onClick: @props.onSave
+                raw 'SAVE'
+              child 'a', href: '#', =>
+                child 'span', =>
+                  props style:
+                    backgroundColor: 'lightgray'
+                    color: 'white'
+                    paddingLeft: 35
+                    paddingRight: 35
+                    paddingTop: 10
+                    paddingBottom: 10
+                    marginRight: 20
+                  raw 'CANCEL'
         child 'div', =>
           props style:
             position: 'fixed'
@@ -475,12 +560,6 @@ EditSiftr = React.createClass
         $set: @refs['name'].value
       description:
         $set: @refs['description'].value
-      siftr_url:
-        $set: @refs['siftr_url'].value or null
-      published:
-        $set: @refs['published'].checked
-      moderated:
-        $set: @refs['moderated'].checked
       colors_id:
         $set: do =>
           for i in [1..6]
@@ -776,7 +855,7 @@ NewStep2 = React.createClass
                           width: 'calc(100% - 40px)'
                           boxSizing: 'border-box'
                           marginLeft: 20
-                          top: 5
+                          top: 0
                     child 'div', =>
                       props
                         style:
@@ -964,14 +1043,21 @@ NewStep3 = React.createClass
             @props.onChange update @props.game, moderated: $set: true
           button 'NO', not @props.game.moderated, =>
             @props.onChange update @props.game, moderated: $set: false
-
-  handleChange: ->
-    game = update @props.game,
-      published:
-        $set: @refs.published.checked
-      moderated:
-        $set: @refs.moderated.checked
-    @props.onChange game
+        child 'h4', => raw 'URL'
+        child 'p', =>
+          child 'input',
+            type: 'text'
+            placeholder: 'URL (optional)'
+            value: @props.game.siftr_url
+            onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
+            style: width: '100%'
+        child 'p', =>
+          if @props.game.siftr_url
+            child 'b', => raw @props.game.name
+            raw " will be located at "
+            child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url}"
+          else
+            raw "Enter a custom identifier for your Siftr's web address."
 
 document.addEventListener 'DOMContentLoaded', (event) ->
-  ReactDOM.render <App aris={new Aris} />, document.getElementById('the-container')
+  ReactDOM.render make(App, aris: new Aris), document.getElementById('the-container')
