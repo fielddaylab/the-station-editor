@@ -255,10 +255,10 @@ App = React.createClass
         child 'div#the-discover-button', => raw 'Discover'
         child 'div#the-my-account-button', => raw 'My Account'
         child 'div#the-my-siftrs-button', => raw 'My Siftrs'
+      child 'div', style:
+        height: 52
       if @state.auth?
         child 'div', =>
-          child 'p', => child 'code', => raw JSON.stringify @state.auth
-          child 'button', type: 'button', onClick: @logout, => raw 'Logout'
           switch @state.screen
             when 'edit'
               child EditSiftr,
@@ -295,6 +295,7 @@ App = React.createClass
                 game: @state.new_game
                 onChange: (new_game) => @setState {new_game}
                 onCreate: @createGame
+          child 'button', type: 'button', onClick: @logout, => raw 'Logout'
       else
         child 'form', =>
           child 'p', =>
@@ -319,6 +320,7 @@ SiftrList = React.createClass
           width: '70%'
           paddingLeft: '15%'
           paddingRight: '15%'
+          paddingTop: 20
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
         child 'div', key: "game-#{game.game_id}", =>
@@ -392,62 +394,80 @@ EditSiftr = React.createClass
   displayName: 'EditSiftr'
 
   render: ->
-    make 'form', =>
-      child 'p', =>
-        child 'label', =>
-          raw 'Name'
-          child 'br'
-          child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
-      child 'p', =>
-        child 'label', =>
-          raw 'Description'
-          child 'br'
-          child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
-      child 'div',
-        dangerouslySetInnerHTML: renderMarkdown @props.game.description
-        style: border: '1px solid black'
-      child 'p', =>
-        child 'label', =>
-          raw 'URL'
-          child 'br'
-          child 'input', ref: 'siftr_url', type: 'text', value: @props.game.siftr_url, onChange: @handleChange
-      child 'p', =>
-        raw "Your Siftr's URL will be "
-        child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"
-      child 'p', =>
-        child 'label', =>
-          child 'input', ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
-          raw 'Published'
-      child 'p', =>
-        child 'label', =>
-          child 'input', ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
-          raw 'Moderated'
-      for i in [1..6]
-        colors = @props.colors[i]
-        rgbs =
-          if colors?
-            colors["tag_#{j}"] for j in [1..5]
-          else
-            []
-        child 'label', key: "colors-#{i}", =>
-          child 'p', =>
-            child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-            raw colors?.name
-          child 'div', style:
-            backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
-            height: '20px'
-            width: '100%'
-      child 'div', style: {width: '500px', height: '500px'}, =>
-        child GoogleMap,
-          ref: 'map'
-          center: [@props.game.latitude, @props.game.longitude]
-          zoom: Math.max(2, @props.game.zoom)
-          options: minZoom: 2
-          onChange: @handleMapChange
-      child 'p', =>
-        child 'button', type: 'button', onClick: @props.onSave, =>
-          raw 'Save changes'
-      child 'p', => child 'a', href: '#', => raw 'Back to Siftr list'
+    make 'div', =>
+      child 'div', =>
+        child 'div', =>
+          props style:
+            float: 'left'
+            width: '50%'
+            boxSizing: 'border-box'
+            paddingLeft: 35
+            paddingRight: 35
+          child 'form', =>
+            child 'h2', => raw @props.game.name
+            child 'p', =>
+              child 'label', =>
+                raw 'Name'
+                child 'br'
+                child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange
+            child 'p', =>
+              child 'label', =>
+                raw 'Description'
+                child 'br'
+                child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange
+            child 'div',
+              dangerouslySetInnerHTML: renderMarkdown @props.game.description
+              style: border: '1px solid black'
+            child 'p', =>
+              child 'label', =>
+                raw 'URL'
+                child 'br'
+                child 'input', ref: 'siftr_url', type: 'text', value: @props.game.siftr_url, onChange: @handleChange
+            child 'p', =>
+              raw "Your Siftr's URL will be "
+              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url or @props.game.game_id}"
+            child 'p', =>
+              child 'label', =>
+                child 'input', ref: 'published', type: 'checkbox', checked: @props.game.published, onChange: @handleChange
+                raw 'Published'
+            child 'p', =>
+              child 'label', =>
+                child 'input', ref: 'moderated', type: 'checkbox', checked: @props.game.moderated, onChange: @handleChange
+                raw 'Moderated'
+            for i in [1..6]
+              colors = @props.colors[i]
+              rgbs =
+                if colors?
+                  colors["tag_#{j}"] for j in [1..5]
+                else
+                  []
+              child 'label', key: "colors-#{i}", =>
+                child 'p', =>
+                  child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                  raw colors?.name
+                child 'div', style:
+                  backgroundImage: "linear-gradient(to right, #{rgbs.join(', ')})"
+                  height: '20px'
+                  width: '100%'
+            child 'p', =>
+              child 'button', type: 'button', onClick: @props.onSave, =>
+                raw 'Save changes'
+            child 'p', => child 'a', href: '#', => raw 'Back to Siftr list'
+        child 'div', =>
+          props style:
+            position: 'fixed'
+            width: '50%'
+            height: 'calc(100% - 52px)' # TODO: fix this after the top bar is finished
+            right: 0
+            bottom: 0
+            boxSizing: 'border-box'
+          child GoogleMap,
+            ref: 'map'
+            center: [@props.game.latitude, @props.game.longitude]
+            zoom: Math.max(2, @props.game.zoom)
+            options: minZoom: 2
+            onChange: @handleMapChange
+        child 'div', style: clear: 'both'
 
   handleChange: ->
     game = update @props.game,
