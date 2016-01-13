@@ -1331,9 +1331,9 @@ App = React.createClass
                     boxSizing: 'border-box'
                 if editing_note? then raw 'SAVE' else raw 'CATEGORY >'
         select_category: ({media, description, latitude, longitude, tag, editing_note}) =>
-          child 'div.bottomModal', style: {height: 200}, =>
+          child 'div.bottomModal', style: {paddingBottom: 55, paddingTop: 15}, =>
             child 'div', =>
-              props style: {width: '100%', textAlign: 'center', top: 30, position: 'absolute'}
+              props style: {width: '100%', textAlign: 'center', top: 30}
               child 'p', => raw 'Select a Category'
               child 'p', =>
                 @props.game.tags.forEach (some_tag) =>
