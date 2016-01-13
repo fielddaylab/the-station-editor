@@ -7,6 +7,7 @@ GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
 $ = require 'jquery'
 {make, child, raw, props} = require '../../shared/react-writer.js'
+EXIF = require '../../shared/exif.js'
 
 T = React.PropTypes
 
@@ -989,7 +990,7 @@ App = React.createClass
                       onClick: => @setState account_menu: true
                     raw 'LOGIN'
                   raw 'to post a new comment'
-        select_photo: ({file}) =>
+        select_photo: ({file, orientation}) =>
           child 'div.primaryModal', =>
             props style: backgroundColor: 'white'
             child 'div', =>
@@ -1083,6 +1084,7 @@ App = React.createClass
             if file?
               child 'div', =>
                 props
+                  className: "exif-#{orientation or 1}"
                   style:
                     position: 'absolute'
                     top: '25%'
@@ -1112,7 +1114,12 @@ App = React.createClass
                   type: 'file', name: 'raw_upload', ref: 'file_input'
                   onChange: (e) =>
                     if (newFile = e.target.files[0])?
-                      @updateState modal: select_photo: file: $set: newFile
+                      @updateState modal: select_photo:
+                        file: $set: newFile
+                        orientation: $set: 1
+                      EXIF.getData newFile, =>
+                        @updateState modal: select_photo: orientation: $set:
+                          EXIF.getTag(newFile, 'Orientation') or 1
         uploading_photo: ({progress}) =>
           child 'div.primaryModal', style: {backgroundColor: 'white'}, =>
             child 'div', =>
