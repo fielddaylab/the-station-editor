@@ -396,7 +396,7 @@ App = React.createClass
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
               hovering = @state.hover_note_id? and @state.hover_note_id in cluster.note_ids
-              width = if hovering then 30 else 20
+              width = if hovering then 45 else 30
               if -180 < lng < 180 && -90 < lat < 90
                 do (cluster) =>
                   colors =
@@ -405,7 +405,7 @@ App = React.createClass
                     if colors.length is 1
                       colors[0]
                     else
-                      "linear-gradient(to bottom right, #{colors.join(', ')})"
+                      "radial-gradient(circle, #{colors.join(', ')})"
                   child 'div', =>
                     props
                       key: "#{lat}-#{lng}"
@@ -436,7 +436,20 @@ App = React.createClass
                             latitude: center.lat
                             longitude: center.lng
                             zoom: zoom
-                      style: {marginLeft: -(width / 2), marginTop: -(width / 2), width: width, height: width, border: '2px solid black', background: gradient, color: 'black', cursor: 'pointer', textAlign: 'center', display: 'table', fontWeight: 'bold'}
+                      style:
+                        marginLeft: -(width / 2)
+                        marginTop: -(width / 2)
+                        width: width
+                        height: width
+                        background: gradient
+                        color: 'white'
+                        textShadow: '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black'
+                        cursor: 'pointer'
+                        textAlign: 'center'
+                        display: 'table'
+                        fontWeight: 'bold'
+                        fontSize: "#{width / 2}px"
+                        borderRadius: width / 2
                     child 'span', =>
                       props style: {display: 'table-cell', verticalAlign: 'middle'}
                       raw cluster.note_count
