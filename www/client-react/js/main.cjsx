@@ -307,6 +307,48 @@ App = React.createClass
           overflow: 'visible'
 
       # Map
+      makePin = ({lat, lng, key, color, hovering, onClick}) =>
+        width = if hovering then 35 else 20
+        radius = width * 0.6
+        child 'div', =>
+          props
+            style: position: 'relative'
+            lat: lat
+            lng: lng
+            key: key
+          child 'div', =>
+            props
+              style:
+                backgroundColor: 'black'
+                width: (width / 2)
+                height: (width / 2) / 2
+                left: -((width / 2) / 2)
+                top: -((width / 2) / 4)
+                borderRadius: (width / 2) / 2
+                opacity: 0.4
+                boxShadow: '0px 0px 20px 10px black'
+                position: 'absolute'
+          child 'div', =>
+            props
+              onClick: onClick
+              style:
+                position: 'absolute'
+                top: -(width * Math.sqrt(2) * 0.95)
+                left: -(width * Math.sqrt(2) * 0.45) + if hovering then 3 else 0
+                # I'm not sure why the above hacks are necessary.
+                # They should just be 1 and 0.5, not 0.95 and 0.4.
+                # Weird CSS sizing rules probably
+                width: width
+                height: width
+                backgroundColor: color
+                border: '2px solid white'
+                cursor: if onClick? then 'pointer' else undefined
+                borderRadius: "#{radius}px #{radius}px #{radius}px 0"
+                WebkitTransform: "rotate(-45deg)"
+                MozTransform: "rotate(-45deg)"
+                msTransform: "rotate(-45deg)"
+                OTransform: "rotate(-45deg)"
+                transform: "rotate(-45deg)"
       child 'div.theMap', ref: 'theMapDiv', =>
         child GoogleMap, =>
           props
@@ -321,40 +363,35 @@ App = React.createClass
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
 
           if @state.modal.move_point?
-            child 'div', =>
-              props
-                lat: @state.latitude
-                lng: @state.longitude
-                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: 'white', border: '2px solid black'}
+            makePin
+              lat: @state.latitude
+              lng: @state.longitude
+              color: 'black'
           else if @state.modal.select_category?
             modal = @state.modal.select_category
             color = @getColor modal.tag
-            child 'div', =>
-              props
-                lat: modal.editing_note?.latitude ? modal.latitude
-                lng: modal.editing_note?.longitude ? modal.longitude
-                style: {marginLeft: '-7px', marginTop: '-7px', width: '14px', height: '14px', backgroundColor: color, border: '2px solid black'}
+            makePin
+              lat: modal.editing_note?.latitude ? modal.latitude
+              lng: modal.editing_note?.longitude ? modal.longitude
+              color: color
           else
             @state.map_notes.forEach (note) =>
-              color = @getColor note
-              hovering = @state.hover_note_id is note.note_id
-              width = if hovering then 25 else 14
-              child 'div', =>
-                props
-                  key: note.note_id
-                  lat: note.latitude
-                  lng: note.longitude
-                  onClick: =>
-                    @setState
-                      modal:
-                        viewing_note:
-                          note: note
-                          comments: null
-                          new_comment: ''
-                          confirm_delete: false
-                          confirm_delete_comment_id: null
-                    @fetchComments note
-                  style: {marginLeft: -(width / 2), marginTop: -(width / 2), width: width, height: width, backgroundColor: color, border: '2px solid black', cursor: 'pointer'}
+              makePin
+                lat: note.latitude
+                lng: note.longitude
+                color: @getColor note
+                hovering: @state.hover_note_id is note.note_id
+                key: note.note_id
+                onClick: =>
+                  @setState
+                    modal:
+                      viewing_note:
+                        note: note
+                        comments: null
+                        new_comment: ''
+                        confirm_delete: false
+                        confirm_delete_comment_id: null
+                  @fetchComments note
             for cluster, i in @state.map_clusters
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
