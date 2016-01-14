@@ -314,13 +314,7 @@ SiftrList = React.createClass
   displayName: 'SiftrList'
 
   render: ->
-    make 'div', =>
-      props
-        style:
-          width: '70%'
-          paddingLeft: '15%'
-          paddingRight: '15%'
-          paddingTop: 40
+    make 'div.siftrList', =>
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
         child 'div', key: "game-#{game.game_id}", =>
