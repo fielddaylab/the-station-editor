@@ -347,7 +347,7 @@ SiftrList = React.createClass
                     marginLeft: 5
                     color: 'black'
                   raw 'EDIT'
-            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", =>
+            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
               child 'span', =>
                 props
                   style:

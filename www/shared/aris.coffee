@@ -130,10 +130,12 @@ class Aris
   parseLogin: ({data: user, returnCode}) ->
     if returnCode is 0 and user.user_id isnt null
       @auth =
-        user_id:    parseInt user.user_id
-        permission: 'read_write'
-        key:        user.read_write_key
-        username:   user.user_name
+        user_id:      parseInt user.user_id
+        permission:   'read_write'
+        key:          user.read_write_key
+        username:     user.user_name
+        display_name: user.display_name
+        media_id:     user.media_id
       window.localStorage['aris-auth'] = JSON.stringify @auth
     else
       @logout()

@@ -119,3 +119,7 @@ body {
       -ms-transform: rotate(-90deg);
           transform: rotate(-90deg);
 }
+
+input[type=text], input[type=password], textarea {
+  font-size: 15px;
+}

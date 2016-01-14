@@ -245,6 +245,24 @@ App = React.createClass
                   password: ''
             account_menu: failed_login
             message: if failed_login then 'Incorrect username or password.' else null
+          @fetchUserPicture()
+
+  fetchUserPicture: ->
+    match @state.login_status,
+      logged_out: => null
+      logged_in: ({auth}) =>
+        @props.aris.call 'media.getMedia',
+          media_id: auth.media_id
+        , @successAt 'fetching your user picture', (media) =>
+          @updateState
+            login_status:
+              $apply: (status) =>
+                if status.logged_in
+                  logged_in:
+                    auth: auth
+                    media: media
+                else
+                  status
 
   logout: ->
     @props.aris.logout()
@@ -688,37 +706,58 @@ App = React.createClass
           style:
             position: 'absolute'
             top: 77
-            left: 'calc(100% - 350px)'
+            right: 120
             backgroundColor: 'rgb(44,48,59)'
             color: 'white'
             paddingLeft: 10
             paddingRight: 10
-            width: 175
-        child 'div', =>
-          child 'img',
-            src: 'img/x-white.png'
-            style: cursor: 'pointer'
-            onClick: => @setState account_menu: false
+            width: 275
         match @state.login_status,
           logged_out: ({username, password}) =>
             child 'div', =>
+              child 'p', style: {textAlign: 'center'}, =>
+                raw 'Login to your Siftr or ARIS account'
               child 'p', =>
                 props style: {width: '100%'}
                 usernameBox username, width: '100%', boxSizing: 'border-box'
               child 'p', =>
                 props style: {width: '100%'}
                 passwordBox password, width: '100%', boxSizing: 'border-box'
+              child 'div.blueButton', =>
+                props
+                  style:
+                    width: '100%'
+                    boxSizing: 'border-box'
+                    textAlign: 'center'
+                    cursor: 'pointer'
+                    padding: 5
+                    marginBottom: 12
+                  onClick: @login
+                raw 'LOGIN'
+          logged_in: ({auth, media}) =>
+            child 'div', style: {textAlign: 'center'}, =>
               child 'p', =>
-                child 'button', =>
-                  props type: 'button', onClick: @login
-                  raw 'Login'
-          logged_in: ({auth}) =>
-            child 'div', =>
-              child 'p', => raw "Logged in as #{auth.username}"
+                child 'span', style:
+                  width: 100
+                  height: 100
+                  borderRadius: 50
+                  backgroundColor: 'white'
+                  backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
+                  backgroundSize: 'cover'
+                  display: 'inline-block'
               child 'p', =>
-                child 'button', =>
-                  props type: 'button', onClick: @logout
-                  raw 'Logout'
+                raw auth.display_name
+              child 'div.blueButton', =>
+                props
+                  style:
+                    width: '100%'
+                    boxSizing: 'border-box'
+                    textAlign: 'center'
+                    cursor: 'pointer'
+                    padding: 5
+                    marginBottom: 12
+                  onClick: @logout
+                raw 'LOGOUT'
 
       # Mobile account menu
       child 'div.accountMenuMobile', =>

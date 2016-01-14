@@ -183,7 +183,9 @@
           user_id: parseInt(user.user_id),
           permission: 'read_write',
           key: user.read_write_key,
-          username: user.user_name
+          username: user.user_name,
+          display_name: user.display_name,
+          media_id: user.media_id
         };
         return window.localStorage['aris-auth'] = JSON.stringify(this.auth);
       } else {
