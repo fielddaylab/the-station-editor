@@ -25,7 +25,7 @@
   transition-duration: 0.25s;
 }
 .searching .searchPane {
-  height: 400px;
+  height: 500px;
 }
 
 .primaryMap .theThumbs, .primaryThumbs .theMap {
@@ -38,7 +38,7 @@
   transition-duration: 0.25s;
 }
 .searching.primaryMap .theThumbs, .searching.primaryThumbs .theMap {
-  top: 477px;
+  top: 577px;
   height: calc(100% - 477px);
 }
 

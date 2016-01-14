@@ -375,23 +375,6 @@ App = React.createClass
               lng: modal.editing_note?.longitude ? modal.longitude
               color: color
           else
-            @state.map_notes.forEach (note) =>
-              makePin
-                lat: note.latitude
-                lng: note.longitude
-                color: @getColor note
-                hovering: @state.hover_note_id is note.note_id
-                key: note.note_id
-                onClick: =>
-                  @setState
-                    modal:
-                      viewing_note:
-                        note: note
-                        comments: null
-                        new_comment: ''
-                        confirm_delete: false
-                        confirm_delete_comment_id: null
-                  @fetchComments note
             for cluster, i in @state.map_clusters
               lat = cluster.min_latitude + (cluster.max_latitude - cluster.min_latitude) / 2
               lng = cluster.min_longitude + (cluster.max_longitude - cluster.min_longitude) / 2
@@ -412,7 +395,8 @@ App = React.createClass
                       lat: lat
                       lng: lng
                       onClick: =>
-                        if cluster.min_latitude is cluster.max_latitude and cluster.min_longitude is cluster.min_longitude
+                        close = (x, y) => Math.abs(x - y) < 0.0001
+                        if close(cluster.min_latitude, cluster.max_latitude) and close(cluster.min_longitude, cluster.min_longitude)
                           # Calling fitBounds on a single point breaks for some reason
                           @setState
                             latitude: cluster.min_latitude
@@ -453,6 +437,23 @@ App = React.createClass
                     child 'span', =>
                       props style: {display: 'table-cell', verticalAlign: 'middle'}
                       raw cluster.note_count
+            @state.map_notes.forEach (note) =>
+              makePin
+                lat: note.latitude
+                lng: note.longitude
+                color: @getColor note
+                hovering: @state.hover_note_id is note.note_id
+                key: note.note_id
+                onClick: =>
+                  @setState
+                    modal:
+                      viewing_note:
+                        note: note
+                        comments: null
+                        new_comment: ''
+                        confirm_delete: false
+                        confirm_delete_comment_id: null
+                  @fetchComments note
 
       # Search
       child 'div.searchPane', =>
@@ -466,6 +467,9 @@ App = React.createClass
               style:
                 width: '100%'
                 boxSizing: 'border-box'
+
+        child 'hr'
+        child 'p', => child 'b', => raw 'BY DATE:'
 
         minTimeSlider = @props.game.created.getTime()
         maxTimeSlider = Date.now()
@@ -523,7 +527,7 @@ App = React.createClass
                   style:
                     height: 20
                     width: 20
-                    backgroundColor: '#444'
+                    backgroundColor: 'rgb(32,37,49)'
                     position: 'absolute'
                     top: -5
                     left: "calc((100% - 20px) * #{if isSlider1 then time1Fraction else time2Fraction})"
@@ -532,35 +536,52 @@ App = React.createClass
                   onMouseDown: pointerDown 'mousemove'
                   onTouchStart: pointerDown 'touchmove'
 
-        child 'p', =>
-          child 'label', =>
-            child 'input', =>
+        child 'hr', style: marginTop: 15
+        child 'p', => child 'b', => raw 'BY ACTIVITY:'
+
+        child 'div', =>
+          props style:
+            display: 'table'
+            width: '100%'
+            tableLayout: 'fixed'
+            cursor: 'pointer'
+          child 'div', =>
+            props
+              style:
+                display: 'table-cell'
+                borderRadius: '5px 0 0 5px'
+                border: '1px solid rgb(32,37,49)'
+                backgroundColor: if @state.order is 'recent' then 'rgb(32,37,49)' else 'white'
+                color: if @state.order is 'recent' then 'white' else 'rgb(32,37,49)'
+                padding: 10
+              onClick: => @search 0, order: {$set: 'recent'}
+            raw 'newest'
+          child 'div', =>
+            props
+              style:
+                display: 'table-cell'
+                borderRadius: if @state.login_status.logged_in? then undefined else '0 5px 5px 0'
+                border: '1px solid rgb(32,37,49)'
+                backgroundColor: if @state.order is 'popular' then 'rgb(32,37,49)' else 'white'
+                color: if @state.order is 'popular' then 'white' else 'rgb(32,37,49)'
+                padding: 10
+              onClick: => @search 0, order: {$set: 'popular'}
+            raw 'popular'
+          if @state.login_status.logged_in?
+            child 'div', =>
               props
-                type: 'radio'
-                checked: @state.order is 'recent'
-                onChange: (e) => @search 0, order: {$set: 'recent'} if e.target.checked
-            raw 'Recent'
+                style:
+                  display: 'table-cell'
+                  borderRadius: '0 5px 5px 0'
+                  border: '1px solid rgb(32,37,49)'
+                  backgroundColor: if @state.mine then 'rgb(32,37,49)' else 'white'
+                  color: if @state.mine then 'white' else 'rgb(32,37,49)'
+                  padding: 10
+                onClick: => @search 0, mine: {$apply: (x) => not x}
+              raw 'mine'
 
-        child 'p', =>
-          child 'label', =>
-            child 'input', =>
-              props
-                type: 'radio'
-                checked: @state.order is 'popular'
-                onChange: (e) => @search 0, order: {$set: 'popular'} if e.target.checked
-            raw 'Popular'
-
-        if @state.login_status.logged_in?
-          child 'p', =>
-            child 'label', =>
-              child 'input', =>
-                props
-                  type: 'checkbox'
-                  checked: @state.mine
-                  onChange: (e) => @search 0, mine: {$set: e.target.checked}
-              raw 'My Notes'
-
-        child 'p', => child 'b', => raw 'By Category:'
+        child 'hr', style: marginTop: 20
+        child 'p', => child 'b', => raw 'BY CATEGORY:'
 
         child 'p', =>
           @props.game.tags.forEach (tag) =>
@@ -766,7 +787,7 @@ App = React.createClass
           logged_out: ({username, password}) =>
             child 'div', =>
               child 'p', style: {textAlign: 'center'}, =>
-                raw 'Login to your Siftr or ARIS account'
+                raw 'Login with a Siftr or ARIS account'
               child 'p', =>
                 props style: {width: '100%'}
                 usernameBox username, width: '100%', boxSizing: 'border-box'
@@ -828,7 +849,7 @@ App = React.createClass
           logged_out: ({username, password}) =>
             child 'div', =>
               child 'p', style: {textAlign: 'center'}, =>
-                raw 'Login to your Siftr or ARIS account'
+                raw 'Login with a Siftr or ARIS account'
               child 'p', =>
                 props style: {width: '100%'}
                 usernameBox username, width: '100%', boxSizing: 'border-box'
