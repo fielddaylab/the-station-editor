@@ -763,7 +763,7 @@ App = React.createClass
       child 'div.accountMenuMobile', =>
         props
           style:
-            backgroundColor: 'rgb(44,48,59)'
+            backgroundColor: 'rgb(32,37,49)'
             color: 'white'
             paddingLeft: 10
             paddingRight: 10
@@ -777,24 +777,46 @@ App = React.createClass
         match @state.login_status,
           logged_out: ({username, password}) =>
             child 'div', =>
+              child 'p', style: {textAlign: 'center'}, =>
+                raw 'Login to your Siftr or ARIS account'
               child 'p', =>
                 props style: {width: '100%'}
                 usernameBox username, width: '100%', boxSizing: 'border-box'
               child 'p', =>
                 props style: {width: '100%'}
                 passwordBox password, width: '100%', boxSizing: 'border-box'
+              child 'div.blueButton', =>
+                props
+                  style:
+                    width: '100%'
+                    boxSizing: 'border-box'
+                    textAlign: 'center'
+                    cursor: 'pointer'
+                    padding: 5
+                    marginBottom: 12
+                  onClick: @login
+                raw 'LOGIN'
+          logged_in: ({auth, media}) =>
+            child 'div', style: {textAlign: 'center'}, =>
               child 'p', =>
-                child 'button', =>
-                  props type: 'button', onClick: @login
-                  raw 'Login'
-          logged_in: ({auth}) =>
-            child 'div', =>
-              child 'p', => raw "Logged in as #{auth.username}"
+                child 'span', style:
+                  width: 80
+                  height: 80
+                  borderRadius: 40
+                  backgroundColor: 'white'
+                  backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
+                  backgroundSize: 'cover'
+                  display: 'inline-block'
               child 'p', =>
-                child 'button', =>
-                  props type: 'button', onClick: @logout
-                  raw 'Logout'
-
+                raw auth.display_name
+              child 'p', =>
+                child 'img', src: 'img/brand-mobile.png'
+              unlink =
+                color: 'white'
+                textDecoration: 'none'
+              child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
+              child 'p', => child 'a', style: unlink, href: '..', => raw 'Discover'
+              child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
       # Main modal
       match @state.modal,
         nothing: => null
