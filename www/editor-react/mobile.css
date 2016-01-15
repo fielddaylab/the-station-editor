@@ -4,7 +4,7 @@
   width: calc(100% - 40px);
 }
 
-.newStep1, .newStep2, .newStep3 {
+.newStep1, .newStep2, .newStep3, .editSiftrLeftCol {
   box-sizing: border-box;
   width: 100%;
   padding-left: 15px;
@@ -24,5 +24,10 @@
 }
 
 .newStep2MapContainer {
+  height: 300px;
+}
+
+.editSiftrMapContainer {
+  width: 100%;
   height: 300px;
 }

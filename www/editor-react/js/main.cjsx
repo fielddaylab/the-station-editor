@@ -390,13 +390,7 @@ EditSiftr = React.createClass
   render: ->
     make 'div', =>
       child 'div', =>
-        child 'div', =>
-          props style:
-            float: 'left'
-            width: '50%'
-            boxSizing: 'border-box'
-            paddingLeft: 35
-            paddingRight: 35
+        child 'div.editSiftrLeftCol', =>
           child 'form', =>
             child 'h2', => raw @props.game.name
             child 'label', =>
@@ -532,14 +526,7 @@ EditSiftr = React.createClass
                     paddingBottom: 10
                     marginRight: 20
                   raw 'CANCEL'
-        child 'div', =>
-          props style:
-            position: 'fixed'
-            width: '50%'
-            height: 'calc(100% - 52px)' # TODO: fix this after the top bar is finished
-            right: 0
-            bottom: 0
-            boxSizing: 'border-box'
+        child 'div.editSiftrMapContainer', =>
           child GoogleMap,
             ref: 'map'
             center: [@props.game.latitude, @props.game.longitude]

@@ -56,3 +56,20 @@
   width: 30%;
   padding-left: 35%;
 }
+
+.editSiftrLeftCol {
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+.editSiftrMapContainer {
+  position: fixed;
+  width: 50%;
+  height: calc(100% - 52px); /* TODO: fix this after the top bar is finished */
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+}
