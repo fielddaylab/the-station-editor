@@ -268,12 +268,22 @@ App = React.createClass
                 onSave: @handleSave
             when 'main'
               child 'div', =>
+                child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
+                  child 'a', href: '#new1', =>
+                    child 'span', =>
+                      props style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        color: 'white'
+                        paddingLeft: 40
+                        paddingRight: 40
+                        paddingTop: 10
+                        paddingBottom: 10
+                      raw 'NEW SIFTR'
                 child SiftrList,
                   games: @state.games
                   colors: @state.colors
                   notes: @state.notes
                   tags: @state.tags
-                child 'p', => child 'a', href: '#new1', => raw 'New Siftr'
             when 'new1'
               f = (game, tag_string) => @setState
                 new_game: game
@@ -576,19 +586,7 @@ NewStep1 = React.createClass
             position: 'relative'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new2', =>
-          child 'div', =>
-            props
-              style:
-                position: 'absolute'
-                backgroundColor: 'rgb(97,201,226)'
-                color: 'white'
-                top: 0
-                right: '20%'
-                top: 60
-                paddingLeft: 20
-                paddingRight: 20
-                paddingTop: 10
-                paddingBottom: 10
+          child 'div.newNextButton', =>
             raw 'NEXT, APPEARANCE >'
 
       child 'div.newStep1', =>
@@ -708,34 +706,10 @@ NewStep2 = React.createClass
             position: 'relative'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new1', =>
-          child 'div', =>
-            props
-              style:
-                position: 'absolute'
-                backgroundColor: 'rgb(97,201,226)'
-                color: 'white'
-                top: 0
-                left: '20%'
-                top: 60
-                paddingLeft: 20
-                paddingRight: 20
-                paddingTop: 10
-                paddingBottom: 10
+          child 'div.newPrevButton', =>
             raw '< BACK, SETUP'
         child 'a', href: '#new3', =>
-          child 'div', =>
-            props
-              style:
-                position: 'absolute'
-                backgroundColor: 'rgb(97,201,226)'
-                color: 'white'
-                top: 0
-                right: '20%'
-                top: 60
-                paddingLeft: 20
-                paddingRight: 20
-                paddingTop: 10
-                paddingBottom: 10
+          child 'div.newNextButton', =>
             raw 'NEXT, SETTINGS >'
 
       child 'div.newStep2', =>
@@ -922,34 +896,12 @@ NewStep3 = React.createClass
             position: 'relative'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new2', =>
-          child 'div', =>
-            props
-              style:
-                position: 'absolute'
-                backgroundColor: 'rgb(97,201,226)'
-                color: 'white'
-                top: 0
-                left: '20%'
-                top: 60
-                paddingLeft: 20
-                paddingRight: 20
-                paddingTop: 10
-                paddingBottom: 10
+          child 'div.newPrevButton', =>
             raw '< BACK, APPEARANCE'
-        child 'div', =>
+        child 'div.newNextButton', =>
           props
             style:
-              position: 'absolute'
               backgroundColor: 'rgb(254,212,0)'
-              color: 'white'
-              top: 0
-              right: '20%'
-              top: 60
-              paddingLeft: 20
-              paddingRight: 20
-              paddingTop: 10
-              paddingBottom: 10
-              cursor: 'pointer'
             onClick: @props.onCreate
           raw 'PUBLISH!'
 

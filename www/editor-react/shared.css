@@ -69,5 +69,15 @@ a {
 }
 
 .siftrList {
-  padding-top: 40px;
+  padding-top: 30px;
+}
+
+.newPrevButton, .newNextButton {
+  background-color: rgb(97,201,226);
+  color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  cursor: pointer;
 }

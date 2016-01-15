@@ -73,3 +73,15 @@
   bottom: 0;
   box-sizing: border-box;
 }
+
+.newPrevButton {
+  position: absolute;
+  top: 60px;
+  left: 20%;
+}
+
+.newNextButton {
+  position: absolute;
+  top: 60px;
+  right: 20%;
+}

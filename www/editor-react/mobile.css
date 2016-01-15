@@ -31,3 +31,9 @@
   width: 100%;
   height: 300px;
 }
+
+.newPrevButton, .newNextButton {
+  margin-top: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
