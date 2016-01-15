@@ -251,10 +251,13 @@ App = React.createClass
   render: ->
     make 'div', =>
       child 'div#the-nav-bar', =>
-        child 'div#the-logo', => raw 'Siftr'
+        child 'a', href: '..', =>
+          child 'img#the-logo', src: 'img/brand.png'
         child 'div#the-discover-button', => raw 'Discover'
         child 'div#the-my-account-button', => raw 'My Account'
-        child 'div#the-my-siftrs-button', => raw 'My Siftrs'
+        child 'a', href: '#', =>
+          child 'div#the-my-siftrs-button', =>
+            raw 'My Siftrs'
       child 'div', style:
         height: 52
       if @state.auth?

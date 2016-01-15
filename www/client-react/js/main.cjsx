@@ -924,20 +924,20 @@ App = React.createClass
                   null
               owners =
                 owner.user_id for owner in @props.game.owners
+              barButton = (img, action) =>
+                child 'img',
+                  src: img
+                  style:
+                    marginTop: 9
+                    marginBottom: 7
+                    marginLeft: 12
+                    cursor: 'pointer'
+                  onClick: action
               child 'div', =>
                 props
                   style:
                     backgroundColor: 'rgb(97,201,226)'
                     width: '100%'
-                    height: 50
-                barButton = (img, action) =>
-                  child 'img',
-                    src: img
-                    style:
-                      marginTop: 9
-                      marginLeft: 12
-                      cursor: 'pointer'
-                    onClick: action
                 if user_id is parseInt(note.user_id) or user_id in owners
                   barButton 'img/freepik/delete81.png', =>
                     @updateState modal: viewing_note: confirm_delete: $set: true
@@ -963,6 +963,44 @@ App = React.createClass
                               return tag if tag.tag_id is parseInt note.tag_id
                       latitude: parseFloat note.latitude
                       longitude: parseFloat note.longitude
+                noteVerb =
+                  if parseInt(note.user_id) is @props.aris.auth?.user_id
+                    'made'
+                  else
+                    'found'
+                noteTag = do =>
+                  for tag in @props.game.tags
+                    if tag.tag_id is parseInt note.tag_id
+                      return tag.tag
+                  '???'
+                barButton '../img/somicro/without-border/email.png', =>
+                  subject = "Interesting note on #{noteTag}"
+                  email = """
+                    Check out this note I #{noteVerb} about #{noteTag}:
+
+                    #{note.description}
+
+                    See the whole note at: #{window.location.href}
+                  """
+                  link = "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent email}"
+                  window.open link
+                barButton '../img/somicro/without-border/facebook.png', =>
+                  link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent window.location.href}"
+                  window.open link, '_system'
+                barButton '../img/somicro/without-border/googleplus.png', =>
+                  link = "https://plus.google.com/share?url=#{encodeURIComponent window.location.href}"
+                  window.open link, '_system'
+                barButton '../img/somicro/without-border/pinterest.png', =>
+                  desc = "Check out this note I #{noteVerb} about #{noteTag}."
+                  link = "http://www.pinterest.com/pin/create/button/"
+                  link += "?url=#{encodeURIComponent window.location.href}"
+                  link += "&media=#{encodeURIComponent app.currentNote.photo_url}"
+                  link += "&description=#{encodeURIComponent desc}"
+                  window.open link, '_system'
+                barButton '../img/somicro/without-border/twitter.png', =>
+                  tweet = "Check out this note I #{noteVerb} about #{noteTag}:"
+                  link = "https://twitter.com/share?&url=#{encodeURIComponent window.location.href}&text=#{encodeURIComponent tweet}"
+                  window.open link, '_system'
               if @state.login_status.logged_in?
                 if note.published is 'PENDING'
                   if user_id in owners
