@@ -604,20 +604,11 @@ NewStep1 = React.createClass
                 paddingBottom: 10
             raw 'NEXT, APPEARANCE >'
 
-      child 'div', =>
-        props
-          style:
-            width: '60%'
-            marginLeft: '20%'
+      child 'div.newStep1', =>
         child 'h3', style: {textAlign: 'center'}, =>
           raw 'What kind of Siftr do you want to make?'
         child 'div', =>
-          child 'div', =>
-            props style:
-              width: '50%'
-              paddingLeft: 10
-              float: 'right'
-              boxSizing: 'border-box'
+          child 'div.newStep1RightCol', =>
             child 'label', =>
               child 'p', => raw 'NAME'
               child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
@@ -631,12 +622,7 @@ NewStep1 = React.createClass
               child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
-          child 'div', =>
-            props style:
-              width: '50%'
-              paddingRight: 10
-              float: 'left'
-              boxSizing: 'border-box'
+          child 'div.newStep1LeftCol', =>
             child 'label', =>
               child 'p', => raw 'SIFTR ICON'
               child 'div', =>
@@ -765,54 +751,49 @@ NewStep2 = React.createClass
                 paddingBottom: 10
             raw 'NEXT, SETTINGS >'
 
-      child 'div', =>
-        props
-          style:
-            width: '80%'
-            marginLeft: '10%'
+      child 'div.newStep2', =>
         child 'h3', style: {textAlign: 'center'}, =>
           raw 'Choose a color scheme for your new Siftr!'
         @tag_boxes = []
-        child 'div', =>
+        child 'div.newStep2ColorTable', =>
           props style:
             display: 'table'
             width: '100%'
             tableLayout: 'fixed'
             fontSize: '13px'
-          for i in [1..6]
-            colors = @props.colors[i]
-            rgbs =
-              if colors?
-                colors["tag_#{j}"] for j in [1..5]
-              else
-                []
-            child 'label', key: "colors-#{i}", =>
-              props style: display: 'table-cell'
-              child 'p', => raw colors?.name
-              child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-              gradient = do =>
-                percent = 0
-                points = []
-                for rgb in rgbs
-                  points.push "#{rgb} #{percent}%"
-                  percent += 20
-                  points.push "#{rgb} #{percent}%"
-                "linear-gradient(to right, #{points.join(', ')})"
-              child 'div', style:
-                width: 90
-                height: 35
-                marginLeft: 10
-                backgroundImage: gradient
-                display: 'inline-block'
+
+          colorsRow = (colors_ids) =>
+            for i in colors_ids
+              colors = @props.colors[i]
+              rgbs =
+                if colors?
+                  colors["tag_#{j}"] for j in [1..5]
+                else
+                  []
+              child 'label', key: "colors-#{i}", =>
+                props style: display: 'table-cell'
+                child 'p', => raw colors?.name
+                child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                gradient = do =>
+                  percent = 0
+                  points = []
+                  for rgb in rgbs
+                    points.push "#{rgb} #{percent}%"
+                    percent += 20
+                    points.push "#{rgb} #{percent}%"
+                  "linear-gradient(to right, #{points.join(', ')})"
+                child 'div', style:
+                  width: 90
+                  height: 35
+                  marginLeft: 10
+                  backgroundImage: gradient
+                  display: 'inline-block'
+          child 'div.newStep2ColorRow', => colorsRow [1, 2, 3]
+          child 'div.newStep2ColorRow', => colorsRow [4, 5, 6]
 
         child 'div', =>
           props style: paddingTop: 20
-          child 'div', =>
-            props style:
-              width: '50%'
-              paddingRight: 10
-              float: 'left'
-              boxSizing: 'border-box'
+          child 'div.newStep2LeftCol', =>
             child 'form', =>
               child 'h3', => raw 'TAGS'
               for tag, i in @props.tag_string.split(',')
@@ -875,13 +856,8 @@ NewStep2 = React.createClass
                       cursor: 'pointer'
                     onClick: @addTag
                   raw 'ADD TAG'
-          child 'div', =>
-            props style:
-              width: '50%'
-              paddingLeft: 10
-              float: 'right'
-              boxSizing: 'border-box'
-            child 'div', style: {width: '100%', height: '500px', position: 'relative'}, =>
+          child 'div.newStep2RightCol', =>
+            child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
               child GoogleMap,
                 ref: 'map'
                 center: [@props.game.latitude, @props.game.longitude]
@@ -990,10 +966,7 @@ NewStep3 = React.createClass
             onClick: @props.onCreate
           raw 'PUBLISH!'
 
-      child 'div', =>
-        props style:
-          width: '30%'
-          paddingLeft: '35%'
+      child 'div.newStep3', =>
         child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
         child 'h4', => raw 'PRIVACY'
         child 'p', =>

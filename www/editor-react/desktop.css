@@ -3,3 +3,56 @@
   padding-right: 15%;
   width: 70%;
 }
+
+.newStep1 {
+  width: 60%;
+  margin-left: 20%;
+}
+
+.newStep1RightCol {
+  width: 50%;
+  padding-left: 10px;
+  float: right;
+  box-sizing: border-box;
+}
+
+.newStep1LeftCol {
+  width: 50%;
+  padding-right: 10px;
+  float: left;
+  box-sizing: border-box;
+}
+
+.newStep2 {
+  width: 80%;
+  margin-left: 10%;
+}
+
+.newStep2LeftCol {
+  width: 50%;
+  padding-right: 10px;
+  float: left;
+  box-sizing: border-box;
+}
+
+.newStep2RightCol {
+  width: 50%;
+  padding-left: 10px;
+  float: right;
+  box-sizing: border-box;
+}
+
+.newStep2ColorRow {
+  display: table;
+  float: left;
+  width: 50%;
+}
+
+.newStep2MapContainer {
+  height: 500px;
+}
+
+.newStep3 {
+  width: 30%;
+  padding-left: 35%;
+}

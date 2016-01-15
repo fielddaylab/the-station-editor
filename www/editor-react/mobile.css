@@ -3,3 +3,26 @@
   padding-right: 20px;
   width: calc(100% - 40px);
 }
+
+.newStep1, .newStep2, .newStep3 {
+  box-sizing: border-box;
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.newStep2RightCol {
+  margin-top: 30px;
+}
+
+.newStep2ColorTable {
+  display: table;
+}
+
+.newStep2ColorRow {
+  display: table-row;
+}
+
+.newStep2MapContainer {
+  height: 300px;
+}
