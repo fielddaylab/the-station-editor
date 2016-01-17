@@ -4,7 +4,7 @@
   width: calc(100% - 40px);
 }
 
-.newStep1, .newStep2, .newStep3, .editSiftrLeftCol {
+.newStep1, .newStep2, .newStep3, .editSiftrLeftCol, .loginForm {
   box-sizing: border-box;
   width: 100%;
   padding-left: 15px;
@@ -36,4 +36,8 @@
   margin-top: 20px;
   margin-left: 40px;
   margin-right: 40px;
+}
+
+.accountMenuDesktop {
+  display: none;
 }

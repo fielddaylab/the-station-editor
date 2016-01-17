@@ -85,3 +85,17 @@
   top: 60px;
   right: 20%;
 }
+
+.topDiv:not(.accountMenuOpen) .accountMenuDesktop {
+  max-height: 0;
+}
+
+.accountMenuDesktop {
+  overflow-y: hidden;
+}
+
+.loginForm {
+  padding-top: 100px;
+  padding-left: 30%;
+  width: 40%;
+}

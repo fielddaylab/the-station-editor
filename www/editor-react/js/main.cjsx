@@ -47,6 +47,7 @@ App = React.createClass
     new_tag_string: ''
     new_step: null
     new_icon: null
+    account_menu: false
 
   componentDidMount: ->
     @login undefined, undefined
@@ -98,7 +99,9 @@ App = React.createClass
     @updateLogin()
 
   updateLogin: ->
-    @setState auth: @props.aris.auth
+    @setState
+      auth: @props.aris.auth
+      account_menu: false
     @updateGames()
 
   getColors: ->
@@ -250,11 +253,20 @@ App = React.createClass
 
   render: ->
     make 'div', =>
+      props
+        className: "topDiv #{if @state.account_menu and @state.auth? then 'accountMenuOpen' else undefined}"
       child 'div#the-nav-bar', =>
         child 'a', href: '..', =>
           child 'img#the-logo', src: 'img/brand.png'
-        child 'div#the-discover-button', => raw 'Discover'
-        child 'div#the-my-account-button', => raw 'My Account'
+        child 'a', href: '..', =>
+          child 'div#the-discover-button', =>
+            raw 'Discover'
+        if @state.auth?
+          child 'div#the-my-account-button', =>
+            props
+              onClick: => @setState account_menu: not @state.account_menu
+              style: cursor: 'pointer'
+            raw 'My Account'
         child 'a', href: '#', =>
           child 'div#the-my-siftrs-button', =>
             raw 'My Siftrs'
@@ -308,20 +320,82 @@ App = React.createClass
                 game: @state.new_game
                 onChange: (new_game) => @setState {new_game}
                 onCreate: @createGame
-          child 'button', type: 'button', onClick: @logout, => raw 'Logout'
+        child 'div.accountMenuDesktop', =>
+          props
+            style:
+              position: 'fixed'
+              top: 53
+              right: 50
+              backgroundColor: 'rgb(44,48,59)'
+              color: 'white'
+              paddingLeft: 10
+              paddingRight: 10
+              width: 275
+          child 'div', style: {textAlign: 'center'}, =>
+            child 'p', =>
+              child 'span', style:
+                width: 100
+                height: 100
+                borderRadius: 50
+                backgroundColor: 'white'
+                backgroundImage: if false then "url(#{media.thumb_url})" else undefined
+                backgroundSize: 'cover'
+                display: 'inline-block'
+            child 'p', =>
+              raw @state.auth.display_name
+            child 'div', =>
+              props
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+                  textAlign: 'center'
+                  cursor: 'pointer'
+                  padding: 5
+                  marginBottom: 12
+                  backgroundColor: 'rgb(51,191,224)'
+                onClick: @logout
+              raw 'LOGOUT'
       else
-        child 'form', =>
+        child 'div.loginForm', =>
+          child 'p', style: {textAlign: 'center'}, =>
+            raw 'Login with a Siftr or ARIS account'
           child 'p', =>
-            child 'input', type: 'text', placeholder: 'Username', value: @state.username, onChange: (e) => @setState username: e.target.value
+            child 'input',
+              autoCapitalize: 'off'
+              autoCorrect: 'off'
+              type: 'text'
+              placeholder: 'Username'
+              value: @state.username
+              style: width: '100%'
+              onChange: (e) => @setState username: e.target.value
+              onKeyDown: (e) =>
+                if e.keyCode is 13
+                  @login @state.username, @state.password
           child 'p', =>
-            child 'input', type: 'password', placeholder: 'Password', value: @state.password, onChange: (e) => @setState password: e.target.value
-          child 'p', =>
-            child 'button',
-              type: 'submit'
-              onClick: (e) =>
-                e.preventDefault()
+            child 'input',
+              autoCapitalize: 'off'
+              autoCorrect: 'off'
+              type: 'password'
+              placeholder: 'Password'
+              value: @state.password
+              style: width: '100%'
+              onChange: (e) => @setState password: e.target.value
+              onKeyDown: (e) =>
+                if e.keyCode is 13
+                  @login @state.username, @state.password
+          child 'div', =>
+            props
+              style:
+                backgroundColor: 'rgb(51,191,224)'
+                width: '100%'
+                paddingTop: 8
+                paddingBottom: 8
+                textAlign: 'center'
+                color: 'white'
+                cursor: 'pointer'
+              onClick: =>
                 @login @state.username, @state.password
-            , => raw 'Login'
+            raw 'LOGIN'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'

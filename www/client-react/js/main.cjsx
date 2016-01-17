@@ -994,7 +994,7 @@ App = React.createClass
                   desc = "Check out this note I #{noteVerb} about #{noteTag}."
                   link = "http://www.pinterest.com/pin/create/button/"
                   link += "?url=#{encodeURIComponent window.location.href}"
-                  link += "&media=#{encodeURIComponent app.currentNote.photo_url}"
+                  link += "&media=#{encodeURIComponent note.media.url}"
                   link += "&description=#{encodeURIComponent desc}"
                   window.open link, '_system'
                 barButton '../img/somicro/without-border/twitter.png', =>
@@ -1649,6 +1649,7 @@ document.addEventListener 'DOMContentLoaded', ->
               if returnCode is 0 and owners?
                 game.owners = owners
 
+                document.title = "Siftr - #{game.name}"
                 ReactDOM.render React.createElement(App, game: game, aris: aris), document.getElementById('the-container')
 
   if siftr_id?
