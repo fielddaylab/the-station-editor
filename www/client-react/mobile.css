@@ -1,9 +1,9 @@
 .theMap, .primaryModal, .theThumbs, .searchPane {
   position: absolute;
-  bottom: 77px;
+  bottom: 60px;
   left: 0;
   width: 100%;
-  height: calc(100% - 77px);
+  height: calc(100% - 60px);
 }
 
 .primaryMap .theMap, .primaryThumbs .theThumbs {
@@ -26,7 +26,7 @@
   padding: 0;
 }
 .searching .searchPane {
-  max-height: calc(100% - 77px);
+  max-height: calc(100% - 60px);
   padding: 10px;
 }
 
@@ -34,7 +34,7 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 77px;
+  height: 60px;
   width: 100%;
   background-color: rgb(44,48,59);
 }
@@ -47,8 +47,14 @@
 .menuMyAccount { display: none; }
 .menuMySiftrs { display: none; }
 
+.menuMap img, .menuThumbs img, .menuSift img {
+  height: 60px;
+}
+
 .addItemDesktop { display: none; }
-.addItemMobile {}
+.addItemMobile {
+  height: 60px;
+}
 
 .accountMenuDesktop { display: none; }
 #the-contained {
@@ -69,7 +75,7 @@
 
 .bottomModal {
   position: absolute;
-  bottom: 77px;
+  bottom: 60px;
   left: 0;
   width: 100%;
   background-color: white;
@@ -84,7 +90,7 @@
   color: white;
   z-index: 1;
   font-size: 23px;
-  padding: 15px;
+  padding: 12px;
 }
 
 .primaryThumbs .mobileTitle {
