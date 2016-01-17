@@ -252,11 +252,16 @@ App = React.createClass
               $set: null
 
   render: ->
-    make "div.topDiv.accountMenu#{if @state.account_menu and @state.auth? then 'Open' else 'Closed'}", =>
+    make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
+        child 'div#the-mobile-menu-button', =>
+          props
+            onClick: => @setState account_menu: not @state.account_menu
+            style: cursor: 'pointer'
+          raw '☰'
         child 'a', href: '..', =>
           child 'img#the-logo', src: 'img/brand.png'
-        child 'a', href: '..', =>
+        child 'a', href: '../discover', =>
           child 'div#the-discover-button', =>
             raw 'Discover'
         if @state.auth?
@@ -387,7 +392,35 @@ App = React.createClass
         child 'span', =>
           props
             onClick: => @setState account_menu: false
-          raw 'Close the menu'
+        child 'div', =>
+          child 'img',
+            src: '../client-react/img/x-white.png'
+            style: cursor: 'pointer'
+            onClick: => @setState account_menu: false
+        child 'div', style: {textAlign: 'center'}, =>
+          if @state.auth?
+            child 'p', =>
+              child 'span', style:
+                width: 80
+                height: 80
+                borderRadius: 40
+                backgroundColor: 'white'
+                backgroundImage: if false then "url(#{media.thumb_url})" else undefined
+                backgroundSize: 'cover'
+                display: 'inline-block'
+            child 'p', => raw @state.auth.display_name
+          else
+            child 'p', => raw 'Not logged in'
+          child 'p', =>
+            child 'a', href: '..', =>
+              child 'img', src: '../client-react/img/brand-mobile.png'
+          unlink =
+            color: 'white'
+            textDecoration: 'none'
+          child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
+          child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
+          if @state.auth?
+            child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'

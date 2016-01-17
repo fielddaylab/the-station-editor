@@ -36,11 +36,11 @@ body {
 
 #the-content {
   position: absolute;
-  top: 52px;
+  top: 53px;
   left: 0;
   overflow-y: auto;
   width: 100%;
-  height: calc(100% - 52px);
+  height: calc(100% - 53px);
   box-sizing: border-box;
 }
 
@@ -54,29 +54,19 @@ body {
   float: left;
 }
 
-#the-my-siftrs-button {
+#the-my-siftrs-button, #the-my-account-button, #the-discover-button {
   float: right;
   height: 53px;
   line-height: 53px;
-  margin-right: 15px;
+  margin-right: 25px;
   vertical-align: middle;
   text-transform: uppercase;
   color: rgb(231, 203, 0);
   text-decoration: none;
 }
 
-#the-my-account-button {
-  float: right;
+#the-my-account-button, #the-discover-button {
   color: white;
-  margin: 15px;
-  text-transform: uppercase;
-}
-
-#the-discover-button {
-  float: right;
-  color: white;
-  margin: 15px;
-  text-transform: uppercase;
 }
 
 textarea {

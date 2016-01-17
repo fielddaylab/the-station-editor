@@ -716,7 +716,7 @@ App = React.createClass
               @setState search_controls: if @state.search_controls? then null else 'not_time'
 
         child 'div.menuDiscover.menuTable', =>
-          child 'a.menuTableCell', href: '..', =>
+          child 'a.menuTableCell', href: '../discover', =>
             raw 'DISCOVER'
 
         child 'div.menuMyAccount.menuTable', =>
@@ -881,12 +881,13 @@ App = React.createClass
               child 'p', =>
                 raw auth.display_name
               child 'p', =>
-                child 'img', src: 'img/brand-mobile.png'
+                child 'a', href: '..', =>
+                  child 'img', src: 'img/brand-mobile.png'
               unlink =
                 color: 'white'
                 textDecoration: 'none'
               child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
-              child 'p', => child 'a', style: unlink, href: '..', => raw 'Discover'
+              child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
               child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
       # Main modal
       match @state.modal,

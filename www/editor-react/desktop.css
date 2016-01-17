@@ -68,7 +68,7 @@
 .editSiftrMapContainer {
   position: fixed;
   width: 50%;
-  height: calc(100% - 52px); /* TODO: fix this after the top bar is finished */
+  height: calc(100% - 53px);
   right: 0;
   bottom: 0;
   box-sizing: border-box;
@@ -112,5 +112,9 @@
 }
 
 .accountMenuMobile {
+  display: none;
+}
+
+#the-mobile-menu-button {
   display: none;
 }
