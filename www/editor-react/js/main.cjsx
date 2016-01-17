@@ -252,9 +252,7 @@ App = React.createClass
               $set: null
 
   render: ->
-    make 'div', =>
-      props
-        className: "topDiv #{if @state.account_menu and @state.auth? then 'accountMenuOpen' else undefined}"
+    make "div.topDiv.accountMenu#{if @state.account_menu and @state.auth? then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
         child 'a', href: '..', =>
           child 'img#the-logo', src: 'img/brand.png'
@@ -270,132 +268,126 @@ App = React.createClass
         child 'a', href: '#', =>
           child 'div#the-my-siftrs-button', =>
             raw 'My Siftrs'
-      child 'div', style:
-        height: 52
-      if @state.auth?
-        child 'div', =>
-          switch @state.screen
-            when 'edit'
-              child EditSiftr,
-                game: @state.edit_game
-                colors: @state.colors
-                onChange: (game) => @setState edit_game: game
-                onSave: @handleSave
-            when 'main'
-              child 'div', =>
-                child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
-                  child 'a', href: '#new1', =>
-                    child 'span', =>
-                      props style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        color: 'white'
-                        paddingLeft: 40
-                        paddingRight: 40
-                        paddingTop: 10
-                        paddingBottom: 10
-                      raw 'NEW SIFTR'
-                child SiftrList,
-                  games: @state.games
+      child 'div#the-content', =>
+        if @state.auth?
+          child 'div', =>
+            switch @state.screen
+              when 'edit'
+                child EditSiftr,
+                  game: @state.edit_game
                   colors: @state.colors
-                  notes: @state.notes
-                  tags: @state.tags
-            when 'new1'
-              f = (game, tag_string) => @setState
-                new_game: game
-                new_tag_string: tag_string
-              child NewStep1,
-                game: @state.new_game
-                tag_string: @state.new_tag_string
-                icon: @state.new_icon
-                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
-                onIconChange: (new_icon) => @setState {new_icon}
-            when 'new2'
-              child NewStep2,
-                game: @state.new_game
-                tag_string: @state.new_tag_string
-                colors: @state.colors
-                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
-            when 'new3'
-              child NewStep3,
-                game: @state.new_game
-                onChange: (new_game) => @setState {new_game}
-                onCreate: @createGame
-        child 'div.accountMenuDesktop', =>
-          props
-            style:
-              position: 'fixed'
-              top: 53
-              right: 50
-              backgroundColor: 'rgb(44,48,59)'
-              color: 'white'
-              paddingLeft: 10
-              paddingRight: 10
-              width: 275
-          child 'div', style: {textAlign: 'center'}, =>
+                  onChange: (game) => @setState edit_game: game
+                  onSave: @handleSave
+              when 'main'
+                child 'div', =>
+                  child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
+                    child 'a', href: '#new1', =>
+                      child 'span', =>
+                        props style:
+                          backgroundColor: 'rgb(51,191,224)'
+                          color: 'white'
+                          paddingLeft: 40
+                          paddingRight: 40
+                          paddingTop: 10
+                          paddingBottom: 10
+                        raw 'NEW SIFTR'
+                  child SiftrList,
+                    games: @state.games
+                    colors: @state.colors
+                    notes: @state.notes
+                    tags: @state.tags
+              when 'new1'
+                f = (game, tag_string) => @setState
+                  new_game: game
+                  new_tag_string: tag_string
+                child NewStep1,
+                  game: @state.new_game
+                  tag_string: @state.new_tag_string
+                  icon: @state.new_icon
+                  onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+                  onIconChange: (new_icon) => @setState {new_icon}
+              when 'new2'
+                child NewStep2,
+                  game: @state.new_game
+                  tag_string: @state.new_tag_string
+                  colors: @state.colors
+                  onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+              when 'new3'
+                child NewStep3,
+                  game: @state.new_game
+                  onChange: (new_game) => @setState {new_game}
+                  onCreate: @createGame
+          child 'div.accountMenuDesktop', =>
+            child 'div', style: {textAlign: 'center'}, =>
+              child 'p', =>
+                child 'span', style:
+                  width: 100
+                  height: 100
+                  borderRadius: 50
+                  backgroundColor: 'white'
+                  backgroundImage: if false then "url(#{media.thumb_url})" else undefined
+                  backgroundSize: 'cover'
+                  display: 'inline-block'
+              child 'p', =>
+                raw @state.auth.display_name
+              child 'div', =>
+                props
+                  style:
+                    width: '100%'
+                    boxSizing: 'border-box'
+                    textAlign: 'center'
+                    cursor: 'pointer'
+                    padding: 5
+                    marginBottom: 12
+                    backgroundColor: 'rgb(51,191,224)'
+                  onClick: @logout
+                raw 'LOGOUT'
+        else
+          child 'div.loginForm', =>
+            child 'p', style: {textAlign: 'center'}, =>
+              raw 'Login with a Siftr or ARIS account'
             child 'p', =>
-              child 'span', style:
-                width: 100
-                height: 100
-                borderRadius: 50
-                backgroundColor: 'white'
-                backgroundImage: if false then "url(#{media.thumb_url})" else undefined
-                backgroundSize: 'cover'
-                display: 'inline-block'
+              child 'input',
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'text'
+                placeholder: 'Username'
+                value: @state.username
+                style: width: '100%'
+                onChange: (e) => @setState username: e.target.value
+                onKeyDown: (e) =>
+                  if e.keyCode is 13
+                    @login @state.username, @state.password
             child 'p', =>
-              raw @state.auth.display_name
+              child 'input',
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'password'
+                placeholder: 'Password'
+                value: @state.password
+                style: width: '100%'
+                onChange: (e) => @setState password: e.target.value
+                onKeyDown: (e) =>
+                  if e.keyCode is 13
+                    @login @state.username, @state.password
             child 'div', =>
               props
                 style:
-                  width: '100%'
-                  boxSizing: 'border-box'
-                  textAlign: 'center'
-                  cursor: 'pointer'
-                  padding: 5
-                  marginBottom: 12
                   backgroundColor: 'rgb(51,191,224)'
-                onClick: @logout
-              raw 'LOGOUT'
-      else
-        child 'div.loginForm', =>
-          child 'p', style: {textAlign: 'center'}, =>
-            raw 'Login with a Siftr or ARIS account'
-          child 'p', =>
-            child 'input',
-              autoCapitalize: 'off'
-              autoCorrect: 'off'
-              type: 'text'
-              placeholder: 'Username'
-              value: @state.username
-              style: width: '100%'
-              onChange: (e) => @setState username: e.target.value
-              onKeyDown: (e) =>
-                if e.keyCode is 13
+                  width: '100%'
+                  paddingTop: 8
+                  paddingBottom: 8
+                  textAlign: 'center'
+                  color: 'white'
+                  cursor: 'pointer'
+                onClick: =>
                   @login @state.username, @state.password
-          child 'p', =>
-            child 'input',
-              autoCapitalize: 'off'
-              autoCorrect: 'off'
-              type: 'password'
-              placeholder: 'Password'
-              value: @state.password
-              style: width: '100%'
-              onChange: (e) => @setState password: e.target.value
-              onKeyDown: (e) =>
-                if e.keyCode is 13
-                  @login @state.username, @state.password
-          child 'div', =>
-            props
-              style:
-                backgroundColor: 'rgb(51,191,224)'
-                width: '100%'
-                paddingTop: 8
-                paddingBottom: 8
-                textAlign: 'center'
-                color: 'white'
-                cursor: 'pointer'
-              onClick: =>
-                @login @state.username, @state.password
-            raw 'LOGIN'
+              raw 'LOGIN'
+      child 'div.accountMenuMobile', =>
+        child 'span', =>
+          props
+            onClick: => @setState account_menu: false
+          raw 'Close the menu'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'

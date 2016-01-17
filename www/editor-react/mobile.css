@@ -1,3 +1,13 @@
+.topDiv {
+  margin-left: 0;
+  transition-property: margin-left;
+  transition-duration: 0.25s;
+}
+
+.topDiv.accountMenuOpen {
+  margin-left: 300px;
+}
+
 .siftrList {
   padding-left: 20px;
   padding-right: 20px;
@@ -40,4 +50,14 @@
 
 .accountMenuDesktop {
   display: none;
+}
+
+.accountMenuMobile {
+  position: absolute;
+  left: -300px;
+  top: 0;
+  height: 100%;
+  width: 300px;
+  background-color: rgb(44, 48, 59);
+  color: white;
 }

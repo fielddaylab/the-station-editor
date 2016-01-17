@@ -8,18 +8,40 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  overflow: hidden;
+}
+
+#the-container {
+  overflow: visible;
+}
+
+.topDiv {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 #the-nav-bar {
+  position: absolute;
   padding: 0;
   margin: 0;
   width: 100%;
   background-color: rgb(44, 48, 59);
-  position: fixed;
   top: 0;
   left: 0;
   z-index: 1;
   height: 53px;
+}
+
+#the-content {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  overflow-y: auto;
+  width: 100%;
+  height: calc(100% - 52px);
+  box-sizing: border-box;
 }
 
 #the-nav-bar:after {

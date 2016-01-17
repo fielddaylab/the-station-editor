@@ -86,16 +86,31 @@
   right: 20%;
 }
 
-.topDiv:not(.accountMenuOpen) .accountMenuDesktop {
+.accountMenuDesktop {
   max-height: 0;
+  position: fixed;
+  top: 53px;
+  right: 50px;
+  background-color: rgb(44,48,59);
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 275px;
+  overflow-y: hidden;
+  transition-property: max-height;
+  transition-duration: 0.25s;
 }
 
-.accountMenuDesktop {
-  overflow-y: hidden;
+.accountMenuOpen .accountMenuDesktop {
+  max-height: 500px;
 }
 
 .loginForm {
   padding-top: 100px;
   padding-left: 30%;
   width: 40%;
+}
+
+.accountMenuMobile {
+  display: none;
 }
