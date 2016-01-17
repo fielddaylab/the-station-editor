@@ -103,6 +103,7 @@ App = React.createClass
       auth: @props.aris.auth
       account_menu: false
     @updateGames()
+    @fetchUserPicture()
 
   getColors: ->
     for i in [1..6] # predefined schemes for now
@@ -115,6 +116,16 @@ App = React.createClass
               update previousState,
                 colors:
                   $merge: singleObj(i, result.data)
+
+  fetchUserPicture: ->
+    if @props.aris.auth?
+      @props.aris.call 'media.getMedia',
+        media_id: @props.aris.auth.media_id
+      , (result) =>
+        if result.returnCode is 0 and result.data?
+          @setState userPicture: result.data
+    else
+      @setState userPicture: null
 
   updateGames: ->
     if @props.aris.auth?
@@ -330,7 +341,7 @@ App = React.createClass
                   height: 100
                   borderRadius: 50
                   backgroundColor: 'white'
-                  backgroundImage: if false then "url(#{media.thumb_url})" else undefined
+                  backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
                   backgroundSize: 'cover'
                   display: 'inline-block'
               child 'p', =>
@@ -405,7 +416,7 @@ App = React.createClass
                 height: 80
                 borderRadius: 40
                 backgroundColor: 'white'
-                backgroundImage: if false then "url(#{media.thumb_url})" else undefined
+                backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
                 backgroundSize: 'cover'
                 display: 'inline-block'
             child 'p', => raw @state.auth.display_name
