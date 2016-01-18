@@ -3,6 +3,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 {make, child, raw, props} = require '../shared/react-writer.js'
 {Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require '../shared/aris.js'
+update = require 'react-addons-update'
 {markdown} = require 'markdown'
 
 renderMarkdown = (str) ->
@@ -31,6 +32,17 @@ App = React.createClass
     @popular 1
 
   fetchIcons: (games) ->
+    games.forEach (game) =>
+      unless @state.icons[game.game_id]?
+        @props.aris.call 'media.getMedia',
+          media_id: game.icon_media_id
+        , ({returnCode, data: media}) =>
+          if returnCode is 0 and media?
+            @setState (prevState) => update prevState,
+              icons: do =>
+                obj = {}
+                obj[game.game_id] = $set: media.url
+                obj
 
   fetchOwners: (games) ->
 
@@ -102,7 +114,7 @@ App = React.createClass
           <a href="../editor"><div className="top_bar_link">MY SIFTRS</div></a>
         </div>
         <div className="spacer" style={height:20}></div>
-        <div style={width:'600px', height:'280px', margin:'0px auto', color:'#FF0000'}><img src="assets/logos/siftr-main-logo.png" style={width:'100%', height:'100%'}></img></div>
+        <div style={maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}><img src="assets/logos/siftr-main-logo.png" style={width:'100%'}></img></div>
         <div className="spacer" style={height:30}></div>
         <div style={width:'100%', height:'30px', margin:'0px auto', textAlign:'center', fontSize:'20px', letterSpacing:'5px', fontWeight:'light', color:'#FFFFFF'}>EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES</div>
         <div className="spacer" style={height:60}></div>
@@ -131,18 +143,21 @@ App = React.createClass
             <div className="siftr_list">
 
             { for game in @state[identifier].games
-                <div className="list_el" key={game.game_id}>
-                  <div className="list_el_img">
-                    <img src="assets/photos/hiking.jpg" style={width:'100%', height:'100%'}></img>
+                url = game.siftr_url or game.game_id
+                <a href="../#{url}" target="_blank" key={game.game_id}>
+                  <div className="list_el">
+                    <div className="list_el_img" style={
+                      backgroundImage: do =>
+                        url = @state.icons[game.game_id]
+                        if url? then "url(#{url})" else undefined
+                      backgroundSize: 'contain'
+                      backgroundPosition: 'center'
+                      backgroundRepeat: 'no-repeat'
+                    } />
+                    <div className="list_el_title">{game.name}</div>
+                    <div className="list_el_description" dangerouslySetInnerHTML={renderMarkdown game.description} />
                   </div>
-                  <div className="list_el_title">{game.name}</div>
-                  <div className="list_el_description" dangerouslySetInnerHTML={renderMarkdown game.description} />
-                  <div className="list_el_line"></div>
-                  <div className="list_el_owner">
-                    <div className="list_el_owner_icon">AB</div>
-                    <div className="list_el_owner_name">By You</div>
-                  </div>
-                </div>
+                </a>
             }
             <div style={clear: 'both'} />
 
