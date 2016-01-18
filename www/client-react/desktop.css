@@ -39,7 +39,7 @@
 }
 .searching.primaryMap .theThumbs, .searching.primaryThumbs .theMap {
   top: 577px;
-  height: calc(100% - 477px);
+  height: calc(100% - 577px);
 }
 
 .desktopMenu {

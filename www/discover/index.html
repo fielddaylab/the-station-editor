@@ -1,0 +1,365 @@
+<html>
+<head>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style>
+div,span,body,img
+{
+  font-family:'Open Sans', sans-serif, Helvetica;
+  letter-spacing:1px;
+  margin:0px;
+  padding:0px;
+  font-weight:lighter;
+  color:#29333F;
+}
+.white_bg
+{
+  background-color:#FFFFFF;
+}
+.light_bg
+{
+  background-color:#F7F7F7;
+}
+.dark_bg
+{
+  background-color:#323232;
+  color:#FFFFFF;
+}
+.yellow_bg
+{
+  background-color:#E9C32A;
+  color:#FFFFFF;
+}
+
+.section
+{
+  width:100%;
+}
+
+/* Top Bar */
+.top_bar_logo
+{
+  float:left;
+}
+.top_bar_link
+{
+  padding:10px;
+  color:#FFFFFF;
+  float:right;
+}
+
+/* lists */
+.list
+{
+  height:100%;
+  width:100%;
+  overflow:hidden;
+}
+.list_el
+{
+  width:200px;
+  height:100%;
+  float:left;
+}
+.list_el_img
+{
+  width:90%;
+  height:100px;
+  margin:0px auto;
+}
+.list_el_title
+{
+  padding:10px;
+}
+.list_el_description
+{
+  padding:10px;
+}
+.list_el_line
+{
+  width:90%;
+  height:1px;
+  margin:0px auto;
+  border-bottom:1px solid black;
+}
+.list_el_owner
+{
+  padding:10px;
+}
+.list_el_owner_icon
+{
+  width:20px;
+  height:20px;
+  padding:10px;
+  float:left;
+  border-radius:20px;
+  background-color:#E9C32A;
+  text-align:center;
+  color:#FFFFFF;
+}
+.list_el_owner_name
+{
+  padding:10px;
+  float:left;
+}
+
+/* slideshow */
+.slide
+{
+  float:left;
+  height:100%;
+  width:50%;
+}
+.slide_label
+{
+  letter-spacing:3px;
+  font-size:20px;
+  padding-top:25%;
+  color:#FFFFFF;
+  text-align:center;
+}
+
+/* tags */
+.categories
+{
+  margin:0px auto;
+  width:70%;
+}
+.tag
+{
+  padding:5px;
+  margin:5px;
+  float:left;
+  background-color:#E9C32A; /* same as yellow-bg */
+  color:#FFFFFF;
+  border-radius:15px;
+}
+
+/* bullets */
+.bullet
+{
+  font-size:10px;
+  vertical-align:top;
+  color:#E9C32A; /* same as yellow-bg */
+  background-color:#E9C32A; /* same as yellow-bg */
+  height:10px;
+  width:10px;
+  border-radius:10px;
+}
+
+/* quadrants */
+.quadrant
+{
+  width:50%;
+  float:left;
+}
+.quadrant_icon
+{
+  width:20px;
+  height:20px;
+  margin:0px auto;
+  padding:30px;
+}
+.quadrant_title
+{
+  text-align:center;
+  font-weight:bold;
+}
+.quadrant_description
+{
+  text-align:center;
+  padding:20px 20px 20px 40px;
+}
+
+</style>
+</head>
+<body class="dark_bg">
+
+<div id="banner" class="section dark_bg" style="position:relative; min-height:300px; background-image:url('assets/photos/siftr-header.jpg'); background-size:cover;">
+<div id="top_bar" style="height:50px; padding:30px;">
+  <div class="top_bar_logo" style="width:40px; height:25px;"><img src="assets/logos/siftr-nav-logo.png" style="width:100%; height:100%;"></img></div>
+  <!-- will go right-to-left -->
+  <div class="top_bar_link" style="border:1px solid white; border-radius:20px;">SIGN UP</div>
+  <div class="top_bar_link">LOGIN</div>
+  <div class="top_bar_link">DISCOVER</div>
+  <div class="top_bar_link">MY ACCOUNT</div>
+  <div class="top_bar_link">MY SIFTRS</div>
+</div>
+<div class="spacer" style="height:20px;"></div>
+<div style="width:600px; height:200px; margin:0px auto; color:#FF0000;"><img src="assets/logos/siftr-main-logo.png" style="width:100%; height:100%;"></img></div>
+<div class="spacer" style="height:50px;"></div>
+<div style="width:100%; height:30px; margin:0px auto; text-align:center; font-size:20px; letter-spacing:5px; font-weight:light; color:#FFFFFF;">EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES</div>
+<div class="spacer" style="height:80px;"></div>
+<div><input type="text"></input></div>
+<div class="spacer" style="height:80px;"></div>
+</div>
+
+<div id="recent_siftrs" class="section white_bg">
+<div style="letter-spacing:3px; padding:20px;">
+RECENT SIFTRS
+</div>
+<div id="recent_siftrs_list" class="siftr_list" style="height:300px;">
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">AB</div>
+    <div class="list_el_owner_name">By You</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">CD</div>
+    <div class="list_el_owner_name">By Me</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">EF</div>
+    <div class="list_el_owner_name">By Him</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">GH</div>
+    <div class="list_el_owner_name">By Her</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="what_people_make" class="section dark_bg" style="height:300px;">
+<div style="letter-spacing:3px; padding:30px; text-align:center; font-size:20px; color:#FFFFFF;">
+JOIN A SIFTR
+</div>
+<div id="what_people_make_slideshow">
+<div class="slide" style="background-image:url('assets/photos/hiking.jpg'); background-size:cover;">
+  <div class="slide_label">FORAGING<br />HUNTS</div>
+</div>
+<div class="slide" style="background-image:url('assets/photos/traveler.jpg'); background-size:cover;">
+  <div class="slide_label">SCAVENGER<br />HUNTS</div>
+</div>
+</div>
+</div>
+
+<div id="tags" class="section white_bg" style="min-height:300px;">
+<div id="left_tags" style="width:50%; float:left;">
+  <div style="text-align:center; padding:50px 50px 10px 50px;">
+  Discover the natural world around you with categories like these:
+  </div>
+  <div class="categories">
+    <div class="tag"> cherries </div>
+    <div class="tag"> apples </div>
+    <div class="tag"> plums </div>
+    <div class="tag"> wild grapes </div>
+    <div class="tag"> blackberries </div>
+  </div>
+</div>
+<div id="right_tags" style="width:50%; float:left;">
+  <div style="text-align:center; padding:50px 50px 10px 50px;">
+  Or explore your neighborhood with categories like these:
+  </div>
+  <div class="categories">
+    <div class="tag"> play spaces </div>
+    <div class="tag"> places to eat </div>
+    <div class="tag"> street art </div>
+    <div class="tag"> trees </div>
+    <div class="tag"> best coffee </div>
+  </div>
+</div>
+</div>
+
+<div id="popular_siftrs" class="section white_bg">
+<div style="letter-spacing:3px; padding:20px;">
+POPULAR SIFTRS
+</div>
+<div id="popular_siftrs_list" class="siftr_list" style="height:300px;">
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">AB</div>
+    <div class="list_el_owner_name">By You</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">CD</div>
+    <div class="list_el_owner_name">By Me</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">EF</div>
+    <div class="list_el_owner_name">By Him</div>
+  </div>
+</div>
+
+<div class="list_el">
+  <div class="list_el_img">
+    <img src="assets/photos/hiking.jpg" style="width:100%; height:100%;"></img>
+  </div>
+  <div class="list_el_title">Title</div>
+  <div class="list_el_description">Description</div>
+  <div class="list_el_line"></div>
+  <div class="list_el_owner">
+    <div class="list_el_owner_icon">GH</div>
+    <div class="list_el_owner_name">By Her</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="footer" class="section dark_bg" style="height:80px;">
+<div class="dark_bg" style="text-align:center; padding:20px 0px 10px 0px;">FIELD DAY</div>
+<div class="dark_bg" style="text-align:center; font-size:10px; ">A Field Day Experiment</div>
+</div>
+
+</body>
+</html>
