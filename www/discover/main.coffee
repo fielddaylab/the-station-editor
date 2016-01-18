@@ -107,14 +107,14 @@ App = React.createClass
         identifier: 'search'
 
     <div>
-      <div id="banner" className="section dark_bg" style={position:'relative',minHeight:300,backgroundImage:"url('assets/photos/siftr-header.jpg')",backgroundSize:'cover'}>
+      <div id="banner" className="section dark_bg" style={position:'relative',minHeight:300,backgroundImage:"url('../assets/photos/siftr-header.jpg')",backgroundSize:'cover'}>
         <div id="top_bar" style={height:50, padding:30}>
-          <a href=".."><div className="top_bar_logo" style={width:57,height:50}><img src="assets/logos/siftr-nav-logo.png" style={width:'100%',height:'100%'}></img></div></a>
+          <a href=".."><div className="top_bar_logo" style={width:57,height:50}><img src="../assets/logos/siftr-nav-logo.png" style={width:'100%',height:'100%'}></img></div></a>
           <a href=""><div className="top_bar_link" style={color: 'rgb(235,197,0)'}>DISCOVER</div></a>
           <a href="../editor"><div className="top_bar_link">MY SIFTRS</div></a>
         </div>
         <div className="spacer" style={height:20}></div>
-        <div style={maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}><img src="assets/logos/siftr-main-logo.png" style={width:'100%'}></img></div>
+        <div style={maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}><img src="../assets/logos/siftr-main-logo.png" style={width:'100%'}></img></div>
         <div className="spacer" style={height:30}></div>
         <div style={width:'100%', height:'30px', margin:'0px auto', textAlign:'center', fontSize:'20px', letterSpacing:'5px', fontWeight:'light', color:'#FFFFFF'}>EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES</div>
         <div className="spacer" style={height:60}></div>

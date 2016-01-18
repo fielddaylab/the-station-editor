@@ -1,0 +1,288 @@
+<html>
+<head>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style>
+div,span,body,img
+{
+  font-family:'Open Sans', sans-serif, Helvetica;
+  letter-spacing:1px;
+  margin:0px;
+  padding:0px;
+  font-weight:lighter;
+  color:#29333F;
+}
+.white_bg
+{
+  background-color:#FFFFFF;
+}
+.light_bg
+{
+  background-color:#F7F7F7;
+}
+.dark_bg
+{
+  background-color:#323232;
+  color:#FFFFFF;
+}
+.yellow_bg
+{
+  background-color:#E9C32A;
+  color:#FFFFFF;
+}
+
+.section
+{
+  width:100%;
+}
+
+/* Top Bar */
+.top_bar_logo
+{
+  float:left;
+}
+.top_bar_link
+{
+  padding:10px;
+  color:#FFFFFF;
+  float:right;
+}
+
+/* slideshow */
+.slide
+{
+  float:left;
+  height:100%;
+  width:50%;
+}
+.slide_label
+{
+  letter-spacing:3px;
+  font-size:20px;
+  padding-top:25%;
+  color:#FFFFFF;
+  text-align:center;
+}
+
+/* tags */
+.categories
+{
+  margin:0px auto;
+  width:70%;
+}
+.tag
+{
+  padding:5px;
+  margin:5px;
+  float:left;
+  background-color:#E9C32A; /* same as yellow-bg */
+  color:#FFFFFF;
+  border-radius:15px;
+}
+
+/* bullets */
+.bullet
+{
+  font-size:10px;
+  vertical-align:top;
+  color:#E9C32A; /* same as yellow-bg */
+  background-color:#E9C32A; /* same as yellow-bg */
+  height:10px;
+  width:10px;
+  border-radius:10px;
+}
+
+/* quadrants */
+.quadrant
+{
+  width:50%;
+  float:left;
+}
+.quadrant_icon
+{
+  width:40px;
+  height:40px;
+  margin:0px auto;
+  padding:30px 30px 50px 30px;
+}
+.quadrant_title
+{
+  text-align:center;
+  font-weight:bold;
+}
+.quadrant_description
+{
+  text-align:center;
+  padding:20px 20px 80px 20px;
+}
+
+</style>
+</head>
+<body class="dark_bg">
+
+<div id="banner" class="section dark_bg" style="position:relative; min-height:300px; background-image:url('assets/photos/siftr-header.jpg'); background-size:cover;">
+<div id="top_bar" style="height:50px; padding:30px;">
+  <div class="top_bar_logo" style="width:57px; height:50px;"><img src="assets/logos/siftr-nav-logo.png" style="width:100%; height:100%;"></img></div>
+  <!-- will go right-to-left -->
+  <div class="top_bar_link" style="border:1px solid white; border-radius:20px;">SIGN UP</div>
+  <div class="top_bar_link">LOGIN</div>
+  <div class="top_bar_link">DISCOVER</div>
+  <div class="top_bar_link">MY ACCOUNT</div>
+  <div class="top_bar_link">MY SIFTRS</div>
+</div>
+<div class="spacer" style="height:20px;"></div>
+<div style="max-width: 100%; width:600px; margin:0px auto; color:#FF0000;"><img src="assets/logos/siftr-main-logo.png" style="width:100%;"></img></div>
+<div class="spacer" style="height:50px;"></div>
+<div style="width:100%; height:30px; margin:0px auto; text-align:center; font-size:20px; letter-spacing:5px; font-weight:light; color:#FFFFFF;">EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES</div>
+<div class="spacer" style="height:80px;"></div>
+</div>
+
+<div id="what_is" class="section yellow_bg">
+<div style="padding:100px;">
+  <div style="width:150px; height:200px; float:left; margin:20px;">
+  <img src="assets/logos/siftr-mark.png" style="width:100%; height:100%;"></img>
+  </div>
+  <div style="min-height:200px;"> <!-- needs min height, becase as "non-float", this sets height of parent div... html... -->
+    <div style="letter-spacing:3px; margin:10px; font-size:20px; color:#FFFFFF;">
+    WHAT IS SIFTR?
+    </div>
+    <div style="margin:10px; color:#FFFFFF;">
+    Siftr extends learning beyond your computer, books,<br /><br />
+    classroom walls - preparing people of all ages to learn<br /><br />
+    in the wild. A tool for teachers and curious people. Siftr<br /><br />
+    supports you as you explore the world.
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div id="discover_map" class="section white_bg"  style="background-image:url('assets/photos/map.jpg'); background-size:cover;">
+<div style="width:600px; max-width: 100%; margin:0px auto;">
+<img src="assets/photos/siftr-header.png" style="width:100%; max-height:463px;"></img>
+</div>
+</div>
+
+<div id="what_people_make" class="section dark_bg" style="height:300px;">
+<div style="letter-spacing:3px; padding:30px; text-align:center; font-size:20px; color:#FFFFFF;">
+WHAT ARE PEOPLE MAKING WITH SIFTR?
+</div>
+<div id="what_people_make_slideshow">
+<div class="slide" style="background-image:url('assets/photos/hiking.jpg'); background-size:cover;">
+  <div class="slide_label">FORAGING<br />HUNTS</div>
+</div>
+<div class="slide" style="background-image:url('assets/photos/traveler.jpg'); background-size:cover;">
+  <div class="slide_label">SCAVENGER<br />HUNTS</div>
+</div>
+</div>
+</div>
+
+<div id="tags" class="section white_bg" style="min-height:300px;">
+<div id="left_tags" style="width:50%; float:left;">
+  <div style="text-align:center; padding:50px 50px 10px 50px;">
+  Discover the natural world around you with categories like these:
+  </div>
+  <div class="categories">
+    <div class="tag"> cherries </div>
+    <div class="tag"> apples </div>
+    <div class="tag"> plums </div>
+    <div class="tag"> wild grapes </div>
+    <div class="tag"> blackberries </div>
+  </div>
+</div>
+<div id="right_tags" style="width:50%; float:left;">
+  <div style="text-align:center; padding:50px 50px 10px 50px;">
+  Or explore your neighborhood with categories like these:
+  </div>
+  <div class="categories">
+    <div class="tag"> play spaces </div>
+    <div class="tag"> places to eat </div>
+    <div class="tag"> street art </div>
+    <div class="tag"> trees </div>
+    <div class="tag"> best coffee </div>
+  </div>
+</div>
+</div>
+
+<div id="anybody_can_make" class="section light_bg" style="height:300px;">
+<div id="got_five" style="width:50%; height:100%; float:left; background-image:url('assets/photos/city.jpg');">
+  <div style="padding:100px 60px;">
+    <div style="width:100px; height:80px; float:left;">
+    <img src="assets/logos/siftrplus.png" style="width:100%; height:100%;"></img>
+    </div>
+    <div style="width:200px; float:left; padding:10px; color:#FFFFFF; font-size:20px;">
+    Got five minutes? Anybody can make a Siftr.
+    </div>
+  </div>
+</div>
+<div id="instructions" style="width:50%; height:100%; float:left;">
+  <div id="to_do" style="padding:50px;">
+    <div><span class="bullet">*-*</span> Choose a topic: What do you want to explore? </div>
+    <br />
+    <div><span class="bullet">*-*</span> Pick about 5 categories</div>
+    <br />
+    <div><span class="bullet">*-*</span> Invite your students or friends</div>
+    <br />
+  </div>
+  <br />
+  <div style="padding-left:50px;"><div class="yellow_bg" style="border-radius:30px; padding:10px; width:40px;">GO!</div></div>
+</div>
+</div>
+
+<div id="siftr_helps" class="section yellow_bg">
+<div style="text-align:center; color:#FFFFFF; padding:40px;">
+Siftr helps you focus, collect, visualize, discuss
+</div>
+</div>
+
+<div id="quadrants" class="section white_bg" style="height:600px;">
+  <div id="focus_quadrant" class="quadrant">
+    <div class="quadrant_icon"><img src="assets/icons/mesh3.png" style="width:100%; height:100%;"></img></div>
+    <div class="quadrant_title">Ready, set, focus:</div>
+    <div class="quadrant_description">Let's face it, the world is too much to take in all at once. Siftr helps you focus before you set out to explore.</div>
+  </div>
+  <div id="collect_quadrant" class="quadrant">
+    <div class="quadrant_icon"><img src="assets/icons/mesh2.png" style="width:100%; height:100%;"></img></div>
+    <div class="quadrant_title">Collect:</div>
+    <div class="quadrant_description">Siftr collects all your discoveries into one spot where everyone you want can see and add to them. It lets you collaborate with others on your projects.</div>
+  </div>
+  <div id="see_quadrant" class="quadrant">
+    <div class="quadrant_icon"><img src="assets/icons/mesh1.png" style="width:100%; height:100%;"></img></div>
+    <div class="quadrant_title">See your discoveries:</div>
+    <div class="quadrant_description">Siftr visualizes everything you collect - the photos and the places you found them. In the future, Siftr will create charts, graphs, overlays, and more.</div>
+  </div>
+  <div id="discuss_quadrant" class="quadrant">
+    <div class="quadrant_icon" style="width:80px;">
+      <div style="margin:0px auto; width:40px;">
+        <img src="assets/icons/mesh3.png" style="width:40px; height:40px;"></img>
+      </div>
+      <div style="margin:0px auto; width:85px; height:40px;"> <!-- it makes *no* sense why the width of this must be 85px to accomadate 2 40px images -->
+        <img src="assets/icons/mesh3.png" style="width:40px; height:40px;"></img>
+        <img src="assets/icons/mesh3.png" style="width:40px; height:40px;"></img>
+      </div>
+    </div>
+    <div class="quadrant_title">Discuss:</div>
+    <div class="quadrant_description">Siftr smoothly faciilitates discussions whether you are in a classroom setting, sitting over tea with a friend, or a world away. It can privately engage specific communitites, like a middle school history class or a group of neighbors.</div>
+  </div>
+</div>
+
+<div id="what_will_you_make" class="section white_bg" style="height:500px; background-image:url('assets/photos/map.jpg');">
+<div style="width:50%; float:left;">
+<div style="padding:100px; font-size:40px;">What kind of Siftr Will you make?  </div>
+<div style="padding-left:100px;">
+  <div class="yellow_bg" style="border-radius:30px; padding:10px; width:70px;">Sign up!</div>
+</div>
+</div>
+<div style="width:50%; float:left;">
+<div style="margin:0px auto; width:200px; height:400px; padding:30px;">
+<img src="assets/photos/phone.png" style="width:100%; height:100%;"></img>
+</div>
+</div>
+</div>
+
+<div id="footer" class="section dark_bg" style="height:80px;">
+<div class="dark_bg" style="text-align:center; padding:20px 0px 10px 0px;">FIELD DAY</div>
+<div class="dark_bg" style="text-align:center; font-size:10px; ">A Field Day Experiment</div>
+</div>
+
+</body>
+</html>
