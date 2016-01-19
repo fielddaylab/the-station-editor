@@ -7,7 +7,7 @@ GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
 $ = require 'jquery'
 {make, child, raw, props} = require '../../shared/react-writer.js'
-EXIF = require '../../shared/exif.js'
+EXIF = require 'exif-js'
 
 T = React.PropTypes
 
