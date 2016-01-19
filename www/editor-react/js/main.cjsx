@@ -348,6 +348,14 @@ App = React.createClass
                     colors: @state.colors
                     notes: @state.notes
                     tags: @state.tags
+                    onDelete: (game) =>
+                      @props.aris.call 'games.deleteGame',
+                        game_id: game.game_id
+                      , ({returnCode, returnCodeDescription}) =>
+                        if returnCode is 0
+                          @updateGames()
+                        else
+                          alert "There was an error deleting your Siftr: #{returnCodeDescription}"
           child 'div.accountMenuDesktop', =>
             child 'div', style: {textAlign: 'center'}, =>
               child 'p', =>
@@ -538,6 +546,19 @@ SiftrList = React.createClass
                   float: 'left'
                   fontSize: '23px'
               raw game.name
+            child 'span', =>
+              props
+                style:
+                  float: 'right'
+                  border: '1px solid black'
+                  padding: 5
+                  marginLeft: 5
+                  color: 'black'
+                  cursor: 'pointer'
+                onClick: =>
+                  if confirm "Are you sure you want to delete \"#{game.name}\"?"
+                    @props.onDelete game
+              raw 'DELETE'
             child 'a', href: "\#edit#{game.game_id}", =>
               child 'span', =>
                 props
@@ -547,7 +568,7 @@ SiftrList = React.createClass
                     padding: 5
                     marginLeft: 5
                     color: 'black'
-                  raw 'EDIT'
+                raw 'EDIT'
             child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
               child 'span', =>
                 props
@@ -557,7 +578,7 @@ SiftrList = React.createClass
                     padding: 5
                     marginLeft: 5
                     color: 'black'
-                  raw 'VIEW'
+                raw 'VIEW'
             child 'div', style: clear: 'both'
           child 'div', =>
             props
