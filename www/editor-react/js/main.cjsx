@@ -636,7 +636,13 @@ EditSiftr = React.createClass
                     paddingTop: 10
                     paddingBottom: 10
                     marginRight: 20
-                  onClick: @props.onSave
+                  onClick: =>
+                    unless @props.game.name
+                      alert 'Please enter a name for your Siftr.'
+                    else unless @props.game.description
+                      alert 'Please enter a description for your Siftr.'
+                    else
+                      @props.onSave()
                 raw 'SAVE'
               child 'a', href: '#', =>
                 child 'span', =>
@@ -698,9 +704,17 @@ NewStep1 = React.createClass
             paddingBottom: 60
             position: 'relative'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'a', href: '#new2', =>
-          child 'div.newNextButton', =>
-            raw 'NEXT, APPEARANCE >'
+        child 'div.newNextButton', =>
+          props
+            onClick: =>
+              unless @props.game.name
+                alert "Please give your Siftr a name."
+              else unless @props.game.description
+                alert "Please give your Siftr a description."
+              else
+                window.location.replace '#new2'
+            style: cursor: 'pointer'
+          raw 'NEXT, APPEARANCE >'
 
       child 'div.newStep1', =>
         child 'h3', style: {textAlign: 'center'}, =>
@@ -821,9 +835,18 @@ NewStep2 = React.createClass
         child 'a', href: '#new1', =>
           child 'div.newPrevButton', =>
             raw '< BACK, SETUP'
-        child 'a', href: '#new3', =>
-          child 'div.newNextButton', =>
-            raw 'NEXT, SETTINGS >'
+        child 'div.newNextButton', =>
+          props
+            onClick: =>
+              tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
+              if tags.length is 1 and tags[0] is ''
+                alert 'You must have at least one tag.'
+              else if '' in tags
+                alert 'You cannot have any unnamed tags.'
+              else
+                window.location.replace '#new3'
+            style: cursor: 'pointer'
+          raw 'NEXT, SETTINGS >'
 
       child 'div.newStep2', =>
         child 'h3', style: {textAlign: 'center'}, =>
