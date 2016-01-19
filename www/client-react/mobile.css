@@ -115,3 +115,9 @@
     width: 23%;
   }
 }
+
+.messageBox {
+  left: 30px;
+  width: calc(100% - 160px);
+  padding: 50px;
+}

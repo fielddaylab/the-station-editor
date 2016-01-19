@@ -1602,8 +1602,7 @@ App = React.createClass
 
       # Message box (for errors)
       if @state.message?
-        child 'div', =>
-          props style: {position: 'fixed', left: 100, width: 'calc(100% - 300px)', top: 'calc(50% - 50px)', backgroundColor: 'black', color: 'white', textAlign: 'center', padding: 50}
+        child 'div.messageBox', =>
           raw @state.message
           child 'div', =>
             props

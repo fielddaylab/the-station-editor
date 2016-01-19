@@ -123,3 +123,12 @@ body {
 input[type=text], input[type=password], textarea {
   font-size: 15px;
 }
+
+.messageBox {
+  position: fixed;
+  top: calc(50% - 50px);
+  background-color: black;
+  color: white;
+  text-align: center;
+  z-index: 999;
+}
