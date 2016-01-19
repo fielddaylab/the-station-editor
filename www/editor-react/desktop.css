@@ -118,3 +118,7 @@
 #the-mobile-menu-button {
   display: none;
 }
+
+.clearOnMobile {
+  display: none;
+}

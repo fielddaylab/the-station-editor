@@ -81,3 +81,8 @@
 #the-logo, #the-my-siftrs-button, #the-my-account-button, #the-discover-button {
   display: none;
 }
+
+.clearOnMobile {
+  clear: both;
+  height: 10px;
+}

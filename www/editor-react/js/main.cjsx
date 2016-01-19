@@ -277,6 +277,28 @@ App = React.createClass
         alert 'An email has been sent to that account (if it exists) to reset your password.'
         window.location.replace '#'
 
+  signup: ->
+    unless @state.email
+      alert 'Please enter your email address.'
+    else unless '@' in @state.email
+      alert 'Your email address is not valid.'
+    else unless @state.username
+      alert 'Please select a username.'
+    else unless @state.password or @state.password2
+      alert 'Please enter a password.'
+    else unless @state.password is @state.password2
+      alert 'Your passwords do not match.'
+    else
+      @props.aris.call 'users.createUser',
+        user_name: @state.username
+        password: @state.password
+        email: @state.email
+      , ({returnCode, returnCodeDescription}) =>
+        if returnCode isnt 0
+          alert "Couldn't create account: #{returnCodeDescription}"
+        else
+          @login @state.username, @state.password
+
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
@@ -438,6 +460,78 @@ App = React.createClass
                         textAlign: 'center'
                         color: 'white'
                     raw 'BACK'
+            when 'signup'
+              child 'div.loginForm', =>
+                child 'p', style: {textAlign: 'center'}, =>
+                  raw 'Create a new Siftr account'
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Email'
+                    value: @state.email
+                    style: width: '100%'
+                    onChange: (e) => @setState email: e.target.value
+                    onKeyDown: (e) =>
+                      @signup() if e.keyCode is 13
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Username'
+                    value: @state.username
+                    style: width: '100%'
+                    onChange: (e) => @setState username: e.target.value
+                    onKeyDown: (e) =>
+                      @signup() if e.keyCode is 13
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'Password'
+                    value: @state.password
+                    style: width: '100%'
+                    onChange: (e) => @setState password: e.target.value
+                    onKeyDown: (e) =>
+                      @signup() if e.keyCode is 13
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'Repeat password'
+                    value: @state.password2
+                    style: width: '100%'
+                    onChange: (e) => @setState password2: e.target.value
+                    onKeyDown: (e) =>
+                      @signup() if e.keyCode is 13
+                child 'div', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(51,191,224)'
+                      width: '100%'
+                      paddingTop: 8
+                      paddingBottom: 8
+                      textAlign: 'center'
+                      color: 'white'
+                      cursor: 'pointer'
+                      marginBottom: 15
+                    onClick: @signup
+                  raw 'CREATE ACCOUNT'
+                child 'a', href: '#', =>
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                    raw 'BACK'
             else
               child 'div.loginForm', =>
                 child 'p', style: {textAlign: 'center'}, =>
@@ -480,6 +574,18 @@ App = React.createClass
                     onClick: =>
                       @login @state.username, @state.password
                   raw 'LOGIN'
+                child 'a', href: '#signup', =>
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                        marginBottom: 15
+                    raw 'CREATE ACCOUNT'
                 child 'a', href: '#forgot', =>
                   child 'div', =>
                     props
@@ -546,6 +652,7 @@ SiftrList = React.createClass
                   float: 'left'
                   fontSize: '23px'
               raw game.name
+            child 'div.clearOnMobile'
             child 'span', =>
               props
                 style:
@@ -603,7 +710,7 @@ SiftrList = React.createClass
             props
               style:
                 marginTop: 10
-            sep = => child 'span', style: {paddingLeft: 20, paddingRight: 20}, => raw '|'
+            sep = => child 'span', style: {marginLeft: 20, marginRight: 20}, => raw ' | '
             raw "#{notes?.length ? '...'} items"
             sep()
             raw "#{if notes? then countContributors(notes) else '...'} contributors"
