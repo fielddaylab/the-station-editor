@@ -87,6 +87,12 @@ App = React.createClass
         @setState
           screen: 'new3'
           new_step: 3
+    else if hash is 'account'
+      @setState screen: 'account'
+    else if hash is 'forgot'
+      @setState screen: 'forgot'
+    else if hash is 'signup'
+      @setState screen: 'signup'
     else
       @setState screen: 'main'
 
@@ -262,6 +268,15 @@ App = React.createClass
             new_icon:
               $set: null
 
+  sendPasswordReset: ->
+    @props.aris.call 'users.requestForgotPasswordEmail',
+      user_name: @state.username
+      email:     @state.email
+    , ({returnCode}) =>
+      if returnCode is 0
+        alert 'An email has been sent to that account (if it exists) to reset your password.'
+        window.location.replace '#'
+
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
@@ -294,24 +309,6 @@ App = React.createClass
                   colors: @state.colors
                   onChange: (game) => @setState edit_game: game
                   onSave: @handleSave
-              when 'main'
-                child 'div', =>
-                  child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
-                    child 'a', href: '#new1', =>
-                      child 'span', =>
-                        props style:
-                          backgroundColor: 'rgb(51,191,224)'
-                          color: 'white'
-                          paddingLeft: 40
-                          paddingRight: 40
-                          paddingTop: 10
-                          paddingBottom: 10
-                        raw 'NEW SIFTR'
-                  child SiftrList,
-                    games: @state.games
-                    colors: @state.colors
-                    notes: @state.notes
-                    tags: @state.tags
               when 'new1'
                 f = (game, tag_string) => @setState
                   new_game: game
@@ -333,6 +330,24 @@ App = React.createClass
                   game: @state.new_game
                   onChange: (new_game) => @setState {new_game}
                   onCreate: @createGame
+              else
+                child 'div', =>
+                  child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
+                    child 'a', href: '#new1', =>
+                      child 'span', =>
+                        props style:
+                          backgroundColor: 'rgb(51,191,224)'
+                          color: 'white'
+                          paddingLeft: 40
+                          paddingRight: 40
+                          paddingTop: 10
+                          paddingBottom: 10
+                        raw 'NEW SIFTR'
+                  child SiftrList,
+                    games: @state.games
+                    colors: @state.colors
+                    notes: @state.notes
+                    tags: @state.tags
           child 'div.accountMenuDesktop', =>
             child 'div', style: {textAlign: 'center'}, =>
               child 'p', =>
@@ -359,46 +374,115 @@ App = React.createClass
                   onClick: @logout
                 raw 'LOGOUT'
         else
-          child 'div.loginForm', =>
-            child 'p', style: {textAlign: 'center'}, =>
-              raw 'Login with a Siftr or ARIS account'
-            child 'p', =>
-              child 'input',
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'text'
-                placeholder: 'Username'
-                value: @state.username
-                style: width: '100%'
-                onChange: (e) => @setState username: e.target.value
-                onKeyDown: (e) =>
-                  if e.keyCode is 13
-                    @login @state.username, @state.password
-            child 'p', =>
-              child 'input',
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'password'
-                placeholder: 'Password'
-                value: @state.password
-                style: width: '100%'
-                onChange: (e) => @setState password: e.target.value
-                onKeyDown: (e) =>
-                  if e.keyCode is 13
-                    @login @state.username, @state.password
-            child 'div', =>
-              props
-                style:
-                  backgroundColor: 'rgb(51,191,224)'
-                  width: '100%'
-                  paddingTop: 8
-                  paddingBottom: 8
-                  textAlign: 'center'
-                  color: 'white'
-                  cursor: 'pointer'
-                onClick: =>
-                  @login @state.username, @state.password
-              raw 'LOGIN'
+          switch @state.screen
+            when 'forgot'
+              child 'div.loginForm', =>
+                child 'p', style: {textAlign: 'center'}, =>
+                  raw 'Enter your username '
+                  child 'b', => raw 'or'
+                  raw ' email to reset your password.'
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Username'
+                    value: @state.username
+                    style: width: '100%'
+                    onChange: (e) => @setState username: e.target.value
+                    onKeyDown: (e) =>
+                      if e.keyCode is 13
+                        @sendPasswordReset()
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Email'
+                    value: @state.email
+                    style: width: '100%'
+                    onChange: (e) => @setState email: e.target.value
+                    onKeyDown: (e) =>
+                      if e.keyCode is 13
+                        @sendPasswordReset()
+                child 'div', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(51,191,224)'
+                      width: '100%'
+                      paddingTop: 8
+                      paddingBottom: 8
+                      textAlign: 'center'
+                      color: 'white'
+                      cursor: 'pointer'
+                      marginBottom: 15
+                    onClick: =>
+                      @sendPasswordReset()
+                  raw 'SEND EMAIL'
+                child 'a', href: '#', =>
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                    raw 'BACK'
+            else
+              child 'div.loginForm', =>
+                child 'p', style: {textAlign: 'center'}, =>
+                  raw 'Login with a Siftr or ARIS account'
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Username'
+                    value: @state.username
+                    style: width: '100%'
+                    onChange: (e) => @setState username: e.target.value
+                    onKeyDown: (e) =>
+                      if e.keyCode is 13
+                        @login @state.username, @state.password
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'Password'
+                    value: @state.password
+                    style: width: '100%'
+                    onChange: (e) => @setState password: e.target.value
+                    onKeyDown: (e) =>
+                      if e.keyCode is 13
+                        @login @state.username, @state.password
+                child 'div', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(51,191,224)'
+                      width: '100%'
+                      paddingTop: 8
+                      paddingBottom: 8
+                      textAlign: 'center'
+                      color: 'white'
+                      cursor: 'pointer'
+                      marginBottom: 15
+                    onClick: =>
+                      @login @state.username, @state.password
+                  raw 'LOGIN'
+                child 'a', href: '#forgot', =>
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                    raw 'FORGOT PASSWORD?'
       child 'div.accountMenuMobile', =>
         child 'span', =>
           props
