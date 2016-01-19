@@ -96,10 +96,15 @@ App = React.createClass
         old_password: ''
         password: ''
         password2: ''
+        new_icon: null
     else if hash is 'forgot'
       @setState screen: 'forgot'
     else if hash is 'signup'
-      @setState screen: 'signup'
+      @setState
+        screen: 'signup'
+        password: ''
+        password2: ''
+        email: ''
     else
       @setState screen: 'main'
 
@@ -227,7 +232,7 @@ App = React.createClass
         base64 = dataURL[v.length ..]
     if ext? and base64?
       @props.aris.call 'media.createMedia',
-        game_id: game.game_id
+        game_id: game?.game_id
         file_name: "upload.#{ext}"
         data: base64
       , cb
@@ -312,6 +317,18 @@ App = React.createClass
           window.location.replace '#'
           @login @state.username, @state.password
 
+  selectUserPicture: ->
+    input = document.createElement 'input'
+    input.type = 'file'
+    input.onchange = (e) => @loadUserPicture e.target.files[0]
+    input.click()
+
+  loadUserPicture: (file) ->
+    fr = new FileReader
+    fr.onload = =>
+      @setState new_icon: fr.result
+    fr.readAsDataURL file
+
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
@@ -340,9 +357,36 @@ App = React.createClass
             switch @state.screen
               when 'account'
                 child 'div.loginForm', =>
+                  props style: textAlign: 'center'
                   child 'h3', =>
-                    props style: textAlign: 'center'
                     raw 'Account Details'
+                  child 'p', =>
+                    child 'span',
+                      style:
+                        width: 200
+                        height: 200
+                        borderRadius: 100
+                        backgroundColor: 'black'
+                        backgroundImage:
+                          if @state.new_icon?
+                            "url(#{@state.new_icon})"
+                          else if @state.userPicture?
+                            "url(#{@state.userPicture.url})"
+                          else
+                            undefined
+                        backgroundSize: 'cover'
+                        display: 'inline-block'
+                        cursor: 'pointer'
+                      onClick: @selectUserPicture
+                      onDragOver: (e) =>
+                        e.stopPropagation()
+                        e.preventDefault()
+                      onDrop: (e) =>
+                        e.stopPropagation()
+                        e.preventDefault()
+                        for file in e.dataTransfer.files
+                          @loadUserPicture file
+                          break
                   child 'p', =>
                     child 'input',
                       autoCapitalize: 'off'
@@ -372,7 +416,27 @@ App = React.createClass
                         color: 'white'
                         cursor: 'pointer'
                         marginBottom: 15
-                      onClick: => null # TODO
+                      onClick: =>
+                        useMediaID = (media_id) =>
+                          @props.aris.call 'users.updateUser',
+                            user_id: @props.aris.auth.user_id
+                            display_name: @state.display_name
+                            email: @state.email
+                            media_id: media_id
+                          , ({returnCode, returnCodeDescription}) =>
+                            if returnCode is 0
+                              @login undefined, undefined
+                              window.location.replace '#'
+                            else
+                              alert "Couldn't save your account details: #{returnCodeDescription}"
+                        if @state.new_icon?
+                          @createNewIcon null, (result) =>
+                            if result?
+                              useMediaID result.data.media_id
+                            else
+                              alert "Your user picture is not of a supported type."
+                        else
+                          useMediaID null
                     raw 'SAVE CHANGES'
                   child 'a', href: '#', =>
                     child 'div', =>
@@ -386,7 +450,6 @@ App = React.createClass
                           color: 'white'
                       raw 'BACK'
                   child 'h3', =>
-                    props style: textAlign: 'center'
                     raw 'Change Password'
                   child 'p', =>
                     child 'input',
