@@ -1660,6 +1660,22 @@ App = React.createClass
         raw ' '
         raw @props.game.name
 
+NoSiftr = React.createClass
+  render: ->
+    make 'div', =>
+      child 'p', =>
+        props
+          style:
+            padding: 10
+        raw "Sorry, there's no Siftr at this URL."
+      child 'p', =>
+        props
+          style:
+            padding: 10
+        raw "Want to make one? "
+        child 'a', href: '..', =>
+          raw 'Visit the Siftr homepage.'
+
 document.addEventListener 'DOMContentLoaded', ->
 
   siftr_url = window.location.search.replace('?', '')
@@ -1698,9 +1714,13 @@ document.addEventListener 'DOMContentLoaded', ->
     , ({data: game, returnCode}) ->
       if returnCode is 0 and game?
         continueWithGame game
+      else
+        ReactDOM.render React.createElement(NoSiftr), document.getElementById('the-container')
   else if siftr_url?
     aris.searchSiftrs
       siftr_url: siftr_url
     , ({data: games, returnCode}) ->
       if returnCode is 0 and games.length is 1
         continueWithGame games[0]
+      else
+        ReactDOM.render React.createElement(NoSiftr), document.getElementById('the-container')

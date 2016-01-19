@@ -1102,6 +1102,9 @@ NewStep1 = React.createClass
             paddingTop: 60
             paddingBottom: 60
             position: 'relative'
+            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
+            backgroundSize: 'cover'
+            backgroundRepeat: 'no-repeat'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'div.newNextButton', =>
           props
@@ -1230,6 +1233,9 @@ NewStep2 = React.createClass
             paddingTop: 60
             paddingBottom: 60
             position: 'relative'
+            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
+            backgroundSize: 'cover'
+            backgroundRepeat: 'no-repeat'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new1', =>
           child 'div.newPrevButton', =>
@@ -1429,6 +1435,9 @@ NewStep3 = React.createClass
             paddingTop: 60
             paddingBottom: 60
             position: 'relative'
+            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
+            backgroundSize: 'cover'
+            backgroundRepeat: 'no-repeat'
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new2', =>
           child 'div.newPrevButton', =>

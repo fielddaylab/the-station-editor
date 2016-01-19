@@ -5,14 +5,16 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-f
 RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([^/]+)$ /$1/ [R]
 
-# /foo/       becomes /client2/
-# /foo/bar.js becomes /client2/bar.js
+RewriteRule ^editor/(.*)$ /editor-react/$1
+
+# /foo/       becomes /client-react/
+# /foo/bar.js becomes /client-react/bar.js
 # (the Siftr app looks at the browser-side URL to know it should load "foo")
-RewriteCond %{DOCUMENT_ROOT}/client2/$2 -f [OR]
-RewriteCond %{DOCUMENT_ROOT}/client2/$2 -d
+RewriteCond %{DOCUMENT_ROOT}/client-react/$2 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/client-react/$2 -d
 RewriteCond %{DOCUMENT_ROOT}/$1/$2 !-f
 RewriteCond %{DOCUMENT_ROOT}/$1/$2 !-d
-RewriteRule ^([^/]+)/(.*)$ /client2/$2
+RewriteRule ^([^/]+)/(.*)$ /client-react/$2
 
 # Serve SVG correctly
 AddType image/svg+xml svg svgz
