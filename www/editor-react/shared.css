@@ -96,3 +96,8 @@ a {
   padding-bottom: 10px;
   cursor: pointer;
 }
+
+.unlink {
+  color: white;
+  text-decoration: none;
+}

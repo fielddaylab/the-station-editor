@@ -185,7 +185,8 @@
           key: user.read_write_key,
           username: user.user_name,
           display_name: user.display_name,
-          media_id: user.media_id
+          media_id: user.media_id,
+          email: user.email
         };
         return window.localStorage['aris-auth'] = JSON.stringify(this.auth);
       } else {

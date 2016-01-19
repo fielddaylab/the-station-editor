@@ -136,6 +136,7 @@ class Aris
         username:     user.user_name
         display_name: user.display_name
         media_id:     user.media_id
+        email:        user.email
       window.localStorage['aris-auth'] = JSON.stringify @auth
     else
       @logout()

@@ -56,6 +56,7 @@ App = React.createClass
     @getColors()
 
   applyHash: ->
+    @setState account_menu: false
     hash = window.location.hash[1..]
     if hash[0..3] is 'edit'
       game_id = parseInt hash[4..]
@@ -88,7 +89,13 @@ App = React.createClass
           screen: 'new3'
           new_step: 3
     else if hash is 'account'
-      @setState screen: 'account'
+      @setState
+        screen: 'account'
+        display_name: @state.auth?.display_name
+        email: @state.auth?.email
+        old_password: ''
+        password: ''
+        password2: ''
     else if hash is 'forgot'
       @setState screen: 'forgot'
     else if hash is 'signup'
@@ -97,7 +104,10 @@ App = React.createClass
       @setState screen: 'main'
 
   login: (username, password) ->
-    @props.aris.login username, password, => @updateLogin()
+    @props.aris.login username, password, =>
+      @updateLogin()
+      if (username? or password?) and not @props.aris.auth?
+        alert 'Incorrect username or password.'
 
   logout: ->
     window.location.hash = '#'
@@ -108,6 +118,8 @@ App = React.createClass
     @setState
       auth: @props.aris.auth
       account_menu: false
+      password: ''
+      password2: ''
     @updateGames()
     @fetchUserPicture()
 
@@ -297,6 +309,7 @@ App = React.createClass
         if returnCode isnt 0
           alert "Couldn't create account: #{returnCodeDescription}"
         else
+          window.location.replace '#'
           @login @state.username, @state.password
 
   render: ->
@@ -325,6 +338,115 @@ App = React.createClass
         if @state.auth?
           child 'div', =>
             switch @state.screen
+              when 'account'
+                child 'div.loginForm', =>
+                  child 'h3', =>
+                    props style: textAlign: 'center'
+                    raw 'Account Details'
+                  child 'p', =>
+                    child 'input',
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'text'
+                      placeholder: 'Display Name'
+                      value: @state.display_name
+                      style: width: '100%'
+                      onChange: (e) => @setState display_name: e.target.value
+                  child 'p', =>
+                    child 'input',
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'text'
+                      placeholder: 'Email'
+                      value: @state.email
+                      style: width: '100%'
+                      onChange: (e) => @setState email: e.target.value
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                        cursor: 'pointer'
+                        marginBottom: 15
+                      onClick: => null # TODO
+                    raw 'SAVE CHANGES'
+                  child 'a', href: '#', =>
+                    child 'div', =>
+                      props
+                        style:
+                          backgroundColor: 'rgb(51,191,224)'
+                          width: '100%'
+                          paddingTop: 8
+                          paddingBottom: 8
+                          textAlign: 'center'
+                          color: 'white'
+                      raw 'BACK'
+                  child 'h3', =>
+                    props style: textAlign: 'center'
+                    raw 'Change Password'
+                  child 'p', =>
+                    child 'input',
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'password'
+                      placeholder: 'Old password'
+                      value: @state.old_password
+                      style: width: '100%'
+                      onChange: (e) => @setState old_password: e.target.value
+                  child 'p', =>
+                    child 'input',
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'password'
+                      placeholder: 'New password'
+                      value: @state.password
+                      style: width: '100%'
+                      onChange: (e) => @setState password: e.target.value
+                  child 'p', =>
+                    child 'input',
+                      autoCapitalize: 'off'
+                      autoCorrect: 'off'
+                      type: 'password'
+                      placeholder: 'Repeat new password'
+                      value: @state.password2
+                      style: width: '100%'
+                      onChange: (e) => @setState password2: e.target.value
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                        cursor: 'pointer'
+                        marginBottom: 15
+                      onClick: =>
+                        unless @state.old_password
+                          alert 'Please enter your current password.'
+                        else unless @state.password or @state.password2
+                          alert 'Please enter a new password.'
+                        else unless @state.password is @state.password2
+                          alert 'Your two password do not match.'
+                        else
+                          username = @props.aris.auth.username
+                          password = @state.password
+                          @props.aris.call 'users.changePassword',
+                            user_name: username
+                            old_password: @state.old_password
+                            new_password: password
+                          , ({returnCode, returnCodeDescription}) =>
+                            if returnCode is 0
+                              @logout()
+                              @login username, password
+                            else
+                              alert "Couldn't change your password: #{returnCodeDescription}"
+                    raw 'CHANGE PASSWORD'
               when 'edit'
                 child EditSiftr,
                   game: @state.edit_game
@@ -380,17 +502,18 @@ App = React.createClass
                           alert "There was an error deleting your Siftr: #{returnCodeDescription}"
           child 'div.accountMenuDesktop', =>
             child 'div', style: {textAlign: 'center'}, =>
-              child 'p', =>
-                child 'span', style:
-                  width: 100
-                  height: 100
-                  borderRadius: 50
-                  backgroundColor: 'white'
-                  backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
-                  backgroundSize: 'cover'
-                  display: 'inline-block'
-              child 'p', =>
-                raw @state.auth.display_name
+              child 'a.unlink', href: '#account', =>
+                child 'p', =>
+                  child 'span', style:
+                    width: 100
+                    height: 100
+                    borderRadius: 50
+                    backgroundColor: 'white'
+                    backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
+                    backgroundSize: 'cover'
+                    display: 'inline-block'
+                child 'p', =>
+                  raw @state.auth.display_name
               child 'div', =>
                 props
                   style:
@@ -608,16 +731,17 @@ App = React.createClass
             onClick: => @setState account_menu: false
         child 'div', style: {textAlign: 'center'}, =>
           if @state.auth?
-            child 'p', =>
-              child 'span', style:
-                width: 80
-                height: 80
-                borderRadius: 40
-                backgroundColor: 'white'
-                backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
-                backgroundSize: 'cover'
-                display: 'inline-block'
-            child 'p', => raw @state.auth.display_name
+            child 'a.unlink', href: '#account', =>
+              child 'p', =>
+                child 'span', style:
+                  width: 80
+                  height: 80
+                  borderRadius: 40
+                  backgroundColor: 'white'
+                  backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
+                  backgroundSize: 'cover'
+                  display: 'inline-block'
+              child 'p', => raw @state.auth.display_name
           else
             child 'p', => raw 'Not logged in'
           child 'p', =>
