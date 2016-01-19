@@ -25,7 +25,7 @@ def upload_rf(sftp, from, to)
     next if %w{. .. .DS_Store .gitignore .git
       deploy.rb Gruntfile.coffee package.json .sass-cache
       Makefile README.md .sublime-grunt.cache
-      node_modules
+      node_modules shared
       }.include? ent
     full_from = "#{from}/#{ent}"
     full_to = "#{to}/#{ent}"
