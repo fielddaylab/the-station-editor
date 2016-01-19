@@ -841,17 +841,22 @@ App = React.createClass
                 raw 'LOGIN'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
-              child 'p', =>
-                child 'span', style:
-                  width: 100
-                  height: 100
-                  borderRadius: 50
-                  backgroundColor: 'white'
-                  backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
-                  backgroundSize: 'cover'
-                  display: 'inline-block'
-              child 'p', =>
-                raw auth.display_name
+              child 'a', href: '../editor/#account', =>
+                props
+                  style:
+                    color: 'white'
+                    textDecoration: 'none'
+                child 'p', =>
+                  child 'span', style:
+                    width: 100
+                    height: 100
+                    borderRadius: 50
+                    backgroundColor: 'white'
+                    backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
+                    backgroundSize: 'cover'
+                    display: 'inline-block'
+                child 'p', =>
+                  raw auth.display_name
               child 'div.blueButton', =>
                 props
                   style:
@@ -903,23 +908,24 @@ App = React.createClass
                 raw 'LOGIN'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
-              child 'p', =>
-                child 'span', style:
-                  width: 80
-                  height: 80
-                  borderRadius: 40
-                  backgroundColor: 'white'
-                  backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
-                  backgroundSize: 'cover'
-                  display: 'inline-block'
-              child 'p', =>
-                raw auth.display_name
-              child 'p', =>
-                child 'a', href: '..', =>
-                  child 'img', src: 'img/brand-mobile.png'
               unlink =
                 color: 'white'
                 textDecoration: 'none'
+              child 'a', href: '../editor/#account', style: unlink, =>
+                child 'p', =>
+                  child 'span', style:
+                    width: 80
+                    height: 80
+                    borderRadius: 40
+                    backgroundColor: 'white'
+                    backgroundImage: if media? then "url(#{media.thumb_url})" else undefined
+                    backgroundSize: 'cover'
+                    display: 'inline-block'
+                child 'p', =>
+                  raw auth.display_name
+              child 'p', =>
+                child 'a', href: '..', =>
+                  child 'img', src: 'img/brand-mobile.png'
               child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
               child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
               child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
