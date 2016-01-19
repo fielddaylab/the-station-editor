@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 update = require 'react-addons-update'
-# {markdown} = require 'markdown'
+{markdown} = require 'markdown'
 {Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require '../../shared/aris.js'
 GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
@@ -11,8 +11,8 @@ EXIF = require '../../shared/exif.js'
 
 T = React.PropTypes
 
-# renderMarkdown = (str) ->
-#   __html: markdown.toHTML str
+renderMarkdown = (str) ->
+  __html: markdown.toHTML str
 
 # This is Haskell right? It uses indentation and everything
 match = (val, branches, def = (-> throw 'Match failed')) ->
@@ -612,62 +612,96 @@ App = React.createClass
       # Thumbnails
       child 'div.theThumbs', =>
         props
-          style: {overflowY: 'scroll', textAlign: 'center', backgroundColor: 'white'}
-
-        if @state.page isnt 1
-          child 'div.blueButton', =>
-            props
-              style:
-                padding: 15
-                boxSizing: 'border-box'
-              onClick: => @setPage(@state.page - 1)
-            raw 'Previous Page'
-
-        @state.notes.forEach (note) =>
-          child 'div.thumbnail', =>
-            props
-              key: note.note_id
-              style:
-                backgroundImage: "url(#{note.media.thumb_url})"
-                backgroundSize: '100% 100%'
-                margin: 5
-                cursor: 'pointer'
-                position: 'relative'
-                display: 'inline-block'
-              onMouseOver: =>
-                @setState
-                  hover_note_id: note.note_id
-              onMouseOut: =>
-                if @state.hover_note_id?
-                  @setState hover_note_id: null
-              onClick: =>
-                @setState
-                  modal:
-                    viewing_note:
-                      note: note
-                      comments: null
-                      new_comment: ''
-                      confirm_delete: false
-                      confirm_delete_comment_id: null
-                @fetchComments note
+          style: {overflowY: 'scroll', backgroundColor: 'white'}
+        child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
+          child 'h2', => raw @props.game.name
+          if @state.show_instructions
+            child 'p', =>
+              child 'span.blueButton', =>
+                props
+                  style:
+                    cursor: 'pointer'
+                    paddingLeft: 15
+                    paddingRight: 15
+                    paddingTop: 6
+                    paddingBottom: 6
+                  onClick: =>
+                    @setState show_instructions: false
+                raw 'Hide instructions'
             child 'div',
+              dangerouslySetInnerHTML: renderMarkdown @props.game.description
               style:
-                position: 'absolute'
-                right: 5
-                top: 5
-                width: 14
-                height: 14
-                borderRadius: 7
-                backgroundColor: @getColor note
+                borderLeft: '2px solid black'
+                paddingLeft: 10
+          else
+            child 'p', =>
+              child 'span.blueButton', =>
+                props
+                  style:
+                    cursor: 'pointer'
+                    paddingLeft: 15
+                    paddingRight: 15
+                    paddingTop: 6
+                    paddingBottom: 6
+                  onClick: =>
+                    @setState show_instructions: true
+                raw 'Instructions'
+        child 'div', style: {textAlign: 'center'}, =>
 
-        if @state.notes.length is 48
-          child 'div.blueButton', =>
-            props
-              style:
-                padding: 15
-                boxSizing: 'border-box'
-              onClick: => @setPage(@state.page + 1)
-            raw 'Next Page'
+          if @state.page isnt 1
+            child 'div.blueButton', =>
+              props
+                style:
+                  padding: 15
+                  boxSizing: 'border-box'
+                onClick: => @setPage(@state.page - 1)
+              raw 'Previous Page'
+
+          @state.notes.forEach (note) =>
+            child 'div.thumbnail', =>
+              props
+                key: note.note_id
+                style:
+                  backgroundImage: "url(#{note.media.thumb_url})"
+                  backgroundSize: '100% 100%'
+                  margin: 5
+                  cursor: 'pointer'
+                  position: 'relative'
+                  display: 'inline-block'
+                onMouseOver: =>
+                  @setState
+                    hover_note_id: note.note_id
+                onMouseOut: =>
+                  if @state.hover_note_id?
+                    @setState hover_note_id: null
+                onClick: =>
+                  @setState
+                    modal:
+                      viewing_note:
+                        note: note
+                        comments: null
+                        new_comment: ''
+                        confirm_delete: false
+                        confirm_delete_comment_id: null
+                  @fetchComments note
+              child 'div',
+                style:
+                  position: 'absolute'
+                  right: 5
+                  top: 5
+                  width: 14
+                  height: 14
+                  borderRadius: 7
+                  backgroundColor: @getColor note
+
+          if @state.notes.length is 48
+            child 'div.blueButton', =>
+              props
+                style:
+                  padding: 15
+                  boxSizing: 'border-box'
+                onClick: => @setPage(@state.page + 1)
+              raw 'Next Page'
 
       # Desktop menu, also mobile bottom bar
       child 'div.desktopMenu', =>
