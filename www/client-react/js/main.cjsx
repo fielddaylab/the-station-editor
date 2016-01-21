@@ -839,6 +839,17 @@ App = React.createClass
                     marginBottom: 12
                   onClick: @login
                 raw 'LOGIN'
+              child 'a', href: '../editor#signup', style: {textDecoration: 'none'}, =>
+                child 'div.blueButton', =>
+                  props
+                    style:
+                      width: '100%'
+                      boxSizing: 'border-box'
+                      textAlign: 'center'
+                      padding: 5
+                      marginBottom: 12
+                    onClick: @login
+                  raw 'CREATE ACCOUNT'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
               child 'a', href: '../editor/#account', =>
@@ -906,6 +917,17 @@ App = React.createClass
                     marginBottom: 12
                   onClick: @login
                 raw 'LOGIN'
+              child 'a', href: '../editor#signup', style: {textDecoration: 'none'}, =>
+                child 'div.blueButton', =>
+                  props
+                    style:
+                      width: '100%'
+                      boxSizing: 'border-box'
+                      textAlign: 'center'
+                      padding: 5
+                      marginBottom: 12
+                    onClick: @login
+                  raw 'CREATE ACCOUNT'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
               unlink =
