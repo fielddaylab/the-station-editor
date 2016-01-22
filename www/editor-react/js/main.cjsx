@@ -1128,7 +1128,7 @@ NewStep1 = React.createClass
               child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
               child 'p', =>
-                raw 'TAGS '
+                raw 'CATEGORIES '
                 child 'i', => raw 'separated by comma'
               child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
@@ -1245,9 +1245,9 @@ NewStep2 = React.createClass
             onClick: =>
               tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
               if tags.length is 1 and tags[0] is ''
-                alert 'You must have at least one tag.'
+                alert 'You must have at least one category.'
               else if '' in tags
-                alert 'You cannot have any unnamed tags.'
+                alert 'You cannot have any unnamed categories.'
               else
                 window.location.replace '#new3'
             style: cursor: 'pointer'
@@ -1297,7 +1297,7 @@ NewStep2 = React.createClass
           props style: paddingTop: 20
           child 'div.newStep2LeftCol', =>
             child 'form', =>
-              child 'h3', => raw 'TAGS'
+              child 'h3', => raw 'CATEGORIES'
               for tag, i in @props.tag_string.split(',')
                 tag = tag.replace(/^\s+/, '')
                 do (i) =>
@@ -1357,7 +1357,7 @@ NewStep2 = React.createClass
                       paddingBottom: 10
                       cursor: 'pointer'
                     onClick: @addTag
-                  raw 'ADD TAG'
+                  raw 'ADD CATEGORY'
           child 'div.newStep2RightCol', =>
             child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
               child GoogleMap,
