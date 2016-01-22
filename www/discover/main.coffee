@@ -33,7 +33,7 @@ App = React.createClass
 
   fetchIcons: (games) ->
     games.forEach (game) =>
-      unless @state.icons[game.game_id]?
+      unless @state.icons[game.game_id]? or parseInt(game.icon_media_id) is 0
         @props.aris.call 'media.getMedia',
           media_id: game.icon_media_id
         , ({returnCode, data: media}) =>
@@ -41,7 +41,7 @@ App = React.createClass
             @setState (prevState) => update prevState,
               icons: do =>
                 obj = {}
-                obj[game.game_id] = $set: media.url
+                obj[game.game_id] = $set: media.thumb_url
                 obj
 
   fetchOwners: (games) ->
@@ -72,7 +72,7 @@ App = React.createClass
         @fetchIcons games
         @fetchOwners games
 
-  search: (str, page) ->
+  search: (page, str = @state.text) ->
     @props.aris.call 'games.searchSiftrs',
       count: 4
       offset: (page - 1) * 4
@@ -89,7 +89,7 @@ App = React.createClass
     thisSearch = @lastSearch = Date.now()
     setTimeout =>
       if thisSearch is @lastSearch
-        @search str, 1
+        @search 1, str
     , 300
 
   render: ->
@@ -106,65 +106,81 @@ App = React.createClass
         header: "RESULTS FOR \"#{@state.text}\""
         identifier: 'search'
 
-    <div>
-      <div id="banner" className="section dark_bg" style={position:'relative',minHeight:300,backgroundImage:"url('../assets/photos/siftr-header.jpg')",backgroundSize:'cover'}>
-        <div id="top_bar" style={height:50, padding:30}>
-          <a href=".."><div className="top_bar_logo" style={width:57,height:50}><img src="../assets/logos/siftr-nav-logo.png" style={width:'100%',height:'100%'}></img></div></a>
-          <a href=""><div className="top_bar_link" style={color: 'rgb(235,197,0)'}>DISCOVER</div></a>
-          <a href="../editor"><div className="top_bar_link">MY SIFTRS</div></a>
-        </div>
-        <div className="spacer" style={height:20}></div>
-        <div style={maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}><img src="../assets/logos/siftr-main-logo.png" style={width:'100%'}></img></div>
-        <div className="spacer" style={height:30}></div>
-        <div style={width:'100%', height:'30px', margin:'0px auto', textAlign:'center', fontSize:'20px', letterSpacing:'5px', fontWeight:'light', color:'#FFFFFF'}>EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES</div>
-        <div className="spacer" style={height:60}></div>
-        <div style={width: '300px', margin: '0px auto'}>
-          <input type="text" style={width:'100%', fontSize: 20} placeholder="Search for a Siftr..." value={@state.text} onChange={(e) => @setText e.target.value}></input>
-        </div>
-        <div className="spacer" style={height:60}></div>
-      </div>
+    make 'div', =>
+      child 'div#banner.section.dark_bg', =>
+        props style:
+          position: 'relative'
+          minHeight: 300
+          backgroundImage: "url('../assets/photos/siftr-header.jpg')"
+          backgroundSize: 'cover'
+        child 'div#top_bar', style: {height: 50, padding: 30}, =>
+          child 'a', href: '..', =>
+            child 'div.top_bar_logo', style: {width: 57, height: 50}, =>
+              child 'img',
+                src: "../assets/logos/siftr-nav-logo.png"
+                style:
+                  width: '100%'
+                  height: '100%'
+          child 'a', href: '', =>
+            child 'div.top_bar_link', style: {color: 'rgb(235,197,0)'}, =>
+              raw 'DISCOVER'
+          child 'a', href: '../editor', =>
+            child 'div.top_bar_link', =>
+              raw 'MY SIFTRS'
+        child 'div.spacer', style: height: 20
+        child 'div', style: {maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}, =>
+          child 'img', src: "../assets/logos/siftr-main-logo.png", style: width: '100%'
+        child 'div.spacer', style: height: 30
+        child 'div', =>
+          props style:
+            width: '100%'
+            height: '30px'
+            margin: '0px auto'
+            textAlign: 'center'
+            fontSize: '20px'
+            letterSpacing: '5px'
+            fontWeight: 'light'
+            color: '#FFFFFF'
+          raw 'EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES'
+        child 'div.spacer', style: height: 60
+        child 'div', style: {width: '300px', margin: '0px auto'}, =>
+          child 'input',
+            type: 'text'
+            style: {width: '100%', fontSize: 20}
+            placeholder: 'Search for a Siftr...'
+            value: @state.text
+            onChange: (e) => @setText e.target.value
+        child 'div.spacer', style: height: 60
 
-      { sections.map ({header, identifier}) =>
-          <div className="section white_bg" key={"section_#{identifier}"}>
-            <div style={letterSpacing:3, padding:20}>
-              {header}
-              <b style={
-                cursor: 'pointer'
-              } onClick={=> @[identifier](@state[identifier].page - 1) unless @state[identifier].page is 1}>
-                {' < '}
-              </b>
-              page {@state[identifier].page}
-              <b style={
-                cursor: 'pointer'
-              } onClick={=> @[identifier](@state[identifier].page + 1)}>
-                {' > '}
-              </b>
-            </div>
-            <div className="siftr_list">
-
-            { for game in @state[identifier].games
-                url = game.siftr_url or game.game_id
-                <a href="../#{url}" target="_blank" key={game.game_id}>
-                  <div className="list_el">
-                    <div className="list_el_img" style={
-                      backgroundImage: do =>
-                        url = @state.icons[game.game_id]
-                        if url? then "url(#{url})" else undefined
-                      backgroundSize: 'contain'
-                      backgroundPosition: 'center'
-                      backgroundRepeat: 'no-repeat'
-                    } />
-                    <div className="list_el_title">{game.name}</div>
-                    <div className="list_el_description" dangerouslySetInnerHTML={renderMarkdown game.description} />
-                  </div>
-                </a>
-            }
-            <div style={clear: 'both'} />
-
-            </div>
-          </div>
-      }
-    </div>
+      sections.forEach ({header, identifier}) =>
+        child 'div.section.white_bg', key: "section_#{identifier}", =>
+          child 'div', style: {textAlign: 'center', letterSpacing: 3, padding: 20}, =>
+            child 'h2', => raw header
+            child 'h4', =>
+              child 'b', =>
+                props
+                  style: cursor: 'pointer'
+                  onClick: => @[identifier](@state[identifier].page - 1) unless @state[identifier].page is 1
+                raw ' < '
+              raw "page #{@state[identifier].page}"
+              child 'b', =>
+                props
+                  style: cursor: 'pointer'
+                  onClick: => @[identifier](@state[identifier].page + 1)
+                raw ' > '
+          for game in @state[identifier].games
+            url = game.siftr_url or game.game_id
+            child 'div.list_entry', key: game.game_id, =>
+              child 'a', href: "../#{url}", target: '_blank', =>
+                child 'img.list_image',
+                  src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
+                  style:
+                    float: 'left'
+                    width: 100
+                    height: 100
+                child 'h2.list_name', => raw game.name
+              child 'div.list_description', dangerouslySetInnerHTML: renderMarkdown game.description
+              child 'div', style: clear: 'both'
 
 $(document).ready ->
   ReactDOM.render React.createElement(App, aris: new Aris), document.getElementById('the-container')
