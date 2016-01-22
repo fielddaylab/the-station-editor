@@ -495,10 +495,11 @@ App = React.createClass
               ref: 'timeSlider'
               style:
                 height: 10
-                width: '100%'
+                width: 'calc(100% - 50px)'
                 backgroundColor: '#888'
                 marginTop: 10
                 marginBottom: 10
+                marginLeft: 25
                 position: 'relative'
             [false, true].forEach (isSlider1) =>
               child 'div', =>
