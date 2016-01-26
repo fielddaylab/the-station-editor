@@ -919,7 +919,10 @@ EditSiftr = React.createClass
               child 'h4', => raw 'NAME'
               child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
-              child 'h4', => raw 'DESCRIPTION'
+              child 'h4', =>
+                raw 'DESCRIPTION '
+                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
+                  child 'i', => raw 'markdown supported'
               child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
@@ -1132,7 +1135,10 @@ NewStep1 = React.createClass
                 child 'i', => raw 'separated by comma'
               child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
-              child 'p', => raw 'DESCRIPTION'
+              child 'p', =>
+                raw 'DESCRIPTION '
+                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
+                  child 'i', => raw 'markdown supported'
               child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
