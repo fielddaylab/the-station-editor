@@ -663,7 +663,7 @@ App = React.createClass
               props
                 key: note.note_id
                 style:
-                  backgroundImage: "url(#{note.media.thumb_url})"
+                  backgroundImage: "url(#{note.media.big_thumb_url})"
                   backgroundSize: '100% 100%'
                   margin: 5
                   cursor: 'pointer'
