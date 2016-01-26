@@ -334,6 +334,12 @@
       });
     };
 
+    Aris.prototype.updateTag = function(json, cb) {
+      return this.callWrapped('tags.updateTag', json, cb, function(data) {
+        return new Tag(data);
+      });
+    };
+
     Aris.prototype.createNoteComment = function(json, cb) {
       return this.callWrapped('note_comments.createNoteComment', json, cb, function(data) {
         return new Comment(data);

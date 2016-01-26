@@ -208,6 +208,9 @@ class Aris
   createTag: (tag, cb) ->
     @callWrapped 'tags.createTag', tag.createJSON(), cb, (data) -> new Tag data
 
+  updateTag: (json, cb) ->
+    @callWrapped 'tags.updateTag', json, cb, (data) -> new Tag data
+
   createNoteComment: (json, cb) ->
     @callWrapped 'note_comments.createNoteComment', json, cb, (data) -> new Comment data
 

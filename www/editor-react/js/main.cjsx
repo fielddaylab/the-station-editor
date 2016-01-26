@@ -58,13 +58,25 @@ App = React.createClass
   applyHash: ->
     @setState account_menu: false
     hash = window.location.hash[1..]
-    if hash[0..3] is 'edit'
-      game_id = parseInt hash[4..]
+    if (md = hash.match(/^edit(.*)/))?
+      game_id = parseInt md[1]
       matchingGames =
         game for game in @state.games when game.game_id is game_id
       if matchingGames.length is 1
         @setState
           screen: 'edit'
+          edit_game: matchingGames[0]
+      else
+        @setState screen: 'main'
+        # This is temporary if the user is currently being logged in,
+        # because the list of games will load and re-call applyHash
+    else if (md = hash.match(/^categories(.*)/))?
+      game_id = parseInt md[1]
+      matchingGames =
+        game for game in @state.games when game.game_id is game_id
+      if matchingGames.length is 1
+        @setState
+          screen: 'categories'
           edit_game: matchingGames[0]
       else
         @setState screen: 'main'
@@ -516,6 +528,77 @@ App = React.createClass
                   colors: @state.colors
                   onChange: (game) => @setState edit_game: game
                   onSave: @handleSave
+              when 'categories'
+                child 'div.loginForm', =>
+                  tags = @state.tags[@state.edit_game.game_id]
+                  colors = @state.colors[@state.edit_game.colors_id or 1]
+                  child 'h2', =>
+                    props style:
+                      textAlign: 'center'
+                      marginBottom: 40
+                    raw "Categories for "
+                    child 'b', =>
+                      raw @state.edit_game.name
+                  if not tags?
+                    child 'p', style: {textAlign: 'center'}, =>
+                      raw 'Loading categories...'
+                  else
+                    for tag, i in tags
+                      do (tag, i) =>
+                        child 'div', =>
+                          color = colors["tag_#{(i % 5) + 1}"]
+                          props
+                            style:
+                              backgroundColor: color
+                              color: 'white'
+                              boxSizing: 'border-box'
+                              width: '100%'
+                              padding: 10
+                              fontSize: 20
+                              marginTop: 10
+                              textAlign: 'center'
+                              borderRadius: 5
+                              cursor: 'pointer'
+                            onClick: =>
+                              str = prompt "Enter a new name for this category...", tag.tag
+                              if str? and str isnt ''
+                                @props.aris.updateTag
+                                  game_id: @state.edit_game.game_id
+                                  tag_id: tag.tag_id
+                                  tag: str
+                                , =>
+                                  @updateTags [@state.edit_game]
+                          raw tag.tag
+                    child 'div', =>
+                      props
+                        style:
+                          backgroundColor: 'rgb(97,201,226)'
+                          color: 'white'
+                          padding: 10
+                          fontSize: 20
+                          marginTop: 40
+                          cursor: 'pointer'
+                          textAlign: 'center'
+                        onClick: =>
+                          str = prompt "Enter a new category..."
+                          if str? and str isnt ''
+                            tagObject = new Tag
+                            tagObject.tag = str
+                            tagObject.game_id = @state.edit_game.game_id
+                            @props.aris.createTag tagObject, =>
+                              @updateTags [@state.edit_game]
+                      raw 'NEW CATEGORY'
+                    child 'a', href: '#', =>
+                      child 'div', =>
+                        props
+                          style:
+                            backgroundColor: 'rgb(97,201,226)'
+                            color: 'white'
+                            padding: 10
+                            fontSize: 20
+                            marginTop: 10
+                            textAlign: 'center'
+                        raw 'BACK'
               when 'new1'
                 f = (game, tag_string) => @setState
                   new_game: game
@@ -833,11 +916,12 @@ SiftrList = React.createClass
             props
               style:
                 marginBottom: 10
-            child 'span', =>
+            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
               props
                 style:
                   float: 'left'
                   fontSize: '23px'
+                  color: 'black'
               raw game.name
             child 'div.clearOnMobile'
             child 'span', =>
@@ -853,6 +937,16 @@ SiftrList = React.createClass
                   if confirm "Are you sure you want to delete \"#{game.name}\"?"
                     @props.onDelete game
               raw 'DELETE'
+            child 'a', href: "\#categories#{game.game_id}", =>
+              child 'span', =>
+                props
+                  style:
+                    float: 'right'
+                    border: '1px solid black'
+                    padding: 5
+                    marginLeft: 5
+                    color: 'black'
+                raw 'CATEGORIES'
             child 'a', href: "\#edit#{game.game_id}", =>
               child 'span', =>
                 props
@@ -863,16 +957,6 @@ SiftrList = React.createClass
                     marginLeft: 5
                     color: 'black'
                 raw 'EDIT'
-            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
-              child 'span', =>
-                props
-                  style:
-                    float: 'right'
-                    border: '1px solid black'
-                    padding: 5
-                    marginLeft: 5
-                    color: 'black'
-                raw 'VIEW'
             child 'div', style: clear: 'both'
           child 'div', =>
             props
