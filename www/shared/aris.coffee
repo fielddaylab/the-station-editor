@@ -161,15 +161,21 @@ class Aris
   call: (func, json, cb) ->
     if @auth?
       json.auth = @auth
-    $.ajax
-      contentType: 'application/json'
-      data: JSON.stringify json
-      dataType: 'json'
-      success: cb
-      error: -> cb false
-      processData: false
-      type: 'POST'
-      url: "#{ARIS_URL}/json.php/v2.#{func}"
+    retry = (n) =>
+      $.ajax
+        contentType: 'application/json'
+        data: JSON.stringify json
+        dataType: 'json'
+        success: cb
+        error: (jqxhr, status, err) =>
+          if n is 0
+            cb [status, err]
+          else
+            retry(n - 1)
+        processData: false
+        type: 'POST'
+        url: "#{ARIS_URL}/json.php/v2.#{func}"
+    retry 2
 
   # Perform an ARIS call, but then wrap a successful result with a class.
   callWrapped: (func, json, cb, wrap) ->

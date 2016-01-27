@@ -216,21 +216,31 @@
     };
 
     Aris.prototype.call = function(func, json, cb) {
+      var retry;
       if (this.auth != null) {
         json.auth = this.auth;
       }
-      return $.ajax({
-        contentType: 'application/json',
-        data: JSON.stringify(json),
-        dataType: 'json',
-        success: cb,
-        error: function() {
-          return cb(false);
-        },
-        processData: false,
-        type: 'POST',
-        url: "" + ARIS_URL + "/json.php/v2." + func
-      });
+      retry = (function(_this) {
+        return function(n) {
+          return $.ajax({
+            contentType: 'application/json',
+            data: JSON.stringify(json),
+            dataType: 'json',
+            success: cb,
+            error: function(jqxhr, status, err) {
+              if (n === 0) {
+                return cb([status, err]);
+              } else {
+                return retry(n - 1);
+              }
+            },
+            processData: false,
+            type: 'POST',
+            url: "" + ARIS_URL + "/json.php/v2." + func
+          });
+        };
+      })(this);
+      return retry(2);
     };
 
     Aris.prototype.callWrapped = function(func, json, cb, wrap) {
