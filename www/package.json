@@ -5,6 +5,7 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
+    "grunt-closure-compiler": "0.0.21",
     "grunt-coffee-react": "^2.4.1"
   },
   "repository": {

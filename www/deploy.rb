@@ -26,6 +26,7 @@ def upload_rf(sftp, from, to)
       deploy.rb Gruntfile.coffee package.json .sass-cache
       Makefile README.md .sublime-grunt.cache
       node_modules shared
+      coffee_out.js browserify_out.js minify_out.js.report.txt
       }.include? ent
     full_from = "#{from}/#{ent}"
     full_to = "#{to}/#{ent}"
