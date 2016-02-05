@@ -77,6 +77,7 @@ App = React.createClass
       if matchingGames.length is 1
         @setState
           screen: 'categories'
+          delete_tag: null
           edit_game: matchingGames[0]
       else
         @setState screen: 'main'
@@ -542,6 +543,52 @@ App = React.createClass
                   if not tags?
                     child 'p', style: {textAlign: 'center'}, =>
                       raw 'Loading categories...'
+                  else if @state.delete_tag?
+                    child 'h4', =>
+                      props
+                        style:
+                          textAlign: 'center'
+                          padding: 20
+                      raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
+                    for tag, i in tags
+                      continue if tag is @state.delete_tag
+                      do (tag, i) =>
+                        child 'div', =>
+                          color = colors["tag_#{(i % 5) + 1}"]
+                          props
+                            style:
+                              backgroundColor: color
+                              color: 'white'
+                              boxSizing: 'border-box'
+                              width: '100%'
+                              padding: 10
+                              fontSize: 20
+                              marginTop: 10
+                              textAlign: 'center'
+                              borderRadius: 5
+                              cursor: 'pointer'
+                              position: 'relative'
+                            onClick: =>
+                              if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
+                                @props.aris.call 'tags.deleteTag',
+                                  tag_id: @state.delete_tag.tag_id
+                                  new_tag_id: tag.tag_id
+                                , =>
+                                  @setState delete_tag: null
+                                  @updateTags [@state.edit_game]
+                          raw tag.tag
+                    child 'div', =>
+                      props
+                        style:
+                          backgroundColor: 'rgb(97,201,226)'
+                          color: 'white'
+                          padding: 10
+                          fontSize: 20
+                          marginTop: 40
+                          textAlign: 'center'
+                          cursor: 'pointer'
+                        onClick: => @setState delete_tag: null
+                      raw 'CANCEL'
                   else
                     for tag, i in tags
                       do (tag, i) =>
@@ -559,6 +606,7 @@ App = React.createClass
                               textAlign: 'center'
                               borderRadius: 5
                               cursor: 'pointer'
+                              position: 'relative'
                             onClick: =>
                               str = prompt "Enter a new name for this category...", tag.tag
                               if str? and str isnt ''
@@ -569,6 +617,19 @@ App = React.createClass
                                 , =>
                                   @updateTags [@state.edit_game]
                           raw tag.tag
+                          child 'div', =>
+                            props
+                              style:
+                                position: 'absolute'
+                                right: 8
+                                top: 4
+                                padding: '4px 10px'
+                                boxSizing: 'border-box'
+                                border: '2px solid white'
+                              onClick: (e) =>
+                                e.stopPropagation()
+                                @setState delete_tag: tag
+                            raw 'X'
                     child 'div', =>
                       props
                         style:
