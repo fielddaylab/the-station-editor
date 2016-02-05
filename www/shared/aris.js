@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var $, ARIS_URL, Aris, Colors, Comment, Game, Note, SIFTR_URL, Tag, User, k, v, _ref;
+  var $, ARIS_URL, Aris, Colors, Comment, Game, Note, SIFTR_URL, Tag, User, k, ref, v;
 
   $ = require('jquery');
 
@@ -89,9 +89,9 @@
 
   Tag = (function() {
     function Tag(json) {
-      var _ref, _ref1;
+      var ref, ref1;
       if (json != null) {
-        this.icon_url = (_ref = json.media) != null ? (_ref1 = _ref.data) != null ? _ref1.url : void 0 : void 0;
+        this.icon_url = (ref = json.media) != null ? (ref1 = ref.data) != null ? ref1.url : void 0 : void 0;
         this.tag = json.tag;
         this.tag_id = parseInt(json.tag_id);
         this.game_id = parseInt(json.game_id);
@@ -147,18 +147,18 @@
         this.player_liked = parseInt(json.player_liked) !== 0;
         this.note_likes = parseInt(json.note_likes);
         this.comments = (function() {
-          var _i, _len, _ref, _results;
-          _ref = json.comments.data;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            o = _ref[_i];
+          var i, len, ref, results;
+          ref = json.comments.data;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            o = ref[i];
             comment = new Comment(o);
             if (!comment.description.match(/\S/)) {
               continue;
             }
-            _results.push(comment);
+            results.push(comment);
           }
-          return _results;
+          return results;
         })();
         this.published = json.published;
       }
@@ -175,9 +175,9 @@
       this.auth = authJSON != null ? JSON.parse(authJSON) : null;
     }
 
-    Aris.prototype.parseLogin = function(_arg) {
+    Aris.prototype.parseLogin = function(arg) {
       var returnCode, user;
-      user = _arg.data, returnCode = _arg.returnCode;
+      user = arg.data, returnCode = arg.returnCode;
       if (returnCode === 0 && user.user_id !== null) {
         this.auth = {
           user_id: parseInt(user.user_id),
@@ -236,7 +236,7 @@
             },
             processData: false,
             type: 'POST',
-            url: "" + ARIS_URL + "/json.php/v2." + func
+            url: ARIS_URL + "/json.php/v2." + func
           });
         };
       })(this);
@@ -262,61 +262,61 @@
 
     Aris.prototype.searchSiftrs = function(json, cb) {
       return this.callWrapped('games.searchSiftrs', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new Game(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new Game(o));
         }
-        return _results;
+        return results;
       });
     };
 
     Aris.prototype.getTagsForGame = function(json, cb) {
       return this.callWrapped('tags.getTagsForGame', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new Tag(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new Tag(o));
         }
-        return _results;
+        return results;
       });
     };
 
     Aris.prototype.getUsersForGame = function(json, cb) {
       return this.callWrapped('users.getUsersForGame', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new User(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new User(o));
         }
-        return _results;
+        return results;
       });
     };
 
     Aris.prototype.getGamesForUser = function(json, cb) {
       return this.callWrapped('games.getGamesForUser', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new Game(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new Game(o));
         }
-        return _results;
+        return results;
       });
     };
 
     Aris.prototype.searchNotes = function(json, cb) {
       return this.callWrapped('notes.searchNotes', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new Note(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new Note(o));
         }
-        return _results;
+        return results;
       });
     };
 
@@ -364,13 +364,13 @@
 
     Aris.prototype.getNoteCommentsForNote = function(json, cb) {
       return this.callWrapped('note_comments.getNoteCommentsForNote', json, cb, function(data) {
-        var o, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          o = data[_i];
-          _results.push(new Comment(o));
+        var i, len, o, results;
+        results = [];
+        for (i = 0, len = data.length; i < len; i++) {
+          o = data[i];
+          results.push(new Comment(o));
         }
-        return _results;
+        return results;
       });
     };
 
@@ -378,7 +378,7 @@
 
   })();
 
-  _ref = {
+  ref = {
     Game: Game,
     User: User,
     Tag: Tag,
@@ -388,8 +388,8 @@
     ARIS_URL: ARIS_URL,
     SIFTR_URL: SIFTR_URL
   };
-  for (k in _ref) {
-    v = _ref[k];
+  for (k in ref) {
+    v = ref[k];
     exports[k] = v;
   }
 

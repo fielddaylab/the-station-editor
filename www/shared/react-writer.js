@@ -1,6 +1,6 @@
 (function() {
-  var React, child, k, make, parseElement, props, raw, update, v, _ref,
-    __slice = [].slice;
+  var React, child, k, make, parseElement, props, raw, ref, update, v,
+    slice = [].slice;
 
   React = require('react');
 
@@ -44,7 +44,7 @@
   };
 
   make = function(fact, arg1, arg2) {
-    var classes, factory, fn, id, me, prevParent, startProps, tag, _ref;
+    var classes, factory, fn, id, me, prevParent, ref, startProps, tag;
     if (arg1 != null) {
       if (typeof arg1 === 'function') {
         startProps = {};
@@ -59,12 +59,12 @@
     }
     prevParent = window.theParent;
     if (typeof fact === 'string') {
-      _ref = parseElement(fact), tag = _ref.tag, classes = _ref.classes, id = _ref.id;
+      ref = parseElement(fact), tag = ref.tag, classes = ref.classes, id = ref.id;
       factory = tag;
       startProps = update(startProps, {
         className: classes.length > 0 ? {
           $apply: function(oldClasses) {
-            return "" + (oldClasses != null ? oldClasses : '') + " " + (classes.join(' '));
+            return (oldClasses != null ? oldClasses : '') + " " + (classes.join(' '));
           }
         } : {},
         id: id != null ? {
@@ -79,14 +79,14 @@
       children: []
     };
     fn();
-    me = React.createElement.apply(React, [factory, window.theParent.props].concat(__slice.call(window.theParent.children)));
+    me = React.createElement.apply(React, [factory, window.theParent.props].concat(slice.call(window.theParent.children)));
     window.theParent = prevParent;
     return me;
   };
 
   child = function() {
     var args, me;
-    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
     me = make.apply(null, args);
     return window.theParent = update(window.theParent, {
       children: {
@@ -97,7 +97,7 @@
 
   raw = function() {
     var raws;
-    raws = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    raws = 1 <= arguments.length ? slice.call(arguments, 0) : [];
     return window.theParent = update(window.theParent, {
       children: {
         $push: raws
@@ -113,14 +113,14 @@
     });
   };
 
-  _ref = {
+  ref = {
     make: make,
     child: child,
     raw: raw,
     props: props
   };
-  for (k in _ref) {
-    v = _ref[k];
+  for (k in ref) {
+    v = ref[k];
     exports[k] = v;
   }
 
