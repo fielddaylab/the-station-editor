@@ -75,7 +75,7 @@ App = React.createClass
       tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt x)[0]
     else
       return 'black'
-    @props.game.colors["tag_#{@props.game.tags.indexOf(tag) + 1}"] ? 'black'
+    @props.game.colors["tag_#{@props.game.tags.indexOf(tag) % 5 + 1}"] ? 'black'
 
   updateState: (obj) ->
     @setState (previousState) =>
@@ -721,10 +721,12 @@ App = React.createClass
 
         child 'div.menuBrand', =>
           child 'a', href: '..', =>
-            child 'img', src: 'img/brand.png'
+            child 'img', src: 'img/brand.png', title: 'Siftr', alt: 'Siftr'
 
         child 'div.menuMap', style: {cursor: 'pointer'}, =>
           child 'img',
+            title: 'View Map'
+            alt: 'View Map'
             src: if @state.view_focus is 'map' then 'img/map-on.png' else 'img/map-off.png'
             onClick: =>
               setTimeout =>
@@ -740,6 +742,8 @@ App = React.createClass
 
         child 'div.menuThumbs', style: {cursor: 'pointer'}, =>
           child 'img',
+            title: 'View Photos'
+            alt: 'View Photos'
             src: if @state.view_focus is 'thumbnails' then 'img/thumbs-on.png' else 'img/thumbs-off.png'
             onClick: =>
               setTimeout =>
@@ -755,6 +759,8 @@ App = React.createClass
 
         child 'div.menuSift', style: {cursor: 'pointer'}, =>
           child 'img',
+            title: 'Toggle Search Controls'
+            alt: 'Toggle Search Controls'
             src: if @state.search_controls? then 'img/search-on.png' else 'img/search-off.png'
             onClick: =>
               setTimeout =>
@@ -784,10 +790,13 @@ App = React.createClass
       if @state.search_controls is null and (@state.modal.nothing? or @state.modal.viewing_note?)
         child 'div.addItemDesktop', =>
           child 'img',
+            alt: 'Add Item'
             src: 'img/add-item.png'
             onClick: clickAdd
             style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
       child 'img.addItemMobile',
+        title: 'Add Item'
+        alt: 'Add Item'
         src: 'img/mobile-plus.png'
         style:
           position: 'absolute'
@@ -905,6 +914,8 @@ App = React.createClass
             boxSizing: 'border-box'
         child 'div', =>
           child 'img',
+            title: 'Close'
+            alt: 'Close'
             src: 'img/x-white.png'
             style: cursor: 'pointer'
             onClick: => @setState account_menu: false
@@ -960,7 +971,7 @@ App = React.createClass
                   raw auth.display_name
               child 'p', =>
                 child 'a', href: '..', =>
-                  child 'img', src: 'img/brand-mobile.png'
+                  child 'img', src: 'img/brand-mobile.png', title: 'Siftr', alt: 'Siftr'
               child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
               child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
               child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
@@ -975,6 +986,8 @@ App = React.createClass
                 WebkitOverflowScrolling: 'touch'
                 backgroundColor: 'white'
             child 'img',
+              title: 'Close'
+              alt: 'Close'
               src: 'img/x-blue.png'
               style:
                 position: 'absolute'
@@ -989,6 +1002,7 @@ App = React.createClass
                     width: 'calc(100% - 80px)'
                 raw "#{note.display_name} at #{new Date(note.created.replace(' ', 'T') + 'Z').toLocaleString()}"
               child 'img', =>
+                alt: 'A photo uploaded to Siftr'
                 props
                   src: note.media.url
                   style:
@@ -1001,7 +1015,7 @@ App = React.createClass
                   null
               owners =
                 owner.user_id for owner in @props.game.owners
-              barButton = (img, action) =>
+              barButton = (img, title, action) =>
                 child 'img',
                   src: img
                   style:
@@ -1010,27 +1024,29 @@ App = React.createClass
                     marginLeft: 12
                     cursor: 'pointer'
                   onClick: action
+                  title: title
+                  alt: title
               child 'div', =>
                 props
                   style:
                     backgroundColor: 'rgb(97,201,226)'
                     width: '100%'
                 if user_id is parseInt(note.user_id) or user_id in owners
-                  barButton 'img/freepik/delete81.png', =>
+                  barButton 'img/freepik/delete81.png', 'Delete Note', =>
                     @updateState modal: viewing_note: confirm_delete: $set: true
                 if user_id is parseInt(note.user_id)
-                  barButton 'img/freepik/edit45.png', =>
+                  barButton 'img/freepik/edit45.png', 'Edit Caption', =>
                     @setState modal: enter_description:
                       editing_note: note
                       description: note.description
-                  barButton 'img/freepik/location73.png', =>
+                  barButton 'img/freepik/location73.png', 'Edit Location', =>
                     @setState
                       modal:
                         move_point:
                           editing_note: note
                       latitude: parseFloat note.latitude
                       longitude: parseFloat note.longitude
-                  barButton 'img/freepik/tag79.png', =>
+                  barButton 'img/freepik/tag79.png', 'Edit Category', =>
                     @setState
                       modal:
                         select_category:
@@ -1050,7 +1066,7 @@ App = React.createClass
                     if tag.tag_id is parseInt note.tag_id
                       return tag.tag
                   '???'
-                barButton '../img/somicro/without-border/email.png', =>
+                barButton '../img/somicro/without-border/email.png', 'Email', =>
                   subject = "Interesting note on #{noteTag}"
                   email = """
                     Check out this note I #{noteVerb} about #{noteTag}:
@@ -1061,20 +1077,20 @@ App = React.createClass
                   """
                   link = "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent email}"
                   window.open link
-                barButton '../img/somicro/without-border/facebook.png', =>
+                barButton '../img/somicro/without-border/facebook.png', 'Facebook', =>
                   link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent window.location.href}"
                   window.open link, '_system'
-                barButton '../img/somicro/without-border/googleplus.png', =>
+                barButton '../img/somicro/without-border/googleplus.png', 'Google+', =>
                   link = "https://plus.google.com/share?url=#{encodeURIComponent window.location.href}"
                   window.open link, '_system'
-                barButton '../img/somicro/without-border/pinterest.png', =>
+                barButton '../img/somicro/without-border/pinterest.png', 'Pinterest', =>
                   desc = "Check out this note I #{noteVerb} about #{noteTag}."
                   link = "http://www.pinterest.com/pin/create/button/"
                   link += "?url=#{encodeURIComponent window.location.href}"
                   link += "&media=#{encodeURIComponent note.media.url}"
                   link += "&description=#{encodeURIComponent desc}"
                   window.open link, '_system'
-                barButton '../img/somicro/without-border/twitter.png', =>
+                barButton '../img/somicro/without-border/twitter.png', 'Twitter', =>
                   tweet = "Check out this note I #{noteVerb} about #{noteTag}:"
                   link = "https://twitter.com/share?&url=#{encodeURIComponent window.location.href}&text=#{encodeURIComponent tweet}"
                   window.open link, '_system'
@@ -1126,6 +1142,8 @@ App = React.createClass
                       raw "#{comment.user.display_name} at #{comment.created.toLocaleString()} "
                       if user_id is comment.user.user_id or user_id in owners
                         child 'img',
+                          title: 'Delete Comment'
+                          alt: 'Delete Comment'
                           src: 'img/freepik/delete81_blue.png'
                           style: cursor: 'pointer'
                           onClick: =>
@@ -1133,6 +1151,8 @@ App = React.createClass
                       raw ' '
                       if user_id is comment.user.user_id
                         child 'img',
+                          title: 'Edit Comment'
+                          alt: 'Edit Comment'
                           src: 'img/freepik/edit45_blue.png'
                           style: cursor: 'pointer'
                           onClick: =>
@@ -1347,6 +1367,8 @@ App = React.createClass
             else
               child 'img', =>
                 props
+                  title: 'Select Image'
+                  alt: 'Select Image'
                   src: 'img/select-image.png'
                   style:
                     position: 'absolute'
@@ -1474,6 +1496,8 @@ App = React.createClass
                 if editing_note? then raw 'SAVE' else raw 'LOCATION >'
             child 'img', =>
               props
+                title: 'Close'
+                alt: 'Close'
                 src: 'img/x-blue.png'
                 style:
                   position: 'absolute'
@@ -1511,6 +1535,8 @@ App = React.createClass
               raw 'Drag the map to drop a pin'
             child 'img', =>
               props
+                title: 'Close'
+                alt: 'Close'
                 src: 'img/x-blue.png'
                 style:
                   position: 'absolute'
@@ -1610,6 +1636,8 @@ App = React.createClass
                     raw "#{if checked then '✓' else '●'} #{some_tag.tag}"
             child 'img', =>
               props
+                title: 'Close'
+                alt: 'Close'
                 src: 'img/x-blue.png'
                 style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
                 onClick: =>
