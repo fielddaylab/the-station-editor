@@ -27,6 +27,20 @@ confirmOnPageExit = (msg) -> (e = window.event) ->
     e.returnValue = msg
   msg
 
+# By Diego Perini. https://gist.github.com/dperini/729294
+# MT: removed the ^ and $, and removed the \.? "TLD may end with dot"
+# since it often breaks people's links
+urlRegex = /(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?/i
+
+linkableText = (str) ->
+  md = str.match(urlRegex)
+  if md?
+    raw str[0 ... md.index]
+    child 'a', href: md[0], => raw md[0]
+    linkableText str[(md.index + md[0].length)..]
+  else
+    raw str
+
 App = React.createClass
   displayName: 'App'
 
@@ -627,7 +641,7 @@ App = React.createClass
         props
           style: {overflowY: 'scroll', WebkitOverflowScrolling: 'touch', backgroundColor: 'white'}
         child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
-          child 'h2', => raw @props.game.name
+          child 'h2.canSelect', => raw @props.game.name
           if @state.show_instructions
             child 'p', =>
               child 'span.blueButton', =>
@@ -641,7 +655,7 @@ App = React.createClass
                   onClick: =>
                     @setState show_instructions: false
                 raw 'Hide instructions'
-            child 'div',
+            child 'div.canSelect',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
               style:
                 borderLeft: '2px solid black'
@@ -996,7 +1010,7 @@ App = React.createClass
                 cursor: 'pointer'
               onClick: => @setState modal: nothing: {}
             child 'div.noteView', =>
-              child 'h4', =>
+              child 'h4.canSelect', =>
                 props
                   style:
                     width: 'calc(100% - 80px)'
@@ -1133,13 +1147,13 @@ App = React.createClass
                         onClick: =>
                           @updateState modal: viewing_note: confirm_delete: $set: false
                       raw 'CANCEL'
-              child 'p', => raw note.description
+              child 'p.canSelect', => linkableText note.description
               child 'hr'
               if comments?
                 comments.forEach (comment) =>
                   child 'div', key: comment.comment_id, =>
                     child 'h4', =>
-                      raw "#{comment.user.display_name} at #{comment.created.toLocaleString()} "
+                      child 'span.canSelect', => raw "#{comment.user.display_name} at #{comment.created.toLocaleString()} "
                       if user_id is comment.user.user_id or user_id in owners
                         child 'img',
                           title: 'Delete Comment'
@@ -1216,7 +1230,7 @@ App = React.createClass
                               onClick: =>
                                 @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
                             raw 'CANCEL'
-                      child 'p', => raw comment.description
+                      child 'p.canSelect', => linkableText comment.description
               else
                 child 'p', => raw 'Loading comments...'
               if @state.login_status.logged_in?
@@ -1737,7 +1751,7 @@ App = React.createClass
             onClick: => @setState account_menu: not @state.account_menu
           raw '☰'
         raw ' '
-        raw @props.game.name
+        child 'span.canSelect', => raw @props.game.name
 
 NoSiftr = React.createClass
   render: ->
