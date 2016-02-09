@@ -21,6 +21,12 @@ match = (val, branches, def = (-> throw 'Match failed')) ->
       return v val[k]
   def()
 
+# from http://stackoverflow.com/a/1119324
+confirmOnPageExit = (msg) -> (e = window.event) ->
+  if e
+    e.returnValue = msg
+  msg
+
 App = React.createClass
   displayName: 'App'
 
@@ -286,6 +292,12 @@ App = React.createClass
         "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
 
   render: ->
+    window.onbeforeunload =
+      if @state.modal.enter_description? or @state.modal.move_point? or @state.modal.select_category?
+        confirmOnPageExit "Are you sure you want to exit? Your photo will be lost!"
+      else
+        null
+
     hash =
       if @state.modal.viewing_note?
         "##{@state.modal.viewing_note.note.note_id}"
@@ -613,7 +625,7 @@ App = React.createClass
       # Thumbnails
       child 'div.theThumbs', =>
         props
-          style: {overflowY: 'scroll', backgroundColor: 'white'}
+          style: {overflowY: 'scroll', WebkitOverflowScrolling: 'touch', backgroundColor: 'white'}
         child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
           child 'h2', => raw @props.game.name
           if @state.show_instructions
@@ -960,6 +972,7 @@ App = React.createClass
             props
               style:
                 overflowY: 'scroll'
+                WebkitOverflowScrolling: 'touch'
                 backgroundColor: 'white'
             child 'img',
               src: 'img/x-blue.png'
