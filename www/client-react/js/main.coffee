@@ -311,7 +311,7 @@ App = React.createClass
         className: """
           #{if @state.search_controls? then 'searching' else 'notSearching'}
           #{if @state.account_menu then 'accountMenuOpen' else ''}
-          #{if @state.view_focus is 'map' then 'primaryMap' else 'primaryThumbs'}
+          #{if @state.view_focus is 'map' or @state.modal.move_point? then 'primaryMap' else 'primaryThumbs'}
           """
         style:
           width: '100%'
