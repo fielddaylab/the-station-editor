@@ -1419,7 +1419,7 @@ App = React.createClass
             child 'p', =>
               props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
-        enter_description: ({media, description, editing_note}) =>
+        enter_description: ({media, description, editing_note, saving}) =>
           child 'div.bottomModal', style: {height: 250}, =>
             child 'div.blueButton', =>
               props
@@ -1453,9 +1453,11 @@ App = React.createClass
                   display: 'table'
                   boxSizing: 'border-box'
                 onClick: =>
+                  return if saving
                   if description is ''
                     @setState message: 'Please type a caption for your photo.'
                   else if editing_note?
+                    @updateState modal: enter_description: saving: $set: true
                     @props.aris.call 'notes.updateNote',
                       note_id: editing_note.note_id
                       game_id: @props.game.game_id
@@ -1493,7 +1495,10 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                if editing_note? then raw 'SAVE' else raw 'LOCATION >'
+                if editing_note?
+                  if saving then raw 'SAVING...' else raw 'SAVE'
+                else
+                  raw 'LOCATION >'
             child 'img', =>
               props
                 title: 'Close'
@@ -1523,7 +1528,7 @@ App = React.createClass
                 placeholder: 'Enter a caption...'
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
-        move_point: ({media, description, editing_note}) =>
+        move_point: ({media, description, editing_note, saving}) =>
           child 'div.bottomModal', style: {height: 150}, =>
             child 'p', =>
               props
@@ -1582,7 +1587,9 @@ App = React.createClass
                   display: 'table'
                   boxSizing: 'border-box'
                 onClick: =>
+                  return if saving
                   if editing_note?
+                    @updateState modal: move_point: saving: $set: true
                     @props.aris.call 'notes.updateNote',
                       note_id: editing_note.note_id
                       game_id: @props.game.game_id
@@ -1609,8 +1616,11 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                if editing_note? then raw 'SAVE' else raw 'CATEGORY >'
-        select_category: ({media, description, latitude, longitude, tag, editing_note}) =>
+                if editing_note?
+                  if saving then raw 'SAVING...' else raw 'SAVE'
+                else
+                  raw 'CATEGORY >'
+        select_category: ({media, description, latitude, longitude, tag, editing_note, saving}) =>
           child 'div.bottomModal', style: {paddingBottom: 55, paddingTop: 15}, =>
             child 'div', =>
               props style: {width: '100%', textAlign: 'center', top: 30}
@@ -1646,7 +1656,7 @@ App = React.createClass
                     @fetchComments editing_note
                   else
                     @setState modal: nothing: {}
-            unless editing_note?
+            unless editing_note? or saving
               child 'div.blueButton', =>
                 props
                   style:
@@ -1678,6 +1688,8 @@ App = React.createClass
                   display: 'table'
                   boxSizing: 'border-box'
                 onClick: =>
+                  return if saving
+                  @updateState modal: select_category: saving: $set: true
                   if editing_note?
                     @props.aris.call 'notes.updateNote',
                       note_id: editing_note.note_id
@@ -1702,7 +1714,10 @@ App = React.createClass
                     width: '100%'
                     height: '100%'
                     boxSizing: 'border-box'
-                if editing_note? then raw 'SAVE' else raw 'PUBLISH! >'
+                if editing_note?
+                  if saving then raw 'SAVING...' else raw 'SAVE'
+                else
+                  if saving then raw 'PUBLISHING...' else raw 'PUBLISH! >'
 
       # Message box (for errors)
       if @state.message?
