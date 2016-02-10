@@ -114,7 +114,7 @@ App = React.createClass
           backgroundImage: "url('../assets/photos/siftr-header.jpg')"
           backgroundSize: 'cover'
         child 'div#top_bar', style: {height: 50, padding: 30}, =>
-          child 'a', href: '..', =>
+          child 'a', href: (if window.cordova? then '../index.html' else '..'), =>
             child 'div.top_bar_logo', style: {width: 57, height: 50}, =>
               child 'img',
                 src: "../assets/logos/siftr-nav-logo.png"
@@ -124,7 +124,7 @@ App = React.createClass
           child 'a', href: '', =>
             child 'div.top_bar_link', style: {color: 'rgb(235,197,0)'}, =>
               raw 'DISCOVER'
-          child 'a', href: '../editor', =>
+          child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../editor'), =>
             child 'div.top_bar_link', =>
               raw 'MY SIFTRS'
         child 'div.spacer', style: height: 20
@@ -171,7 +171,7 @@ App = React.createClass
           for game in @state[identifier].games
             url = game.siftr_url or game.game_id
             child 'div.list_entry', key: game.game_id, =>
-              child 'a', href: "../#{url}", target: '_blank', =>
+              child 'a', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
                 child 'img.list_image',
                   src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
                   style:

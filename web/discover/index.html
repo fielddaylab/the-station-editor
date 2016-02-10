@@ -12,6 +12,23 @@
   ga('create', 'UA-43951622-1', 'auto');
   ga('send', 'pageview');
 </script>
+<script type="text/javascript" src="../cordova.js"></script>
+<script type="text/javascript">
+
+document.addEventListener('DOMContentLoaded', function(){
+  if (window.cordova) {
+    var links = [].slice.call(document.getElementsByClassName('fix-link'));
+    links.forEach(function(link){
+      switch (link.getAttribute('href')) {
+        case "http://fielddaylab.org":
+          link.setAttribute('target', '_blank');
+          break;
+      }
+    });
+  }
+});
+
+</script>
 <style>
 body {
   -webkit-touch-callout: none;
@@ -92,7 +109,7 @@ div,span,body,img,input
 
 <div id="footer" class="dark_bg" style="height:80px;">
 <div class="dark_bg" style="text-align:center; padding:20px 0px 10px 0px;">
-  <a href="http://fielddaylab.org">
+  <a href="http://fielddaylab.org" class="fix-link">
     <img src="../assets/logos/fieldday_logo_white.png" style="width: 100px;">
   </a>
 </div>

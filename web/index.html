@@ -11,6 +11,32 @@
   ga('create', 'UA-43951622-1', 'auto');
   ga('send', 'pageview');
 </script>
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript">
+
+document.addEventListener('DOMContentLoaded', function(){
+  if (window.cordova) {
+    var links = [].slice.call(document.getElementsByClassName('fix-link'));
+    links.forEach(function(link){
+      switch (link.getAttribute('href')) {
+        case "editor":
+          link.setAttribute('href', 'editor-react/index.html');
+          break;
+        case "discover":
+          link.setAttribute('href', 'discover/index.html');
+          break;
+        case "editor/#signup":
+          link.setAttribute('href', 'editor-react/index.html#signup');
+          break;
+        case "http://fielddaylab.org":
+          link.setAttribute('target', '_blank');
+          break;
+      }
+    });
+  }
+});
+
+</script>
 <style>
 body {
   overflow-x: hidden;
@@ -163,10 +189,10 @@ div,span,body,img
     <div class="top_bar_logo" style="width:57px; height:50px;"><img src="assets/logos/siftr-nav-logo.png" style="width:100%; height:100%;"></img></div>
   </a>
   <!-- will go right-to-left -->
-  <a href="discover">
+  <a href="discover" class="fix-link">
     <div class="top_bar_link">DISCOVER</div>
   </a>
-  <a href="editor">
+  <a href="editor" class="fix-link">
     <div class="top_bar_link">MY SIFTRS</div>
   </a>
 </div>
@@ -265,7 +291,7 @@ WHAT ARE PEOPLE MAKING WITH SIFTR?
     <div><span class="bullet">*-*</span> Invite your students or friends</div>
     <br />
   </div>
-  <div style="padding-left:50px;padding-bottom:20px;"><a href="editor/" style="text-decoration: none;"><div class="yellow_bg" style="border-radius:30px; padding:10px; width:40px;">GO!</div></a></div>
+  <div style="padding-left:50px;padding-bottom:20px;"><a href="editor" class="fix-link" style="text-decoration: none;"><div class="yellow_bg" style="border-radius:30px; padding:10px; width:40px;">GO!</div></a></div>
 </div>
 <div style="clear: both;"></div>
 </div>
@@ -309,7 +335,7 @@ Siftr helps you focus, collect, visualize, discuss
 <div style="width:50%; float:left;">
 <div style="padding:80px; font-size:40px;">What kind of Siftr will you make?  </div>
 <div style="padding-left:100px; padding-bottom: 30px">
-  <a href="editor/#signup" style="text-decoration: none;">
+  <a href="editor/#signup" class="fix-link" style="text-decoration: none;">
     <div class="yellow_bg" style="border-radius:30px; padding:10px; width:70px;">Sign up!</div>
   </a>
 </div>
@@ -325,7 +351,7 @@ Siftr helps you focus, collect, visualize, discuss
 
 <div id="footer" class="section dark_bg" style="height:80px;">
 <div class="dark_bg" style="text-align:center; padding:20px 0px 10px 0px;">
-  <a href="http://fielddaylab.org">
+  <a href="http://fielddaylab.org" class="fix-link">
     <img src="assets/logos/fieldday_logo_white.png" style="width: 100px;">
   </a>
 </div>

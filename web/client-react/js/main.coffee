@@ -27,6 +27,12 @@ confirmOnPageExit = (msg) -> (e = window.event) ->
     e.returnValue = msg
   msg
 
+ifCordova = (cordovaLink, normalLink) ->
+  if window.cordova?
+    cordovaLink
+  else
+    normalLink
+
 # By Diego Perini. https://gist.github.com/dperini/729294
 # MT: removed the ^ and $, and removed the \.? "TLD may end with dot"
 # since it often breaks people's links
@@ -36,7 +42,7 @@ linkableText = (str) ->
   md = str.match(urlRegex)
   if md?
     raw str[0 ... md.index]
-    child 'a', href: md[0], => raw md[0]
+    child 'a', href: md[0], target: ifCordova('_blank', ''), => raw md[0]
     linkableText str[(md.index + md[0].length)..]
   else
     raw str
@@ -734,7 +740,7 @@ App = React.createClass
       child 'div.desktopMenu', =>
 
         child 'div.menuBrand', =>
-          child 'a', href: '..', =>
+          child 'a', href: ifCordova('../index.html', '..'), =>
             child 'img', src: 'img/brand.png', title: 'Siftr', alt: 'Siftr'
 
         child 'div.menuMap', style: {cursor: 'pointer'}, =>
@@ -783,7 +789,7 @@ App = React.createClass
               @setState search_controls: if @state.search_controls? then null else 'not_time'
 
         child 'div.menuDiscover.menuTable', =>
-          child 'a.menuTableCell', href: '../discover', =>
+          child 'a.menuTableCell', href: ifCordova('../discover/index.html', '../discover'), =>
             raw 'DISCOVER'
 
         child 'div.menuMyAccount.menuTable', =>
@@ -792,7 +798,7 @@ App = React.createClass
             raw 'MY ACCOUNT'
 
         child 'div.menuMySiftrs.menuTable', =>
-          child 'a.menuTableCell', href: '../editor', =>
+          child 'a.menuTableCell', href: ifCordova('../editor-react/index.html', '../editor'), =>
             raw 'MY SIFTRS'
 
       # Desktop and mobile add buttons
@@ -875,7 +881,7 @@ App = React.createClass
                     marginBottom: 12
                   onClick: @login
                 raw 'LOGIN'
-              child 'a', href: '../editor#signup', style: {textDecoration: 'none'}, =>
+              child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
                 child 'div.blueButton', =>
                   props
                     style:
@@ -888,7 +894,7 @@ App = React.createClass
                   raw 'CREATE ACCOUNT'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
-              child 'a', href: '../editor/#account', =>
+              child 'a', href: ifCordova('../editor-react/index.html#account', '../editor#account'), =>
                 props
                   style:
                     color: 'white'
@@ -955,7 +961,7 @@ App = React.createClass
                     marginBottom: 12
                   onClick: @login
                 raw 'LOGIN'
-              child 'a', href: '../editor#signup', style: {textDecoration: 'none'}, =>
+              child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
                 child 'div.blueButton', =>
                   props
                     style:
@@ -971,7 +977,7 @@ App = React.createClass
               unlink =
                 color: 'white'
                 textDecoration: 'none'
-              child 'a', href: '../editor/#account', style: unlink, =>
+              child 'a', href: ifCordova('../editor-react/index.html#account', '../editor#account'), style: unlink, =>
                 child 'p', =>
                   child 'span', style:
                     width: 80
@@ -984,10 +990,10 @@ App = React.createClass
                 child 'p', =>
                   raw auth.display_name
               child 'p', =>
-                child 'a', href: '..', =>
+                child 'a', href: ifCordova('../index.html', '..'), =>
                   child 'img', src: 'img/brand-mobile.png', title: 'Siftr', alt: 'Siftr'
-              child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
-              child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
+              child 'p', => child 'a', style: unlink, href: ifCordova('../editor-react/index.html', '../editor'), => raw 'My Siftrs'
+              child 'p', => child 'a', style: unlink, href: ifCordova('../discover/index.html', '../discover'), => raw 'Discover'
               child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
       # Main modal
       match @state.modal,
@@ -1080,6 +1086,7 @@ App = React.createClass
                     if tag.tag_id is parseInt note.tag_id
                       return tag.tag
                   '???'
+                noteLink = window.location.href # TODO: fix for Cordova
                 barButton '../img/somicro/without-border/email.png', 'Email', =>
                   subject = "Interesting note on #{noteTag}"
                   email = """
@@ -1087,26 +1094,26 @@ App = React.createClass
 
                     #{note.description}
 
-                    See the whole note at: #{window.location.href}
+                    See the whole note at: #{noteLink}
                   """
                   link = "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent email}"
                   window.open link
                 barButton '../img/somicro/without-border/facebook.png', 'Facebook', =>
-                  link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent window.location.href}"
+                  link = "https://www.facebook.com/sharer/sharer.php?u=#{encodeURIComponent noteLink}"
                   window.open link, '_system'
                 barButton '../img/somicro/without-border/googleplus.png', 'Google+', =>
-                  link = "https://plus.google.com/share?url=#{encodeURIComponent window.location.href}"
+                  link = "https://plus.google.com/share?url=#{encodeURIComponent noteLink}"
                   window.open link, '_system'
                 barButton '../img/somicro/without-border/pinterest.png', 'Pinterest', =>
                   desc = "Check out this note I #{noteVerb} about #{noteTag}."
                   link = "http://www.pinterest.com/pin/create/button/"
-                  link += "?url=#{encodeURIComponent window.location.href}"
+                  link += "?url=#{encodeURIComponent noteLink}"
                   link += "&media=#{encodeURIComponent note.media.url}"
                   link += "&description=#{encodeURIComponent desc}"
                   window.open link, '_system'
                 barButton '../img/somicro/without-border/twitter.png', 'Twitter', =>
                   tweet = "Check out this note I #{noteVerb} about #{noteTag}:"
-                  link = "https://twitter.com/share?&url=#{encodeURIComponent window.location.href}&text=#{encodeURIComponent tweet}"
+                  link = "https://twitter.com/share?&url=#{encodeURIComponent noteLink}&text=#{encodeURIComponent tweet}"
                   window.open link, '_system'
               if @state.login_status.logged_in?
                 if note.published is 'PENDING'
@@ -1766,7 +1773,7 @@ NoSiftr = React.createClass
           style:
             padding: 10
         raw "Want to make one? "
-        child 'a', href: '..', =>
+        child 'a', href: ifCordova('../index.html', '..'), =>
           raw 'Visit the Siftr homepage.'
 
 document.addEventListener 'DOMContentLoaded', ->
