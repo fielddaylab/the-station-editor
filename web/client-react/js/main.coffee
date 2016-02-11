@@ -42,7 +42,7 @@ linkableText = (str) ->
   md = str.match(urlRegex)
   if md?
     raw str[0 ... md.index]
-    child 'a', href: md[0], target: ifCordova('_blank', ''), => raw md[0]
+    child 'a', href: md[0], target: '_blank', => raw md[0]
     linkableText str[(md.index + md[0].length)..]
   else
     raw str
@@ -435,13 +435,30 @@ App = React.createClass
                             longitude: cluster.min_longitude
                             zoom: 21
                         else
+                          # adjust bounds if all the points are on a single orthogonal line
+                          # (fitBounds also breaks in this case)
                           bounds =
-                            nw:
-                              lat: cluster.max_latitude
-                              lng: cluster.min_longitude
-                            se:
-                              lat: cluster.min_latitude
-                              lng: cluster.max_longitude
+                            if close(cluster.min_latitude, cluster.max_latitude)
+                              nw:
+                                lat: cluster.max_latitude + 0.0005
+                                lng: cluster.min_longitude
+                              se:
+                                lat: cluster.min_latitude - 0.0005
+                                lng: cluster.max_longitude
+                            else if close(cluster.min_longitude, cluster.max_longitude)
+                              nw:
+                                lat: cluster.max_latitude
+                                lng: cluster.min_longitude - 0.0005
+                              se:
+                                lat: cluster.min_latitude
+                                lng: cluster.max_longitude + 0.0005
+                            else
+                              nw:
+                                lat: cluster.max_latitude
+                                lng: cluster.min_longitude
+                              se:
+                                lat: cluster.min_latitude
+                                lng: cluster.max_longitude
                           size =
                             width: @refs.theMapDiv.clientWidth * 0.9
                             height: @refs.theMapDiv.clientHeight * 0.9
