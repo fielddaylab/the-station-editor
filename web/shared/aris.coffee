@@ -21,6 +21,7 @@ class Game
       @colors_id   = parseInt(json.colors_id) or null
       @icon_media_id = parseInt json.icon_media_id
       @created     = new Date(json.created.replace(' ', 'T') + 'Z')
+      @prompt      = json.prompt
     else
       @game_id     = null
       @name        = null
@@ -35,6 +36,7 @@ class Game
       @colors_id   = null
       @icon_media_id = null
       @created     = null
+      @prompt      = null
 
   createJSON: ->
     game_id: @game_id or undefined
@@ -49,6 +51,7 @@ class Game
     moderated: @moderated
     colors_id: @colors_id
     icon_media_id: @icon_media_id
+    prompt: @prompt
 
 class Colors
   constructor: (json) ->

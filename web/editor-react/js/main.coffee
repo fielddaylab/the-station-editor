@@ -1090,6 +1090,17 @@ EditSiftr = React.createClass
               child 'b', => raw @props.game.name
               raw " will be located at "
               child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
+            child 'label', =>
+              child 'h4', => raw 'PROMPT'
+              child 'p', =>
+                raw 'Enter a caption prompt for a user uploading a photo.'
+              child 'p', =>
+                child 'input',
+                  type: 'text'
+                  placeholder: 'Enter a caption...'
+                  value: @props.game.prompt
+                  onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
+                  style: width: '100%'
             child 'h2', => raw 'SETTINGS'
             child 'h4', => raw 'PRIVACY'
             child 'p', =>

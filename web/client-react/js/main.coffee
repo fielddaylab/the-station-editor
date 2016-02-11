@@ -1563,7 +1563,7 @@ App = React.createClass
                   height: 'calc(100% - 100px)'
                   fontSize: '20px'
                 value: description
-                placeholder: 'Enter a caption...'
+                placeholder: @props.game.prompt or 'Enter a caption...'
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
         move_point: ({media, description, editing_note, saving}) =>
