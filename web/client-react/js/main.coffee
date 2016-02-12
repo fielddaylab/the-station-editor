@@ -389,7 +389,11 @@ App = React.createClass
             options: minZoom: 2
             draggable: true
             onChange: @handleMapChange
-            options:
+            options: (maps) =>
+              mapTypeControl: true
+              mapTypeControlOptions:
+                style: maps.MapTypeControlStyle.DROPDOWN_MENU
+                position: maps.ControlPosition.RIGHT_BOTTOM
               styles:
                 # from https://snazzymaps.com/style/83/muted-blue
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
