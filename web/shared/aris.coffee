@@ -140,7 +140,12 @@ class Aris
         display_name: user.display_name
         media_id:     user.media_id
         email:        user.email
-      window.localStorage['aris-auth'] = JSON.stringify @auth
+      try
+        window.localStorage['aris-auth'] = JSON.stringify @auth
+      catch err
+        # Private mode in iOS Safari disables local storage.
+        # just don't bother remembering the auth.
+        null
     else
       @logout()
 
