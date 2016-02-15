@@ -8,6 +8,7 @@ GoogleMap = require 'google-map-react'
 $ = require 'jquery'
 {make, child, raw, props} = require '../../shared/react-writer.js'
 EXIF = require 'exif-js'
+{ConicGradient} = require '../../shared/conic-gradient.js'
 
 T = React.PropTypes
 
@@ -32,6 +33,11 @@ ifCordova = (cordovaLink, normalLink) ->
     cordovaLink
   else
     normalLink
+
+# Cache of gradient PNG data URLs
+allConicGradients = {}
+getConicGradient = (opts) ->
+  allConicGradients["#{opts.stops}_#{opts.size}"] ?= new ConicGradient(opts).png
 
 # By Diego Perini. https://gist.github.com/dperini/729294
 # MT: removed the ^ and $, and removed the \.? "TLD may end with dot"
@@ -392,8 +398,9 @@ App = React.createClass
             options: (maps) =>
               mapTypeControl: true
               mapTypeControlOptions:
-                style: maps.MapTypeControlStyle.DROPDOWN_MENU
-                position: maps.ControlPosition.RIGHT_BOTTOM
+                style: maps.MapTypeControlStyle.HORIZONTAL_BAR
+                position: maps.ControlPosition.LEFT_BOTTOM
+                mapTypeIds: [maps.MapTypeId.ROADMAP, maps.MapTypeId.SATELLITE]
               styles:
                 # from https://snazzymaps.com/style/83/muted-blue
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
@@ -418,13 +425,15 @@ App = React.createClass
               width = if hovering then 45 else 30
               if -180 < lng < 180 && -90 < lat < 90
                 do (cluster) =>
-                  colors =
-                    @getColor(tag_id) for tag_id of cluster.tags
-                  gradient =
-                    if colors.length is 1
-                      colors[0]
-                    else
-                      "radial-gradient(circle, #{colors.join(', ')})"
+                  stops = []
+                  percent = 0
+                  for tag_id, tag_count of cluster.tags
+                    percent += (tag_count / cluster.note_count) * 100
+                    color = @getColor tag_id
+                    stops.push "#{color} 1 #{percent}%"
+                    last_color = color
+                  stops.unshift "#{last_color} 1 0%"
+                  gradient = "url(#{getConicGradient(stops: stops.join(', '), size: width)})"
                   child 'div', =>
                     props
                       key: "#{lat}-#{lng}"
