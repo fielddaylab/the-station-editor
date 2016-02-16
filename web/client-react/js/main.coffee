@@ -825,7 +825,10 @@ App = React.createClass
         child 'div.menuMyAccount.menuTable', =>
           child 'div.menuTableCell', =>
             props onClick: => @setState account_menu: not @state.account_menu
-            raw 'MY ACCOUNT'
+            if @state.login_status.logged_in?
+              raw 'MY ACCOUNT'
+            else
+              raw 'LOGIN'
 
         child 'div.menuMySiftrs.menuTable', =>
           child 'a.menuTableCell', href: ifCordova('../editor-react/index.html', '../editor'), =>
