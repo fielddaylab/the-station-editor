@@ -406,6 +406,7 @@ App = React.createClass
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
 
           if @state.modal.move_point?
+            # TODO: remove this and show static pin below
             makePin
               lat: @state.latitude
               lng: @state.longitude
@@ -516,6 +517,9 @@ App = React.createClass
                         confirm_delete: false
                         confirm_delete_comment_id: null
                   @fetchComments note
+
+        if @state.modal.move_point?
+          null # TODO: show pin in center
 
       # Search
       child 'div.searchPane', =>
