@@ -101,7 +101,7 @@ App = React.createClass
       tag = (tag for tag in @props.game.tags when tag.tag_id is parseInt x)[0]
     else
       return 'black'
-    @props.game.colors["tag_#{@props.game.tags.indexOf(tag) % 5 + 1}"] ? 'black'
+    @props.game.colors["tag_#{@props.game.tags.indexOf(tag) % 8 + 1}"] ? 'black'
 
   updateState: (obj) ->
     @setState (previousState) =>

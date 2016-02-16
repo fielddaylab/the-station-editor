@@ -560,7 +560,7 @@ App = React.createClass
                       continue if tag is @state.delete_tag
                       do (tag, i) =>
                         child 'div', =>
-                          color = colors["tag_#{(i % 5) + 1}"]
+                          color = colors["tag_#{(i % 8) + 1}"]
                           props
                             style:
                               backgroundColor: color
@@ -599,7 +599,7 @@ App = React.createClass
                     for tag, i in tags
                       do (tag, i) =>
                         child 'div', =>
-                          color = colors["tag_#{(i % 5) + 1}"]
+                          color = colors["tag_#{(i % 8) + 1}"]
                           props
                             style:
                               backgroundColor: color
@@ -1483,7 +1483,7 @@ NewStep2 = React.createClass
                         width: 30
                         height: 30
                         borderRadius: 15
-                        backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 5) + 1}"] or 'black'
+                        backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 8) + 1}"] or 'black'
                         marginTop: 'auto'
                         marginBottom: 'auto'
                     child 'div', =>

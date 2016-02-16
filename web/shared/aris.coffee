@@ -62,6 +62,9 @@ class Colors
     @tag_3     = json.tag_3
     @tag_4     = json.tag_4
     @tag_5     = json.tag_5
+    @tag_6     = json.tag_6
+    @tag_7     = json.tag_7
+    @tag_8     = json.tag_8
 
 class User
   constructor: (json) ->
