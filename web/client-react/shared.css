@@ -141,3 +141,9 @@ input[type=text], input[type=password], textarea {
   text-align: center;
   z-index: 999;
 }
+
+.move-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}

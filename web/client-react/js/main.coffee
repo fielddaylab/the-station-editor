@@ -345,15 +345,16 @@ App = React.createClass
           overflow: 'visible'
 
       # Map
-      makePin = ({lat, lng, key, color, hovering, onClick}) =>
+      makePin = ({lat, lng, key, color, hovering, onClick, className, position}) =>
         width = if hovering then 35 else 20
         radius = width * 0.6
         child 'div', =>
           props
-            style: position: 'relative'
+            style: position: position ? 'relative'
             lat: lat
             lng: lng
             key: key
+            className: className
           child 'div', =>
             props
               style:
@@ -406,11 +407,8 @@ App = React.createClass
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
 
           if @state.modal.move_point?
-            # TODO: remove this and show static pin below
-            makePin
-              lat: @state.latitude
-              lng: @state.longitude
-              color: 'black'
+            null
+            # do nothing; static centered pin is shown below
           else if @state.modal.select_category?
             modal = @state.modal.select_category
             color = @getColor modal.tag
@@ -519,7 +517,10 @@ App = React.createClass
                   @fetchComments note
 
         if @state.modal.move_point?
-          null # TODO: show pin in center
+          makePin
+            color: 'black'
+            className: 'move-pin'
+            position: 'absolute'
 
       # Search
       child 'div.searchPane', =>
