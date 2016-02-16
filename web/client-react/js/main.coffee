@@ -696,6 +696,20 @@ App = React.createClass
               style:
                 borderLeft: '2px solid black'
                 paddingLeft: 10
+            for tag in @props.game.tags
+              color = @getColor tag
+              child 'p', =>
+                props
+                  key: tag.tag_id
+                  style:
+                    margin: 5
+                child 'span', style:
+                  backgroundColor: color
+                  width: 12
+                  height: 12
+                  borderRadius: 6
+                  display: 'inline-block'
+                raw " #{tag.tag}"
           else
             child 'p', =>
               child 'span.blueButton', =>
