@@ -122,3 +122,11 @@
 .clearOnMobile {
   display: none;
 }
+
+.editLocationMobile {
+  display: none;
+}
+
+.mobileSaveLocation {
+  display: none;
+}

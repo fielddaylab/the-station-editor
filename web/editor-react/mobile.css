@@ -38,8 +38,27 @@
 }
 
 .editSiftrMapContainer {
+  display: none;
+}
+.mobileMapIsOpen .editSiftrMapContainer {
+  display: block;
+  position: fixed;
+  top: 53px;
+  left: 0;
   width: 100%;
-  height: 300px;
+  height: calc(100% - 53px);
+}
+
+.mobileSaveLocation {
+  position: fixed;
+  color: white;
+  background-color: rgb(51,191,224);
+  text-align: center;
+  bottom: 0;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .newPrevButton, .newNextButton {

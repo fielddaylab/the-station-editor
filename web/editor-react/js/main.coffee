@@ -71,6 +71,7 @@ App = React.createClass
       if matchingGames.length is 1
         @setState
           screen: 'edit'
+          mobile_map_is_open: false
           edit_game: matchingGames[0]
       else
         @setState screen: 'main'
@@ -535,6 +536,13 @@ App = React.createClass
                   colors: @state.colors
                   onChange: (game) => @setState edit_game: game
                   onSave: @handleSave
+                  mobileMapIsOpen: @state.mobile_map_is_open
+                  openMobileMap: =>
+                    @setState mobile_map_is_open: true
+                    setTimeout =>
+                      window.dispatchEvent new Event 'resize'
+                    , 250
+                  closeMobileMap: => @setState mobile_map_is_open: false
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -1062,6 +1070,8 @@ EditSiftr = React.createClass
 
   render: ->
     make 'div', =>
+      if @props.mobileMapIsOpen
+        props className: 'mobileMapIsOpen'
       child 'div', =>
         child 'div.editSiftrLeftCol', =>
           child 'form', =>
@@ -1101,6 +1111,22 @@ EditSiftr = React.createClass
                   value: @props.game.prompt
                   onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
                   style: width: '100%'
+            child 'p.editLocationMobile', =>
+              props style:
+                marginTop: 30
+                marginBottom: 30
+              child 'span', =>
+                props
+                  style:
+                    backgroundColor: 'rgb(51,191,224)'
+                    color: 'white'
+                    cursor: 'pointer'
+                    paddingLeft: 35
+                    paddingRight: 35
+                    paddingTop: 10
+                    paddingBottom: 10
+                  onClick: @props.openMobileMap
+                raw 'EDIT LOCATION'
             child 'h2', => raw 'SETTINGS'
             child 'h4', => raw 'PRIVACY'
             child 'p', =>
@@ -1226,6 +1252,8 @@ EditSiftr = React.createClass
             zoom: Math.max(2, @props.game.zoom)
             options: minZoom: 2
             onChange: @handleMapChange
+          child 'span.mobileSaveLocation', onClick: @props.closeMobileMap, =>
+            raw 'SAVE LOCATION'
         child 'div', style: clear: 'both'
 
   handleChange: ->
