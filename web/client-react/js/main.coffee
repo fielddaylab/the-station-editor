@@ -680,7 +680,10 @@ App = React.createClass
       # Thumbnails
       child 'div.theThumbs', =>
         props
-          style: {overflowY: 'scroll', WebkitOverflowScrolling: 'touch', backgroundColor: 'white'}
+          style:
+            overflowY: 'scroll'
+            WebkitOverflowScrolling: 'touch'
+            backgroundColor: 'white'
         child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
           child 'h2.canSelect', => raw @props.game.name
           if @state.show_instructions
@@ -1055,7 +1058,8 @@ App = React.createClass
             props
               style:
                 overflowY: 'scroll'
-                WebkitOverflowScrolling: 'touch'
+                # WebkitOverflowScrolling: 'touch'
+                # ^ this breaks scrolling the first time you open a note
                 backgroundColor: 'white'
             child 'img',
               title: 'Close'
