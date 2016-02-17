@@ -143,10 +143,10 @@ App = React.createClass
             color: '#FFFFFF'
           raw 'EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES'
         child 'div.spacer', style: height: 60
-        child 'div', style: {width: '300px', margin: '0px auto'}, =>
+        child 'div', style: {width: '600px', maxWidth: 'calc(100% - 10px)', margin: '0px auto'}, =>
           child 'input',
             type: 'text'
-            style: {width: '100%', fontSize: 20}
+            style: {width: '100%', fontSize: 20, padding: '12px 20px', borderRadius: 25}
             placeholder: 'Search for a Siftr...'
             value: @state.text
             onChange: (e) => @setText e.target.value
