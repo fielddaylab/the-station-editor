@@ -23,9 +23,10 @@
   height: 0;
   transition-property: height;
   transition-duration: 0.25s;
+  z-index: 1;
 }
 .searching .searchPane {
-  height: 500px;
+  height: calc(100% - 77px);
 }
 
 .primaryMap .theThumbs, .primaryThumbs .theMap {
@@ -36,10 +37,6 @@
   height: calc(100% - 77px);
   transition-property: top, height;
   transition-duration: 0.25s;
-}
-.searching.primaryMap .theThumbs, .searching.primaryThumbs .theMap {
-  top: 577px;
-  height: calc(100% - 577px);
 }
 
 .desktopMenu {
