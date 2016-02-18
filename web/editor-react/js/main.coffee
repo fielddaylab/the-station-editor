@@ -145,8 +145,11 @@ App = React.createClass
       account_menu: false
       password: ''
       password2: ''
-    @updateGames()
-    @fetchUserPicture()
+    if @props.aris.auth and window.location.pathname.match(/\blogin\b/)
+      window.location.href = '../discover/'
+    else
+      @updateGames()
+      @fetchUserPicture()
 
   getColors: ->
     for i in [1..6] # predefined schemes for now
@@ -368,7 +371,7 @@ App = React.createClass
               onClick: => @setState account_menu: not @state.account_menu
               style: cursor: 'pointer'
             raw 'My Account'
-        child 'a', href: '#', =>
+        child 'a', href: '../editor', =>
           child 'div#the-my-siftrs-button', =>
             raw 'My Siftrs'
       child 'div#the-content', =>

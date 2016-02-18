@@ -6,6 +6,7 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([^/]+)$ /$1/ [R]
 
 RewriteRule ^editor/(.*)$ /editor-react/$1
+RewriteRule ^login/(.*)$ /editor-react/$1
 
 # /foo/       becomes /client-react/
 # /foo/bar.js becomes /client-react/bar.js
