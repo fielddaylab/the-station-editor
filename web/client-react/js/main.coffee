@@ -965,6 +965,15 @@ App = React.createClass
                     display: 'inline-block'
                 child 'p', =>
                   raw auth.display_name
+                child 'div.blueButton', =>
+                  props
+                    style:
+                      width: '100%'
+                      boxSizing: 'border-box'
+                      textAlign: 'center'
+                      padding: 5
+                      marginBottom: 12
+                  raw 'ACCOUNT SETTINGS'
               child 'div.blueButton', =>
                 props
                   style:

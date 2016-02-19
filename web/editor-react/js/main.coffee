@@ -410,6 +410,19 @@ App = React.createClass
                         for file in e.dataTransfer.files
                           @loadUserPicture file
                           break
+                  child 'div', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        width: '100%'
+                        paddingTop: 8
+                        paddingBottom: 8
+                        textAlign: 'center'
+                        color: 'white'
+                        cursor: 'pointer'
+                        marginBottom: 30
+                      onClick: @logout
+                    raw 'LOGOUT'
                   child 'p', =>
                     child 'input',
                       autoCapitalize: 'off'
@@ -738,6 +751,16 @@ App = React.createClass
                     display: 'inline-block'
                 child 'p', =>
                   raw @state.auth.display_name
+                child 'div', =>
+                  props
+                    style:
+                      width: '100%'
+                      boxSizing: 'border-box'
+                      textAlign: 'center'
+                      padding: 5
+                      marginBottom: 12
+                      backgroundColor: 'rgb(51,191,224)'
+                  raw 'ACCOUNT SETTINGS'
               child 'div', =>
                 props
                   style:
