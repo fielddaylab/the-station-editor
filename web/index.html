@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     });
   }
+
+  if (window.localStorage['aris-auth']) {
+    document.body.classList.add('logged_in');
+  }
 });
 
 </script>
@@ -195,6 +199,13 @@ div,span,body,img
   }
 }
 
+body.logged_in .when_logged_out {
+  display: none;
+}
+body:not(.logged_in) .when_logged_in {
+  display: none;
+}
+
 </style>
 </head>
 <body class="dark_bg">
@@ -215,19 +226,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="top_bar_logo" style="width:57px; height:50px;"><img src="assets/logos/siftr-nav-logo.png" style="width:100%; height:100%;"></img></div>
   </a>
   <!-- will go right-to-left -->
-  <a href="login/#signup" class="fix-link">
+  <a href="login/#signup" class="fix-link when_logged_out">
     <div class="top_bar_link signup_button">SIGN UP</div>
   </a>
-  <a href="login" class="fix-link">
+  <a href="login" class="fix-link when_logged_out">
     <div class="top_bar_link">LOGIN</div>
   </a>
   <a href="discover" class="fix-link">
     <div class="top_bar_link">DISCOVER</div>
   </a>
-  <a href="editor/#account" class="fix-link">
+  <a href="editor/#account" class="fix-link when_logged_in">
     <div class="top_bar_link">MY ACCOUNT</div>
   </a>
-  <a href="editor" class="fix-link">
+  <a href="editor" class="fix-link when_logged_in">
     <div class="top_bar_link">MY SIFTRS</div>
   </a>
 </div>

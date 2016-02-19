@@ -26,6 +26,7 @@ App = React.createClass
     icons: {}
     owners: {}
     owner_pictures: {}
+    logged_in: window.localStorage['aris-auth']?
 
   componentDidMount: ->
     @recent  1
@@ -121,12 +122,23 @@ App = React.createClass
                 style:
                   width: '100%'
                   height: '100%'
+          unless @state.logged_in
+            child 'a', href: (if window.cordova? then '../editor-react/index.html#signup' else '../login/#signup'), =>
+              child 'div.top_bar_link.signup_button', =>
+                raw 'SIGN UP'
+            child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../login'), =>
+              child 'div.top_bar_link', =>
+                raw 'LOGIN'
           child 'a', href: '', =>
             child 'div.top_bar_link', style: {color: 'rgb(235,197,0)'}, =>
               raw 'DISCOVER'
-          child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../editor'), =>
-            child 'div.top_bar_link', =>
-              raw 'MY SIFTRS'
+          if @state.logged_in
+            child 'a', href: (if window.cordova? then '../editor-react/index.html#account' else '../editor/#account'), =>
+              child 'div.top_bar_link', =>
+                raw 'MY ACCOUNT'
+            child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../editor'), =>
+              child 'div.top_bar_link', =>
+                raw 'MY SIFTRS'
         child 'div.spacer', style: height: 20
         child 'div', style: {maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}, =>
           child 'img', src: "../assets/logos/siftr-main-logo.png", style: width: '100%'
