@@ -121,3 +121,11 @@
   width: calc(100% - 160px);
   padding: 50px;
 }
+
+.the-address-box {
+  position: absolute;
+  left: 10px;
+  top: 75px;
+  width: calc(100% - 25px);
+  z-index: 2;
+}

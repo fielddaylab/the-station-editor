@@ -152,3 +152,10 @@
   width: calc(100% - 300px);
   padding: 50px;
 }
+
+.the-address-box {
+  position: absolute;
+  left: 10px;
+  top: 87px;
+  width: calc(60% - 25px);
+}

@@ -53,6 +53,32 @@ linkableText = (str) ->
   else
     raw str
 
+SearchBox = React.createClass
+  displayName: 'SearchBox'
+
+  propTypes:
+    placeholder: T.string
+    onPlacesChanged: T.func
+
+  render: ->
+    make 'input', =>
+      props @props
+      props
+        type: 'text'
+        ref: 'input'
+
+  onPlacesChanged: ->
+    if @props.onPlacesChanged
+      @props.onPlacesChanged @searchBox.getPlaces()
+
+  componentDidMount: ->
+    input = ReactDOM.findDOMNode @refs.input
+    @searchBox = new google.maps.places.SearchBox input
+    @listener = @searchBox.addListener 'places_changed', => @onPlacesChanged()
+
+  componentWillUnmount: ->
+    @listener.remove()
+
 App = React.createClass
   displayName: 'App'
 
@@ -1617,6 +1643,15 @@ App = React.createClass
                 onChange: (e) =>
                   @updateState modal: enter_description: description: $set: e.target.value
         move_point: ({media, description, editing_note, saving}) =>
+          child SearchBox,
+            className: 'the-address-box'
+            placeholder: 'Enter a place name or address'
+            onPlacesChanged: (places) =>
+              if places[0]?
+                loc = places[0].geometry.location
+                @setState
+                  latitude:  loc.lat()
+                  longitude: loc.lng()
           child 'div.bottomModal', style: {height: 150}, =>
             child 'p', =>
               props
