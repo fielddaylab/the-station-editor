@@ -402,6 +402,8 @@ App = React.createClass
                 style: maps.MapTypeControlStyle.HORIZONTAL_BAR
                 position: maps.ControlPosition.LEFT_BOTTOM
                 mapTypeIds: [maps.MapTypeId.ROADMAP, maps.MapTypeId.SATELLITE]
+              zoomControlOptions:
+                position: maps.ControlPosition.RIGHT_CENTER
               styles:
                 # from https://snazzymaps.com/style/83/muted-blue
                 [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
