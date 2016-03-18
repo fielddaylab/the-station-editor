@@ -87,10 +87,23 @@ div,span,body,img,input
 }
 
 /* lists */
+@media (min-width: 801px) {
+  .list_section {
+    height: 460px;
+    overflow: hidden;
+    position: relative;
+  }
+}
 .list_entry {
   width: 100%;
   box-sizing: border-box;
-  padding: 0 100px;
+  padding: 0 10px;
+}
+@media (min-width: 801px) {
+  .list_entry {
+    width: 25%;
+    float: left;
+  }
 }
 @media (max-width: 800px) {
   .list_entry {
@@ -100,12 +113,55 @@ div,span,body,img,input
 .list_image {
   margin-right: 15px;
   margin-bottom: 15px;
+  display: block;
+  width: 100px;
+  height: 100px;
+}
+.list_link {
+  color: black;
+  text-decoration: none;
 }
 .list_name {}
 .list_description {}
+.list_fadeout {
+  pointer-events: none;
+}
+@media (max-width: 800px) {
+  .list_fadeout {
+    display: none;
+  }
+}
+@media (min-width: 801px) {
+  .list_fadeout {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to top, white 0px, rgba(0, 0, 0, 0) 40px);
+  }
+}
 
 .section {
   padding: 1px; /* hack, to avoid some gap under search section??? */
+}
+
+#banner {
+  position: relative;
+  min-height: 300px;
+  background-image: url('../assets/photos/siftr-header.jpg');
+  background-size: cover;
+}
+
+#slogan {
+  width: 100%;
+  height: 30px;
+  margin: 0px auto;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 5px;
+  font-weight: light;
+  color: #FFFFFF;
 }
 
 </style>

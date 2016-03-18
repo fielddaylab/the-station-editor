@@ -109,11 +109,6 @@ App = React.createClass
 
     make 'div', =>
       child 'div#banner.section.dark_bg', =>
-        props style:
-          position: 'relative'
-          minHeight: 300
-          backgroundImage: "url('../assets/photos/siftr-header.jpg')"
-          backgroundSize: 'cover'
         child 'div#top_bar', style: {height: 50, padding: 30}, =>
           child 'a', href: (if window.cordova? then '../index.html' else '..'), =>
             child 'div.top_bar_logo', style: {width: 57, height: 50}, =>
@@ -143,16 +138,7 @@ App = React.createClass
         child 'div', style: {maxWidth: '100%', width:'600px', margin:'0px auto', color:'#FF0000'}, =>
           child 'img', src: "../assets/logos/siftr-main-logo.png", style: width: '100%'
         child 'div.spacer', style: height: 30
-        child 'div', =>
-          props style:
-            width: '100%'
-            height: '30px'
-            margin: '0px auto'
-            textAlign: 'center'
-            fontSize: '20px'
-            letterSpacing: '5px'
-            fontWeight: 'light'
-            color: '#FFFFFF'
+        child 'div#slogan', =>
           raw 'EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES'
         child 'div.spacer', style: height: 60
         child 'div', style: {width: '600px', maxWidth: 'calc(100% - 10px)', margin: '0px auto'}, =>
@@ -165,7 +151,7 @@ App = React.createClass
         child 'div.spacer', style: height: 60
 
       sections.forEach ({header, identifier}) =>
-        child 'div.section.white_bg', key: "section_#{identifier}", =>
+        child 'div.section.white_bg.list_section', key: "section_#{identifier}", =>
           child 'div', style: {textAlign: 'center', letterSpacing: 3, padding: 20}, =>
             child 'h2', => raw header
             child 'h4', =>
@@ -183,16 +169,13 @@ App = React.createClass
           for game in @state[identifier].games
             url = game.siftr_url or game.game_id
             child 'div.list_entry', key: game.game_id, =>
-              child 'a', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
+              child 'a.list_link', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
                 child 'img.list_image',
                   src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
-                  style:
-                    float: 'left'
-                    width: 100
-                    height: 100
-                child 'h2.list_name', => raw game.name
+                child 'h3.list_name', => raw game.name
               child 'div.list_description', dangerouslySetInnerHTML: renderMarkdown game.description
-              child 'div', style: clear: 'both'
+          child 'div', style: clear: 'both'
+          child 'div.list_fadeout'
 
 $(document).ready ->
   ReactDOM.render React.createElement(App, aris: new Aris), document.getElementById('the-container')
