@@ -165,9 +165,8 @@ App = React.createClass
           raw 'EXPLORE YOUR WORLD, SHARE YOUR DISCOVERIES'
         child 'div.spacer', style: height: 60
         child 'div', style: {width: '600px', maxWidth: 'calc(100% - 10px)', margin: '0px auto'}, =>
-          child 'input',
+          child 'input.search_bar',
             type: 'text'
-            style: {width: '100%', fontSize: 20, padding: '12px 20px', borderRadius: 25}
             placeholder: 'Search for a Siftr...'
             value: @state.text
             onChange: (e) => @setText e.target.value
@@ -178,15 +177,13 @@ App = React.createClass
           child 'div', style: {textAlign: 'center', letterSpacing: 3, padding: 20}, =>
             child 'h2', => raw header
             child 'h4', =>
-              child 'b', =>
+              child 'b.results_arrow', =>
                 props
-                  style: cursor: 'pointer'
                   onClick: => @[identifier](@state[identifier].page - 1) unless @state[identifier].page is 1
                 raw ' < '
               raw "page #{@state[identifier].page}"
-              child 'b', =>
+              child 'b.results_arrow', =>
                 props
-                  style: cursor: 'pointer'
                   onClick: => @[identifier](@state[identifier].page + 1)
                 raw ' > '
           for game in @state[identifier].games
