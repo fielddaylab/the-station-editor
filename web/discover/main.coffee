@@ -46,8 +46,31 @@ App = React.createClass
                 obj
 
   fetchOwners: (games) ->
+    games.forEach (game) =>
+      unless @state.owners[game.game_id]?
+        @props.aris.getUsersForGame
+          game_id: game.game_id
+        , ({returnCode, data: users}) =>
+          if returnCode is 0 and users?
+            @setState (prevState) => update prevState,
+              owners: do =>
+                obj = {}
+                obj[game.game_id] = $set: users
+                obj
+            @fetchOwnerPictures users
 
   fetchOwnerPictures: (owners) ->
+    owners.forEach (user) =>
+      unless @state.owner_pictures[user.user_id]? or parseInt(user.media_id) is 0
+        @props.aris.call 'media.getMedia',
+          media_id: user.media_id
+        , ({returnCode, data: media}) =>
+          if returnCode is 0 and media?
+            @setState (prevState) => update prevState,
+              owner_pictures: do =>
+                obj = {}
+                obj[user.user_id] = $set: media.thumb_url
+                obj
 
   recent: (page) ->
     @props.aris.call 'games.searchSiftrs',
@@ -169,13 +192,26 @@ App = React.createClass
           for game in @state[identifier].games
             url = game.siftr_url or game.game_id
             child 'div.list_entry', key: game.game_id, =>
-              child 'a.list_link', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
-                child 'img.list_image',
-                  src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
-                child 'h3.list_name', => raw game.name
-              child 'div.list_description', dangerouslySetInnerHTML: renderMarkdown game.description
+              child 'div.list_entry_faded', =>
+                child 'a.list_link', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
+                  child 'img.list_image',
+                    src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
+                  child 'h3.list_name', => raw game.name
+                child 'div.list_description', dangerouslySetInnerHTML: renderMarkdown game.description
+                child 'div.list_fadeout'
+              child 'div.list_credit', =>
+                if @state.owners[game.game_id]?
+                  owner = @state.owners[game.game_id][0]
+                  child 'p', =>
+                    if @state.owner_pictures[owner.user_id]?
+                      child 'img.owner_picture', src: @state.owner_pictures[owner.user_id]
+                    else
+                      chars =
+                        word[0] for word in owner.display_name.split(/\W+/) when word isnt ''
+                      child 'span.owner_picture', =>
+                        raw chars.join('')[0..1].toUpperCase()
+                    raw "By #{owner.display_name}"
           child 'div', style: clear: 'both'
-          child 'div.list_fadeout'
 
 $(document).ready ->
   ReactDOM.render React.createElement(App, aris: new Aris), document.getElementById('the-container')

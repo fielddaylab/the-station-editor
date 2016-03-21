@@ -70,6 +70,7 @@ class User
   constructor: (json) ->
     @user_id      = parseInt json.user_id
     @display_name = json.display_name or json.user_name
+    @media_id     = parseInt json.media_id
 
 class Tag
   constructor: (json) ->
