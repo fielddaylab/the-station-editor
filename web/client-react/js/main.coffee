@@ -117,6 +117,7 @@ App = React.createClass
     message: null
     date_1: 'min'
     date_2: 'max'
+    liked: {}
 
   getColor: (x) ->
     if x instanceof Tag
@@ -162,9 +163,7 @@ App = React.createClass
           note_id: note_id
           map_data: false
         , @successAt 'loading a note', (data) =>
-          note = data.notes[0]
-          @setState modal: viewing_note: note: note
-          @fetchComments note
+          @viewNote data.notes[0]
     else
       # Close any note views
       if @state.modal.viewing_note?
@@ -260,6 +259,52 @@ App = React.createClass
         notes: data.notes
         page:  page
 
+  viewNote: (note) ->
+    @setState
+      modal:
+        viewing_note:
+          note: note
+          comments: null
+          new_comment: ''
+          confirm_delete: false
+          confirm_delete_comment_id: null
+    @fetchComments note
+    @checkLike note
+
+  setLiked: (note, liked) ->
+    @updateState liked: $merge: do =>
+      obj = {}
+      obj[note.note_id] = liked
+      obj
+
+  checkLike: (note) ->
+    if @props.aris.auth?
+      @props.aris.call 'notes.likedNote',
+        game_id: @props.game.game_id
+        note_id: note.note_id
+      , ({data, returnCode}) =>
+        @setLiked(note, data) if returnCode is 0
+
+  likeNote: (note) ->
+    if @props.aris.auth?
+      @props.aris.call 'notes.likeNote',
+        game_id: @props.game.game_id
+        note_id: note.note_id
+      , ({returnCode}) =>
+        @setLiked(note, true) if returnCode is 0
+    else
+      @setState account_menu: true
+
+  unlikeNote: (note) ->
+    if @props.aris.auth?
+      @props.aris.call 'notes.unlikeNote',
+        game_id: @props.game.game_id
+        note_id: note.note_id
+      , ({returnCode}) =>
+        @setLiked(note, false) if returnCode is 0
+    else
+      @setState account_menu: true
+
   fetchComments: (note) ->
     @props.aris.getNoteCommentsForNote
       game_id: @props.game.game_id
@@ -282,9 +327,7 @@ App = React.createClass
       note_id: note_id
       map_data: false
     , @successAt 'refreshing this note', (data) =>
-      note = data.notes[0]
-      @setState modal: viewing_note: note: note
-      @fetchComments note
+      @viewNote data.notes[0]
 
   login: ->
     match @state.login_status,
@@ -304,6 +347,8 @@ App = React.createClass
             account_menu: failed_login
             message: if failed_login then 'Incorrect username or password.' else null
           @fetchUserPicture()
+          if (note = @state.modal.viewing_note?.note)
+            @checkLike note
 
   fetchUserPicture: ->
     match @state.login_status,
@@ -333,6 +378,7 @@ App = React.createClass
       modal: nothing: {}
       account_menu: false
       message: null
+      liked: {}
     @search undefined, undefined, false
 
   successAt: (doingSomething, fn) -> (arisResult) =>
@@ -533,16 +579,7 @@ App = React.createClass
                 color: @getColor note
                 hovering: @state.hover_note_id is note.note_id
                 key: note.note_id
-                onClick: =>
-                  @setState
-                    modal:
-                      viewing_note:
-                        note: note
-                        comments: null
-                        new_comment: ''
-                        confirm_delete: false
-                        confirm_delete_comment_id: null
-                  @fetchComments note
+                onClick: => @viewNote note
 
         if @state.modal.move_point?
           makePin
@@ -787,16 +824,7 @@ App = React.createClass
                 onMouseOut: =>
                   if @state.hover_note_id?
                     @setState hover_note_id: null
-                onClick: =>
-                  @setState
-                    modal:
-                      viewing_note:
-                        note: note
-                        comments: null
-                        new_comment: ''
-                        confirm_delete: false
-                        confirm_delete_comment_id: null
-                  @fetchComments note
+                onClick: => @viewNote note
               child 'div',
                 style:
                   position: 'absolute'
@@ -1144,6 +1172,12 @@ App = React.createClass
                   style:
                     backgroundColor: 'rgb(97,201,226)'
                     width: '100%'
+                if @state.liked[parseInt note.note_id]
+                  barButton 'img/freepik/heart-filled.png', 'Unlike Note', =>
+                    @unlikeNote note
+                else
+                  barButton 'img/freepik/heart.png', 'Like Note', =>
+                    @likeNote note
                 if user_id is parseInt(note.user_id) or user_id in owners
                   barButton 'img/freepik/delete81.png', 'Delete Note', =>
                     @updateState modal: viewing_note: confirm_delete: $set: true
@@ -1625,8 +1659,7 @@ App = React.createClass
                   cursor: 'pointer'
                 onClick: =>
                   if editing_note?
-                    @setState modal: viewing_note: note: editing_note
-                    @fetchComments editing_note
+                    @viewNote editing_note
                   else
                     @setState modal: nothing: {}
             child 'textarea', =>
@@ -1673,8 +1706,7 @@ App = React.createClass
                   cursor: 'pointer'
                 onClick: =>
                   if editing_note?
-                    @setState modal: viewing_note: note: editing_note
-                    @fetchComments editing_note
+                    @viewNote editing_note
                   else
                     @setState modal: nothing: {}
             unless editing_note?
@@ -1775,8 +1807,7 @@ App = React.createClass
                 style: {position: 'absolute', top: 20, right: 20, cursor: 'pointer'}
                 onClick: =>
                   if editing_note?
-                    @setState modal: viewing_note: note: editing_note
-                    @fetchComments editing_note
+                    @viewNote editing_note
                   else
                     @setState modal: nothing: {}
             unless editing_note? or saving
