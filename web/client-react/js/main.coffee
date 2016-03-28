@@ -258,6 +258,7 @@ App = React.createClass
       @setState
         notes: data.notes
         page:  page
+      @refs.theThumbs?.scrollTop = 0
 
   viewNote: (note) ->
     @setState
@@ -743,7 +744,7 @@ App = React.createClass
               raw "#{if checked then '✓' else '●'} #{tag.tag}"
 
       # Thumbnails
-      child 'div.theThumbs', =>
+      child 'div.theThumbs', ref: 'theThumbs', =>
         props
           style:
             overflowY: 'scroll'
