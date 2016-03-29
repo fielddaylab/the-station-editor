@@ -1336,6 +1336,7 @@ App = React.createClass
                                   media: media
                                   tag: @props.game.tags[0]
                                   description: ''
+                                  file: file
                               message: null
                       error: (jqXHR, textStatus, errorThrown) =>
                         @setState message:
@@ -1387,12 +1388,12 @@ App = React.createClass
                   type: 'file', name: 'raw_upload', ref: 'file_input'
                   onChange: (e) =>
                     if (newFile = e.target.files[0])?
-                      @updateState modal: select_photo:
-                        file: $set: newFile
-                        orientation: $set: 1
                       EXIF.getData newFile, =>
-                        @updateState modal: select_photo: orientation: $set:
-                          EXIF.getTag(newFile, 'Orientation') or 1
+                        @updateState modal: select_photo:
+                          file:
+                            $set: newFile
+                          orientation:
+                            $set: EXIF.getTag(newFile, 'Orientation') or 1
         uploading_photo: ({progress}) =>
           child 'div.primaryModal', style: {backgroundColor: 'white'}, =>
             child 'div.grayButton.prevNoteStepButton', =>
@@ -1403,7 +1404,7 @@ App = React.createClass
             child 'p', =>
               props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
-        enter_description: ({media, description, editing_note, saving}) =>
+        enter_description: ({media, description, editing_note, saving, file}) =>
           child 'div.bottomModal', style: {height: 250}, =>
             child 'div.blueButton.prevNoteStepButton', =>
               props onClick: => @setState modal: select_photo: {}
@@ -1424,13 +1425,28 @@ App = React.createClass
                       description: description
                     , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
                   else
+                    fileLat = if file? then EXIF.getTag file, 'GPSLatitude'  else null
+                    fileLng = if file? then EXIF.getTag file, 'GPSLongitude' else null
+                    if fileLat? and fileLng?
+                      readRat = (rat) -> rat.numerator / rat.denominator
+                      readGPS = ([deg, min, sec]) ->
+                        readRat(deg) + readRat(min) / 60 + readRat(sec) / 3600
+                      lat = readGPS fileLat
+                      lat *= -1 if EXIF.getTag(file, 'GPSLatitudeRef') is 'S'
+                      lng = readGPS fileLng
+                      lng *= -1 if EXIF.getTag(file, 'GPSLongitudeRef') is 'W'
+                      can_reposition = false
+                    else
+                      lat = @props.game.latitude
+                      lng = @props.game.longitude
+                      can_reposition = true
                     @updateState
-                      latitude: $set: @props.game.latitude
-                      longitude: $set: @props.game.longitude
+                      latitude: $set: lat
+                      longitude: $set: lng
                       zoom: $set: @props.game.zoom
                       modal:
                         $apply: ({enter_description}) =>
-                          if 'geolocation' of navigator
+                          if can_reposition and 'geolocation' of navigator
                             navigator.geolocation.getCurrentPosition (posn) =>
                               @setState (previousState) =>
                                 if previousState.modal.move_point?.can_reposition
@@ -1441,10 +1457,8 @@ App = React.createClass
                                   previousState
                           move_point:
                             update enter_description,
-                              latitude: $set: @props.game.latitude
-                              longitude: $set: @props.game.longitude
                               dragging: $set: false
-                              can_reposition: $set: true
+                              can_reposition: $set: can_reposition
               child 'div.noteStepsButton', =>
                 if editing_note?
                   if saving then raw 'SAVING...' else raw 'SAVE'
