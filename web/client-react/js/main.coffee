@@ -9,6 +9,7 @@ $ = require 'jquery'
 {make, child, raw, props} = require '../../shared/react-writer.js'
 EXIF = require 'exif-js'
 {ConicGradient} = require '../../shared/conic-gradient.js'
+{default: InfiniteScroll} = require 'react-infinite-scroller'
 
 T = React.PropTypes
 
@@ -90,6 +91,7 @@ App = React.createClass
     notes:        []
     map_notes:    []
     map_clusters: []
+    more_notes: false
     page: 1
     latitude:  @props.game.latitude
     longitude: @props.game.longitude
@@ -243,10 +245,13 @@ App = React.createClass
             notes:        data.notes
             map_notes:    data.map_notes
             map_clusters: data.map_clusters
+            more_notes:   true # maybe
+          @refs.theThumbs?.scrollTop = 0
       , wait
       newState
 
-  setPage: (page) ->
+  loadPage: ->
+    page = @state.page + 1
     thisSearch = @lastSearch = Date.now()
     params = update @searchParams(),
       offset: $set: (page - 1) * 48
@@ -255,10 +260,13 @@ App = React.createClass
       params
     , @successAt 'loading your search results', (data) =>
       return unless thisSearch is @lastSearch
-      @setState
-        notes: data.notes
-        page:  page
-      @refs.theThumbs?.scrollTop = 0
+      @updateState
+        notes:
+          $push: data.notes
+        page:
+          $set: page
+        more_notes:
+          $set: data.notes.length is 48
 
   viewNote: (note) ->
     @setState
@@ -750,100 +758,87 @@ App = React.createClass
             overflowY: 'scroll'
             WebkitOverflowScrolling: 'touch'
             backgroundColor: 'white'
-        child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
-          child 'h2.canSelect', => raw @props.game.name
-          if @state.show_instructions
-            child 'p', =>
-              child 'span.blueButton', =>
-                props
-                  style:
-                    cursor: 'pointer'
-                    paddingLeft: 15
-                    paddingRight: 15
-                    paddingTop: 6
-                    paddingBottom: 6
-                  onClick: =>
-                    @setState show_instructions: false
-                raw 'Hide instructions'
-            child 'div.canSelect',
-              dangerouslySetInnerHTML: renderMarkdown @props.game.description
-              style:
-                borderLeft: '2px solid black'
-                paddingLeft: 10
-            for tag in @props.game.tags
-              color = @getColor tag
+        child InfiniteScroll, =>
+          props
+            pageStart: 0
+            loadMore: (page) => @loadPage()
+            hasMore: @state.more_notes
+            useWindow: false
+          child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
+            child 'h2.canSelect', => raw @props.game.name
+            if @state.show_instructions
               child 'p', =>
+                child 'span.blueButton', =>
+                  props
+                    style:
+                      cursor: 'pointer'
+                      paddingLeft: 15
+                      paddingRight: 15
+                      paddingTop: 6
+                      paddingBottom: 6
+                    onClick: =>
+                      @setState show_instructions: false
+                  raw 'Hide instructions'
+              child 'div.canSelect',
+                dangerouslySetInnerHTML: renderMarkdown @props.game.description
+                style:
+                  borderLeft: '2px solid black'
+                  paddingLeft: 10
+              for tag in @props.game.tags
+                color = @getColor tag
+                child 'p', =>
+                  props
+                    key: tag.tag_id
+                    style:
+                      margin: 5
+                  child 'span', style:
+                    backgroundColor: color
+                    width: 12
+                    height: 12
+                    borderRadius: 6
+                    display: 'inline-block'
+                  raw " #{tag.tag}"
+            else
+              child 'p', =>
+                child 'span.blueButton', =>
+                  props
+                    style:
+                      cursor: 'pointer'
+                      paddingLeft: 15
+                      paddingRight: 15
+                      paddingTop: 6
+                      paddingBottom: 6
+                    onClick: =>
+                      @setState show_instructions: true
+                  raw 'Instructions'
+          child 'div', style: {textAlign: 'center'}, =>
+            @state.notes.forEach (note) =>
+              child 'div.thumbnail', =>
                 props
-                  key: tag.tag_id
+                  key: note.note_id
                   style:
+                    backgroundImage: "url(#{note.media.big_thumb_url})"
+                    backgroundSize: '100% 100%'
                     margin: 5
-                child 'span', style:
-                  backgroundColor: color
-                  width: 12
-                  height: 12
-                  borderRadius: 6
-                  display: 'inline-block'
-                raw " #{tag.tag}"
-          else
-            child 'p', =>
-              child 'span.blueButton', =>
-                props
-                  style:
                     cursor: 'pointer'
-                    paddingLeft: 15
-                    paddingRight: 15
-                    paddingTop: 6
-                    paddingBottom: 6
-                  onClick: =>
-                    @setState show_instructions: true
-                raw 'Instructions'
-        child 'div', style: {textAlign: 'center'}, =>
-
-          if @state.page isnt 1
-            child 'div.blueButton', =>
-              props
-                style:
-                  padding: 15
-                  boxSizing: 'border-box'
-                onClick: => @setPage(@state.page - 1)
-              raw 'Previous Page'
-
-          @state.notes.forEach (note) =>
-            child 'div.thumbnail', =>
-              props
-                key: note.note_id
-                style:
-                  backgroundImage: "url(#{note.media.big_thumb_url})"
-                  backgroundSize: '100% 100%'
-                  margin: 5
-                  cursor: 'pointer'
-                  position: 'relative'
-                  display: 'inline-block'
-                onMouseOver: =>
-                  @setState
-                    hover_note_id: note.note_id
-                onMouseOut: =>
-                  if @state.hover_note_id?
-                    @setState hover_note_id: null
-                onClick: => @viewNote note
-              child 'div',
-                style:
-                  position: 'absolute'
-                  right: 5
-                  top: 5
-                  width: 14
-                  height: 14
-                  borderRadius: 7
-                  backgroundColor: @getColor note
-
-          if @state.notes.length is 48
-            child 'div.blueButton', =>
-              props
-                style:
-                  padding: 15
-                  boxSizing: 'border-box'
-                onClick: => @setPage(@state.page + 1)
-              raw 'Next Page'
+                    position: 'relative'
+                    display: 'inline-block'
+                  onMouseOver: =>
+                    @setState
+                      hover_note_id: note.note_id
+                  onMouseOut: =>
+                    if @state.hover_note_id?
+                      @setState hover_note_id: null
+                  onClick: => @viewNote note
+                child 'div',
+                  style:
+                    position: 'absolute'
+                    right: 5
+                    top: 5
+                    width: 14
+                    height: 14
+                    borderRadius: 7
+                    backgroundColor: @getColor note
 
       # Desktop menu, also mobile bottom bar
       child 'div.desktopMenu', =>
