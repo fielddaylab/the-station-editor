@@ -67,6 +67,12 @@ raw = (raws...) ->
 props = (obj) ->
   window.theParent = update window.theParent,
     props: $merge: obj
+addClass = (classes...) ->
+  classes = [].concat.apply([], classes) # flatten into an array of strings
+  window.theParent = update window.theParent,
+    props:
+      className:
+        $apply: (oldClasses) -> "#{oldClasses ? ''} #{classes.join(' ')}"
 
-for k, v of {make, child, raw, props}
+for k, v of {make, child, raw, props, addClass}
   exports[k] = v

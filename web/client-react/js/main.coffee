@@ -6,7 +6,7 @@ update = require 'react-addons-update'
 GoogleMap = require 'google-map-react'
 {fitBounds} = require 'google-map-react/utils'
 $ = require 'jquery'
-{make, child, raw, props} = require '../../shared/react-writer.js'
+{make, child, raw, props, addClass} = require '../../shared/react-writer.js'
 EXIF = require 'exif-js'
 {ConicGradient} = require '../../shared/conic-gradient.js'
 {default: InfiniteScroll} = require 'react-infinite-scroller'
@@ -414,12 +414,12 @@ App = React.createClass
       window.location.hash = hash
 
     make 'div#the-contained', =>
+      addClass [
+        if @state.search_controls? then 'searching' else 'notSearching'
+        if @state.account_menu then 'accountMenuOpen' else ''
+        if @state.view_focus is 'map' or @state.modal.move_point? then 'primaryMap' else 'primaryThumbs'
+      ]
       props
-        className: """
-          #{if @state.search_controls? then 'searching' else 'notSearching'}
-          #{if @state.account_menu then 'accountMenuOpen' else ''}
-          #{if @state.view_focus is 'map' or @state.modal.move_point? then 'primaryMap' else 'primaryThumbs'}
-          """
         style:
           width: '100%'
           height: '100%'
@@ -599,15 +599,12 @@ App = React.createClass
       # Search
       child 'div.searchPane', =>
         child 'p', =>
-          child 'input', =>
+          child 'input.searchInput', =>
             props
               type: 'text'
               value: @state.search
               placeholder: 'Search...'
               onChange: (e) => @search 200, search: {$set: e.target.value}
-              style:
-                width: '100%'
-                boxSizing: 'border-box'
 
         child 'hr'
         child 'p', => child 'b', => raw 'BY DATE:'
@@ -681,45 +678,19 @@ App = React.createClass
         child 'hr', style: marginTop: 15
         child 'p', => child 'b', => raw 'BY ACTIVITY:'
 
-        child 'div', =>
-          props style:
-            display: 'table'
-            width: '100%'
-            tableLayout: 'fixed'
-            cursor: 'pointer'
-          child 'div', =>
-            props
-              style:
-                display: 'table-cell'
-                borderRadius: '5px 0 0 5px'
-                border: '1px solid rgb(32,37,49)'
-                backgroundColor: if @state.order is 'recent' then 'rgb(32,37,49)' else 'white'
-                color: if @state.order is 'recent' then 'white' else 'rgb(32,37,49)'
-                padding: 10
-              onClick: => @search 0, order: {$set: 'recent'}
+        child 'div.activityButtons', =>
+          child 'div.activityButton', =>
+            addClass 'activityOn' if @state.order is 'recent'
+            props onClick: => @search 0, order: {$set: 'recent'}
             raw 'newest'
-          child 'div', =>
-            props
-              style:
-                display: 'table-cell'
-                borderRadius: if @state.login_status.logged_in? then undefined else '0 5px 5px 0'
-                border: '1px solid rgb(32,37,49)'
-                backgroundColor: if @state.order is 'popular' then 'rgb(32,37,49)' else 'white'
-                color: if @state.order is 'popular' then 'white' else 'rgb(32,37,49)'
-                padding: 10
-              onClick: => @search 0, order: {$set: 'popular'}
+          child 'div.activityButton', =>
+            addClass 'activityOn' if @state.order is 'popular'
+            props onClick: => @search 0, order: {$set: 'popular'}
             raw 'popular'
           if @state.login_status.logged_in?
-            child 'div', =>
-              props
-                style:
-                  display: 'table-cell'
-                  borderRadius: '0 5px 5px 0'
-                  border: '1px solid rgb(32,37,49)'
-                  backgroundColor: if @state.mine then 'rgb(32,37,49)' else 'white'
-                  color: if @state.mine then 'white' else 'rgb(32,37,49)'
-                  padding: 10
-                onClick: => @search 0, mine: {$apply: (x) => not x}
+            child 'div.activityButton', =>
+              addClass 'activityOn' if @state.mine
+              props onClick: => @search 0, mine: {$apply: (x) => not x}
               raw 'mine'
 
         child 'hr', style: marginTop: 20

@@ -147,3 +147,35 @@ input[type=text], input[type=password], textarea {
   left: 50%;
   top: 50%;
 }
+
+.searchInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid #bbb;
+}
+
+.activityButtons {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  cursor: pointer;
+}
+.activityButton {
+  display: table-cell;
+  border: 1px solid rgb(32,37,49);
+  padding: 10px;
+  background-color: white;
+  color: rgb(32,37,49);
+}
+.activityButton.activityOn {
+  background-color: rgb(32,37,49);
+  color: white;
+}
+.activityButton:first-child {
+  border-radius: 999px 0 0 999px;
+}
+.activityButton:last-child {
+  border-radius: 0 999px 999px 0;
+}
