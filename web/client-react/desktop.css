@@ -78,6 +78,9 @@
   cursor: pointer;
   top: 95px;
 }
+.addItemDesktop img {
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2)
+}
 .primaryMap .addItemDesktop {
   left: calc(60% - 203px);
 }
@@ -92,6 +95,14 @@
   transition-property: max-height;
   transition-duration: 0.25s;
   overflow: hidden;
+  position: absolute;
+  top: 77px;
+  right: 120px;
+  background-color: rgb(44,48,59);
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 275px;
 }
 .accountMenuOpen .accountMenuDesktop {
   max-height: 500px;

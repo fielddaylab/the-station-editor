@@ -54,6 +54,10 @@
 .addItemDesktop { display: none; }
 .addItemMobile {
   height: 60px;
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - (77px * 0.5));
+  cursor: pointer;
 }
 
 .accountMenuDesktop { display: none; }
@@ -71,6 +75,12 @@
   left: -250px;
   top: 0;
   height: 100%;
+  background-color: rgb(32,37,49);
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  box-sizing: border-box;
 }
 
 .bottomModal {

@@ -419,11 +419,6 @@ App = React.createClass
         if @state.account_menu then 'accountMenuOpen' else ''
         if @state.view_focus is 'map' or @state.modal.move_point? then 'primaryMap' else 'primaryThumbs'
       ]
-      props
-        style:
-          width: '100%'
-          height: '100%'
-          overflow: 'visible'
 
       # Map
       makePin = ({lat, lng, key, color, hovering, onClick, className, position}) =>
@@ -724,11 +719,6 @@ App = React.createClass
 
       # Thumbnails
       child 'div.theThumbs', ref: 'theThumbs', =>
-        props
-          style:
-            overflowY: 'scroll'
-            WebkitOverflowScrolling: 'touch'
-            backgroundColor: 'white'
         child InfiniteScroll, =>
           props
             pageStart: 0
@@ -783,10 +773,7 @@ App = React.createClass
                   props
                     style:
                       cursor: 'pointer'
-                      paddingLeft: 15
-                      paddingRight: 15
-                      paddingTop: 6
-                      paddingBottom: 6
+                      padding: '6px 15px'
                     onClick: =>
                       @setState show_instructions: true
                   raw 'Instructions'
@@ -899,16 +886,10 @@ App = React.createClass
             alt: 'Add Item'
             src: 'img/add-item.png'
             onClick: clickAdd
-            style: {boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 0.2)'}
       child 'img.addItemMobile',
         title: 'Add Item'
         alt: 'Add Item'
         src: 'img/mobile-plus.png'
-        style:
-          position: 'absolute'
-          bottom: 0
-          left: 'calc(50% - (77px * 0.5))'
-          cursor: 'pointer'
         onClick: clickAdd
 
       # Desktop account menu
@@ -935,16 +916,6 @@ App = React.createClass
             style: style
             onKeyDown: (e) => @login() if e.keyCode is 13
       child 'div.accountMenuDesktop', =>
-        props
-          style:
-            position: 'absolute'
-            top: 77
-            right: 120
-            backgroundColor: 'rgb(44,48,59)'
-            color: 'white'
-            paddingLeft: 10
-            paddingRight: 10
-            width: 275
         match @state.login_status,
           logged_out: ({username, password}) =>
             child 'div', =>
@@ -956,27 +927,12 @@ App = React.createClass
               child 'p', =>
                 props style: {width: '100%'}
                 passwordBox password, width: '100%', boxSizing: 'border-box'
-              child 'div.blueButton', =>
-                props
-                  style:
-                    width: '100%'
-                    boxSizing: 'border-box'
-                    textAlign: 'center'
-                    cursor: 'pointer'
-                    padding: 5
-                    marginBottom: 12
-                  onClick: @login
+              child 'div.blueButton.wideButton', =>
+                props onClick: @login
                 raw 'LOGIN'
               child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
-                child 'div.blueButton', =>
-                  props
-                    style:
-                      width: '100%'
-                      boxSizing: 'border-box'
-                      textAlign: 'center'
-                      padding: 5
-                      marginBottom: 12
-                    onClick: @login
+                child 'div.blueButton.wideButton', =>
+                  props onClick: @login
                   raw 'CREATE ACCOUNT'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
@@ -996,37 +952,14 @@ App = React.createClass
                     display: 'inline-block'
                 child 'p', =>
                   raw auth.display_name
-                child 'div.blueButton', =>
-                  props
-                    style:
-                      width: '100%'
-                      boxSizing: 'border-box'
-                      textAlign: 'center'
-                      padding: 5
-                      marginBottom: 12
+                child 'div.blueButton.wideButton', =>
                   raw 'ACCOUNT SETTINGS'
-              child 'div.blueButton', =>
-                props
-                  style:
-                    width: '100%'
-                    boxSizing: 'border-box'
-                    textAlign: 'center'
-                    cursor: 'pointer'
-                    padding: 5
-                    marginBottom: 12
-                  onClick: @logout
+              child 'div.blueButton.wideButton', =>
+                props onClick: @logout
                 raw 'LOGOUT'
 
       # Mobile account menu
       child 'div.accountMenuMobile', =>
-        props
-          style:
-            backgroundColor: 'rgb(32,37,49)'
-            color: 'white'
-            paddingLeft: 10
-            paddingRight: 10
-            paddingTop: 10
-            boxSizing: 'border-box'
         child 'div', =>
           child 'img',
             title: 'Close'
@@ -1045,27 +978,12 @@ App = React.createClass
               child 'p', =>
                 props style: {width: '100%'}
                 passwordBox password, width: '100%', boxSizing: 'border-box'
-              child 'div.blueButton', =>
-                props
-                  style:
-                    width: '100%'
-                    boxSizing: 'border-box'
-                    textAlign: 'center'
-                    cursor: 'pointer'
-                    padding: 5
-                    marginBottom: 12
-                  onClick: @login
+              child 'div.blueButton.wideButton', =>
+                props onClick: @login
                 raw 'LOGIN'
               child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
-                child 'div.blueButton', =>
-                  props
-                    style:
-                      width: '100%'
-                      boxSizing: 'border-box'
-                      textAlign: 'center'
-                      padding: 5
-                      marginBottom: 12
-                    onClick: @login
+                child 'div.blueButton.wideButton', =>
+                  props onClick: @login
                   raw 'CREATE ACCOUNT'
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
@@ -1383,40 +1301,12 @@ App = React.createClass
         select_photo: ({file, orientation}) =>
           child 'div.primaryModal', =>
             props style: backgroundColor: 'white'
-            child 'div', =>
-              props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  left: 20
-                  cursor: 'pointer'
-                  height: 36
-                  backgroundColor: '#cfcbcc'
-                  color: 'white'
-                  display: 'table'
-                  textAlign: 'center'
-                  boxSizing: 'border-box'
-                onClick: => @setState modal: nothing: {}
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+            child 'div.grayButton.prevNoteStepButton', =>
+              props onClick: => @setState modal: nothing: {}
+              child 'div.noteStepsButton', =>
                 raw 'CANCEL'
-            child 'div.blueButton', =>
+            child 'div.blueButton.nextNoteStepButton', =>
               props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  right: 20
-                  height: 36
-                  display: 'table'
-                  boxSizing: 'border-box'
                 onClick: =>
                   if file?
                     name = file.name
@@ -1460,16 +1350,7 @@ App = React.createClass
                       cache: false
                       contentType: false
                       processData: false
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+              child 'div.noteStepsButton', =>
                 raw 'DESCRIPTION >'
             if file?
               child 'div', =>
@@ -1514,67 +1395,23 @@ App = React.createClass
                           EXIF.getTag(newFile, 'Orientation') or 1
         uploading_photo: ({progress}) =>
           child 'div.primaryModal', style: {backgroundColor: 'white'}, =>
-            child 'div', =>
+            child 'div.grayButton.prevNoteStepButton', =>
               props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  left: 20
-                  cursor: 'pointer'
-                  height: 36
-                  backgroundColor: '#cfcbcc'
-                  color: 'white'
-                  display: 'table'
-                  textAlign: 'center'
-                  boxSizing: 'border-box'
                 onClick: => @setState modal: nothing: {}
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+              child 'div.noteStepsButton', =>
                 raw 'CANCEL'
             child 'p', =>
               props style: {position: 'absolute', top: '50%', width: '100%', textAlign: 'center'}
               raw "Uploading... (#{Math.floor(progress * 100)}%)"
         enter_description: ({media, description, editing_note, saving}) =>
           child 'div.bottomModal', style: {height: 250}, =>
-            child 'div.blueButton', =>
-              props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  left: 20
-                  height: 36
-                  display: 'table'
-                  boxSizing: 'border-box'
-                onClick: => @setState modal: select_photo: {}
+            child 'div.blueButton.prevNoteStepButton', =>
+              props onClick: => @setState modal: select_photo: {}
               unless editing_note?
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
+                child 'div.noteStepsButton', =>
                   raw '< IMAGE'
-            child 'div.blueButton', =>
+            child 'div.blueButton.nextNoteStepButton', =>
               props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  right: 20
-                  height: 36
-                  display: 'table'
-                  boxSizing: 'border-box'
                 onClick: =>
                   return if saving
                   if description is ''
@@ -1608,16 +1445,7 @@ App = React.createClass
                               longitude: $set: @props.game.longitude
                               dragging: $set: false
                               can_reposition: $set: true
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+              child 'div.noteStepsButton', =>
                 if editing_note?
                   if saving then raw 'SAVING...' else raw 'SAVE'
                 else
@@ -1685,37 +1513,14 @@ App = React.createClass
                   else
                     @setState modal: nothing: {}
             unless editing_note?
-              child 'div.blueButton', =>
+              child 'div.blueButton.prevNoteStepButton', =>
                 props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    height: 36
-                    display: 'table'
-                    boxSizing: 'border-box'
                   onClick: =>
                     @setState modal: enter_description: {media, description}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
+                child 'div.noteStepsButton', =>
                   raw '< DESCRIPTION'
-            child 'div.blueButton', =>
+            child 'div.blueButton.nextNoteStepButton', =>
               props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  right: 20
-                  height: 36
-                  display: 'table'
-                  boxSizing: 'border-box'
                 onClick: =>
                   return if saving
                   if editing_note?
@@ -1736,16 +1541,7 @@ App = React.createClass
                               latitude: $set: @state.latitude
                               longitude: $set: @state.longitude
                               tag: $set: @props.game.tags[0]
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+              child 'div.noteStepsButton', =>
                 if editing_note?
                   if saving then raw 'SAVING...' else raw 'SAVE'
                 else
@@ -1786,36 +1582,12 @@ App = React.createClass
                   else
                     @setState modal: nothing: {}
             unless editing_note? or saving
-              child 'div.blueButton', =>
-                props
-                  style:
-                    position: 'absolute'
-                    bottom: 20
-                    left: 20
-                    height: 36
-                    display: 'table'
-                    boxSizing: 'border-box'
-                  onClick: => @setState modal: move_point: {media, description, latitude, longitude}
-                child 'div', =>
-                  props
-                    style:
-                      display: 'table-cell'
-                      verticalAlign: 'middle'
-                      paddingLeft: 23
-                      paddingRight: 23
-                      width: '100%'
-                      height: '100%'
-                      boxSizing: 'border-box'
+              child 'div.blueButton.prevNoteStepButton', =>
+                props onClick: => @setState modal: move_point: {media, description, latitude, longitude}
+                child 'div.noteStepsButton', =>
                   raw '< LOCATION'
-            child 'div.blueButton', =>
+            child 'div.blueButton.nextNoteStepButton', =>
               props
-                style:
-                  position: 'absolute'
-                  bottom: 20
-                  right: 20
-                  height: 36
-                  display: 'table'
-                  boxSizing: 'border-box'
                 onClick: =>
                   return if saving
                   @updateState modal: select_category: saving: $set: true
@@ -1833,16 +1605,7 @@ App = React.createClass
                       trigger: {latitude, longitude}
                       tag_id: tag.tag_id
                     , @successAt 'creating your note', (note) => @refreshEditedNote note.note_id
-              child 'div', =>
-                props
-                  style:
-                    display: 'table-cell'
-                    verticalAlign: 'middle'
-                    paddingLeft: 23
-                    paddingRight: 23
-                    width: '100%'
-                    height: '100%'
-                    boxSizing: 'border-box'
+              child 'div.noteStepsButton', =>
                 if editing_note?
                   if saving then raw 'SAVING...' else raw 'SAVE'
                 else
