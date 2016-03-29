@@ -763,6 +763,14 @@ App = React.createClass
             pageStart: 0
             loadMore: (page) => @loadPage()
             hasMore: @state.more_notes
+            loader:
+              make 'div.blueButton', =>
+                props
+                  style:
+                    padding: 15
+                    boxSizing: 'border-box'
+                    cursor: 'default'
+                raw 'Loading...'
             useWindow: false
           child 'div', style: {paddingLeft: 10, paddingRight: 10}, =>
             child 'h2.canSelect', => raw @props.game.name
