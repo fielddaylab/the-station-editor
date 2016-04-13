@@ -9,7 +9,7 @@ $ = require 'jquery'
 {make, child, raw, props, addClass} = require '../../shared/react-writer.js'
 EXIF = require 'exif-js'
 {ConicGradient} = require '../../shared/conic-gradient.js'
-{default: InfiniteScroll} = require 'react-infinite-scroller'
+InfiniteScroll = require 'react-infinite-scroller'
 
 T = React.PropTypes
 
