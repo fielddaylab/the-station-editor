@@ -1172,7 +1172,9 @@ App = React.createClass
                         style:
                           padding: 5
                         onClick: =>
-                          @updateState modal: viewing_note: confirm_delete: $set: false
+                          @updateState
+                            modal: viewing_note: confirm_delete: $set: false
+                            message: $set: null
                       raw 'CANCEL'
               child 'p.canSelect', => linkableText note.description
               child 'hr'
@@ -1232,7 +1234,10 @@ App = React.createClass
                             style:
                               padding: 5
                               marginRight: 10
-                            onClick: => @updateState modal: viewing_note: edit_comment_id: $set: null
+                            onClick: =>
+                              @updateState
+                                modal: viewing_note: edit_comment_id: $set: null
+                                message: $set: null
                           raw 'CANCEL'
                     else
                       if confirm_delete_comment_id is comment.comment_id
@@ -1255,7 +1260,9 @@ App = React.createClass
                               style:
                                 padding: 5
                               onClick: =>
-                                @updateState modal: viewing_note: confirm_delete_comment_id: $set: null
+                                @updateState
+                                  modal: viewing_note: confirm_delete_comment_id: $set: null
+                                  message: $set: null
                             raw 'CANCEL'
                       child 'p.canSelect', => linkableText comment.description
               else
@@ -1302,7 +1309,10 @@ App = React.createClass
           child 'div.primaryModal', =>
             props style: backgroundColor: 'white'
             child 'div.grayButton.prevNoteStepButton', =>
-              props onClick: => @setState modal: nothing: {}
+              props onClick: =>
+                @setState
+                  modal: nothing: {}
+                  message: null
               child 'div.noteStepsButton', =>
                 raw 'CANCEL'
             child 'div.blueButton.nextNoteStepButton', =>
@@ -1398,7 +1408,10 @@ App = React.createClass
           child 'div.primaryModal', style: {backgroundColor: 'white'}, =>
             child 'div.grayButton.prevNoteStepButton', =>
               props
-                onClick: => @setState modal: nothing: {}
+                onClick: =>
+                  @setState
+                    modal: nothing: {}
+                    message: null
               child 'div.noteStepsButton', =>
                 raw 'CANCEL'
             child 'p', =>
