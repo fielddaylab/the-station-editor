@@ -136,7 +136,7 @@ body {
           transform: rotate(-90deg);
 }
 
-input[type=text], input[type=password], textarea {
+input[type=text], input[type=password], input[type=email], textarea {
   font-size: 15px;
 }
 

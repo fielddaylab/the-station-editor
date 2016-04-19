@@ -339,25 +339,52 @@ App = React.createClass
       @viewNote data.notes[0]
 
   login: ->
+    loginWith = (username, password) =>
+      @props.aris.login (username or undefined), (password or undefined), =>
+        @search undefined, undefined, true if @props.aris.auth?
+        failed_login = @state.account_menu and not @props.aris.auth?
+        @setState
+          login_status:
+            if @props.aris.auth?
+              logged_in:
+                auth: @props.aris.auth
+            else
+              logged_out:
+                username: username
+                password: ''
+          account_menu: failed_login
+          message: if failed_login then 'Incorrect username or password.' else null
+        @fetchUserPicture()
+        if (note = @state.modal.viewing_note?.note)
+          @checkLike note
     match @state.login_status,
-      logged_out: ({username, password}) =>
-        @props.aris.login (username or undefined), (password or undefined), =>
-          @search undefined, undefined, true if @props.aris.auth?
-          failed_login = @state.account_menu and not @props.aris.auth?
-          @setState
-            login_status:
-              if @props.aris.auth?
-                logged_in:
-                  auth: @props.aris.auth
-              else
-                logged_out:
-                  username: username
-                  password: ''
-            account_menu: failed_login
-            message: if failed_login then 'Incorrect username or password.' else null
-          @fetchUserPicture()
-          if (note = @state.modal.viewing_note?.note)
-            @checkLike note
+      logged_out:     ({username, password}) => loginWith(username, password)
+      create_account: ({username, password}) => loginWith(username, password)
+
+  createAccount: ->
+    match @state.login_status,
+      create_account: ({email, username, password, password2}) =>
+        alert = (msg) => @setState message: msg
+        unless email
+          alert 'Please enter your email address.'
+        else unless '@' in email
+          alert 'Your email address is not valid.'
+        else unless username
+          alert 'Please select a username.'
+        else unless password or password2
+          alert 'Please enter a password.'
+        else unless password is password2
+          alert 'Your passwords do not match.'
+        else
+          @props.aris.call 'users.createUser',
+            user_name: username
+            password: password
+            email: email
+          , ({returnCode, returnCodeDescription}) =>
+            if returnCode isnt 0
+              alert "Couldn't create account: #{returnCodeDescription}"
+            else
+              @login()
 
   fetchUserPicture: ->
     match @state.login_status,
@@ -892,7 +919,7 @@ App = React.createClass
         src: 'img/mobile-plus.png'
         onClick: clickAdd
 
-      # Desktop account menu
+      # Account menu (stuff shared between desktop and mobile versions)
       usernameBox = (username, style = {}) =>
         child 'input', =>
           props
@@ -915,25 +942,110 @@ App = React.createClass
             onChange: (e) => @updateState login_status: logged_out: password: $set: e.target.value
             style: style
             onKeyDown: (e) => @login() if e.keyCode is 13
+      loginFields = (username, password) =>
+        child 'div', =>
+          child 'p', style: {textAlign: 'center'}, =>
+            raw 'Login with a Siftr or ARIS account'
+          child 'p', =>
+            props style: {width: '100%'}
+            usernameBox username, width: '100%', boxSizing: 'border-box'
+          child 'p', =>
+            props style: {width: '100%'}
+            passwordBox password, width: '100%', boxSizing: 'border-box'
+          child 'div.blueButton.wideButton', =>
+            props onClick: @login
+            raw 'LOGIN'
+          child 'div.blueButton.wideButton', =>
+            props onClick: =>
+              @setState login_status:
+                create_account:
+                  email: ''
+                  username: username
+                  password: ''
+                  password2: ''
+            raw 'CREATE ACCOUNT'
+          child 'p', style: {textAlign: 'center'}, =>
+            child 'a', href: ifCordova('../editor-react/index.html#forgot', '../editor#forgot'), =>
+              props style:
+                color: 'white'
+                textDecoration: 'none'
+              raw 'I forgot my password'
+      signupFields = (email, username, password, password2) =>
+        child 'div', =>
+          child 'p', style: {textAlign: 'center'}, =>
+            raw 'Create a Siftr account'
+          child 'p', =>
+            props style: width: '100%'
+            child 'input', =>
+              props
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'email'
+                value: email
+                placeholder: 'Email'
+                onChange: (e) => @updateState login_status: create_account: email: $set: e.target.value
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+                onKeyDown: (e) => @createAccount() if e.keyCode is 13
+          child 'p', =>
+            props style: width: '100%'
+            child 'input', =>
+              props
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'text'
+                value: username
+                placeholder: 'Username'
+                onChange: (e) => @updateState login_status: create_account: username: $set: e.target.value
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+                onKeyDown: (e) => @createAccount() if e.keyCode is 13
+          child 'p', =>
+            props style: width: '100%'
+            child 'input', =>
+              props
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'password'
+                value: password
+                placeholder: 'Password'
+                onChange: (e) => @updateState login_status: create_account: password: $set: e.target.value
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+                onKeyDown: (e) => @createAccount() if e.keyCode is 13
+          child 'p', =>
+            props style: width: '100%'
+            child 'input', =>
+              props
+                autoCapitalize: 'off'
+                autoCorrect: 'off'
+                type: 'password'
+                value: password2
+                placeholder: 'Repeat password'
+                onChange: (e) => @updateState login_status: create_account: password2: $set: e.target.value
+                style:
+                  width: '100%'
+                  boxSizing: 'border-box'
+                onKeyDown: (e) => @createAccount() if e.keyCode is 13
+          child 'div.blueButton.wideButton', =>
+            props onClick: @createAccount
+            raw 'SIGNUP'
+          child 'div.blueButton.wideButton', =>
+            props onClick: =>
+              @setState login_status:
+                logged_out:
+                  username: username
+                  password: ''
+            raw 'CANCEL'
+
+      # Desktop account menu
       child 'div.accountMenuDesktop', =>
         match @state.login_status,
-          logged_out: ({username, password}) =>
-            child 'div', =>
-              child 'p', style: {textAlign: 'center'}, =>
-                raw 'Login with a Siftr or ARIS account'
-              child 'p', =>
-                props style: {width: '100%'}
-                usernameBox username, width: '100%', boxSizing: 'border-box'
-              child 'p', =>
-                props style: {width: '100%'}
-                passwordBox password, width: '100%', boxSizing: 'border-box'
-              child 'div.blueButton.wideButton', =>
-                props onClick: @login
-                raw 'LOGIN'
-              child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
-                child 'div.blueButton.wideButton', =>
-                  props onClick: @login
-                  raw 'CREATE ACCOUNT'
+          logged_out: ({username, password}) => loginFields(username, password)
+          create_account: ({email, username, password, password2}) => signupFields(email, username, password, password2)
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
               child 'a', href: ifCordova('../editor-react/index.html#account', '../editor#account'), =>
@@ -968,23 +1080,8 @@ App = React.createClass
             style: cursor: 'pointer'
             onClick: => @setState account_menu: false
         match @state.login_status,
-          logged_out: ({username, password}) =>
-            child 'div', =>
-              child 'p', style: {textAlign: 'center'}, =>
-                raw 'Login with a Siftr or ARIS account'
-              child 'p', =>
-                props style: {width: '100%'}
-                usernameBox username, width: '100%', boxSizing: 'border-box'
-              child 'p', =>
-                props style: {width: '100%'}
-                passwordBox password, width: '100%', boxSizing: 'border-box'
-              child 'div.blueButton.wideButton', =>
-                props onClick: @login
-                raw 'LOGIN'
-              child 'a', href: ifCordova('../editor-react/index.html#signup', '../editor#signup'), style: {textDecoration: 'none'}, =>
-                child 'div.blueButton.wideButton', =>
-                  props onClick: @login
-                  raw 'CREATE ACCOUNT'
+          logged_out: ({username, password}) => loginFields(username, password)
+          create_account: ({email, username, password, password2}) => signupFields(email, username, password, password2)
           logged_in: ({auth, media}) =>
             child 'div', style: {textAlign: 'center'}, =>
               unlink =
@@ -1008,6 +1105,7 @@ App = React.createClass
               child 'p', => child 'a', style: unlink, href: ifCordova('../editor-react/index.html', '../editor'), => raw 'My Siftrs'
               child 'p', => child 'a', style: unlink, href: ifCordova('../discover/index.html', '../discover'), => raw 'Discover'
               child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
+
       # Main modal
       match @state.modal,
         nothing: => null
@@ -1644,7 +1742,7 @@ App = React.createClass
           raw @state.message
           child 'div', =>
             props
-              style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer'}
+              style: {position: 'absolute', left: 10, top: 10, cursor: 'pointer', fontSize: 20}
               onClick: => @setState message: null
             raw 'X'
 
