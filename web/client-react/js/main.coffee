@@ -425,6 +425,51 @@ App = React.createClass
       @setState message:
         "There was a problem #{doingSomething}. Please report this error: #{JSON.stringify arisResult}"
 
+  uploadPhoto: (file) ->
+    if file?
+      name = file.name
+      ext = name[name.indexOf('.') + 1 ..]
+      @setState modal: uploading_photo: progress: 0
+      $.ajax
+        url: "#{ARIS_URL}/rawupload.php"
+        type: 'POST'
+        xhr: =>
+          xhr = new window.XMLHttpRequest
+          xhr.upload.addEventListener 'progress', (evt) =>
+            if evt.lengthComputable
+              @updateState modal: uploading_photo: progress: $set: evt.loaded / evt.total
+          , false
+          xhr
+        success: (raw_upload_id) =>
+          @props.aris.call 'media.createMediaFromRawUpload',
+            file_name: "upload.#{ext}"
+            raw_upload_id: raw_upload_id
+            game_id: @props.game.game_id
+            resize: 800
+          , @successAt 'uploading your photo', (media) =>
+            if @state.modal.uploading_photo?
+              @setState
+                modal:
+                  enter_description:
+                    media: media
+                    tag: @props.game.tags[0]
+                    description: ''
+                    file: file
+                message: null
+        error: (jqXHR, textStatus, errorThrown) =>
+          @setState message:
+            """
+            There was a problem uploading your photo. Please report this error:
+            #{JSON.stringify [jqXHR, textStatus, errorThrown]}
+            """
+        data: do =>
+          form = new FormData
+          form.append 'raw_upload', file
+          form
+        cache: false
+        contentType: false
+        processData: false
+
   render: ->
     window.onbeforeunload =
       if @state.modal.enter_description? or @state.modal.move_point? or @state.modal.select_category?
@@ -920,38 +965,37 @@ App = React.createClass
         onClick: clickAdd
 
       # Account menu (stuff shared between desktop and mobile versions)
-      usernameBox = (username, style = {}) =>
-        child 'input', =>
-          props
-            autoCapitalize: 'off'
-            autoCorrect: 'off'
-            type: 'text'
-            value: username
-            placeholder: 'Username'
-            onChange: (e) => @updateState login_status: logged_out: username: $set: e.target.value
-            style: style
-            onKeyDown: (e) => @login() if e.keyCode is 13
-      passwordBox = (password, style = {}) =>
-        child 'input', =>
-          props
-            autoCapitalize: 'off'
-            autoCorrect: 'off'
-            type: 'password'
-            value: password
-            placeholder: 'Password'
-            onChange: (e) => @updateState login_status: logged_out: password: $set: e.target.value
-            style: style
-            onKeyDown: (e) => @login() if e.keyCode is 13
+      makeBox = ({type, value, placeholder, onChange, onEnter}) =>
+        child 'p', =>
+          props style: width: '100%'
+          child 'input', =>
+            props
+              autoCapitalize: 'off'
+              autoCorrect: 'off'
+              type: type
+              value: value
+              placeholder: placeholder
+              onChange: (e) => onChange e.target.value
+              style:
+                width: '100%'
+                boxSizing: 'border-box'
+              onKeyDown: (e) => onEnter() if e.keyCode is 13
       loginFields = (username, password) =>
         child 'div', =>
           child 'p', style: {textAlign: 'center'}, =>
             raw 'Login with a Siftr or ARIS account'
-          child 'p', =>
-            props style: {width: '100%'}
-            usernameBox username, width: '100%', boxSizing: 'border-box'
-          child 'p', =>
-            props style: {width: '100%'}
-            passwordBox password, width: '100%', boxSizing: 'border-box'
+          makeBox
+            type: 'text'
+            value: username
+            placeholder: 'Username'
+            onChange: (x) => @updateState login_status: logged_out: username: $set: x
+            onEnter: => @login()
+          makeBox
+            type: 'password'
+            value: password
+            placeholder: 'Password'
+            onChange: (x) => @updateState login_status: logged_out: password: $set: x
+            onEnter: => @login()
           child 'div.blueButton.wideButton', =>
             props onClick: @login
             raw 'LOGIN'
@@ -974,62 +1018,30 @@ App = React.createClass
         child 'div', =>
           child 'p', style: {textAlign: 'center'}, =>
             raw 'Create a Siftr account'
-          child 'p', =>
-            props style: width: '100%'
-            child 'input', =>
-              props
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'email'
-                value: email
-                placeholder: 'Email'
-                onChange: (e) => @updateState login_status: create_account: email: $set: e.target.value
-                style:
-                  width: '100%'
-                  boxSizing: 'border-box'
-                onKeyDown: (e) => @createAccount() if e.keyCode is 13
-          child 'p', =>
-            props style: width: '100%'
-            child 'input', =>
-              props
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'text'
-                value: username
-                placeholder: 'Username'
-                onChange: (e) => @updateState login_status: create_account: username: $set: e.target.value
-                style:
-                  width: '100%'
-                  boxSizing: 'border-box'
-                onKeyDown: (e) => @createAccount() if e.keyCode is 13
-          child 'p', =>
-            props style: width: '100%'
-            child 'input', =>
-              props
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'password'
-                value: password
-                placeholder: 'Password'
-                onChange: (e) => @updateState login_status: create_account: password: $set: e.target.value
-                style:
-                  width: '100%'
-                  boxSizing: 'border-box'
-                onKeyDown: (e) => @createAccount() if e.keyCode is 13
-          child 'p', =>
-            props style: width: '100%'
-            child 'input', =>
-              props
-                autoCapitalize: 'off'
-                autoCorrect: 'off'
-                type: 'password'
-                value: password2
-                placeholder: 'Repeat password'
-                onChange: (e) => @updateState login_status: create_account: password2: $set: e.target.value
-                style:
-                  width: '100%'
-                  boxSizing: 'border-box'
-                onKeyDown: (e) => @createAccount() if e.keyCode is 13
+          makeBox
+            type: 'email'
+            value: email
+            placeholder: 'Email'
+            onChange: (x) => @updateState login_status: create_account: email: $set: x
+            onEnter: => @createAccount()
+          makeBox
+            type: 'text'
+            value: username
+            placeholder: 'Username'
+            onChange: (x) => @updateState login_status: create_account: username: $set: x
+            onEnter: => @createAccount()
+          makeBox
+            type: 'password'
+            value: password
+            placeholder: 'Password'
+            onChange: (x) => @updateState login_status: create_account: password: $set: x
+            onEnter: => @createAccount()
+          makeBox
+            type: 'password'
+            value: password2
+            placeholder: 'Repeat password'
+            onChange: (x) => @updateState login_status: create_account: password2: $set: x
+            onEnter: => @createAccount()
           child 'div.blueButton.wideButton', =>
             props onClick: @createAccount
             raw 'SIGNUP'
@@ -1415,50 +1427,7 @@ App = React.createClass
                 raw 'CANCEL'
             child 'div.blueButton.nextNoteStepButton', =>
               props
-                onClick: =>
-                  if file?
-                    name = file.name
-                    ext = name[name.indexOf('.') + 1 ..]
-                    @setState modal: uploading_photo: progress: 0
-                    $.ajax
-                      url: "#{ARIS_URL}/rawupload.php"
-                      type: 'POST'
-                      xhr: =>
-                        xhr = new window.XMLHttpRequest
-                        xhr.upload.addEventListener 'progress', (evt) =>
-                          if evt.lengthComputable
-                            @updateState modal: uploading_photo: progress: $set: evt.loaded / evt.total
-                        , false
-                        xhr
-                      success: (raw_upload_id) =>
-                        @props.aris.call 'media.createMediaFromRawUpload',
-                          file_name: "upload.#{ext}"
-                          raw_upload_id: raw_upload_id
-                          game_id: @props.game.game_id
-                          resize: 800
-                        , @successAt 'uploading your photo', (media) =>
-                          if @state.modal.uploading_photo?
-                            @setState
-                              modal:
-                                enter_description:
-                                  media: media
-                                  tag: @props.game.tags[0]
-                                  description: ''
-                                  file: file
-                              message: null
-                      error: (jqXHR, textStatus, errorThrown) =>
-                        @setState message:
-                          """
-                          There was a problem uploading your photo. Please report this error:
-                          #{JSON.stringify [jqXHR, textStatus, errorThrown]}
-                          """
-                      data: do =>
-                        form = new FormData
-                        form.append 'raw_upload', file
-                        form
-                      cache: false
-                      contentType: false
-                      processData: false
+                onClick: => @uploadPhoto file
               child 'div.noteStepsButton', =>
                 raw 'DESCRIPTION >'
             if file?
