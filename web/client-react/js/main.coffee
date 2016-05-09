@@ -35,6 +35,11 @@ ifCordova = (cordovaLink, normalLink) ->
   else
     normalLink
 
+fixLongitude = (longitude) ->
+  longitude %%= 360
+  longitude -= 360 if longitude > 180
+  longitude
+
 # Cache of gradient PNG data URLs
 allConicGradients = {}
 getConicGradient = (opts) ->
@@ -1624,7 +1629,7 @@ App = React.createClass
                       game_id: @props.game.game_id
                       trigger:
                         latitude: @state.latitude
-                        longitude: @state.longitude
+                        longitude: fixLongitude @state.longitude
                     , @successAt 'editing your note', => @refreshEditedNote editing_note.note_id
                   else
                     @updateState
@@ -1696,7 +1701,7 @@ App = React.createClass
                       game_id: @props.game.game_id
                       description: description
                       media_id: media.media_id
-                      trigger: {latitude, longitude}
+                      trigger: {latitude, longitude: fixLongitude longitude}
                       tag_id: tag.tag_id
                     , @successAt 'creating your note', (note) => @refreshEditedNote note.note_id
               child 'div.noteStepsButton', =>
