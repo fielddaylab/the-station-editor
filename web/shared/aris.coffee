@@ -2,7 +2,7 @@
 
 $ = require 'jquery'
 
-ARIS_URL = 'http://arisgames.org/server/'
+ARIS_URL = 'https://arisgames.org/server/'
 SIFTR_URL = window.location.origin + '/'
 
 class Game

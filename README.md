@@ -14,11 +14,16 @@ You must first run the Grunt build in the `web/` directory.
 A script in the `hooks/` directory copies the necessary files from `web/` to `www/` for the Cordova app,
 ignoring unused files like `node_modules` and non-minified JS.
 
-Building from a clean slate:
-
 ```
-git clean -fdx .
+# to build:
+brew install npm closure-compiler # or your system's package manager
+[sudo] npm install -g grunt
 make
+
+# to deploy over rsync:
+make deploy
+
+# to build android app:
 cordova platform add android
 cordova build android
 ```
