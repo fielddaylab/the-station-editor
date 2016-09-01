@@ -1,4 +1,4 @@
-.PHONY: default upload
+.PHONY: default deploy
 
 default:
 	npm install

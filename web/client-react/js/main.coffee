@@ -1749,7 +1749,7 @@ NoSiftr = React.createClass
 document.addEventListener 'DOMContentLoaded', ->
 
   siftr_url = window.location.search.replace('?', '')
-  if siftr_url.length is 0
+  if siftr_url.length is 0 or siftr_url.match(/aris=1/)
     siftr_url = window.location.pathname.replace(/\//g, '')
   unless siftr_url.match(/[^0-9]/)
     siftr_id = parseInt siftr_url
