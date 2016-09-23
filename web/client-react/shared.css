@@ -102,11 +102,11 @@ body {
 
 .exif-5
 {
-     -moz-transform: rotate(90deg) scaleX(-1);
-  -webkit-transform: rotate(90deg) scaleX(-1);
-       -o-transform: rotate(90deg) scaleX(-1);
-      -ms-transform: rotate(90deg) scaleX(-1);
-          transform: rotate(90deg) scaleX(-1);
+     -moz-transform: rotate(90deg) scaleY(-1);
+  -webkit-transform: rotate(90deg) scaleY(-1);
+       -o-transform: rotate(90deg) scaleY(-1);
+      -ms-transform: rotate(90deg) scaleY(-1);
+          transform: rotate(90deg) scaleY(-1);
 }
 
 .exif-6
@@ -120,11 +120,11 @@ body {
 
 .exif-7
 {
-     -moz-transform: rotate(-90deg) scaleX(-1);
-  -webkit-transform: rotate(-90deg) scaleX(-1);
-       -o-transform: rotate(-90deg) scaleX(-1);
-      -ms-transform: rotate(-90deg) scaleX(-1);
-          transform: rotate(-90deg) scaleX(-1);
+     -moz-transform: rotate(-90deg) scaleY(-1);
+  -webkit-transform: rotate(-90deg) scaleY(-1);
+       -o-transform: rotate(-90deg) scaleY(-1);
+      -ms-transform: rotate(-90deg) scaleY(-1);
+          transform: rotate(-90deg) scaleY(-1);
 }
 
 .exif-8
