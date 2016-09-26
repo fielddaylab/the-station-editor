@@ -16,6 +16,11 @@ T = React.PropTypes
 renderMarkdown = (str) ->
   __html: markdown.toHTML str
 
+writeParagraphs = (text) ->
+  for para in text.split("\n")
+    continue unless para.match(/\S/)
+    child 'p.canSelect', => linkableText para
+
 # This is Haskell right? It uses indentation and everything
 match = (val, branches, def = (-> throw 'Match failed')) ->
   for k, v of branches
@@ -1291,7 +1296,7 @@ App = React.createClass
                             modal: viewing_note: confirm_delete: $set: false
                             message: $set: null
                       raw 'CANCEL'
-              child 'p.canSelect', => linkableText note.description
+              writeParagraphs note.description
               child 'hr'
               if comments?
                 comments.forEach (comment) =>
@@ -1379,7 +1384,7 @@ App = React.createClass
                                   modal: viewing_note: confirm_delete_comment_id: $set: null
                                   message: $set: null
                             raw 'CANCEL'
-                      child 'p.canSelect', => linkableText comment.description
+                      writeParagraphs comment.description
               else
                 child 'p', => raw 'Loading comments...'
               if @state.login_status.logged_in?
