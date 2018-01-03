@@ -551,10 +551,10 @@ App = React.createClass
           props
             center: [@state.latitude, @state.longitude]
             zoom: Math.max 2, @state.zoom
-            options: minZoom: 2
             draggable: true
             onChange: @handleMapChange
             options: (maps) =>
+              minZoom: 2
               mapTypeControl: true
               mapTypeControlOptions:
                 style: maps.MapTypeControlStyle.HORIZONTAL_BAR

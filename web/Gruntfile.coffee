@@ -24,18 +24,21 @@ module.exports = (grunt) ->
         js: 'client-react/js/browserify_out.js'
         jsOutputFile: 'client-react/js/minify_out.js'
         closurePath: '/usr/local/opt/closure-compiler/libexec'
+        maxBuffer: 99999999
         options:
           language_in: 'ECMASCRIPT5'
       editor:
         js: 'editor-react/js/browserify_out.js'
         jsOutputFile: 'editor-react/js/minify_out.js'
         closurePath: '/usr/local/opt/closure-compiler/libexec'
+        maxBuffer: 99999999
         options:
           language_in: 'ECMASCRIPT5'
       discover:
         js: 'discover/browserify_out.js'
         jsOutputFile: 'discover/minify_out.js'
         closurePath: '/usr/local/opt/closure-compiler/libexec'
+        maxBuffer: 99999999
         options:
           language_in: 'ECMASCRIPT5'
 
