@@ -133,7 +133,7 @@ App = React.createClass
     make 'div', =>
       child 'div#banner.section.dark_bg', =>
         child 'div#top_bar', style: {height: 50, padding: 30}, =>
-          child 'a', href: (if window.cordova? then '../index.html' else '..'), =>
+          child 'a', href: '..', =>
             child 'div.top_bar_logo', style: {width: 57, height: 50}, =>
               child 'img',
                 src: "../assets/logos/siftr-nav-logo.png"
@@ -141,20 +141,20 @@ App = React.createClass
                   width: '100%'
                   height: '100%'
           unless @state.logged_in
-            child 'a', href: (if window.cordova? then '../editor-react/index.html#signup' else '../login/#signup'), =>
+            child 'a', href: '../login/#signup', =>
               child 'div.top_bar_link.signup_button', =>
                 raw 'SIGN UP'
-            child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../login'), =>
+            child 'a', href: '../login', =>
               child 'div.top_bar_link', =>
                 raw 'LOGIN'
           child 'a', href: '', =>
             child 'div.top_bar_link', style: {color: 'rgb(235,197,0)'}, =>
               raw 'DISCOVER'
           if @state.logged_in
-            child 'a', href: (if window.cordova? then '../editor-react/index.html#account' else '../editor/#account'), =>
+            child 'a', href: '../editor/#account', =>
               child 'div.top_bar_link', =>
                 raw 'MY ACCOUNT'
-            child 'a', href: (if window.cordova? then '../editor-react/index.html' else '../editor'), =>
+            child 'a', href: '../editor', =>
               child 'div.top_bar_link', =>
                 raw 'MY SIFTRS'
         child 'div.spacer', style: height: 20
@@ -190,7 +190,7 @@ App = React.createClass
             url = game.siftr_url or game.game_id
             child 'div.list_entry', key: game.game_id, =>
               child 'div.list_entry_faded', =>
-                child 'a.list_link', href: (if window.cordova? then "../client-react/index.html?#{url}" else "../#{url}"), target: (if window.cordova? then '' else '_blank'), =>
+                child 'a.list_link', href: "../#{url}", target: '_blank', =>
                   child 'img.list_image',
                     src: @state.icons[game.game_id] ? '../assets/logos/siftr-nav-logo.png'
                   child 'h3.list_name', => raw game.name

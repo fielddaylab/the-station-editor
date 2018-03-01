@@ -15,12 +15,6 @@ singleObj = (k, v) ->
   obj[k] = v
   obj
 
-ifCordova = (cordovaLink, normalLink) ->
-  if window.cordova?
-    cordovaLink
-  else
-    normalLink
-
 countContributors = (notes) ->
   user_ids = {}
   for note in notes
@@ -360,9 +354,9 @@ App = React.createClass
             onClick: => @setState account_menu: not @state.account_menu
             style: cursor: 'pointer'
           raw '☰'
-        child 'a', href: ifCordova('../index.html', '..'), =>
+        child 'a', href: '..', =>
           child 'img#the-logo', src: 'img/brand.png'
-        child 'a', href: ifCordova('../discover/index.html', '../discover'), =>
+        child 'a', href: '../discover', =>
           child 'div#the-discover-button', =>
             raw 'Discover'
         if @state.auth?
@@ -992,13 +986,13 @@ App = React.createClass
           else
             child 'p', => raw 'Not logged in'
           child 'p', =>
-            child 'a', href: ifCordova('../index.html', '..'), =>
+            child 'a', href: '..', =>
               child 'img', src: '../client-react/img/brand-mobile.png'
           unlink =
             color: 'white'
             textDecoration: 'none'
-          child 'p', => child 'a', style: unlink, href: ifCordova('../editor-react/index.html', '../editor'), => raw 'My Siftrs'
-          child 'p', => child 'a', style: unlink, href: ifCordova('../discover/index.html', '../discover'), => raw 'Discover'
+          child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
+          child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
           if @state.auth?
             child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
 
@@ -1017,7 +1011,7 @@ SiftrList = React.createClass
             props
               style:
                 marginBottom: 10
-            child 'a', href: ifCordova("../client-react/index.html?#{game.siftr_url or game.game_id}", "#{SIFTR_URL}#{game.siftr_url or game.game_id}"), target: ifCordova('', '_blank'), =>
+            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
               props
                 style:
                   float: 'left'

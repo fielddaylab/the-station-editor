@@ -7,23 +7,10 @@ and [Tina Mailhot-Roberge](http://vervex.ca/) ([CC BY-SA 3.0](https://creativeco
 
 ## Instructions
 
-This top directory is for the Cordova app. The website itself lives in `web/`.
-You must first run the Grunt build in the `web/` directory.
-(You can do this with `make`, from inside or outside `web/`.)
+1. Checkout https://github.com/fielddaylab/SiftrNative next to folder
 
-A script in the `hooks/` directory copies the necessary files from `web/` to `www/` for the Cordova app,
-ignoring unused files like `node_modules` and non-minified JS.
+2. Install `npm`, `closure-compiler`, `grunt`
 
-```
-# to build:
-brew install npm closure-compiler # or your system's package manager
-[sudo] npm install -g grunt
-make
+3. `make` or `grunt` inside the `web` folder
 
-# to deploy over rsync:
-make deploy
-
-# to build android app:
-cordova platform add android
-cordova build android
-```
+4. `make deploy` to deploy over rsync
