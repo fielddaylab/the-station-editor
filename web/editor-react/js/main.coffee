@@ -39,9 +39,9 @@ App = React.createClass
     new_game: do =>
       g = new Game
       g.colors_id = 1
-      g.latitude = 43
-      g.longitude = -89
-      g.zoom = 14
+      g.latitude = 43.087806
+      g.longitude = -89.430121
+      g.zoom = 12
       g.is_siftr = true
       g
     new_tag_string: ''
@@ -290,9 +290,9 @@ App = React.createClass
               $set: do =>
                 g = new Game
                 g.colors_id = 1
-                g.latitude = 43
-                g.longitude = -89
-                g.zoom = 14
+                g.latitude = 43.087806
+                g.longitude = -89.430121
+                g.zoom = 12
                 g.is_siftr = true
                 g
             new_tag_string:
@@ -1580,6 +1580,8 @@ NewStep2 = React.createClass
             child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
               child GoogleMap,
                 ref: 'map'
+                bootstrapURLKeys:
+                  key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
                 center: [@props.game.latitude, @props.game.longitude]
                 zoom: Math.max(2, @props.game.zoom)
                 options: minZoom: 2
