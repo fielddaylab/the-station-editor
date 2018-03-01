@@ -15,3 +15,4 @@ coffee_out.js
 browserify_out.js
 minify_out.js.report.txt
 rsync-exclude
+beta

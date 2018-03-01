@@ -3,7 +3,6 @@ module.exports = (grunt) ->
     coffee:
       compile:
         files:
-          'client-react/js/coffee_out.js': ['client-react/js/*.coffee']
           'editor-react/js/coffee_out.js': ['editor-react/js/*.coffee']
           'discover/coffee_out.js'       : ['discover/*.coffee']
       glob_shared:
@@ -16,17 +15,9 @@ module.exports = (grunt) ->
     browserify:
       compile:
         files:
-          'client-react/js/browserify_out.js': ['client-react/js/coffee_out.js']
           'editor-react/js/browserify_out.js': ['editor-react/js/coffee_out.js']
           'discover/browserify_out.js'       : ['discover/coffee_out.js'       ]
     "closure-compiler":
-      client:
-        js: 'client-react/js/browserify_out.js'
-        jsOutputFile: 'client-react/js/minify_out.js'
-        closurePath: '/usr/local/opt/closure-compiler/libexec'
-        maxBuffer: 99999999
-        options:
-          language_in: 'ECMASCRIPT5'
       editor:
         js: 'editor-react/js/browserify_out.js'
         jsOutputFile: 'editor-react/js/minify_out.js'
