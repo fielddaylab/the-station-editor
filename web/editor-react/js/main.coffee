@@ -429,7 +429,7 @@ App = React.createClass
                       autoCorrect: 'off'
                       type: 'text'
                       placeholder: 'Display Name'
-                      value: @state.display_name
+                      value: @state.display_name ? ''
                       style: width: '100%'
                       onChange: (e) => @setState display_name: e.target.value
                   child 'p', =>
@@ -438,7 +438,7 @@ App = React.createClass
                       autoCorrect: 'off'
                       type: 'text'
                       placeholder: 'Email'
-                      value: @state.email
+                      value: @state.email ? ''
                       style: width: '100%'
                       onChange: (e) => @setState email: e.target.value
                   child 'div', =>
@@ -493,7 +493,7 @@ App = React.createClass
                       autoCorrect: 'off'
                       type: 'password'
                       placeholder: 'Old password'
-                      value: @state.old_password
+                      value: @state.old_password ? ''
                       style: width: '100%'
                       onChange: (e) => @setState old_password: e.target.value
                   child 'p', =>
@@ -502,7 +502,7 @@ App = React.createClass
                       autoCorrect: 'off'
                       type: 'password'
                       placeholder: 'New password'
-                      value: @state.password
+                      value: @state.password ? ''
                       style: width: '100%'
                       onChange: (e) => @setState password: e.target.value
                   child 'p', =>
@@ -511,7 +511,7 @@ App = React.createClass
                       autoCorrect: 'off'
                       type: 'password'
                       placeholder: 'Repeat new password'
-                      value: @state.password2
+                      value: @state.password2 ? ''
                       style: width: '100%'
                       onChange: (e) => @setState password2: e.target.value
                   child 'div', =>
@@ -787,7 +787,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
-                    value: @state.username
+                    value: @state.username ? ''
                     style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
@@ -799,7 +799,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Email'
-                    value: @state.email
+                    value: @state.email ? ''
                     style: width: '100%'
                     onChange: (e) => @setState email: e.target.value
                     onKeyDown: (e) =>
@@ -840,7 +840,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Email'
-                    value: @state.email
+                    value: @state.email ? ''
                     style: width: '100%'
                     onChange: (e) => @setState email: e.target.value
                     onKeyDown: (e) =>
@@ -851,7 +851,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
-                    value: @state.username
+                    value: @state.username ? ''
                     style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
@@ -862,7 +862,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Password'
-                    value: @state.password
+                    value: @state.password ? ''
                     style: width: '100%'
                     onChange: (e) => @setState password: e.target.value
                     onKeyDown: (e) =>
@@ -873,7 +873,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Repeat password'
-                    value: @state.password2
+                    value: @state.password2 ? ''
                     style: width: '100%'
                     onChange: (e) => @setState password2: e.target.value
                     onKeyDown: (e) =>
@@ -912,7 +912,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
-                    value: @state.username
+                    value: @state.username ? ''
                     style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
@@ -924,7 +924,7 @@ App = React.createClass
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Password'
-                    value: @state.password
+                    value: @state.password ? ''
                     style: width: '100%'
                     onChange: (e) => @setState password: e.target.value
                     onKeyDown: (e) =>
@@ -1104,13 +1104,13 @@ EditSiftr = React.createClass
             child 'h2', => raw @props.game.name
             child 'label', =>
               child 'h4', => raw 'NAME'
-              child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
+              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
               child 'h4', =>
                 raw 'DESCRIPTION '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
+              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
             child 'label', =>
@@ -1119,7 +1119,7 @@ EditSiftr = React.createClass
                 child 'input',
                   type: 'text'
                   placeholder: 'URL (optional)'
-                  value: @props.game.siftr_url
+                  value: @props.game.siftr_url ? ''
                   onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
                   style: width: '100%'
             child 'p', =>
@@ -1134,7 +1134,7 @@ EditSiftr = React.createClass
                 child 'input',
                   type: 'text'
                   placeholder: 'Enter a caption...'
-                  value: @props.game.prompt
+                  value: @props.game.prompt ? ''
                   onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
                   style: width: '100%'
             child 'p.editLocationMobile', =>
@@ -1274,6 +1274,8 @@ EditSiftr = React.createClass
         child 'div.editSiftrMapContainer', =>
           child GoogleMap,
             ref: 'map'
+            bootstrapURLKeys:
+              key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
             center: [@props.game.latitude, @props.game.longitude]
             zoom: Math.max(2, @props.game.zoom)
             options: minZoom: 2
@@ -1344,18 +1346,18 @@ NewStep1 = React.createClass
           child 'div.newStep1RightCol', =>
             child 'label', =>
               child 'p', => raw 'NAME'
-              child 'input', ref: 'name', type: 'text', value: @props.game.name, onChange: @handleChange, style: {width: '100%'}
+              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
               child 'p', =>
                 raw 'CATEGORIES '
                 child 'i', => raw 'separated by comma'
-              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string, onChange: @handleChange, style: {width: '100%'}
+              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string ? '', onChange: @handleChange, style: {width: '100%'}
             child 'label', =>
               child 'p', =>
                 raw 'DESCRIPTION '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description, onChange: @handleChange, style: {width: '100%', height: 105}
+              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
           child 'div.newStep1LeftCol', =>
@@ -1720,7 +1722,7 @@ NewStep3 = React.createClass
           child 'input',
             type: 'text'
             placeholder: 'URL (optional)'
-            value: @props.game.siftr_url
+            value: @props.game.siftr_url ? ''
             onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
             style: width: '100%'
         child 'p', =>

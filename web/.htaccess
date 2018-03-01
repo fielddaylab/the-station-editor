@@ -8,14 +8,14 @@ RewriteRule ^([^/]+)$ /$1/ [R]
 RewriteRule ^editor/(.*)$ /editor-react/$1
 RewriteRule ^login/(.*)$ /editor-react/$1
 
-# /foo/       becomes /client-react/
-# /foo/bar.js becomes /client-react/bar.js
+# /foo/       becomes /beta/
+# /foo/bar.js becomes /beta/bar.js
 # (the Siftr app looks at the browser-side URL to know it should load "foo")
-RewriteCond %{DOCUMENT_ROOT}/client-react/$2 -f [OR]
-RewriteCond %{DOCUMENT_ROOT}/client-react/$2 -d
+RewriteCond %{DOCUMENT_ROOT}/beta/$2 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/beta/$2 -d
 RewriteCond %{DOCUMENT_ROOT}/$1/$2 !-f
 RewriteCond %{DOCUMENT_ROOT}/$1/$2 !-d
-RewriteRule ^([^/]+)/(.*)$ /client-react/$2
+RewriteRule ^([^/]+)/(.*)$ /beta/$2
 
 # Serve SVG correctly
 AddType image/svg+xml svg svgz
