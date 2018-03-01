@@ -53,6 +53,10 @@
 }
 
 .newStep3 {
+  width: 100%;
+}
+
+.newStep4 {
   width: 30%;
   padding-left: 35%;
 }

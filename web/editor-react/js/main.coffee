@@ -102,6 +102,15 @@ App = React.createClass
         @setState
           screen: 'new3'
           new_step: 3
+    else if hash is 'new4'
+      if @state.new_step in [null, 1]
+        window.location.replace '#new1'
+      else if @state.new_step is 2
+        window.location.replace '#new2'
+      else
+        @setState
+          screen: 'new4'
+          new_step: 4
     else if hash is 'account'
       @setState
         screen: 'account'
@@ -702,6 +711,10 @@ App = React.createClass
                   onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
               when 'new3'
                 child NewStep3,
+                  game: @state.new_game
+                  onChange: (new_game) => @setState {new_game}
+              when 'new4'
+                child NewStep4,
                   game: @state.new_game
                   onChange: (new_game) => @setState {new_game}
                   onCreate: @createGame
@@ -1469,7 +1482,7 @@ NewStep2 = React.createClass
               else
                 window.location.replace '#new3'
             style: cursor: 'pointer'
-          raw 'NEXT, SETTINGS >'
+          raw 'NEXT, DATA >'
 
       child 'div.newStep2', =>
         child 'h3', style: {textAlign: 'center'}, =>
@@ -1662,6 +1675,34 @@ NewStep3 = React.createClass
         child 'a', href: '#new2', =>
           child 'div.newPrevButton', =>
             raw '< BACK, APPEARANCE'
+        child 'a', href: '#new4', =>
+          child 'div.newNextButton', =>
+            raw 'NEXT, SETTINGS >'
+
+      child 'div.newStep3', =>
+
+NewStep4 = React.createClass
+  displayName: 'NewStep4'
+
+  render: ->
+    make 'div', =>
+      child 'div', =>
+        props
+          style:
+            width: '100%'
+            textAlign: 'center'
+            backgroundColor: 'gray'
+            color: 'white'
+            paddingTop: 60
+            paddingBottom: 60
+            position: 'relative'
+            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
+            backgroundSize: 'cover'
+            backgroundRepeat: 'no-repeat'
+        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
+        child 'a', href: '#new3', =>
+          child 'div.newPrevButton', =>
+            raw '< BACK, DATA'
         child 'div.newNextButton', =>
           props
             style:
@@ -1669,7 +1710,7 @@ NewStep3 = React.createClass
             onClick: @props.onCreate
           raw 'PUBLISH!'
 
-      child 'div.newStep3', =>
+      child 'div.newStep4', =>
         child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
         child 'h4', => raw 'PRIVACY'
         child 'p', =>
