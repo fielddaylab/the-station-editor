@@ -54,6 +54,13 @@
 
 .newStep3 {
   width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.newStep3Fields, .newStep3FieldInfo {
+  flex: 1;
+  padding: 20px;
 }
 
 .newStep4 {

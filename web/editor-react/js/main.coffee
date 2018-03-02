@@ -1659,6 +1659,7 @@ NewStep3 = React.createClass
   getInitialState: ->
     editingIndex: null
     editingField: null
+    editingOption: ''
 
   render: ->
     make 'div', =>
@@ -1694,21 +1695,31 @@ NewStep3 = React.createClass
                 editingIndex: i
             ), =>
               child 'p', =>
-                raw "#{field.label or 'Unnamed field'} (#{field.field_type})"
-          child 'a', href: '#', onClick: ((e) =>
-            e.preventDefault()
-            @props.onChange update @props.game,
-              fields:
-                $set:
-                  fields.concat [
-                    new Field
-                      field_type: 'TEXT'
-                      label: ''
-                      required: false
-                  ]
-          ), =>
-            child 'p', =>
-              raw 'Add short text field'
+                raw "#{field.label or 'Unnamed field'} (#{field.field_type})#{if field.required then '*' else ''}"
+          child 'p', =>
+            raw 'Add new field: '
+            types = [
+              ['TEXT', 'text']
+              ['TEXTAREA', 'long text']
+              ['SINGLESELECT', 'select one']
+              ['MULTISELECT', 'select multiple']
+              ['MEDIA', 'image']
+            ]
+            types.forEach ([type, name], i) =>
+              child 'a', href: '#', onClick: ((e) =>
+                e.preventDefault()
+                @props.onChange update @props.game,
+                  fields:
+                    $set:
+                      fields.concat [
+                        new Field
+                          field_type: type
+                          label: ''
+                          required: false
+                      ]
+              ), => raw name
+              if i isnt types.length - 1
+                raw ', '
         child 'div.newStep3FieldInfo', =>
           if (field = @state.editingField)?
             child 'p', =>
@@ -1720,16 +1731,49 @@ NewStep3 = React.createClass
                   @setState
                     editingField:
                       update field, label: $set: e.target.value
-            child 'p', =>
-              child 'label', =>
-                child 'input',
-                  type: 'checkbox'
-                  checked: field.required
-                  onChange: (e) =>
-                    @setState
-                      editingField:
-                        update field, required: $set: e.target.checked
-                raw ' Required'
+            switch field.field_type
+              when 'SINGLESELECT', 'MULTISELECT'
+                options = field.options ? []
+                child 'ul', =>
+                  options.forEach (o, i) =>
+                    child 'li', =>
+                      raw "#{o} "
+                      child 'a', href: '#', onClick: ((e) =>
+                        e.preventDefault()
+                        opts = options[..]
+                        opts.splice(i, 1)
+                        @setState
+                          editingField:
+                            update field, options: $set: opts
+                      ), =>
+                        raw '(delete)'
+                  child 'li', =>
+                    child 'input',
+                      type: 'text'
+                      value: @state.editingOption
+                      onChange: (e) =>
+                        @setState editingOption: e.target.value
+                      placeholder: 'Enter option...'
+                    raw ' '
+                    child 'button', type: 'button', onClick: (=>
+                      @setState
+                        editingField:
+                          update field, options: $set: options.concat([@state.editingOption])
+                        editingOption: ''
+                      # add option
+                    ), =>
+                      raw 'Add option'
+              else
+                child 'p', =>
+                  child 'label', =>
+                    child 'input',
+                      type: 'checkbox'
+                      checked: field.required
+                      onChange: (e) =>
+                        @setState
+                          editingField:
+                            update field, required: $set: e.target.checked
+                    raw ' Required'
             child 'p', =>
               child 'button',
                 type: 'button'
