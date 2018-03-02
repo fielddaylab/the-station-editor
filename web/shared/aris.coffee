@@ -328,5 +328,5 @@ class Aris
   getNearbyGamesForPlayer: (json, cb) ->
     @callWrapped 'client.getNearbyGamesForPlayer', json, cb, (data) -> new Game o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Field, FieldOption, FieldData, Aris, ARIS_URL, SIFTR_URL}
+for k, v of {Game, User, Tag, Comment, Note, Field, FieldOption, FieldData, Aris, ARIS_URL, SIFTR_URL, arisHTTPS}
   exports[k] = v

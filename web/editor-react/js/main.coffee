@@ -753,7 +753,7 @@ App = React.createClass
                     height: 100
                     borderRadius: 50
                     backgroundColor: 'white'
-                    backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
+                    backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
                     backgroundSize: 'cover'
                     display: 'inline-block'
                 child 'p', =>
@@ -992,7 +992,7 @@ App = React.createClass
                   height: 80
                   borderRadius: 40
                   backgroundColor: 'white'
-                  backgroundImage: if @state.userPicture? then "url(#{@state.userPicture.thumb_url})" else undefined
+                  backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
                   backgroundSize: 'cover'
                   display: 'inline-block'
               child 'p', => raw @state.auth.display_name
