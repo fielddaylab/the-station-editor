@@ -1656,6 +1656,10 @@ NewStep2 = React.createClass
 NewStep3 = React.createClass
   displayName: 'NewStep3'
 
+  getInitialState: ->
+    editingIndex: null
+    editingField: null
+
   render: ->
     make 'div', =>
       child 'div', =>
@@ -1679,7 +1683,67 @@ NewStep3 = React.createClass
           child 'div.newNextButton', =>
             raw 'NEXT, SETTINGS >'
 
+      fields = @props.game.fields ? []
       child 'div.newStep3', =>
+        child 'div.newStep3Fields', =>
+          fields.forEach (field, i) =>
+            child 'a', href: '#', onClick: ((e) =>
+              e.preventDefault()
+              @setState
+                editingField: field
+                editingIndex: i
+            ), =>
+              child 'p', =>
+                raw "#{field.label or 'Unnamed field'} (#{field.field_type})"
+          child 'a', href: '#', onClick: ((e) =>
+            e.preventDefault()
+            @props.onChange update @props.game,
+              fields:
+                $set:
+                  fields.concat [
+                    new Field
+                      field_type: 'TEXT'
+                      label: ''
+                      required: false
+                  ]
+          ), =>
+            child 'p', =>
+              raw 'Add short text field'
+        child 'div.newStep3FieldInfo', =>
+          if (field = @state.editingField)?
+            child 'p', =>
+              child 'input',
+                type: 'text'
+                value: field.label
+                placeholder: 'Enter a name for this field'
+                onChange: (e) =>
+                  @setState
+                    editingField:
+                      update field, label: $set: e.target.value
+            child 'p', =>
+              child 'label', =>
+                child 'input',
+                  type: 'checkbox'
+                  checked: field.required
+                  onChange: (e) =>
+                    @setState
+                      editingField:
+                        update field, required: $set: e.target.checked
+                raw ' Required'
+            child 'p', =>
+              child 'button',
+                type: 'button'
+                onClick: =>
+                  @props.onChange update @props.game,
+                    fields: singleObj(@state.editingIndex, {$set: field})
+                  @setState
+                    editingField: null
+                    editingIndex: null
+              , =>
+                raw 'Save field'
+          else
+            child 'p', =>
+              raw 'No field selected.'
 
 NewStep4 = React.createClass
   displayName: 'NewStep4'
