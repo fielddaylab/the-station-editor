@@ -1688,14 +1688,30 @@ NewStep3 = React.createClass
       child 'div.newStep3', =>
         child 'div.newStep3Fields', =>
           fields.forEach (field, i) =>
+            child 'p', key: i, =>
             child 'a', href: '#', onClick: ((e) =>
               e.preventDefault()
               @setState
                 editingField: field
                 editingIndex: i
+                editingOption: ''
             ), =>
-              child 'p', =>
-                raw "#{field.label or 'Unnamed field'} (#{field.field_type})#{if field.required then '*' else ''}"
+              raw(field.label or 'Unnamed field')
+            raw " (#{field.field_type})#{if field.required then '*' else ''} "
+            child 'a', href: '#', onClick: ((e) =>
+              e.preventDefault()
+              newFields = fields[..]
+              newFields.splice(i, 1)
+              @props.onChange update @props.game, fields: $set: newFields
+              if i < @state.editingIndex
+                @setState
+                  editingIndex: @state.editingIndex - 1
+              else if i == @state.editingIndex
+                @setState
+                  editingIndex: null
+                  editingField: null
+            ), =>
+              raw '(delete)'
           child 'p', =>
             raw 'Add new field: '
             types = [
