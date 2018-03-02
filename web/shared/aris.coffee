@@ -52,6 +52,7 @@ class Game
     colors_id:      @colors_id
     icon_media_id:  @icon_media_id
     prompt:         @prompt
+    fields:         @fields
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)
