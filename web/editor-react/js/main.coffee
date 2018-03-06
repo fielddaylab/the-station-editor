@@ -23,6 +23,15 @@ countContributors = (notes) ->
       user_ids[comment.user.user_id] = true
   Object.keys(user_ids).length
 
+toggleSwitch = (str, checked, check) =>
+  span = 'span.toggle-switch'
+  if checked
+    span += '.toggle-switch-on'
+  child span, =>
+    props
+      onClick: check
+    raw str
+
 App = React.createClass
   displayName: 'App'
 
@@ -78,6 +87,19 @@ App = React.createClass
       if matchingGames.length is 1
         @setState
           screen: 'categories'
+          delete_tag: null
+          edit_game: matchingGames[0]
+      else
+        @setState screen: 'main'
+        # This is temporary if the user is currently being logged in,
+        # because the list of games will load and re-call applyHash
+    else if (md = hash.match(/^form(.*)/))?
+      game_id = parseInt md[1]
+      matchingGames =
+        game for game in @state.games when game.game_id is game_id
+      if matchingGames.length is 1
+        @setState
+          screen: 'form'
           delete_tag: null
           edit_game: matchingGames[0]
       else
@@ -401,6 +423,7 @@ App = React.createClass
                           else
                             undefined
                         backgroundSize: 'cover'
+                        backgroundPosition: 'center'
                         display: 'inline-block'
                         cursor: 'pointer'
                       onClick: @selectUserPicture
@@ -413,19 +436,16 @@ App = React.createClass
                         for file in e.dataTransfer.files
                           @loadUserPicture file
                           break
-                  child 'div', =>
+                  child 'a', href: '#', =>
                     props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
-                        cursor: 'pointer'
-                        marginBottom: 30
-                      onClick: @logout
-                    raw 'LOGOUT'
+                      onClick: (e) =>
+                        e.preventDefault()
+                        @logout()
+                    child 'div.login-button', =>
+                      props:
+                        style:
+                          marginBottom: 30
+                      raw 'LOGOUT'
                   child 'p', =>
                     child 'input',
                       autoCapitalize: 'off'
@@ -444,18 +464,10 @@ App = React.createClass
                       value: @state.email ? ''
                       style: width: '100%'
                       onChange: (e) => @setState email: e.target.value
-                  child 'div', =>
+                  child 'a', href: '#', =>
                     props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
-                        cursor: 'pointer'
-                        marginBottom: 15
-                      onClick: =>
+                      onClick: (e) =>
+                        e.preventDefault()
                         useMediaID = (media_id) =>
                           @props.aris.call 'users.updateUser',
                             user_id: @props.aris.auth.user_id
@@ -476,17 +488,10 @@ App = React.createClass
                               alert "Your user picture is not of a supported type."
                         else
                           useMediaID null
-                    raw 'SAVE CHANGES'
+                    child 'div.login-button', =>
+                      raw 'SAVE CHANGES'
                   child 'a', href: '#', =>
-                    child 'div', =>
-                      props
-                        style:
-                          backgroundColor: 'rgb(51,191,224)'
-                          width: '100%'
-                          paddingTop: 8
-                          paddingBottom: 8
-                          textAlign: 'center'
-                          color: 'white'
+                    child 'div.login-button', =>
                       raw 'BACK'
                   child 'h3', =>
                     raw 'Change Password'
@@ -517,18 +522,10 @@ App = React.createClass
                       value: @state.password2 ? ''
                       style: width: '100%'
                       onChange: (e) => @setState password2: e.target.value
-                  child 'div', =>
+                  child 'a', href: '#', =>
                     props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
-                        cursor: 'pointer'
-                        marginBottom: 15
-                      onClick: =>
+                      onClick: (e) =>
+                        e.preventDefault()
                         unless @state.old_password
                           alert 'Please enter your current password.'
                         else unless @state.password or @state.password2
@@ -548,7 +545,8 @@ App = React.createClass
                               @login username, password
                             else
                               alert "Couldn't change your password: #{returnCodeDescription}"
-                    raw 'CHANGE PASSWORD'
+                    child 'div.login-button', =>
+                      raw 'CHANGE PASSWORD'
               when 'edit'
                 child EditSiftr,
                   game: @state.edit_game
@@ -562,6 +560,9 @@ App = React.createClass
                       window.dispatchEvent new Event 'resize'
                     , 250
                   closeMobileMap: => @setState mobile_map_is_open: false
+              when 'form'
+                child 'p', =>
+                  raw 'Form editor goes here.'
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -758,28 +759,15 @@ App = React.createClass
                     display: 'inline-block'
                 child 'p', =>
                   raw @state.auth.display_name
-                child 'div', =>
-                  props
-                    style:
-                      width: '100%'
-                      boxSizing: 'border-box'
-                      textAlign: 'center'
-                      padding: 5
-                      marginBottom: 12
-                      backgroundColor: 'rgb(51,191,224)'
+                child 'div.nav-menu-button', =>
                   raw 'ACCOUNT SETTINGS'
-              child 'div', =>
+              child 'a', href: '#', =>
                 props
-                  style:
-                    width: '100%'
-                    boxSizing: 'border-box'
-                    textAlign: 'center'
-                    cursor: 'pointer'
-                    padding: 5
-                    marginBottom: 12
-                    backgroundColor: 'rgb(51,191,224)'
-                  onClick: @logout
-                raw 'LOGOUT'
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @logout()
+                child 'div.nav-menu-button', =>
+                  raw 'LOGOUT'
         else
           switch @state.screen
             when 'forgot'
@@ -812,30 +800,15 @@ App = React.createClass
                     onKeyDown: (e) =>
                       if e.keyCode is 13
                         @sendPasswordReset()
-                child 'div', =>
-                  props
-                    style:
-                      backgroundColor: 'rgb(51,191,224)'
-                      width: '100%'
-                      paddingTop: 8
-                      paddingBottom: 8
-                      textAlign: 'center'
-                      color: 'white'
-                      cursor: 'pointer'
-                      marginBottom: 15
-                    onClick: =>
-                      @sendPasswordReset()
-                  raw 'SEND EMAIL'
                 child 'a', href: '#', =>
-                  child 'div', =>
-                    props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @sendPasswordReset()
+                  child 'div.login-button', =>
+                    raw 'SEND EMAIL'
+                child 'a', href: '#', =>
+                  child 'div.login-button', =>
                     raw 'BACK'
             when 'signup'
               child 'div.loginForm', =>
@@ -885,29 +858,15 @@ App = React.createClass
                     onChange: (e) => @setState password2: e.target.value
                     onKeyDown: (e) =>
                       @signup() if e.keyCode is 13
-                child 'div', =>
-                  props
-                    style:
-                      backgroundColor: 'rgb(51,191,224)'
-                      width: '100%'
-                      paddingTop: 8
-                      paddingBottom: 8
-                      textAlign: 'center'
-                      color: 'white'
-                      cursor: 'pointer'
-                      marginBottom: 15
-                    onClick: @signup
-                  raw 'CREATE ACCOUNT'
                 child 'a', href: '#', =>
-                  child 'div', =>
-                    props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @signup()
+                  child 'div.login-button', =>
+                    raw 'CREATE ACCOUNT'
+                child 'a', href: '#', =>
+                  child 'div.login-button', =>
                     raw 'BACK'
             else
               child 'div.loginForm', =>
@@ -937,42 +896,18 @@ App = React.createClass
                     onKeyDown: (e) =>
                       if e.keyCode is 13
                         @login @state.username, @state.password
-                child 'div', =>
+                child 'a', href: '#', =>
                   props
-                    style:
-                      backgroundColor: 'rgb(51,191,224)'
-                      width: '100%'
-                      paddingTop: 8
-                      paddingBottom: 8
-                      textAlign: 'center'
-                      color: 'white'
-                      cursor: 'pointer'
-                      marginBottom: 15
-                    onClick: =>
+                    onClick: (e) =>
+                      e.preventDefault()
                       @login @state.username, @state.password
-                  raw 'LOGIN'
+                  child 'div.login-button', =>
+                    raw 'LOGIN'
                 child 'a', href: '#signup', =>
-                  child 'div', =>
-                    props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
-                        marginBottom: 15
+                  child 'div.login-button', =>
                     raw 'CREATE ACCOUNT'
                 child 'a', href: '#forgot', =>
-                  child 'div', =>
-                    props
-                      style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        width: '100%'
-                        paddingTop: 8
-                        paddingBottom: 8
-                        textAlign: 'center'
-                        color: 'white'
+                  child 'div.login-button', =>
                     raw 'FORGOT PASSWORD?'
       child 'div.accountMenuMobile', =>
         child 'span', =>
@@ -1046,24 +981,13 @@ SiftrList = React.createClass
                     @props.onDelete game
               raw 'DELETE'
             child 'a', href: "\#categories#{game.game_id}", =>
-              child 'span', =>
-                props
-                  style:
-                    float: 'right'
-                    border: '1px solid black'
-                    padding: 5
-                    marginLeft: 5
-                    color: 'black'
+              child 'span.siftr-command-button', =>
                 raw 'CATEGORIES'
+            child 'a', href: "\#form#{game.game_id}", =>
+              child 'span.siftr-command-button', =>
+                raw 'FORM'
             child 'a', href: "\#edit#{game.game_id}", =>
-              child 'span', =>
-                props
-                  style:
-                    float: 'right'
-                    border: '1px solid black'
-                    padding: 5
-                    marginLeft: 5
-                    color: 'black'
+              child 'span.siftr-command-button', =>
                 raw 'EDIT'
             child 'div', style: clear: 'both'
           child 'div', =>
@@ -1166,29 +1090,13 @@ EditSiftr = React.createClass
               raw 'Do you want '
               child 'b', => raw @props.game.name
               raw ' to be public or private?'
-            button = (str, checked, check) =>
-              child 'span', =>
-                props
-                  style:
-                    boxSizing: 'border-box'
-                    width: 120
-                    padding: 10
-                    display: 'inline-block'
-                    textAlign: 'center'
-                    border: '3px solid rgb(51,191,224)'
-                    cursor: 'pointer'
-                    # TODO: ask Eric if the below colors are right, or if they should be flipped
-                    color: if checked then 'white' else 'rgb(51,191,224)'
-                    backgroundColor: if checked then 'rgb(51,191,224)' else 'white'
-                  onClick: check
-                raw str
             child 'p', =>
               props style:
                 marginTop: 30
                 marginBottom: 30
-              button 'PUBLIC', @props.game.published, =>
+              toggleSwitch 'PUBLIC', @props.game.published, =>
                 @props.onChange update @props.game, published: $set: true
-              button 'PRIVATE', not @props.game.published, =>
+              toggleSwitch 'PRIVATE', not @props.game.published, =>
                 @props.onChange update @props.game, published: $set: false
             child 'h4', => raw 'MODERATION'
             child 'p', =>
@@ -1199,9 +1107,9 @@ EditSiftr = React.createClass
               props style:
                 marginTop: 30
                 marginBottom: 30
-              button 'YES', @props.game.moderated, =>
+              toggleSwitch 'YES', @props.game.moderated, =>
                 @props.onChange update @props.game, moderated: $set: true
-              button 'NO', not @props.game.moderated, =>
+              toggleSwitch 'NO', not @props.game.moderated, =>
                 @props.onChange update @props.game, moderated: $set: false
 
             child 'h2', => raw 'APPEARANCE'
@@ -1841,29 +1749,13 @@ NewStep4 = React.createClass
           raw 'Do you want '
           child 'b', => raw @props.game.name
           raw ' to be public or private?'
-        button = (str, checked, check) =>
-          child 'span', =>
-            props
-              style:
-                boxSizing: 'border-box'
-                width: 120
-                padding: 10
-                display: 'inline-block'
-                textAlign: 'center'
-                border: '3px solid rgb(51,191,224)'
-                cursor: 'pointer'
-                # TODO: ask Eric if the below colors are right, or if they should be flipped
-                color: if checked then 'white' else 'rgb(51,191,224)'
-                backgroundColor: if checked then 'rgb(51,191,224)' else 'white'
-              onClick: check
-            raw str
         child 'p', =>
           props style:
             marginTop: 30
             marginBottom: 30
-          button 'PUBLIC', @props.game.published, =>
+          toggleSwitch 'PUBLIC', @props.game.published, =>
             @props.onChange update @props.game, published: $set: true
-          button 'PRIVATE', not @props.game.published, =>
+          toggleSwitch 'PRIVATE', not @props.game.published, =>
             @props.onChange update @props.game, published: $set: false
         child 'h4', => raw 'MODERATION'
         child 'p', =>
@@ -1874,9 +1766,9 @@ NewStep4 = React.createClass
           props style:
             marginTop: 30
             marginBottom: 30
-          button 'YES', @props.game.moderated, =>
+          toggleSwitch 'YES', @props.game.moderated, =>
             @props.onChange update @props.game, moderated: $set: true
-          button 'NO', not @props.game.moderated, =>
+          toggleSwitch 'NO', not @props.game.moderated, =>
             @props.onChange update @props.game, moderated: $set: false
         child 'h4', => raw 'URL'
         child 'p', =>

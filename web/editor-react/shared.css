@@ -101,3 +101,48 @@ a {
   color: white;
   text-decoration: none;
 }
+
+.siftr-command-button {
+  float: right;
+  border: 1px solid black;
+  padding: 5px;
+  margin-left: 5px;
+  color: black;
+}
+
+.login-button {
+  background-color: rgb(51,191,224);
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: center;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.nav-menu-button {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 5px;
+  margin-bottom: 12px;
+  background-color: rgb(51,191,224);
+  color: white;
+}
+
+.toggle-switch {
+  box-sizing: border-box;
+  width: 120px;
+  padding: 10px;
+  display: inline-block;
+  text-align: center;
+  border: 3px solid rgb(51,191,224);
+  cursor: pointer;
+  color: rgb(51,191,224);
+  background-color: white;
+}
+
+.toggle-switch-on {
+  color: white;
+  background-color: rgb(51,191,224);
+}
