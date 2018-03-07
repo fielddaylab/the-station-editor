@@ -328,6 +328,7 @@ App = React.createClass
               if tagsRemaining is 0
                 @updateTags([newGame])
         @updateStateGame newGame
+        @updateForms([newGame])
         @setState (previousState, currentProps) =>
           update previousState,
             notes:
@@ -579,6 +580,25 @@ App = React.createClass
                 child NewStep3,
                   editing: true
                   fields: @state.forms[@state.edit_game.game_id]
+                  addField: (field_type) =>
+                    @props.aris.call 'fields.createField',
+                      game_id: @state.edit_game.game_id
+                      field_type: field_type
+                      required: false
+                    , ({returnCode, returnCodeDescription}) =>
+                      if returnCode is 0
+                        @updateForms([@state.edit_game])
+                      else
+                        alert "There was an error adding the field: #{returnCodeDescription}"
+                  deleteField: (field) =>
+                    @props.aris.call 'fields.deleteField',
+                      game_id: @state.edit_game.game_id
+                      field_id: field.field_id
+                    , ({returnCode, returnCodeDescription}) =>
+                      if returnCode is 0
+                        @updateForms([@state.edit_game])
+                      else
+                        alert "There was an error deleting the field: #{returnCodeDescription}"
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -1630,16 +1650,20 @@ NewStep3 = React.createClass
             raw " (#{field.field_type})#{if field.required then '*' else ''} "
             child 'a', href: '#', onClick: ((e) =>
               e.preventDefault()
-              newFields = fields[..]
-              newFields.splice(i, 1)
-              @props.onChange update @props.game, fields: $set: newFields
-              if i < @state.editingIndex
-                @setState
-                  editingIndex: @state.editingIndex - 1
-              else if i == @state.editingIndex
-                @setState
-                  editingIndex: null
-                  editingField: null
+              if @props.editing
+                if confirm "Are you sure you want to delete the #{field.label or 'unnamed'} field?"
+                  @props.deleteField(field)
+              else
+                newFields = fields[..]
+                newFields.splice(i, 1)
+                @props.onChange update @props.game, fields: $set: newFields
+                if i < @state.editingIndex
+                  @setState
+                    editingIndex: @state.editingIndex - 1
+                else if i == @state.editingIndex
+                  @setState
+                    editingIndex: null
+                    editingField: null
             ), =>
               raw '(delete)'
           child 'p', =>
@@ -1654,15 +1678,18 @@ NewStep3 = React.createClass
             types.forEach ([type, name], i) =>
               child 'a', href: '#', onClick: ((e) =>
                 e.preventDefault()
-                @props.onChange update @props.game,
-                  fields:
-                    $set:
-                      fields.concat [
-                        new Field
-                          field_type: type
-                          label: ''
-                          required: false
-                      ]
+                if @props.editing
+                  @props.addField type
+                else
+                  @props.onChange update @props.game,
+                    fields:
+                      $set:
+                        fields.concat [
+                          new Field
+                            field_type: type
+                            label: ''
+                            required: false
+                        ]
               ), => raw name
               if i isnt types.length - 1
                 raw ', '
