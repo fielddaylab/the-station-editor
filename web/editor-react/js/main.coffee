@@ -40,6 +40,7 @@ App = React.createClass
     games: []
     tags: {}
     notes: {}
+    forms: {}
     colors: {}
     username: ''
     password: ''
@@ -202,14 +203,17 @@ App = React.createClass
     if @props.aris.auth?
       @props.aris.getGamesForUser {}, (result) =>
         if result.returnCode is 0 and result.data?
+          games =
+            game for game in result.data when game.is_siftr
           @setState
-            games:
-              game for game in result.data when game.is_siftr
+            games: games
             tags: {}
+            forms: {}
             notes: {}
           @applyHash()
-          @updateTags result.data
-          @updateNotes result.data
+          @updateTags games
+          @updateForms games
+          @updateNotes games
         else
           @setState games: []
     else
@@ -224,6 +228,17 @@ App = React.createClass
           @setState (previousState, currentProps) =>
             update previousState,
               notes:
+                $merge: singleObj(game.game_id, result.data)
+
+  updateForms: (games) ->
+    games.forEach (game) =>
+      @props.aris.getFieldsForGame
+        game_id: game.game_id
+      , (result) =>
+        if result.returnCode is 0 and result.data?
+          @setState (previousState, currentProps) =>
+            update previousState,
+              forms:
                 $merge: singleObj(game.game_id, result.data)
 
   updateTags: (games) ->
@@ -561,8 +576,9 @@ App = React.createClass
                     , 250
                   closeMobileMap: => @setState mobile_map_is_open: false
               when 'form'
-                child 'p', =>
-                  raw 'Form editor goes here.'
+                child NewStep3,
+                  editing: true
+                  fields: @state.forms[@state.edit_game.game_id]
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -712,6 +728,7 @@ App = React.createClass
                   onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
               when 'new3'
                 child NewStep3,
+                  editing: false
                   game: @state.new_game
                   onChange: (new_game) => @setState {new_game}
               when 'new4'
@@ -1571,28 +1588,33 @@ NewStep3 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'div', =>
-        props
-          style:
-            width: '100%'
-            textAlign: 'center'
-            backgroundColor: 'gray'
-            color: 'white'
-            paddingTop: 60
-            paddingBottom: 60
-            position: 'relative'
-            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
-            backgroundSize: 'cover'
-            backgroundRepeat: 'no-repeat'
-        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'a', href: '#new2', =>
-          child 'div.newPrevButton', =>
-            raw '< BACK, APPEARANCE'
-        child 'a', href: '#new4', =>
-          child 'div.newNextButton', =>
-            raw 'NEXT, SETTINGS >'
+      unless @props.editing
+        child 'div', =>
+          props
+            style:
+              width: '100%'
+              textAlign: 'center'
+              backgroundColor: 'gray'
+              color: 'white'
+              paddingTop: 60
+              paddingBottom: 60
+              position: 'relative'
+              backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
+              backgroundSize: 'cover'
+              backgroundRepeat: 'no-repeat'
+          child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
+          child 'a', href: '#new2', =>
+            child 'div.newPrevButton', =>
+              raw '< BACK, APPEARANCE'
+          child 'a', href: '#new4', =>
+            child 'div.newNextButton', =>
+              raw 'NEXT, SETTINGS >'
 
-      fields = @props.game.fields ? []
+      fields =
+        if @props.editing
+          @props.fields ? []
+        else
+          @props.game.fields ? []
       child 'div.newStep3', =>
         child 'div.newStep3Fields', =>
           fields.forEach (field, i) =>
@@ -1661,7 +1683,12 @@ NewStep3 = React.createClass
                 child 'ul', =>
                   options.forEach (o, i) =>
                     child 'li', =>
-                      raw "#{o} "
+                      optionText =
+                        if @props.editing
+                          o.option
+                        else
+                          o
+                      raw "#{optionText} "
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
                         opts = options[..]
