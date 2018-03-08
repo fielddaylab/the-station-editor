@@ -1661,35 +1661,44 @@ NewStep3 = React.createClass
       child 'div.newStep3', =>
         child 'div.newStep3Fields', =>
           fields.forEach (field, i) =>
-            child 'p', key: i, =>
-            child 'a', href: '#', onClick: ((e) =>
+            child 'a', href: '#', onClick: (e) =>
               e.preventDefault()
               @setState
                 editingField: field
                 editingIndex: i
                 addingOption: ''
                 deletingOption: null
-            ), =>
-              raw(field.label or 'Unnamed field')
-            raw " (#{field.field_type})#{if field.required then '*' else ''} "
-            child 'a', href: '#', onClick: ((e) =>
-              e.preventDefault()
-              if @props.editing
-                if confirm "Are you sure you want to delete the #{field.label or 'unnamed'} field?"
-                  @props.deleteField(field)
-              else
-                newFields = fields[..]
-                newFields.splice(i, 1)
-                @props.onChange update @props.game, fields: $set: newFields
-                if i < @state.editingIndex
-                  @setState
-                    editingIndex: @state.editingIndex - 1
-                else if i == @state.editingIndex
-                  @setState
-                    editingIndex: null
-                    editingField: null
-            ), =>
-              raw '(delete)'
+            , =>
+              divFormFieldRow = 'div.form-field-row'
+              if field is @state.editingField
+                divFormFieldRow += '.form-field-row-selected'
+              child divFormFieldRow, key: i, =>
+                child 'div.form-field-icon', =>
+                  child 'img',
+                    src: "../assets/icons/form-#{field.field_type}.png"
+                child 'div.form-field-name', =>
+                  raw(field.label or 'Unnamed field')
+                  raw ' *' if field.required
+                child 'div.form-field-x', =>
+                  child 'a', href: '#', onClick: ((e) =>
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if @props.editing
+                      if confirm "Are you sure you want to delete the #{field.label or 'unnamed'} field?"
+                        @props.deleteField(field)
+                    else
+                      newFields = fields[..]
+                      newFields.splice(i, 1)
+                      @props.onChange update @props.game, fields: $set: newFields
+                      if i < @state.editingIndex
+                        @setState
+                          editingIndex: @state.editingIndex - 1
+                      else if i == @state.editingIndex
+                        @setState
+                          editingIndex: null
+                          editingField: null
+                  ), =>
+                    raw '(delete)'
           child 'p', =>
             raw 'Add new field: '
             types = [

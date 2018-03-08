@@ -146,3 +146,34 @@ a {
   color: white;
   background-color: rgb(51,191,224);
 }
+
+.form-field-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid gray;
+  align-items: center;
+}
+
+.form-field-row.form-field-row-selected {
+  background-color: #97F6E1;
+}
+
+.form-field-icon {
+  margin: 10px;
+  width: 80px;
+  text-align: center;
+}
+
+.form-field-icon img {
+  width: 40px;
+}
+
+.form-field-name {
+  flex: 1;
+  margin: 10px;
+}
+
+.form-field-x {
+  margin: 10px;
+}
