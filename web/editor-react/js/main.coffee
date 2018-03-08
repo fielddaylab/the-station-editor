@@ -230,7 +230,7 @@ App = React.createClass
               notes:
                 $merge: singleObj(game.game_id, result.data)
 
-  updateForms: (games) ->
+  updateForms: (games, cb = (->)) ->
     games.forEach (game) =>
       @props.aris.getFieldsForGame
         game_id: game.game_id
@@ -240,6 +240,7 @@ App = React.createClass
             update previousState,
               forms:
                 $merge: singleObj(game.game_id, result.data)
+          , cb
 
   updateTags: (games) ->
     games.forEach (game) =>
@@ -577,6 +578,11 @@ App = React.createClass
                     , 250
                   closeMobileMap: => @setState mobile_map_is_open: false
               when 'form'
+                onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
+                  if returnCode is 0
+                    fn()
+                  else
+                    alert "An error occurred: #{returnCodeDescription}"
                 child NewStep3,
                   editing: true
                   fields: @state.forms[@state.edit_game.game_id]
@@ -585,28 +591,22 @@ App = React.createClass
                       game_id: @state.edit_game.game_id
                       field_type: field_type
                       required: false
-                    , ({returnCode, returnCodeDescription}) =>
-                      if returnCode is 0
-                        @updateForms([@state.edit_game])
-                      else
-                        alert "There was an error adding the field: #{returnCodeDescription}"
+                    , onSuccess => @updateForms([@state.edit_game])
                   updateField: (field) =>
                     @props.aris.call 'fields.updateField',
                       field
-                    , ({returnCode, returnCodeDescription}) =>
-                      if returnCode is 0
-                        @updateForms([@state.edit_game])
-                      else
-                        alert "There was an error updating the field: #{returnCodeDescription}"
+                    , onSuccess => @updateForms([@state.edit_game])
                   deleteField: (field) =>
                     @props.aris.call 'fields.deleteField',
                       game_id: @state.edit_game.game_id
                       field_id: field.field_id
-                    , ({returnCode, returnCodeDescription}) =>
-                      if returnCode is 0
-                        @updateForms([@state.edit_game])
-                      else
-                        alert "There was an error deleting the field: #{returnCodeDescription}"
+                    , onSuccess => @updateForms([@state.edit_game])
+                  addFieldOption: ({field, option}, cb) =>
+                    @props.aris.call 'fields.createFieldOption',
+                      game_id: @state.edit_game.game_id
+                      field_id: field.field_id
+                      option: option
+                    , onSuccess => @updateForms([@state.edit_game], cb)
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -1763,11 +1763,23 @@ NewStep3 = React.createClass
                     placeholder: 'Enter option...'
                   raw ' '
                   child 'button', type: 'button', onClick: (=>
-                    @setState
-                      editingField:
-                        update field, options: $set: options.concat([@state.editingOption])
-                      editingOption: ''
-                    # add option
+                    if @props.editing
+                      @props.addFieldOption
+                        field: field
+                        option: @state.editingOption
+                      , =>
+                        for f, i in @props.fields
+                          if f.field_id is field.field_id
+                            @setState
+                              editingOption: ''
+                              editingField: f
+                              editingIndex: i
+                            return
+                    else
+                      @setState
+                        editingField:
+                          update field, options: $set: options.concat([@state.editingOption])
+                        editingOption: ''
                   ), =>
                     raw 'Add option'
             unless @props.editing
