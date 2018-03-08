@@ -607,6 +607,13 @@ App = React.createClass
                       field_id: field.field_id
                       option: option
                     , onSuccess => @updateForms([@state.edit_game], cb)
+                  updateFieldOption: ({field_option, option}, cb) =>
+                    @props.aris.call 'fields.updateFieldOption',
+                      game_id: @state.edit_game.game_id
+                      field_id: field_option.field_id
+                      field_option_id: field_option.field_option_id
+                      option: option
+                    , onSuccess => @updateForms([@state.edit_game], cb)
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -1612,7 +1619,8 @@ NewStep3 = React.createClass
   getInitialState: ->
     editingIndex: null
     editingField: null
-    editingOption: ''
+    addingOption: ''
+    deletingOption: null
 
   render: ->
     make 'div', =>
@@ -1652,7 +1660,7 @@ NewStep3 = React.createClass
               @setState
                 editingField: field
                 editingIndex: i
-                editingOption: ''
+                addingOption: ''
             ), =>
               raw(field.label or 'Unnamed field')
             raw " (#{field.field_type})#{if field.required then '*' else ''} "
@@ -1747,39 +1755,61 @@ NewStep3 = React.createClass
                     raw "#{optionText} "
                     child 'a', href: '#', onClick: ((e) =>
                       e.preventDefault()
-                      opts = options[..]
-                      opts.splice(i, 1)
-                      @setState
-                        editingField:
-                          update field, options: $set: opts
+                      if @props.editing
+                        null # TODO
+                      else
+                        opts = options[..]
+                        opts.splice(i, 1)
+                        @setState
+                          editingField:
+                            update field, options: $set: opts
                     ), =>
                       raw '(delete)'
+                    if @props.editing
+                      raw ' '
+                      child 'a', href: '#', onClick: ((e) =>
+                        e.preventDefault()
+                        str = prompt "Enter a new label for the option."
+                        if str?
+                          @props.updateFieldOption
+                            field_option: o
+                            option: str
+                          , =>
+                            for f, i in @props.fields
+                              if f.field_id is field.field_id
+                                @setState
+                                  addingOption: ''
+                                  editingField: f
+                                  editingIndex: i
+                                return
+                      ), =>
+                        raw '(edit)'
                 child 'li', =>
                   child 'input',
                     type: 'text'
-                    value: @state.editingOption
+                    value: @state.addingOption
                     onChange: (e) =>
-                      @setState editingOption: e.target.value
+                      @setState addingOption: e.target.value
                     placeholder: 'Enter option...'
                   raw ' '
                   child 'button', type: 'button', onClick: (=>
                     if @props.editing
                       @props.addFieldOption
                         field: field
-                        option: @state.editingOption
+                        option: @state.addingOption
                       , =>
                         for f, i in @props.fields
                           if f.field_id is field.field_id
                             @setState
-                              editingOption: ''
+                              addingOption: ''
                               editingField: f
                               editingIndex: i
                             return
                     else
                       @setState
                         editingField:
-                          update field, options: $set: options.concat([@state.editingOption])
-                        editingOption: ''
+                          update field, options: $set: options.concat([@state.addingOption])
+                        addingOption: ''
                   ), =>
                     raw 'Add option'
             unless @props.editing
