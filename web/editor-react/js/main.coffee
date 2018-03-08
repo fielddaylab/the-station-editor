@@ -1631,7 +1631,24 @@ NewStep3 = React.createClass
 
   render: ->
     make 'div', =>
-      unless @props.editing
+      if @props.editing
+        child 'p',
+          style:
+            textAlign: 'center'
+        , =>
+          child 'a', href: '#', =>
+            props
+              style:
+                display: 'inline-block'
+                backgroundColor: 'rgb(97,201,226)'
+                color: 'white'
+                fontSize: 20
+                marginTop: 10
+                textAlign: 'center'
+                width: 250
+                padding: 5
+            raw 'BACK'
+      else
         child 'div', =>
           props
             style:
@@ -1699,17 +1716,17 @@ NewStep3 = React.createClass
                           editingField: null
                   ), =>
                     raw '(delete)'
+          child 'p', => raw 'Add new field:'
           child 'p', =>
-            raw 'Add new field: '
             types = [
-              ['TEXT', 'text']
-              ['TEXTAREA', 'long text']
+              ['TEXT', 'small text field']
+              ['TEXTAREA', 'large text field']
               ['SINGLESELECT', 'select one']
-              ['MULTISELECT', 'select multiple']
-              ['MEDIA', 'image']
+              ['MULTISELECT', 'select many']
+              ['MEDIA', 'extra photo']
             ]
             types.forEach ([type, name], i) =>
-              child 'a', href: '#', onClick: ((e) =>
+              child 'a.form-add-field', href: '#', onClick: ((e) =>
                 e.preventDefault()
                 if @props.editing
                   @props.addField type
@@ -1723,9 +1740,10 @@ NewStep3 = React.createClass
                             label: ''
                             required: false
                         ]
-              ), => raw name
-              if i isnt types.length - 1
-                raw ', '
+              ), =>
+                child 'img', src: "../assets/icons/form-#{type}.png"
+                child 'br'
+                raw name
         child 'div.newStep3FieldInfo', =>
           if (field = @state.editingField)?
 
