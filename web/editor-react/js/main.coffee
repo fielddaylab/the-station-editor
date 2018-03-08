@@ -590,6 +590,14 @@ App = React.createClass
                         @updateForms([@state.edit_game])
                       else
                         alert "There was an error adding the field: #{returnCodeDescription}"
+                  updateField: (field) =>
+                    @props.aris.call 'fields.updateField',
+                      field
+                    , ({returnCode, returnCodeDescription}) =>
+                      if returnCode is 0
+                        @updateForms([@state.edit_game])
+                      else
+                        alert "There was an error updating the field: #{returnCodeDescription}"
                   deleteField: (field) =>
                     @props.aris.call 'fields.deleteField',
                       game_id: @state.edit_game.game_id
@@ -1704,65 +1712,76 @@ NewStep3 = React.createClass
                   @setState
                     editingField:
                       update field, label: $set: e.target.value
-            switch field.field_type
-              when 'SINGLESELECT', 'MULTISELECT'
-                options = field.options ? []
-                child 'ul', =>
-                  options.forEach (o, i) =>
-                    child 'li', =>
-                      optionText =
-                        if @props.editing
-                          o.option
-                        else
-                          o
-                      raw "#{optionText} "
-                      child 'a', href: '#', onClick: ((e) =>
-                        e.preventDefault()
-                        opts = options[..]
-                        opts.splice(i, 1)
-                        @setState
-                          editingField:
-                            update field, options: $set: opts
-                      ), =>
-                        raw '(delete)'
-                  child 'li', =>
-                    child 'input',
-                      type: 'text'
-                      value: @state.editingOption
-                      onChange: (e) =>
-                        @setState editingOption: e.target.value
-                      placeholder: 'Enter option...'
-                    raw ' '
-                    child 'button', type: 'button', onClick: (=>
+            unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
+              child 'p', =>
+                child 'label', =>
+                  child 'input',
+                    type: 'checkbox'
+                    checked: field.required
+                    onChange: (e) =>
                       @setState
                         editingField:
-                          update field, options: $set: options.concat([@state.editingOption])
-                        editingOption: ''
-                      # add option
+                          update field, required: $set: e.target.checked
+                  raw ' Required'
+            if @props.editing
+              child 'p', =>
+                child 'button',
+                  type: 'button'
+                  onClick: =>
+                    @props.updateField field
+                    @setState
+                      editingField: null
+                      editingIndex: null
+                , =>
+                  raw 'Save above'
+            if field.field_type in ['SINGLESELECT', 'MULTISELECT']
+              options = field.options ? []
+              child 'ul', =>
+                options.forEach (o, i) =>
+                  child 'li', =>
+                    optionText =
+                      if @props.editing
+                        o.option
+                      else
+                        o
+                    raw "#{optionText} "
+                    child 'a', href: '#', onClick: ((e) =>
+                      e.preventDefault()
+                      opts = options[..]
+                      opts.splice(i, 1)
+                      @setState
+                        editingField:
+                          update field, options: $set: opts
                     ), =>
-                      raw 'Add option'
-              else
-                child 'p', =>
-                  child 'label', =>
-                    child 'input',
-                      type: 'checkbox'
-                      checked: field.required
-                      onChange: (e) =>
-                        @setState
-                          editingField:
-                            update field, required: $set: e.target.checked
-                    raw ' Required'
-            child 'p', =>
-              child 'button',
-                type: 'button'
-                onClick: =>
-                  @props.onChange update @props.game,
-                    fields: singleObj(@state.editingIndex, {$set: field})
-                  @setState
-                    editingField: null
-                    editingIndex: null
-              , =>
-                raw 'Save field'
+                      raw '(delete)'
+                child 'li', =>
+                  child 'input',
+                    type: 'text'
+                    value: @state.editingOption
+                    onChange: (e) =>
+                      @setState editingOption: e.target.value
+                    placeholder: 'Enter option...'
+                  raw ' '
+                  child 'button', type: 'button', onClick: (=>
+                    @setState
+                      editingField:
+                        update field, options: $set: options.concat([@state.editingOption])
+                      editingOption: ''
+                    # add option
+                  ), =>
+                    raw 'Add option'
+            unless @props.editing
+              child 'p', =>
+                child 'button',
+                  type: 'button'
+                  onClick: =>
+                    @props.onChange update @props.game,
+                      fields: singleObj(@state.editingIndex, {$set: field})
+                    @setState
+                      editingField: null
+                      editingIndex: null
+                , =>
+                  raw 'Save field'
           else
             child 'p', =>
               raw 'No field selected.'
