@@ -614,6 +614,13 @@ App = React.createClass
                       field_option_id: field_option.field_option_id
                       option: option
                     , onSuccess => @updateForms([@state.edit_game], cb)
+                  deleteFieldOption: ({field_option, new_field_option}, cb) =>
+                    @props.aris.call 'fields.deleteFieldOption',
+                      game_id: @state.edit_game.game_id
+                      field_id: field_option.field_id
+                      field_option_id: field_option.field_option_id
+                      new_field_option_id: new_field_option?.field_option_id
+                    , onSuccess => @updateForms([@state.edit_game], cb)
               when 'categories'
                 child 'div.loginForm', =>
                   tags = @state.tags[@state.edit_game.game_id]
@@ -1661,6 +1668,7 @@ NewStep3 = React.createClass
                 editingField: field
                 editingIndex: i
                 addingOption: ''
+                deletingOption: null
             ), =>
               raw(field.label or 'Unnamed field')
             raw " (#{field.field_type})#{if field.required then '*' else ''} "
@@ -1711,119 +1719,153 @@ NewStep3 = React.createClass
                 raw ', '
         child 'div.newStep3FieldInfo', =>
           if (field = @state.editingField)?
-            child 'p', =>
-              child 'input',
-                type: 'text'
-                value: field.label
-                placeholder: 'Enter a name for this field'
-                onChange: (e) =>
+
+            reloadThisField = =>
+              for f, i in @props.fields
+                if f.field_id is field.field_id
                   @setState
-                    editingField:
-                      update field, label: $set: e.target.value
-            unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                    editingField: f
+                    editingIndex: i
+                    addingOption: ''
+                    deletingOption: null
+                  return
+
+            if @state.deletingOption?
               child 'p', =>
-                child 'label', =>
-                  child 'input',
-                    type: 'checkbox'
-                    checked: field.required
-                    onChange: (e) =>
-                      @setState
-                        editingField:
-                          update field, required: $set: e.target.checked
-                  raw ' Required'
-            if @props.editing
-              child 'p', =>
-                child 'button',
-                  type: 'button'
-                  onClick: =>
-                    @props.updateField field
-                    @setState
-                      editingField: null
-                      editingIndex: null
-                , =>
-                  raw 'Save above'
-            if field.field_type in ['SINGLESELECT', 'MULTISELECT']
-              options = field.options ? []
+                raw "Should data be reassigned from '#{@state.deletingOption.option}' to a different option?"
+              confirmDelete = (new_option) =>
+                msg =
+                  if new_option?
+                    "Are you sure you want to delete the option '#{@state.deletingOption.option}' and reassign its notes to '#{new_option.option}'?"
+                  else
+                    "Are you sure you want to delete the option '#{@state.deletingOption.option}'?"
+                if confirm msg
+                  @props.deleteFieldOption
+                    field_option: @state.deletingOption
+                    new_field_option: new_option
+                  , reloadThisField
               child 'ul', =>
-                options.forEach (o, i) =>
-                  child 'li', =>
-                    optionText =
-                      if @props.editing
-                        o.option
-                      else
-                        o
-                    raw "#{optionText} "
-                    child 'a', href: '#', onClick: ((e) =>
-                      e.preventDefault()
-                      if @props.editing
-                        null # TODO
-                      else
-                        opts = options[..]
-                        opts.splice(i, 1)
+                (field.options ? []).forEach (o) =>
+                  unless o.field_option_id is @state.deletingOption.field_option_id
+                    child 'li', key: o.field_option_id, =>
+                      child 'a', href: '#', onClick: (e) =>
+                        e.preventDefault()
+                        confirmDelete o
+                      , =>
+                        raw o.option
+              child 'p', =>
+                child 'a', href: '#', onClick: (e) =>
+                  e.preventDefault()
+                  confirmDelete null
+                , =>
+                  raw "Don't reassign"
+              child 'p', =>
+                child 'a', href: '#', onClick: (e) =>
+                  e.preventDefault()
+                  @setState deletingOption: null
+                , =>
+                  raw "Cancel"
+            else
+              child 'p', =>
+                child 'input',
+                  type: 'text'
+                  value: field.label
+                  placeholder: 'Enter a name for this field'
+                  onChange: (e) =>
+                    @setState
+                      editingField:
+                        update field, label: $set: e.target.value
+              unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                child 'p', =>
+                  child 'label', =>
+                    child 'input',
+                      type: 'checkbox'
+                      checked: field.required
+                      onChange: (e) =>
                         @setState
                           editingField:
-                            update field, options: $set: opts
-                    ), =>
-                      raw '(delete)'
-                    if @props.editing
-                      raw ' '
+                            update field, required: $set: e.target.checked
+                    raw ' Required'
+              if @props.editing
+                child 'p', =>
+                  child 'button',
+                    type: 'button'
+                    onClick: =>
+                      @props.updateField field
+                      @setState
+                        editingField: null
+                        editingIndex: null
+                  , =>
+                    raw 'Save above'
+              if field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                options = field.options ? []
+                child 'ul', =>
+                  options.forEach (o, i) =>
+                    child 'li', key: i, =>
+                      optionText =
+                        if @props.editing
+                          o.option
+                        else
+                          o
+                      raw "#{optionText} "
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
-                        str = prompt "Enter a new label for the option."
-                        if str?
-                          @props.updateFieldOption
-                            field_option: o
-                            option: str
-                          , =>
-                            for f, i in @props.fields
-                              if f.field_id is field.field_id
-                                @setState
-                                  addingOption: ''
-                                  editingField: f
-                                  editingIndex: i
-                                return
+                        if @props.editing
+                          @setState
+                            deletingOption: o
+                        else
+                          opts = options[..]
+                          opts.splice(i, 1)
+                          @setState
+                            editingField:
+                              update field, options: $set: opts
                       ), =>
-                        raw '(edit)'
-                child 'li', =>
-                  child 'input',
-                    type: 'text'
-                    value: @state.addingOption
-                    onChange: (e) =>
-                      @setState addingOption: e.target.value
-                    placeholder: 'Enter option...'
-                  raw ' '
-                  child 'button', type: 'button', onClick: (=>
-                    if @props.editing
-                      @props.addFieldOption
-                        field: field
-                        option: @state.addingOption
-                      , =>
-                        for f, i in @props.fields
-                          if f.field_id is field.field_id
-                            @setState
-                              addingOption: ''
-                              editingField: f
-                              editingIndex: i
-                            return
-                    else
+                        raw '(delete)'
+                      if @props.editing
+                        raw ' '
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          str = prompt "Enter a new label for the option."
+                          if str?
+                            @props.updateFieldOption
+                              field_option: o
+                              option: str
+                            , reloadThisField
+                        ), =>
+                          raw '(edit)'
+                  child 'li', =>
+                    child 'input',
+                      type: 'text'
+                      value: @state.addingOption
+                      onChange: (e) =>
+                        @setState addingOption: e.target.value
+                      placeholder: 'Enter option...'
+                    raw ' '
+                    child 'button', type: 'button', onClick: (=>
+                      if @props.editing
+                        @props.addFieldOption
+                          field: field
+                          option: @state.addingOption
+                        , reloadThisField
+                      else
+                        @setState
+                          editingField:
+                            update field, options: $set: options.concat([@state.addingOption])
+                          addingOption: ''
+                    ), =>
+                      raw 'Add option'
+              unless @props.editing
+                child 'p', =>
+                  child 'button',
+                    type: 'button'
+                    onClick: =>
+                      @props.onChange update @props.game,
+                        fields: singleObj(@state.editingIndex, {$set: field})
                       @setState
-                        editingField:
-                          update field, options: $set: options.concat([@state.addingOption])
-                        addingOption: ''
-                  ), =>
-                    raw 'Add option'
-            unless @props.editing
-              child 'p', =>
-                child 'button',
-                  type: 'button'
-                  onClick: =>
-                    @props.onChange update @props.game,
-                      fields: singleObj(@state.editingIndex, {$set: field})
-                    @setState
-                      editingField: null
-                      editingIndex: null
-                , =>
-                  raw 'Save field'
+                        editingField: null
+                        editingIndex: null
+                  , =>
+                    raw 'Save field'
           else
             child 'p', =>
               raw 'No field selected.'
