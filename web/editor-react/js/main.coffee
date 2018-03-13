@@ -397,22 +397,26 @@ App = React.createClass
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
-        child 'div#the-mobile-menu-button', =>
+        child 'a', href: '#', =>
           props
-            onClick: => @setState account_menu: not @state.account_menu
-            style: cursor: 'pointer'
-          raw '☰'
+            onClick: (e) =>
+              e.preventDefault()
+              @setState account_menu: not @state.account_menu
+          child 'div#the-mobile-menu-button', =>
+            raw '☰'
         child 'a', href: '..', =>
           child 'img#the-logo', src: 'img/brand.png'
         child 'a', href: '../discover', =>
           child 'div#the-discover-button', =>
             raw 'Discover'
         if @state.auth?
-          child 'div#the-my-account-button', =>
+          child 'a', href: '#', =>
             props
-              onClick: => @setState account_menu: not @state.account_menu
-              style: cursor: 'pointer'
-            raw 'My Account'
+              onClick: (e) =>
+                e.preventDefault()
+                @setState account_menu: not @state.account_menu
+            child 'div#the-my-account-button', =>
+              raw 'My Account'
         child 'a', href: '../editor', =>
           child 'div#the-my-siftrs-button', =>
             raw 'My Siftrs'
@@ -426,12 +430,8 @@ App = React.createClass
                   child 'h3', =>
                     raw 'Account Details'
                   child 'p', =>
-                    child 'span',
+                    child 'span.big-account-picture',
                       style:
-                        width: 200
-                        height: 200
-                        borderRadius: 100
-                        backgroundColor: 'black'
                         backgroundImage:
                           if @state.new_icon?
                             "url(#{@state.new_icon})"
@@ -439,10 +439,6 @@ App = React.createClass
                             "url(#{@state.userPicture.url})"
                           else
                             undefined
-                        backgroundSize: 'cover'
-                        backgroundPosition: 'center'
-                        display: 'inline-block'
-                        cursor: 'pointer'
                       onClick: @selectUserPicture
                       onDragOver: (e) =>
                         e.stopPropagation()
@@ -645,21 +641,10 @@ App = React.createClass
                     for tag, i in tags
                       continue if tag is @state.delete_tag
                       do (tag, i) =>
-                        child 'div', =>
-                          color = colors["tag_#{(i % 8) + 1}"]
+                        child 'div.category-button', =>
                           props
                             style:
-                              backgroundColor: color
-                              color: 'white'
-                              boxSizing: 'border-box'
-                              width: '100%'
-                              padding: 10
-                              fontSize: 20
-                              marginTop: 10
-                              textAlign: 'center'
-                              borderRadius: 5
-                              cursor: 'pointer'
-                              position: 'relative'
+                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
                             onClick: =>
                               if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
                                 @props.aris.call 'tags.deleteTag',
@@ -669,36 +654,28 @@ App = React.createClass
                                   @setState delete_tag: null
                                   @updateTags [@state.edit_game]
                           raw tag.tag
-                    child 'div', =>
+                    child 'a', href: '#', =>
                       props
-                        style:
-                          backgroundColor: 'rgb(97,201,226)'
-                          color: 'white'
-                          padding: 10
-                          fontSize: 20
-                          marginTop: 40
-                          textAlign: 'center'
-                          cursor: 'pointer'
-                        onClick: => @setState delete_tag: null
-                      raw 'CANCEL'
+                        onClick: (e) =>
+                          e.preventDefault()
+                          @setState delete_tag: null
+                      child 'div', =>
+                        props
+                          style:
+                            backgroundColor: 'rgb(97,201,226)'
+                            color: 'white'
+                            padding: 10
+                            fontSize: 20
+                            marginTop: 40
+                            textAlign: 'center'
+                        raw 'CANCEL'
                   else
                     for tag, i in tags
                       do (tag, i) =>
-                        child 'div', =>
-                          color = colors["tag_#{(i % 8) + 1}"]
+                        child 'div.category-button', =>
                           props
                             style:
-                              backgroundColor: color
-                              color: 'white'
-                              boxSizing: 'border-box'
-                              width: '100%'
-                              padding: 10
-                              fontSize: 20
-                              marginTop: 10
-                              textAlign: 'center'
-                              borderRadius: 5
-                              cursor: 'pointer'
-                              position: 'relative'
+                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
                             onClick: =>
                               str = prompt "Enter a new name for this category...", tag.tag
                               if str? and str isnt ''
@@ -709,30 +686,16 @@ App = React.createClass
                                 , =>
                                   @updateTags [@state.edit_game]
                           raw tag.tag
-                          child 'div', =>
+                          child 'div.delete-category-x', =>
                             props
-                              style:
-                                position: 'absolute'
-                                right: 8
-                                top: 4
-                                padding: '4px 10px'
-                                boxSizing: 'border-box'
-                                border: '2px solid white'
                               onClick: (e) =>
                                 e.stopPropagation()
                                 @setState delete_tag: tag
                             raw 'X'
-                    child 'div', =>
+                    child 'a', href: '#', =>
                       props
-                        style:
-                          backgroundColor: 'rgb(97,201,226)'
-                          color: 'white'
-                          padding: 10
-                          fontSize: 20
-                          marginTop: 40
-                          cursor: 'pointer'
-                          textAlign: 'center'
-                        onClick: =>
+                        onClick: (e) =>
+                          e.preventDefault()
                           str = prompt "Enter a new category..."
                           if str? and str isnt ''
                             tagObject = new Tag
@@ -740,7 +703,16 @@ App = React.createClass
                             tagObject.game_id = @state.edit_game.game_id
                             @props.aris.createTag tagObject, =>
                               @updateTags [@state.edit_game]
-                      raw 'NEW CATEGORY'
+                      child 'div', =>
+                        props
+                          style:
+                            backgroundColor: 'rgb(97,201,226)'
+                            color: 'white'
+                            padding: 10
+                            fontSize: 20
+                            marginTop: 40
+                            textAlign: 'center'
+                        raw 'NEW CATEGORY'
                     child 'a', href: '#', =>
                       child 'div', =>
                         props
@@ -972,11 +944,14 @@ App = React.createClass
         child 'span', =>
           props
             onClick: => @setState account_menu: false
-        child 'div', =>
-          child 'img',
-            src: '../client-react/img/x-white.png'
-            style: cursor: 'pointer'
-            onClick: => @setState account_menu: false
+        child 'a', href: '#', =>
+          props
+            onClick: (e) =>
+              e.preventDefault()
+              @setState account_menu: false
+          child 'div', =>
+            child 'img',
+              src: '../assets/icons/x-white.png'
         child 'div', style: {textAlign: 'center'}, =>
           if @state.auth?
             child 'a.unlink', href: '#account', =>
@@ -994,14 +969,20 @@ App = React.createClass
             child 'p', => raw 'Not logged in'
           child 'p', =>
             child 'a', href: '..', =>
-              child 'img', src: '../client-react/img/brand-mobile.png'
+              child 'img', src: '../assets/logos/brand-mobile.png'
           unlink =
             color: 'white'
             textDecoration: 'none'
           child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
           child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
           if @state.auth?
-            child 'p', style: {cursor: 'pointer'}, onClick: @logout, => raw 'Logout'
+            child 'p', =>
+              child 'a', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @logout()
+                raw 'Logout'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'
@@ -1026,19 +1007,21 @@ SiftrList = React.createClass
                   color: 'black'
               raw game.name
             child 'div.clearOnMobile'
-            child 'span', =>
+            child 'a', href: '#', =>
               props
-                style:
-                  float: 'right'
-                  border: '1px solid black'
-                  padding: 5
-                  marginLeft: 5
-                  color: 'black'
-                  cursor: 'pointer'
-                onClick: =>
+                onClick: (e) =>
+                  e.preventDefault()
                   if confirm "Are you sure you want to delete \"#{game.name}\"?"
                     @props.onDelete game
-              raw 'DELETE'
+              child 'span', =>
+                props
+                  style:
+                    float: 'right'
+                    border: '1px solid black'
+                    padding: 5
+                    marginLeft: 5
+                    color: 'black'
+                raw 'DELETE'
             child 'a', href: "\#categories#{game.game_id}", =>
               child 'span.siftr-command-button', =>
                 raw 'CATEGORIES'
@@ -1287,31 +1270,19 @@ NewStep1 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'div', =>
-        props
-          style:
-            width: '100%'
-            textAlign: 'center'
-            backgroundColor: 'gray'
-            color: 'white'
-            paddingTop: 60
-            paddingBottom: 60
-            position: 'relative'
-            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
-            backgroundSize: 'cover'
-            backgroundRepeat: 'no-repeat'
+      child 'div.new-siftr-hero', =>
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'div.newNextButton', =>
+        child 'a', href: '#new2', =>
           props
-            onClick: =>
+            onClick: (e) =>
               unless @props.game.name
                 alert "Please give your Siftr a name."
+                e.preventDefault()
               else unless @props.game.description
                 alert "Please give your Siftr a description."
-              else
-                window.location.replace '#new2'
-            style: cursor: 'pointer'
-          raw 'NEXT, APPEARANCE >'
+                e.preventDefault()
+          child 'div.newNextButton', =>
+            raw 'NEXT, APPEARANCE >'
 
       child 'div.newStep1', =>
         child 'h3', style: {textAlign: 'center'}, =>
@@ -1421,35 +1392,23 @@ NewStep2 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'div', =>
-        props
-          style:
-            width: '100%'
-            textAlign: 'center'
-            backgroundColor: 'gray'
-            color: 'white'
-            paddingTop: 60
-            paddingBottom: 60
-            position: 'relative'
-            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
-            backgroundSize: 'cover'
-            backgroundRepeat: 'no-repeat'
+      child 'div.new-siftr-hero', =>
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new1', =>
           child 'div.newPrevButton', =>
             raw '< BACK, SETUP'
-        child 'div.newNextButton', =>
+        child 'a', href: '#new3', =>
           props
-            onClick: =>
+            onClick: (e) =>
               tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
               if tags.length is 1 and tags[0] is ''
                 alert 'You must have at least one category.'
+                e.preventDefault()
               else if '' in tags
                 alert 'You cannot have any unnamed categories.'
-              else
-                window.location.replace '#new3'
-            style: cursor: 'pointer'
-          raw 'NEXT, DATA >'
+                e.preventDefault()
+          child 'div.newNextButton', =>
+            raw 'NEXT, DATA >'
 
       child 'div.newStep2', =>
         child 'h3', style: {textAlign: 'center'}, =>
@@ -1649,19 +1608,7 @@ NewStep3 = React.createClass
                 padding: 5
             raw 'BACK'
       else
-        child 'div', =>
-          props
-            style:
-              width: '100%'
-              textAlign: 'center'
-              backgroundColor: 'gray'
-              color: 'white'
-              paddingTop: 60
-              paddingBottom: 60
-              position: 'relative'
-              backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
-              backgroundSize: 'cover'
-              backgroundRepeat: 'no-repeat'
+        child 'div.new-siftr-hero', =>
           child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
           child 'a', href: '#new2', =>
             child 'div.newPrevButton', =>
@@ -1902,19 +1849,7 @@ NewStep4 = React.createClass
 
   render: ->
     make 'div', =>
-      child 'div', =>
-        props
-          style:
-            width: '100%'
-            textAlign: 'center'
-            backgroundColor: 'gray'
-            color: 'white'
-            paddingTop: 60
-            paddingBottom: 60
-            position: 'relative'
-            backgroundImage: 'url(../assets/photos/siftr-header.jpg)'
-            backgroundSize: 'cover'
-            backgroundRepeat: 'no-repeat'
+      child 'div.new-siftr-hero', =>
         child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
         child 'a', href: '#new3', =>
           child 'div.newPrevButton', =>

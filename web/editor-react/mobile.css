@@ -85,6 +85,10 @@
   box-sizing: border-box;
 }
 
+.accountMenuMobile a {
+  color: white;
+}
+
 #the-mobile-menu-button {
   float: left;
   height: 53px;

@@ -192,3 +192,49 @@ a {
 .form-add-field img {
   width: 40px;
 }
+
+.big-account-picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+  background-color: black;
+  background-size: cover;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.category-button {
+  color: white;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  font-size: 20px;
+  margin-top: 10px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.delete-category-x {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  border: 2px solid white;
+}
+
+.new-siftr-hero {
+  width: 100%;
+  text-align: center;
+  background-color: gray;
+  color: white;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  position: relative;
+  background-image: url(../assets/photos/siftr-header.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
