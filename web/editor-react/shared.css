@@ -1,5 +1,5 @@
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Varela Round', sans-serif;
   padding: 0;
   margin: 0;
   -webkit-touch-callout: none;
@@ -9,6 +9,11 @@ body {
   -ms-user-select: none;
   user-select: none;
   overflow: hidden;
+  letter-spacing: 0.7px;
+}
+
+a {
+  color: black;
 }
 
 #the-container {
@@ -27,11 +32,23 @@ body {
   padding: 0;
   margin: 0;
   width: 100%;
-  background-color: rgb(44, 48, 59);
+  background-color: white;
+  color: black;
   top: 0;
   left: 0;
   z-index: 1;
   height: 53px;
+  border-bottom: 2px solid #E7E7E7;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#the-nav-bar > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 #the-content {
@@ -44,29 +61,17 @@ body {
   box-sizing: border-box;
 }
 
-#the-nav-bar:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
 #the-logo {
-  float: left;
+  height: 30px;
+  margin: 7px 13px;
 }
 
 #the-my-siftrs-button, #the-my-account-button, #the-discover-button {
-  float: right;
   height: 53px;
   line-height: 53px;
   margin-right: 25px;
   vertical-align: middle;
-  text-transform: uppercase;
-  color: rgb(231, 203, 0);
   text-decoration: none;
-}
-
-#the-my-account-button, #the-discover-button {
-  color: white;
 }
 
 textarea {
@@ -75,7 +80,7 @@ textarea {
 
 input[type=text], input[type=password], textarea {
   font-size: 20px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Varela Round', sans-serif;
   box-sizing: border-box;
 }
 

@@ -397,29 +397,31 @@ App = React.createClass
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div#the-nav-bar', =>
-        child 'a', href: '#', =>
-          props
-            onClick: (e) =>
-              e.preventDefault()
-              @setState account_menu: not @state.account_menu
-          child 'div#the-mobile-menu-button', =>
-            raw '☰'
-        child 'a', href: '..', =>
-          child 'img#the-logo', src: 'img/brand.png'
-        child 'a', href: '../discover', =>
-          child 'div#the-discover-button', =>
-            raw 'Discover'
-        if @state.auth?
+        child 'div', =>
           child 'a', href: '#', =>
             props
               onClick: (e) =>
                 e.preventDefault()
                 @setState account_menu: not @state.account_menu
-            child 'div#the-my-account-button', =>
-              raw 'My Account'
-        child 'a', href: '../editor', =>
-          child 'div#the-my-siftrs-button', =>
-            raw 'My Siftrs'
+            child 'div#the-mobile-menu-button', =>
+              raw '☰'
+          child 'a', href: '..', =>
+            child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
+        child 'div', =>
+          child 'a', href: '../editor', =>
+            child 'div#the-my-siftrs-button', =>
+              raw 'My Siftrs'
+          if @state.auth?
+            child 'a', href: '#', =>
+              props
+                onClick: (e) =>
+                  e.preventDefault()
+                  @setState account_menu: not @state.account_menu
+              child 'div#the-my-account-button', =>
+                raw 'My Account'
+          child 'a', href: '../discover', =>
+            child 'div#the-discover-button', =>
+              raw 'Discover'
       child 'div#the-content', =>
         if @state.auth?
           child 'div', =>
@@ -1114,18 +1116,21 @@ EditSiftr = React.createClass
               props style:
                 marginTop: 30
                 marginBottom: 30
-              child 'span', =>
+              child 'a', href: '#', =>
                 props
-                  style:
-                    backgroundColor: 'rgb(51,191,224)'
-                    color: 'white'
-                    cursor: 'pointer'
-                    paddingLeft: 35
-                    paddingRight: 35
-                    paddingTop: 10
-                    paddingBottom: 10
-                  onClick: @props.openMobileMap
-                raw 'EDIT LOCATION'
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.openMobileMap
+                child 'span', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(51,191,224)'
+                      color: 'white'
+                      paddingLeft: 35
+                      paddingRight: 35
+                      paddingTop: 10
+                      paddingBottom: 10
+                  raw 'EDIT LOCATION'
             child 'h2', => raw 'SETTINGS'
             child 'h4', => raw 'PRIVACY'
             child 'p', =>
@@ -1198,18 +1203,18 @@ EditSiftr = React.createClass
               props style:
                 marginTop: 60
                 marginBottom: 30
-              child 'span', =>
+              child 'a', href: '#', =>
                 props
                   style:
                     backgroundColor: 'rgb(51,191,224)'
                     color: 'white'
-                    cursor: 'pointer'
                     paddingLeft: 35
                     paddingRight: 35
                     paddingTop: 10
                     paddingBottom: 10
                     marginRight: 20
-                  onClick: =>
+                  onClick: (e) =>
+                    e.preventDefault()
                     unless @props.game.name
                       alert 'Please enter a name for your Siftr.'
                     else unless @props.game.description
@@ -1308,49 +1313,52 @@ NewStep1 = React.createClass
           child 'div.newStep1LeftCol', =>
             child 'label', =>
               child 'p', => raw 'SIFTR ICON'
-              child 'div', =>
-                s =
-                  width: '100%'
-                  height: 260
-                  cursor: 'pointer'
-                  backgroundColor: '#eee'
-                  textAlign: 'center'
-                  boxSizing: 'border-box'
-                if @props.icon?
-                  props style: update s, $merge:
-                    backgroundImage: "url(#{@props.icon})"
-                    backgroundSize: 'contain'
-                    backgroundRepeat: 'no-repeat'
-                    backgroundPosition: 'center'
-                else
-                  props style: update s, $merge:
-                    paddingLeft: 40
-                    paddingRight: 40
-                    paddingTop: 30
-                  child 'div', style:
-                    backgroundColor: '#ccc'
-                    height: 80
-                    width: 80
-                    borderRadius: '40px'
-                    marginLeft: 'auto'
-                    marginRight: 'auto'
-                  child 'h3', =>
-                    raw 'Drag an image here or '
-                    child 'span', style: {color: 'rgb(20,156,201)'}, => raw 'browse'
-                    raw ' to upload one.'
-                  child 'p', => child 'i', =>
-                    raw '200px by 200px recommended'
+              child 'a', href: '#', =>
                 props
-                  onClick: @selectImage
-                  onDragOver: (e) =>
-                    e.stopPropagation()
+                  onClick: (e) =>
                     e.preventDefault()
-                  onDrop: (e) =>
-                    e.stopPropagation()
-                    e.preventDefault()
-                    for file in e.dataTransfer.files
-                      @loadImageFile file
-                      break
+                    @selectImage()
+                child 'div', =>
+                  s =
+                    width: '100%'
+                    height: 260
+                    backgroundColor: '#eee'
+                    textAlign: 'center'
+                    boxSizing: 'border-box'
+                  if @props.icon?
+                    props style: update s, $merge:
+                      backgroundImage: "url(#{@props.icon})"
+                      backgroundSize: 'contain'
+                      backgroundRepeat: 'no-repeat'
+                      backgroundPosition: 'center'
+                  else
+                    props style: update s, $merge:
+                      paddingLeft: 40
+                      paddingRight: 40
+                      paddingTop: 30
+                    child 'div', style:
+                      backgroundColor: '#ccc'
+                      height: 80
+                      width: 80
+                      borderRadius: '40px'
+                      marginLeft: 'auto'
+                      marginRight: 'auto'
+                    child 'h3', =>
+                      raw 'Drag an image here or '
+                      child 'span', style: {color: 'rgb(20,156,201)'}, => raw 'browse'
+                      raw ' to upload one.'
+                    child 'p', => child 'i', =>
+                      raw '200px by 200px recommended'
+                  props
+                    onDragOver: (e) =>
+                      e.stopPropagation()
+                      e.preventDefault()
+                    onDrop: (e) =>
+                      e.stopPropagation()
+                      e.preventDefault()
+                      for file in e.dataTransfer.files
+                        @loadImageFile file
+                        break
 
           child 'div', style: clear: 'both'
         child 'p', =>
@@ -1460,61 +1468,56 @@ NewStep2 = React.createClass
                 do (i) =>
                   child 'div', key: "tag-#{i}", =>
                     props style:
-                      display: 'table'
+                      display: 'flex'
+                      flexDirection: 'row'
+                      alignItems: 'center'
                       width: '100%'
                       marginTop: 30
                       marginBottom: 30
-                    child 'div', =>
-                      props style:
-                        display: 'table-cell'
-                        width: 30
-                      child 'div', style:
-                        width: 30
-                        height: 30
-                        borderRadius: 15
-                        backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 8) + 1}"] or 'black'
-                        marginTop: 'auto'
-                        marginBottom: 'auto'
-                    child 'div', =>
-                      props style:
-                        display: 'table-cell'
-                        position: 'relative'
-                      child 'input',
-                        type: 'text'
-                        value: tag
-                        onChange: @handleChange
-                        ref: (elt) => @tag_boxes.push(elt) unless elt is null
-                        style:
-                          position: 'absolute'
-                          width: 'calc(100% - 40px)'
-                          boxSizing: 'border-box'
-                          marginLeft: 20
-                          top: 0
-                    child 'div', =>
+                    child 'span', style:
+                      width: 30
+                      minWidth: 30
+                      height: 30
+                      borderRadius: 15
+                      margin: 5
+                      backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 8) + 1}"] or 'black'
+                    child 'input',
+                      style:
+                        flex: 1
+                        margin: 5
+                      type: 'text'
+                      value: tag
+                      onChange: @handleChange
+                      ref: (elt) => @tag_boxes.push(elt) unless elt is null
+                    child 'a', href: '#', =>
                       props
-                        style:
-                          display: 'table-cell'
-                          width: 30
-                          color: 'rgb(255,87,61)'
-                          fontSize: '25px'
-                          cursor: 'pointer'
-                          position: 'relative'
-                        onClick: => @deleteTag i
-                      child 'span', style: {position: 'absolute', top: -3}, => raw '×'
+                        onClick: (e) =>
+                          e.preventDefault()
+                          @deleteTag i
+                      child 'span', =>
+                        props
+                          style:
+                            color: 'rgb(255,87,61)'
+                            fontSize: '25px'
+                            margin: 5
+                        raw '×'
               child 'p', =>
                 props style: marginTop: 40
-                child 'span', =>
+                child 'a', href: '#', =>
                   props
-                    style:
-                      backgroundColor: 'rgb(97,201,226)'
-                      color: 'white'
-                      paddingLeft: 25
-                      paddingRight: 25
-                      paddingTop: 10
-                      paddingBottom: 10
-                      cursor: 'pointer'
-                    onClick: @addTag
-                  raw 'ADD CATEGORY'
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @addTag()
+                  child 'span', =>
+                    props
+                      style:
+                        backgroundColor: 'rgb(97,201,226)'
+                        color: 'white'
+                        paddingLeft: 25
+                        paddingRight: 25
+                        paddingTop: 10
+                        paddingBottom: 10
+                    raw 'ADD CATEGORY'
           child 'div.newStep2RightCol', =>
             child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
               child GoogleMap,

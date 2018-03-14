@@ -90,13 +90,11 @@
 }
 
 #the-mobile-menu-button {
-  float: left;
   height: 53px;
   line-height: 53px;
   margin-left: 10px;
   margin-right: 10px;
   vertical-align: middle;
-  color: white;
   text-decoration: none;
   font-size: 25px;
 }
