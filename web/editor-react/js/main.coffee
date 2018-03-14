@@ -1274,21 +1274,7 @@ NewStep1 = React.createClass
   displayName: 'NewStep1'
 
   render: ->
-    make 'div', =>
-      child 'div.new-siftr-hero', =>
-        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'a', href: '#new2', =>
-          props
-            onClick: (e) =>
-              unless @props.game.name
-                alert "Please give your Siftr a name."
-                e.preventDefault()
-              else unless @props.game.description
-                alert "Please give your Siftr a description."
-                e.preventDefault()
-          child 'div.newNextButton', =>
-            raw 'NEXT, APPEARANCE >'
-
+    make 'div.newStepBox', =>
       child 'div.newStep1', =>
         child 'h3', style: {textAlign: 'center'}, =>
           raw 'What kind of Siftr do you want to make?'
@@ -1373,6 +1359,19 @@ NewStep1 = React.createClass
                 paddingTop: 8
                 paddingBottom: 8
               raw 'CANCEL'
+      child 'div.new-siftr-hero', =>
+        child 'div'
+        child 'a', href: '#new2', =>
+          props
+            onClick: (e) =>
+              unless @props.game.name
+                alert "Please give your Siftr a name."
+                e.preventDefault()
+              else unless @props.game.description
+                alert "Please give your Siftr a description."
+                e.preventDefault()
+          child 'div.newNextButton', =>
+            raw 'appearance >'
 
   selectImage: ->
     input = document.createElement 'input'
@@ -1399,24 +1398,7 @@ NewStep2 = React.createClass
   displayName: 'NewStep2'
 
   render: ->
-    make 'div', =>
-      child 'div.new-siftr-hero', =>
-        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'a', href: '#new1', =>
-          child 'div.newPrevButton', =>
-            raw '< BACK, SETUP'
-        child 'a', href: '#new3', =>
-          props
-            onClick: (e) =>
-              tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
-              if tags.length is 1 and tags[0] is ''
-                alert 'You must have at least one category.'
-                e.preventDefault()
-              else if '' in tags
-                alert 'You cannot have any unnamed categories.'
-                e.preventDefault()
-          child 'div.newNextButton', =>
-            raw 'NEXT, DATA >'
+    make 'div.newStepBox', =>
 
       child 'div.newStep2', =>
         child 'h3', style: {textAlign: 'center'}, =>
@@ -1550,6 +1532,23 @@ NewStep2 = React.createClass
                 paddingBottom: 8
               raw 'CANCEL'
 
+      child 'div.new-siftr-hero', =>
+        child 'a', href: '#new1', =>
+          child 'div.newPrevButton', =>
+            raw '< setup'
+        child 'a', href: '#new3', =>
+          props
+            onClick: (e) =>
+              tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
+              if tags.length is 1 and tags[0] is ''
+                alert 'You must have at least one category.'
+                e.preventDefault()
+              else if '' in tags
+                alert 'You cannot have any unnamed categories.'
+                e.preventDefault()
+          child 'div.newNextButton', =>
+            raw 'data >'
+
   deleteTag: (index) ->
     tags =
       for input, i in @tag_boxes
@@ -1592,7 +1591,7 @@ NewStep3 = React.createClass
     deletingOption: null
 
   render: ->
-    make 'div', =>
+    make 'div.newStepBox', =>
       if @props.editing
         child 'p',
           style:
@@ -1610,15 +1609,6 @@ NewStep3 = React.createClass
                 width: 250
                 padding: 5
             raw 'BACK'
-      else
-        child 'div.new-siftr-hero', =>
-          child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-          child 'a', href: '#new2', =>
-            child 'div.newPrevButton', =>
-              raw '< BACK, APPEARANCE'
-          child 'a', href: '#new4', =>
-            child 'div.newNextButton', =>
-              raw 'NEXT, SETTINGS >'
 
       fields =
         if @props.editing
@@ -1847,23 +1837,20 @@ NewStep3 = React.createClass
             child 'p', =>
               raw 'No field selected.'
 
+      unless @props.editing
+        child 'div.new-siftr-hero', =>
+          child 'a', href: '#new2', =>
+            child 'div.newPrevButton', =>
+              raw '< appearance'
+          child 'a', href: '#new4', =>
+            child 'div.newNextButton', =>
+              raw 'settings >'
+
 NewStep4 = React.createClass
   displayName: 'NewStep4'
 
   render: ->
-    make 'div', =>
-      child 'div.new-siftr-hero', =>
-        child 'span', style: {fontSize: '30px'}, => raw 'NEW SIFTR'
-        child 'a', href: '#new3', =>
-          child 'div.newPrevButton', =>
-            raw '< BACK, DATA'
-        child 'div.newNextButton', =>
-          props
-            style:
-              backgroundColor: 'rgb(254,212,0)'
-            onClick: @props.onCreate
-          raw 'PUBLISH!'
-
+    make 'div.newStepBox', =>
       child 'div.newStep4', =>
         child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
         child 'h4', => raw 'PRIVACY'
@@ -1907,6 +1894,17 @@ NewStep4 = React.createClass
             child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url}"
           else
             raw "Enter a custom identifier for your Siftr's web address."
+      child 'div.new-siftr-hero', =>
+        child 'a', href: '#new3', =>
+          child 'div.newPrevButton', =>
+            raw '< data'
+        child 'a', href: "#", =>
+          props
+            onClick: (e) =>
+              e.preventDefault()
+              @props.onCreate()
+          child 'div.newNextButton', =>
+            raw 'publish!'
 
 document.addEventListener 'DOMContentLoaded', (event) ->
   ReactDOM.render make(App, aris: new Aris), document.getElementById('the-container')

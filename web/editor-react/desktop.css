@@ -85,18 +85,6 @@
   box-sizing: border-box;
 }
 
-.newPrevButton {
-  position: absolute;
-  top: 60px;
-  left: 20%;
-}
-
-.newNextButton {
-  position: absolute;
-  top: 60px;
-  right: 20%;
-}
-
 .accountMenuDesktop {
   max-height: 0;
   position: fixed;
