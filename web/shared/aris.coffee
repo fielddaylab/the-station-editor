@@ -2,7 +2,7 @@
 
 $ = require 'jquery'
 
-ARIS_URL = 'https://arisgames.org/server/'
+ARIS_URL = 'http://localhost:10080/server/'
 SIFTR_URL = window.location.origin + '/'
 
 class Game
@@ -22,6 +22,7 @@ class Game
       @icon_media_id = parseInt json.icon_media_id
       @created       = new Date(json.created.replace(' ', 'T') + 'Z')
       @prompt        = json.prompt
+      @password      = json.password
     else
       @game_id       = null
       @name          = null
@@ -37,6 +38,7 @@ class Game
       @icon_media_id = null
       @created       = null
       @prompt        = null
+      @password      = null
 
   createJSON: ->
     game_id:        @game_id or undefined
@@ -53,6 +55,7 @@ class Game
     icon_media_id:  @icon_media_id
     prompt:         @prompt
     fields:         @fields
+    password:       @password
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)
