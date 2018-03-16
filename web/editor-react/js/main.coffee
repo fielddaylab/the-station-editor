@@ -1136,15 +1136,24 @@ EditSiftr = React.createClass
             child 'p', =>
               raw 'Do you want '
               child 'b', => raw @props.game.name
-              raw ' to be public or private?'
+              raw ' to appear in search results?'
             child 'p', =>
               props style:
                 marginTop: 30
                 marginBottom: 30
-              toggleSwitch 'PUBLIC', @props.game.published, =>
+              toggleSwitch 'YES', @props.game.published, =>
                 @props.onChange update @props.game, published: $set: true
-              toggleSwitch 'PRIVATE', not @props.game.published, =>
+              toggleSwitch 'NO', not @props.game.published, =>
                 @props.onChange update @props.game, published: $set: false
+            child 'p', =>
+              raw 'Do you want to set a password to restrict access?'
+            child 'p', =>
+              child 'input',
+                type: 'text'
+                placeholder: 'Password (optional)'
+                value: @props.game.password ? ''
+                onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+                style: width: '100%'
             child 'h4', => raw 'MODERATION'
             child 'p', =>
               raw 'Do new user submissions have to be approved by you before they are added to '
