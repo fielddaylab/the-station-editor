@@ -1548,43 +1548,16 @@ NewStep3 = React.createClass
 
   render: ->
     make 'div.newStepBox', =>
-      child 'div.newStep2', =>
-        child 'div.newStep2ColorTable', =>
-        child 'div', =>
-          props style: paddingTop: 20
-          child 'div.newStep2LeftCol', =>
-          child 'div.newStep2RightCol', =>
-            child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
-              child GoogleMap,
-                ref: 'map'
-                bootstrapURLKeys:
-                  key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
-                center: [@props.game.latitude, @props.game.longitude]
-                zoom: Math.max(2, @props.game.zoom)
-                options: minZoom: 2
-                onChange: @handleMapChange
-              child 'h3', =>
-                props style:
-                  position: 'absolute'
-                  top: 20
-                  left: 20
-                  padding: 0
-                  margin: 0
-                raw 'POSITION MAP CENTER'
-          child 'div', style: clear: 'both'
-        child 'p', =>
-          child 'a', href: '#', =>
-            child 'span', =>
-              props style:
-                float: 'right'
-                color: 'white'
-                backgroundColor: 'lightgray'
-                paddingLeft: 35
-                paddingRight: 35
-                paddingTop: 8
-                paddingBottom: 8
-              raw 'CANCEL'
-
+      child 'div.newStep3', =>
+        child 'div.newStep3MapContainer', =>
+          child GoogleMap,
+            ref: 'map'
+            bootstrapURLKeys:
+              key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
+            center: [@props.game.latitude, @props.game.longitude]
+            zoom: Math.max(2, @props.game.zoom)
+            options: minZoom: 2
+            onChange: @handleMapChange
       child 'div.new-siftr-hero', =>
         child 'a', href: '#new2', =>
           child 'div.newPrevButton', =>

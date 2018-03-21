@@ -259,3 +259,14 @@ a {
   flex: 1;
   overflow-y: scroll;
 }
+
+.newStep3 {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+}
+
+.newStep3MapContainer {
+  flex: 1;
+}

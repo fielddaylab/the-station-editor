@@ -33,10 +33,6 @@
   display: table-row;
 }
 
-.newStep2MapContainer {
-  height: 300px;
-}
-
 .editSiftrMapContainer {
   display: none;
 }
