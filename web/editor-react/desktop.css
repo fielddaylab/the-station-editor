@@ -52,18 +52,18 @@
   height: 500px;
 }
 
-.newStep3 {
+.newStep4 {
   width: 100%;
   display: flex;
   flex-direction: row;
 }
 
-.newStep3Fields, .newStep3FieldInfo {
+.newStep4Fields, .newStep4FieldInfo {
   flex: 1;
   padding: 20px;
 }
 
-.newStep4 {
+.newStep5 {
   width: 30%;
   padding-left: 35%;
 }

@@ -14,7 +14,7 @@
   width: calc(100% - 40px);
 }
 
-.newStep1, .newStep2, .newStep3, .newStep4, .editSiftrLeftCol, .loginForm {
+.newStep1, .newStep2, .newStep4, .newStep5, .editSiftrLeftCol, .loginForm {
   box-sizing: border-box;
   width: 100%;
   padding-left: 15px;

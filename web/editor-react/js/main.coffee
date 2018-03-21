@@ -112,28 +112,21 @@ App = React.createClass
         screen: 'new1'
         new_step: 1
     else if hash is 'new2'
-      if @state.new_step is null
-        window.location.replace '#new1'
-      else
-        @setState
-          screen: 'new2'
-          new_step: 2
+      @setState
+        screen: 'new2'
+        new_step: 2
     else if hash is 'new3'
-      if @state.new_step in [null, 1]
-        window.location.replace '#new1'
-      else
-        @setState
-          screen: 'new3'
-          new_step: 3
+      @setState
+        screen: 'new3'
+        new_step: 3
     else if hash is 'new4'
-      if @state.new_step in [null, 1]
-        window.location.replace '#new1'
-      else if @state.new_step is 2
-        window.location.replace '#new2'
-      else
-        @setState
-          screen: 'new4'
-          new_step: 4
+      @setState
+        screen: 'new4'
+        new_step: 4
+    else if hash is 'new5'
+      @setState
+        screen: 'new5'
+        new_step: 5
     else if hash is 'account'
       @setState
         screen: 'account'
@@ -581,7 +574,7 @@ App = React.createClass
                     fn()
                   else
                     alert "An error occurred: #{returnCodeDescription}"
-                child NewStep3,
+                child NewStep4,
                   editing: true
                   fields: @state.forms[@state.edit_game.game_id]
                   addField: (field_type) =>
@@ -744,11 +737,15 @@ App = React.createClass
                   onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
               when 'new3'
                 child NewStep3,
-                  editing: false
                   game: @state.new_game
                   onChange: (new_game) => @setState {new_game}
               when 'new4'
                 child NewStep4,
+                  editing: false
+                  game: @state.new_game
+                  onChange: (new_game) => @setState {new_game}
+              when 'new5'
+                child NewStep5,
                   game: @state.new_game
                   onChange: (new_game) => @setState {new_game}
                   onCreate: @createGame
@@ -1371,14 +1368,6 @@ NewStep1 = React.createClass
       child 'div.new-siftr-hero', =>
         child 'div'
         child 'a', href: '#new2', =>
-          props
-            onClick: (e) =>
-              unless @props.game.name
-                alert "Please give your Siftr a name."
-                e.preventDefault()
-              else unless @props.game.description
-                alert "Please give your Siftr a description."
-                e.preventDefault()
           child 'div.newNextButton', =>
             raw 'appearance >'
 
@@ -1510,6 +1499,61 @@ NewStep2 = React.createClass
                         paddingBottom: 10
                     raw 'ADD CATEGORY'
           child 'div.newStep2RightCol', =>
+          child 'div', style: clear: 'both'
+        child 'p', =>
+          child 'a', href: '#', =>
+            child 'span', =>
+              props style:
+                float: 'right'
+                color: 'white'
+                backgroundColor: 'lightgray'
+                paddingLeft: 35
+                paddingRight: 35
+                paddingTop: 8
+                paddingBottom: 8
+              raw 'CANCEL'
+
+      child 'div.new-siftr-hero', =>
+        child 'a', href: '#new1', =>
+          child 'div.newPrevButton', =>
+            raw '< setup'
+        child 'a', href: '#new3', =>
+          child 'div.newNextButton', =>
+            raw 'map >'
+
+  deleteTag: (index) ->
+    tags =
+      for input, i in @tag_boxes
+        continue if i is index
+        input.value
+    @props.onChange @props.game, tags.join(',')
+
+  addTag: ->
+    tag_string = @tag_boxes.map((input) => input.value).join(',') + ','
+    @props.onChange @props.game, tag_string
+
+  handleChange: ->
+    colors_id = 1
+    for i in [1..6]
+      if @refs["colors_#{i}"].checked
+        colors_id = i
+    game = update @props.game,
+      colors_id:
+        $set: colors_id
+    tag_string = @tag_boxes.map((input) => input.value).join(',')
+    @props.onChange game, tag_string
+
+NewStep3 = React.createClass
+  displayName: 'NewStep3'
+
+  render: ->
+    make 'div.newStepBox', =>
+      child 'div.newStep2', =>
+        child 'div.newStep2ColorTable', =>
+        child 'div', =>
+          props style: paddingTop: 20
+          child 'div.newStep2LeftCol', =>
+          child 'div.newStep2RightCol', =>
             child 'div.newStep2MapContainer', style: {width: '100%', position: 'relative'}, =>
               child GoogleMap,
                 ref: 'map'
@@ -1542,43 +1586,12 @@ NewStep2 = React.createClass
               raw 'CANCEL'
 
       child 'div.new-siftr-hero', =>
-        child 'a', href: '#new1', =>
+        child 'a', href: '#new2', =>
           child 'div.newPrevButton', =>
-            raw '< setup'
-        child 'a', href: '#new3', =>
-          props
-            onClick: (e) =>
-              tags = @props.tag_string.split(',').map (t) => t.replace(/^\s+/, '')
-              if tags.length is 1 and tags[0] is ''
-                alert 'You must have at least one category.'
-                e.preventDefault()
-              else if '' in tags
-                alert 'You cannot have any unnamed categories.'
-                e.preventDefault()
+            raw '< appearance'
+        child 'a', href: '#new4', =>
           child 'div.newNextButton', =>
             raw 'data >'
-
-  deleteTag: (index) ->
-    tags =
-      for input, i in @tag_boxes
-        continue if i is index
-        input.value
-    @props.onChange @props.game, tags.join(',')
-
-  addTag: ->
-    tag_string = @tag_boxes.map((input) => input.value).join(',') + ','
-    @props.onChange @props.game, tag_string
-
-  handleChange: ->
-    colors_id = 1
-    for i in [1..6]
-      if @refs["colors_#{i}"].checked
-        colors_id = i
-    game = update @props.game,
-      colors_id:
-        $set: colors_id
-    tag_string = @tag_boxes.map((input) => input.value).join(',')
-    @props.onChange game, tag_string
 
   handleMapChange: ({center: {lat, lng}, zoom}) ->
     game = update @props.game,
@@ -1588,10 +1601,10 @@ NewStep2 = React.createClass
         $set: lng
       zoom:
         $set: zoom
-    @props.onChange game, @props.tag_string
+    @props.onChange game
 
-NewStep3 = React.createClass
-  displayName: 'NewStep3'
+NewStep4 = React.createClass
+  displayName: 'NewStep4'
 
   getInitialState: ->
     editingIndex: null
@@ -1624,8 +1637,8 @@ NewStep3 = React.createClass
           @props.fields ? []
         else
           @props.game.fields ? []
-      child 'div.newStep3', =>
-        child 'div.newStep3Fields', =>
+      child 'div.newStep4', =>
+        child 'div.newStep4Fields', =>
           fields.forEach (field, i) =>
             child 'a', href: '#', onClick: (e) =>
               e.preventDefault()
@@ -1693,7 +1706,7 @@ NewStep3 = React.createClass
                 child 'img', src: "../assets/icons/form-#{type}.png"
                 child 'br'
                 raw name
-        child 'div.newStep3FieldInfo', =>
+        child 'div.newStep4FieldInfo', =>
           if (field = @state.editingField)?
 
             reloadThisField = =>
@@ -1848,19 +1861,19 @@ NewStep3 = React.createClass
 
       unless @props.editing
         child 'div.new-siftr-hero', =>
-          child 'a', href: '#new2', =>
+          child 'a', href: '#new3', =>
             child 'div.newPrevButton', =>
-              raw '< appearance'
-          child 'a', href: '#new4', =>
+              raw '< map'
+          child 'a', href: '#new5', =>
             child 'div.newNextButton', =>
               raw 'settings >'
 
-NewStep4 = React.createClass
-  displayName: 'NewStep4'
+NewStep5 = React.createClass
+  displayName: 'NewStep5'
 
   render: ->
     make 'div.newStepBox', =>
-      child 'div.newStep4', =>
+      child 'div.newStep5', =>
         child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
         child 'h4', => raw 'PRIVACY'
         child 'p', =>
@@ -1913,7 +1926,7 @@ NewStep4 = React.createClass
           else
             raw "Enter a custom identifier for your Siftr's web address."
       child 'div.new-siftr-hero', =>
-        child 'a', href: '#new3', =>
+        child 'a', href: '#new4', =>
           child 'div.newPrevButton', =>
             raw '< data'
         child 'a', href: "#", =>
