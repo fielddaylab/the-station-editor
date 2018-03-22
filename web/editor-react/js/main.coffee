@@ -1549,6 +1549,23 @@ NewStep3 = React.createClass
   render: ->
     make 'div.newStepBox', =>
       child 'div.newStep3', =>
+        child 'div.newStep3Controls', =>
+          child 'p', =>
+            raw 'Is your Siftr tied to a specific location?'
+          child 'p', =>
+            child 'label', =>
+              child 'input',
+                type: 'checkbox'
+                checked: @props.game.type isnt 'ANYWHERE'
+                onChange: (e) =>
+                  @props.onChange update @props.game, type: $set:
+                    if e.target.checked
+                      'LOCATION'
+                    else
+                      'ANYWHERE'
+              raw ' Load at location'
+          child 'p', =>
+            raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
         child 'div.newStep3MapContainer', =>
           child GoogleMap,
             ref: 'map'

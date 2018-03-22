@@ -261,12 +261,15 @@ a {
 }
 
 .newStep3 {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   flex: 1;
+  display: flex;
+  align-items: stretch;
 }
 
 .newStep3MapContainer {
   flex: 1;
+}
+
+.newStep3Controls {
+  padding: 5px 15px;
 }

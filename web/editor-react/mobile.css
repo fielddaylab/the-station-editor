@@ -97,3 +97,7 @@
   clear: both;
   height: 10px;
 }
+
+.newStep3 {
+  flex-direction: column;
+}

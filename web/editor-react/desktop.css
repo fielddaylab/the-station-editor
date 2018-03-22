@@ -125,3 +125,11 @@
 .mobileSaveLocation {
   display: none;
 }
+
+.newStep3 {
+  flex-direction: row-reverse;
+}
+
+.newStep3Controls {
+  max-width: 360px;
+}
