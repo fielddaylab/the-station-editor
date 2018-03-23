@@ -1147,149 +1147,55 @@ EditSiftr = React.createClass
   displayName: 'EditSiftr'
 
   render: ->
-    make 'div', =>
-      if @props.mobileMapIsOpen
-        props className: 'mobileMapIsOpen'
-      child 'div', =>
-        child 'div.editSiftrLeftCol', =>
-          child 'form', =>
-            child 'h2', => raw @props.game.name
-            child 'label', =>
-              child 'h4', => raw 'NAME'
-              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
-            child 'label', =>
-              child 'h4', =>
-                raw 'DESCRIPTION '
-                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
-                  child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
-            child 'div',
-              dangerouslySetInnerHTML: renderMarkdown @props.game.description
-            child 'label', =>
-              child 'h4', => raw 'URL'
-              child 'p', =>
-                child 'input',
-                  type: 'text'
-                  placeholder: 'URL (optional)'
-                  value: @props.game.siftr_url ? ''
-                  onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
-                  style: width: '100%'
-            child 'p', =>
-              child 'b', => raw @props.game.name
-              raw " will be located at "
-              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
-            child 'label', =>
-              child 'h4', => raw 'PROMPT'
-              child 'p', =>
-                raw 'Enter a caption prompt for a user uploading a photo.'
-              child 'p', =>
-                child 'input',
-                  type: 'text'
-                  placeholder: 'Enter a caption...'
-                  value: @props.game.prompt ? ''
-                  onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
-                  style: width: '100%'
-            child 'p.editLocationMobile', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.openMobileMap
-                child 'span', =>
-                  props
-                    style:
-                      backgroundColor: 'rgb(51,191,224)'
-                      color: 'white'
-                      paddingLeft: 35
-                      paddingRight: 35
-                      paddingTop: 10
-                      paddingBottom: 10
-                  raw 'EDIT LOCATION'
-            child 'h2', => raw 'SETTINGS'
-            child 'h4', => raw 'PRIVACY'
-            child 'p', =>
-              raw 'Do you want '
-              child 'b', => raw @props.game.name
-              raw ' to appear in search results?'
-            child 'p', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              toggleSwitch 'YES', @props.game.published, =>
-                @props.onChange update @props.game, published: $set: true
-              toggleSwitch 'NO', not @props.game.published, =>
-                @props.onChange update @props.game, published: $set: false
-            child 'p', =>
-              raw 'Do you want to set a password to restrict access?'
+    make 'div.newStep1', =>
+      child 'div.newStep1LeftColumn', =>
+        child 'form', =>
+          child 'h2', => raw @props.game.name
+          child 'label', =>
+            child 'h4', => raw 'NAME'
+            child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
+          child 'label', =>
+            child 'h4', =>
+              raw 'DESCRIPTION '
+              child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
+                child 'i', => raw 'markdown supported'
+            child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
+          child 'div',
+            dangerouslySetInnerHTML: renderMarkdown @props.game.description
+          child 'label', =>
+            child 'h4', => raw 'URL'
             child 'p', =>
               child 'input',
                 type: 'text'
-                placeholder: 'Password (optional)'
-                value: @props.game.password ? ''
-                onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+                placeholder: 'URL (optional)'
+                value: @props.game.siftr_url ? ''
+                onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
                 style: width: '100%'
-            child 'h4', => raw 'MODERATION'
+          child 'p', =>
+            child 'b', => raw @props.game.name
+            raw " will be located at "
+            child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
+          child 'label', =>
+            child 'h4', => raw 'PROMPT'
             child 'p', =>
-              raw 'Do new user submissions have to be approved by you before they are added to '
-              child 'b', => raw @props.game.name
-              raw '?'
+              raw 'Enter a caption prompt for a user uploading a photo.'
             child 'p', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              toggleSwitch 'YES', @props.game.moderated, =>
-                @props.onChange update @props.game, moderated: $set: true
-              toggleSwitch 'NO', not @props.game.moderated, =>
-                @props.onChange update @props.game, moderated: $set: false
-
-            child 'h2', => raw 'APPEARANCE'
-            child 'p', =>
-              raw 'What color palette should '
-              child 'b', => raw @props.game.name
-              raw ' use?'
-            colorsRow = (colors_ids) =>
-              child 'div', =>
-                props style:
-                  display: 'table'
-                  width: '100%'
-                  tableLayout: 'fixed'
-                  fontSize: '13px'
-                for i in colors_ids
-                  colors = @props.colors[i]
-                  rgbs =
-                    if colors?
-                      colors["tag_#{j}"] for j in [1..5]
-                    else
-                      []
-                  child 'label', key: "colors-#{i}", =>
-                    props style: display: 'table-cell'
-                    child 'p', => raw colors?.name
-                    child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-                    gradient = do =>
-                      percent = 0
-                      points = []
-                      for rgb in rgbs
-                        points.push "#{rgb} #{percent}%"
-                        percent += 20
-                        points.push "#{rgb} #{percent}%"
-                      "linear-gradient(to right, #{points.join(', ')})"
-                    child 'div', style:
-                      width: 90
-                      height: 35
-                      marginLeft: 10
-                      backgroundImage: gradient
-                      display: 'inline-block'
-            colorsRow [1, 2, 3]
-            colorsRow [4, 5, 6]
-
-            child 'p', =>
-              props style:
-                marginTop: 60
-                marginBottom: 30
-              child 'a', href: '#', =>
+              child 'input',
+                type: 'text'
+                placeholder: 'Enter a caption...'
+                value: @props.game.prompt ? ''
+                onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
+                style: width: '100%'
+          child 'p.editLocationMobile', =>
+            props style:
+              marginTop: 30
+              marginBottom: 30
+            child 'a', href: '#', =>
+              props
+                onClick: (e) =>
+                  e.preventDefault()
+                  @props.openMobileMap
+              child 'span', =>
                 props
                   style:
                     backgroundColor: 'rgb(51,191,224)'
@@ -1298,39 +1204,119 @@ EditSiftr = React.createClass
                     paddingRight: 35
                     paddingTop: 10
                     paddingBottom: 10
-                    marginRight: 20
-                  onClick: (e) =>
-                    e.preventDefault()
-                    unless @props.game.name
-                      alert 'Please enter a name for your Siftr.'
-                    else unless @props.game.description
-                      alert 'Please enter a description for your Siftr.'
-                    else
-                      @props.onSave()
-                raw 'SAVE'
-              child 'a', href: '#', =>
-                child 'span', =>
-                  props style:
-                    backgroundColor: 'lightgray'
-                    color: 'white'
-                    paddingLeft: 35
-                    paddingRight: 35
-                    paddingTop: 10
-                    paddingBottom: 10
-                    marginRight: 20
-                  raw 'CANCEL'
-        child 'div.editSiftrMapContainer', =>
-          child GoogleMap,
-            ref: 'map'
-            bootstrapURLKeys:
-              key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
-            center: [@props.game.latitude, @props.game.longitude]
-            zoom: Math.max(2, @props.game.zoom)
-            options: minZoom: 2
-            onChange: @handleMapChange
-          child 'span.mobileSaveLocation', onClick: @props.closeMobileMap, =>
-            raw 'SAVE LOCATION'
-        child 'div', style: clear: 'both'
+                raw 'EDIT LOCATION'
+          child 'h2', => raw 'SETTINGS'
+          child 'h4', => raw 'PRIVACY'
+          child 'p', =>
+            raw 'Do you want '
+            child 'b', => raw @props.game.name
+            raw ' to appear in search results?'
+          child 'p', =>
+            props style:
+              marginTop: 30
+              marginBottom: 30
+            toggleSwitch 'YES', @props.game.published, =>
+              @props.onChange update @props.game, published: $set: true
+            toggleSwitch 'NO', not @props.game.published, =>
+              @props.onChange update @props.game, published: $set: false
+          child 'p', =>
+            raw 'Do you want to set a password to restrict access?'
+          child 'p', =>
+            child 'input',
+              type: 'text'
+              placeholder: 'Password (optional)'
+              value: @props.game.password ? ''
+              onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+              style: width: '100%'
+          child 'h4', => raw 'MODERATION'
+          child 'p', =>
+            raw 'Do new user submissions have to be approved by you before they are added to '
+            child 'b', => raw @props.game.name
+            raw '?'
+          child 'p', =>
+            props style:
+              marginTop: 30
+              marginBottom: 30
+            toggleSwitch 'YES', @props.game.moderated, =>
+              @props.onChange update @props.game, moderated: $set: true
+            toggleSwitch 'NO', not @props.game.moderated, =>
+              @props.onChange update @props.game, moderated: $set: false
+
+          child 'h2', => raw 'APPEARANCE'
+          child 'p', =>
+            raw 'What color palette should '
+            child 'b', => raw @props.game.name
+            raw ' use?'
+          colorsRow = (colors_ids) =>
+            child 'div', =>
+              props style:
+                display: 'table'
+                width: '100%'
+                tableLayout: 'fixed'
+                fontSize: '13px'
+              for i in colors_ids
+                colors = @props.colors[i]
+                rgbs =
+                  if colors?
+                    colors["tag_#{j}"] for j in [1..5]
+                  else
+                    []
+                child 'label', key: "colors-#{i}", =>
+                  props style: display: 'table-cell'
+                  child 'p', => raw colors?.name
+                  child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                  gradient = do =>
+                    percent = 0
+                    points = []
+                    for rgb in rgbs
+                      points.push "#{rgb} #{percent}%"
+                      percent += 20
+                      points.push "#{rgb} #{percent}%"
+                    "linear-gradient(to right, #{points.join(', ')})"
+                  child 'div', style:
+                    width: 90
+                    height: 35
+                    marginLeft: 10
+                    backgroundImage: gradient
+                    display: 'inline-block'
+          colorsRow [1, 2, 3]
+          colorsRow [4, 5, 6]
+
+          child 'p', =>
+            props style:
+              marginTop: 60
+              marginBottom: 30
+            child 'a', href: '#', =>
+              props
+                style:
+                  backgroundColor: 'rgb(51,191,224)'
+                  color: 'white'
+                  paddingLeft: 35
+                  paddingRight: 35
+                  paddingTop: 10
+                  paddingBottom: 10
+                  marginRight: 20
+                onClick: (e) =>
+                  e.preventDefault()
+                  unless @props.game.name
+                    alert 'Please enter a name for your Siftr.'
+                  else unless @props.game.description
+                    alert 'Please enter a description for your Siftr.'
+                  else
+                    @props.onSave()
+              raw 'SAVE'
+            child 'a', href: '#', =>
+              child 'span', =>
+                props style:
+                  backgroundColor: 'lightgray'
+                  color: 'white'
+                  paddingLeft: 35
+                  paddingRight: 35
+                  paddingTop: 10
+                  paddingBottom: 10
+                  marginRight: 20
+                raw 'CANCEL'
+      child 'div.newStep1RightColumn'
 
   handleChange: ->
     game = update @props.game,
@@ -1344,16 +1330,6 @@ EditSiftr = React.createClass
             if @refs["colors_#{i}"].checked
               return i
           1
-    @props.onChange game
-
-  handleMapChange: ({center: {lat, lng}, zoom}) ->
-    game = update @props.game,
-      latitude:
-        $set: lat
-      longitude:
-        $set: lng
-      zoom:
-        $set: zoom
     @props.onChange game
 
 NewStep1 = React.createClass

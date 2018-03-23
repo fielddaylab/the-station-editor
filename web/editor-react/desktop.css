@@ -17,6 +17,7 @@
 
 .newStep1LeftColumn {
   flex: 1;
+  padding: 15px;
 }
 
 .newStep1RightColumn {
@@ -53,23 +54,6 @@
 .newStep5 {
   width: 30%;
   padding-left: 35%;
-}
-
-.editSiftrLeftCol {
-  float: left;
-  width: 50%;
-  box-sizing: border-box;
-  padding-left: 35px;
-  padding-right: 35px;
-}
-
-.editSiftrMapContainer {
-  position: fixed;
-  width: 50%;
-  height: calc(100% - 53px);
-  right: 0;
-  bottom: 0;
-  box-sizing: border-box;
 }
 
 .accountMenuDesktop {

@@ -14,7 +14,7 @@
   width: calc(100% - 40px);
 }
 
-.newStep1, .newStep2, .newStep4, .newStep5, .editSiftrLeftCol, .loginForm {
+.newStep1, .newStep2, .newStep4, .newStep5, .loginForm {
   box-sizing: border-box;
   width: 100%;
   padding-left: 15px;
@@ -35,18 +35,6 @@
 
 .newStep2ColorRow {
   display: table-row;
-}
-
-.editSiftrMapContainer {
-  display: none;
-}
-.mobileMapIsOpen .editSiftrMapContainer {
-  display: block;
-  position: fixed;
-  top: 53px;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 53px);
 }
 
 .mobileSaveLocation {
