@@ -396,7 +396,7 @@ App = React.createClass
               child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
           child 'div', =>
             child 'a', href: '../editor', =>
-              child 'div#the-my-siftrs-button', =>
+              child 'div.nav-button-right', =>
                 raw 'My Siftrs'
             if @state.auth?
               child 'a', href: '#', =>
@@ -404,12 +404,30 @@ App = React.createClass
                   onClick: (e) =>
                     e.preventDefault()
                     @setState account_menu: not @state.account_menu
-                child 'div#the-my-account-button', =>
+                child 'div.nav-button-right', =>
                   raw 'My Account'
             child 'a', href: '../discover', =>
-              child 'div#the-discover-button', =>
+              child 'div.nav-button-right', =>
                 raw 'Discover'
-        # child 'div.nav-bar-line', =>
+        if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+          child 'div.nav-bar-line', =>
+            child 'div', =>
+              selectTab = (step) =>
+                if @state.screen is step
+                  '.create-step-tab-selected'
+                else
+                  ''
+              child "a.create-step-tab#{selectTab 'new1'}", href: '#new1', =>
+                raw 'Overview'
+              child "a.create-step-tab#{selectTab 'new2'}", href: '#new2', =>
+                raw 'Design'
+              child "a.create-step-tab#{selectTab 'new3'}", href: '#new3', =>
+                raw 'Location'
+              child "a.create-step-tab#{selectTab 'new4'}", href: '#new4', =>
+                raw 'Data collection'
+              child "a.create-step-tab#{selectTab 'new5'}", href: '#new5', =>
+                raw 'Settings'
+            child 'div'
       child 'div.nav-bar.mobile-nav-bar', =>
         child 'div.nav-bar-line', =>
           child 'div', =>
