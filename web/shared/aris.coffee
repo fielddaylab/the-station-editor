@@ -23,6 +23,7 @@ class Game
       @created       = new Date(json.created.replace(' ', 'T') + 'Z')
       @prompt        = json.prompt
       @password      = json.password
+      @type          = json.type
     else
       @game_id       = null
       @name          = null
@@ -39,6 +40,7 @@ class Game
       @created       = null
       @prompt        = null
       @password      = null
+      @type          = null
 
   createJSON: ->
     game_id:        @game_id or undefined
@@ -56,6 +58,7 @@ class Game
     prompt:         @prompt
     fields:         @fields
     password:       @password
+    type:           @type
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)

@@ -32,6 +32,12 @@ toggleSwitch = (str, checked, check) =>
       onClick: check
     raw str
 
+onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
+  if returnCode is 0
+    fn()
+  else
+    alert "An error occurred: #{returnCodeDescription}"
+
 App = React.createClass
   displayName: 'App'
 
@@ -101,7 +107,18 @@ App = React.createClass
       if matchingGames.length is 1
         @setState
           screen: 'form'
-          delete_tag: null
+          edit_game: matchingGames[0]
+      else
+        @setState screen: 'main'
+        # This is temporary if the user is currently being logged in,
+        # because the list of games will load and re-call applyHash
+    else if (md = hash.match(/^map(.*)/))?
+      game_id = parseInt md[1]
+      matchingGames =
+        game for game in @state.games when game.game_id is game_id
+      if matchingGames.length is 1
+        @setState
+          screen: 'map'
           edit_game: matchingGames[0]
       else
         @setState screen: 'main'
@@ -436,6 +453,20 @@ App = React.createClass
             child 'div', =>
               child 'a.create-cancel', href: '#', =>
                 raw 'Cancel'
+        else if @state.screen is 'map'
+          child 'div.nav-bar-line', =>
+            child 'div'
+            child 'div', =>
+              child 'a.create-cancel', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.aris.updateGame @state.edit_game, onSuccess =>
+                      @updateGames()
+                      window.location.hash = '#'
+                raw 'Save'
+              child 'a.create-cancel', href: '#', =>
+                raw 'Cancel'
       child 'div.nav-bar.mobile-nav-bar', =>
         child 'div.nav-bar-line', =>
           child 'div', =>
@@ -448,6 +479,17 @@ App = React.createClass
                 raw '☰'
           child 'div', =>
             if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+              child 'a.create-cancel', href: '#', =>
+                raw 'Cancel'
+            else if @state.screen is 'map'
+              child 'a.create-cancel', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.aris.updateGame @state.edit_game, onSuccess =>
+                      @updateGames()
+                      window.location.hash = '#'
+                raw 'Save'
               child 'a.create-cancel', href: '#', =>
                 raw 'Cancel'
       child 'div#the-content', =>
@@ -603,11 +645,6 @@ App = React.createClass
                   , 250
                 closeMobileMap: => @setState mobile_map_is_open: false
             when 'form'
-              onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
-                if returnCode is 0
-                  fn()
-                else
-                  alert "An error occurred: #{returnCodeDescription}"
               child NewStep4,
                 editing: true
                 fields: @state.forms[@state.edit_game.game_id]
@@ -646,6 +683,12 @@ App = React.createClass
                     field_option_id: field_option.field_option_id
                     new_field_option_id: new_field_option?.field_option_id
                   , onSuccess => @updateForms([@state.edit_game], cb)
+            when 'map'
+              child NewStep3,
+                editing: true
+                game: @state.edit_game
+                onChange: (game) =>
+                  @setState edit_game: game
             when 'categories'
               child 'div.loginForm', =>
                 tags = @state.tags[@state.edit_game.game_id]
@@ -1055,12 +1098,15 @@ SiftrList = React.createClass
                     marginLeft: 5
                     color: 'black'
                 raw 'DELETE'
-            child 'a', href: "\#categories#{game.game_id}", =>
-              child 'span.siftr-command-button', =>
-                raw 'CATEGORIES'
             child 'a', href: "\#form#{game.game_id}", =>
               child 'span.siftr-command-button', =>
                 raw 'FORM'
+            child 'a', href: "\#categories#{game.game_id}", =>
+              child 'span.siftr-command-button', =>
+                raw 'CATEGORIES'
+            child 'a', href: "\#map#{game.game_id}", =>
+              child 'span.siftr-command-button', =>
+                raw 'MAP'
             child 'a', href: "\#edit#{game.game_id}", =>
               child 'span.siftr-command-button', =>
                 raw 'EDIT'
