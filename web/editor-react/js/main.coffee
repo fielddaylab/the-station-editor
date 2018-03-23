@@ -1558,18 +1558,20 @@ NewStep3 = React.createClass
         child 'div.newStep3Controls', =>
           child 'p', =>
             raw 'Is your Siftr tied to a specific location?'
-          child 'p', =>
-            child 'label', =>
-              child 'input',
-                type: 'checkbox'
-                checked: @props.game.type isnt 'ANYWHERE'
-                onChange: (e) =>
-                  @props.onChange update @props.game, type: $set:
-                    if e.target.checked
-                      'LOCATION'
-                    else
-                      'ANYWHERE'
-              raw ' Load at location'
+          location = @props.game.type isnt 'ANYWHERE'
+          child "a.form-multi-option.form-multi-option-#{if location then 'on' else 'off'}", href: '#', =>
+            props
+              onClick: (e) =>
+                e.preventDefault()
+                @props.onChange update @props.game, type: $set:
+                  if location
+                    'ANYWHERE'
+                  else
+                    'LOCATION'
+            child 'span.form-multi-option-text', =>
+              raw 'Load at location'
+            child 'span.form-multi-option-switch', =>
+              child 'span.form-multi-option-ball'
           child 'p', =>
             raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
         child 'div.newStep3MapContainer', =>
@@ -1872,18 +1874,17 @@ NewStep5 = React.createClass
       child 'div.newStep1', =>
         child 'div.newStep1Column.newStep1LeftColumn', =>
           child 'h4', => raw 'PRIVACY'
-          child 'p', =>
-            raw 'Do you want '
-            child 'b', => raw @props.game.name
-            raw ' to appear in search results?'
-          child 'p', =>
-            props style:
-              marginTop: 30
-              marginBottom: 30
-            toggleSwitch 'YES', @props.game.published, =>
-              @props.onChange update @props.game, published: $set: true
-            toggleSwitch 'NO', not @props.game.published, =>
-              @props.onChange update @props.game, published: $set: false
+
+          hidden = not @props.game.published
+          child "a.form-multi-option.form-multi-option-#{if hidden then 'on' else 'off'}", href: '#', =>
+            props
+              onClick: (e) =>
+                e.preventDefault()
+                @props.onChange update @props.game, published: $set: hidden
+            child 'span.form-multi-option-text', =>
+              raw 'Hide from search'
+            child 'span.form-multi-option-switch', =>
+              child 'span.form-multi-option-ball'
           child 'p', =>
             raw 'Do you want to set a password to restrict access?'
           child 'p', =>
@@ -1893,19 +1894,16 @@ NewStep5 = React.createClass
               value: @props.game.password ? ''
               onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
               style: width: '100%'
-          child 'h4', => raw 'MODERATION'
-          child 'p', =>
-            raw 'Do new user submissions have to be approved by you before they are added to '
-            child 'b', => raw @props.game.name
-            raw '?'
-          child 'p', =>
-            props style:
-              marginTop: 30
-              marginBottom: 30
-            toggleSwitch 'YES', @props.game.moderated, =>
-              @props.onChange update @props.game, moderated: $set: true
-            toggleSwitch 'NO', not @props.game.moderated, =>
-              @props.onChange update @props.game, moderated: $set: false
+          moderated = @props.game.moderated
+          child "a.form-multi-option.form-multi-option-#{if moderated then 'on' else 'off'}", href: '#', =>
+            props
+              onClick: (e) =>
+                e.preventDefault()
+                @props.onChange update @props.game, moderated: $set: not moderated
+            child 'span.form-multi-option-text', =>
+              raw 'Require moderation?'
+            child 'span.form-multi-option-switch', =>
+              child 'span.form-multi-option-ball'
           child 'h4', => raw 'URL'
           child 'p', =>
             child 'input',
