@@ -1605,13 +1605,14 @@ NewStep3 = React.createClass
             zoom: Math.max(2, @props.game.zoom)
             options: minZoom: 2
             onChange: @handleMapChange
-      child 'div.new-siftr-hero', =>
-        child 'a', href: '#new2', =>
-          child 'div.newPrevButton', =>
-            raw '< appearance'
-        child 'a', href: '#new4', =>
-          child 'div.newNextButton', =>
-            raw 'data >'
+      unless @props.editing
+        child 'div.new-siftr-hero', =>
+          child 'a', href: '#new2', =>
+            child 'div.newPrevButton', =>
+              raw '< appearance'
+          child 'a', href: '#new4', =>
+            child 'div.newNextButton', =>
+              raw 'data >'
 
   handleMapChange: ({center: {lat, lng}, zoom}) ->
     game = update @props.game,
