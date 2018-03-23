@@ -389,392 +389,397 @@ App = React.createClass
 
   render: ->
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
-      child 'div#the-nav-bar', =>
-        child 'div', =>
-          child 'a', href: '#', =>
-            props
-              onClick: (e) =>
-                e.preventDefault()
-                @setState account_menu: not @state.account_menu
-            child 'div#the-mobile-menu-button', =>
-              raw '☰'
-          child 'a', href: '..', =>
-            child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
-        child 'div', =>
-          child 'a', href: '../editor', =>
-            child 'div#the-my-siftrs-button', =>
-              raw 'My Siftrs'
-          if @state.auth?
+      child 'div.nav-bar.desktop-nav-bar', =>
+        child 'div.nav-bar-line', =>
+          child 'div', =>
+            child 'a', href: '..', =>
+              child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
+          child 'div', =>
+            child 'a', href: '../editor', =>
+              child 'div#the-my-siftrs-button', =>
+                raw 'My Siftrs'
+            if @state.auth?
+              child 'a', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @setState account_menu: not @state.account_menu
+                child 'div#the-my-account-button', =>
+                  raw 'My Account'
+            child 'a', href: '../discover', =>
+              child 'div#the-discover-button', =>
+                raw 'Discover'
+        # child 'div.nav-bar-line', =>
+      child 'div.nav-bar.mobile-nav-bar', =>
+        child 'div.nav-bar-line', =>
+          child 'div', =>
             child 'a', href: '#', =>
               props
                 onClick: (e) =>
                   e.preventDefault()
                   @setState account_menu: not @state.account_menu
-              child 'div#the-my-account-button', =>
-                raw 'My Account'
-          child 'a', href: '../discover', =>
-            child 'div#the-discover-button', =>
-              raw 'Discover'
+              child 'div#the-mobile-menu-button', =>
+                raw '☰'
+          child 'div', =>
       child 'div#the-content', =>
         if @state.auth?
-          child 'div', =>
-            switch @state.screen
-              when 'account'
-                child 'div.loginForm', =>
-                  props style: textAlign: 'center'
-                  child 'h3', =>
-                    raw 'Account Details'
-                  child 'p', =>
-                    child 'span.big-account-picture',
-                      style:
-                        backgroundImage:
-                          if @state.new_icon?
-                            "url(#{@state.new_icon})"
-                          else if @state.userPicture?
-                            "url(#{@state.userPicture.url})"
-                          else
-                            undefined
-                      onClick: @selectUserPicture
-                      onDragOver: (e) =>
-                        e.stopPropagation()
-                        e.preventDefault()
-                      onDrop: (e) =>
-                        e.stopPropagation()
-                        e.preventDefault()
-                        for file in e.dataTransfer.files
-                          @loadUserPicture file
-                          break
-                  child 'a', href: '#', =>
-                    props
-                      onClick: (e) =>
-                        e.preventDefault()
-                        @logout()
-                    child 'div.login-button', =>
-                      props:
-                        style:
-                          marginBottom: 30
-                      raw 'LOGOUT'
-                  child 'p', =>
-                    child 'input',
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'text'
-                      placeholder: 'Display Name'
-                      value: @state.display_name ? ''
-                      style: width: '100%'
-                      onChange: (e) => @setState display_name: e.target.value
-                  child 'p', =>
-                    child 'input',
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'text'
-                      placeholder: 'Email'
-                      value: @state.email ? ''
-                      style: width: '100%'
-                      onChange: (e) => @setState email: e.target.value
-                  child 'a', href: '#', =>
-                    props
-                      onClick: (e) =>
-                        e.preventDefault()
-                        useMediaID = (media_id) =>
-                          @props.aris.call 'users.updateUser',
-                            user_id: @props.aris.auth.user_id
-                            display_name: @state.display_name
-                            email: @state.email
-                            media_id: media_id
-                          , ({returnCode, returnCodeDescription}) =>
-                            if returnCode is 0
-                              @login undefined, undefined
-                              window.location.replace '#'
-                            else
-                              alert "Couldn't save your account details: #{returnCodeDescription}"
+          switch @state.screen
+            when 'account'
+              child 'div.loginForm', =>
+                props style: textAlign: 'center'
+                child 'h3', =>
+                  raw 'Account Details'
+                child 'p', =>
+                  child 'span.big-account-picture',
+                    style:
+                      backgroundImage:
                         if @state.new_icon?
-                          @createNewIcon null, (result) =>
-                            if result?
-                              useMediaID result.data.media_id
-                            else
-                              alert "Your user picture is not of a supported type."
+                          "url(#{@state.new_icon})"
+                        else if @state.userPicture?
+                          "url(#{@state.userPicture.url})"
                         else
-                          useMediaID null
-                    child 'div.login-button', =>
-                      raw 'SAVE CHANGES'
-                  child 'a', href: '#', =>
-                    child 'div.login-button', =>
-                      raw 'BACK'
-                  child 'h3', =>
-                    raw 'Change Password'
-                  child 'p', =>
-                    child 'input',
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'password'
-                      placeholder: 'Old password'
-                      value: @state.old_password ? ''
-                      style: width: '100%'
-                      onChange: (e) => @setState old_password: e.target.value
-                  child 'p', =>
-                    child 'input',
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'password'
-                      placeholder: 'New password'
-                      value: @state.password ? ''
-                      style: width: '100%'
-                      onChange: (e) => @setState password: e.target.value
-                  child 'p', =>
-                    child 'input',
-                      autoCapitalize: 'off'
-                      autoCorrect: 'off'
-                      type: 'password'
-                      placeholder: 'Repeat new password'
-                      value: @state.password2 ? ''
-                      style: width: '100%'
-                      onChange: (e) => @setState password2: e.target.value
+                          undefined
+                    onClick: @selectUserPicture
+                    onDragOver: (e) =>
+                      e.stopPropagation()
+                      e.preventDefault()
+                    onDrop: (e) =>
+                      e.stopPropagation()
+                      e.preventDefault()
+                      for file in e.dataTransfer.files
+                        @loadUserPicture file
+                        break
+                child 'a', href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @logout()
+                  child 'div.login-button', =>
+                    props:
+                      style:
+                        marginBottom: 30
+                    raw 'LOGOUT'
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Display Name'
+                    value: @state.display_name ? ''
+                    style: width: '100%'
+                    onChange: (e) => @setState display_name: e.target.value
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'text'
+                    placeholder: 'Email'
+                    value: @state.email ? ''
+                    style: width: '100%'
+                    onChange: (e) => @setState email: e.target.value
+                child 'a', href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      useMediaID = (media_id) =>
+                        @props.aris.call 'users.updateUser',
+                          user_id: @props.aris.auth.user_id
+                          display_name: @state.display_name
+                          email: @state.email
+                          media_id: media_id
+                        , ({returnCode, returnCodeDescription}) =>
+                          if returnCode is 0
+                            @login undefined, undefined
+                            window.location.replace '#'
+                          else
+                            alert "Couldn't save your account details: #{returnCodeDescription}"
+                      if @state.new_icon?
+                        @createNewIcon null, (result) =>
+                          if result?
+                            useMediaID result.data.media_id
+                          else
+                            alert "Your user picture is not of a supported type."
+                      else
+                        useMediaID null
+                  child 'div.login-button', =>
+                    raw 'SAVE CHANGES'
+                child 'a', href: '#', =>
+                  child 'div.login-button', =>
+                    raw 'BACK'
+                child 'h3', =>
+                  raw 'Change Password'
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'Old password'
+                    value: @state.old_password ? ''
+                    style: width: '100%'
+                    onChange: (e) => @setState old_password: e.target.value
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'New password'
+                    value: @state.password ? ''
+                    style: width: '100%'
+                    onChange: (e) => @setState password: e.target.value
+                child 'p', =>
+                  child 'input',
+                    autoCapitalize: 'off'
+                    autoCorrect: 'off'
+                    type: 'password'
+                    placeholder: 'Repeat new password'
+                    value: @state.password2 ? ''
+                    style: width: '100%'
+                    onChange: (e) => @setState password2: e.target.value
+                child 'a', href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      unless @state.old_password
+                        alert 'Please enter your current password.'
+                      else unless @state.password or @state.password2
+                        alert 'Please enter a new password.'
+                      else unless @state.password is @state.password2
+                        alert 'Your two password do not match.'
+                      else
+                        username = @props.aris.auth.username
+                        password = @state.password
+                        @props.aris.call 'users.changePassword',
+                          user_name: username
+                          old_password: @state.old_password
+                          new_password: password
+                        , ({returnCode, returnCodeDescription}) =>
+                          if returnCode is 0
+                            @logout()
+                            @login username, password
+                          else
+                            alert "Couldn't change your password: #{returnCodeDescription}"
+                  child 'div.login-button', =>
+                    raw 'CHANGE PASSWORD'
+            when 'edit'
+              child EditSiftr,
+                game: @state.edit_game
+                colors: @state.colors
+                onChange: (game) => @setState edit_game: game
+                onSave: @handleSave
+                mobileMapIsOpen: @state.mobile_map_is_open
+                openMobileMap: =>
+                  @setState mobile_map_is_open: true
+                  setTimeout =>
+                    window.dispatchEvent new Event 'resize'
+                  , 250
+                closeMobileMap: => @setState mobile_map_is_open: false
+            when 'form'
+              onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
+                if returnCode is 0
+                  fn()
+                else
+                  alert "An error occurred: #{returnCodeDescription}"
+              child NewStep4,
+                editing: true
+                fields: @state.forms[@state.edit_game.game_id]
+                addField: (field_type) =>
+                  @props.aris.call 'fields.createField',
+                    game_id: @state.edit_game.game_id
+                    field_type: field_type
+                    required: false
+                  , onSuccess => @updateForms([@state.edit_game])
+                updateField: (field) =>
+                  @props.aris.call 'fields.updateField',
+                    field
+                  , onSuccess => @updateForms([@state.edit_game])
+                deleteField: (field) =>
+                  @props.aris.call 'fields.deleteField',
+                    game_id: @state.edit_game.game_id
+                    field_id: field.field_id
+                  , onSuccess => @updateForms([@state.edit_game])
+                addFieldOption: ({field, option}, cb) =>
+                  @props.aris.call 'fields.createFieldOption',
+                    game_id: @state.edit_game.game_id
+                    field_id: field.field_id
+                    option: option
+                  , onSuccess => @updateForms([@state.edit_game], cb)
+                updateFieldOption: ({field_option, option}, cb) =>
+                  @props.aris.call 'fields.updateFieldOption',
+                    game_id: @state.edit_game.game_id
+                    field_id: field_option.field_id
+                    field_option_id: field_option.field_option_id
+                    option: option
+                  , onSuccess => @updateForms([@state.edit_game], cb)
+                deleteFieldOption: ({field_option, new_field_option}, cb) =>
+                  @props.aris.call 'fields.deleteFieldOption',
+                    game_id: @state.edit_game.game_id
+                    field_id: field_option.field_id
+                    field_option_id: field_option.field_option_id
+                    new_field_option_id: new_field_option?.field_option_id
+                  , onSuccess => @updateForms([@state.edit_game], cb)
+            when 'categories'
+              child 'div.loginForm', =>
+                tags = @state.tags[@state.edit_game.game_id]
+                colors = @state.colors[@state.edit_game.colors_id or 1]
+                child 'h2', =>
+                  props style:
+                    textAlign: 'center'
+                    marginBottom: 40
+                  raw "Categories for "
+                  child 'b', =>
+                    raw @state.edit_game.name
+                if not tags?
+                  child 'p', style: {textAlign: 'center'}, =>
+                    raw 'Loading categories...'
+                else if @state.delete_tag?
+                  child 'h4', =>
+                    props
+                      style:
+                        textAlign: 'center'
+                        padding: 20
+                    raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
+                  for tag, i in tags
+                    continue if tag is @state.delete_tag
+                    do (tag, i) =>
+                      child 'div.category-button', =>
+                        props
+                          style:
+                            backgroundColor: colors["tag_#{(i % 8) + 1}"]
+                          onClick: =>
+                            if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
+                              @props.aris.call 'tags.deleteTag',
+                                tag_id: @state.delete_tag.tag_id
+                                new_tag_id: tag.tag_id
+                              , =>
+                                @setState delete_tag: null
+                                @updateTags [@state.edit_game]
+                        raw tag.tag
                   child 'a', href: '#', =>
                     props
                       onClick: (e) =>
                         e.preventDefault()
-                        unless @state.old_password
-                          alert 'Please enter your current password.'
-                        else unless @state.password or @state.password2
-                          alert 'Please enter a new password.'
-                        else unless @state.password is @state.password2
-                          alert 'Your two password do not match.'
-                        else
-                          username = @props.aris.auth.username
-                          password = @state.password
-                          @props.aris.call 'users.changePassword',
-                            user_name: username
-                            old_password: @state.old_password
-                            new_password: password
-                          , ({returnCode, returnCodeDescription}) =>
-                            if returnCode is 0
-                              @logout()
-                              @login username, password
-                            else
-                              alert "Couldn't change your password: #{returnCodeDescription}"
-                    child 'div.login-button', =>
-                      raw 'CHANGE PASSWORD'
-              when 'edit'
-                child EditSiftr,
-                  game: @state.edit_game
-                  colors: @state.colors
-                  onChange: (game) => @setState edit_game: game
-                  onSave: @handleSave
-                  mobileMapIsOpen: @state.mobile_map_is_open
-                  openMobileMap: =>
-                    @setState mobile_map_is_open: true
-                    setTimeout =>
-                      window.dispatchEvent new Event 'resize'
-                    , 250
-                  closeMobileMap: => @setState mobile_map_is_open: false
-              when 'form'
-                onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
-                  if returnCode is 0
-                    fn()
-                  else
-                    alert "An error occurred: #{returnCodeDescription}"
-                child NewStep4,
-                  editing: true
-                  fields: @state.forms[@state.edit_game.game_id]
-                  addField: (field_type) =>
-                    @props.aris.call 'fields.createField',
-                      game_id: @state.edit_game.game_id
-                      field_type: field_type
-                      required: false
-                    , onSuccess => @updateForms([@state.edit_game])
-                  updateField: (field) =>
-                    @props.aris.call 'fields.updateField',
-                      field
-                    , onSuccess => @updateForms([@state.edit_game])
-                  deleteField: (field) =>
-                    @props.aris.call 'fields.deleteField',
-                      game_id: @state.edit_game.game_id
-                      field_id: field.field_id
-                    , onSuccess => @updateForms([@state.edit_game])
-                  addFieldOption: ({field, option}, cb) =>
-                    @props.aris.call 'fields.createFieldOption',
-                      game_id: @state.edit_game.game_id
-                      field_id: field.field_id
-                      option: option
-                    , onSuccess => @updateForms([@state.edit_game], cb)
-                  updateFieldOption: ({field_option, option}, cb) =>
-                    @props.aris.call 'fields.updateFieldOption',
-                      game_id: @state.edit_game.game_id
-                      field_id: field_option.field_id
-                      field_option_id: field_option.field_option_id
-                      option: option
-                    , onSuccess => @updateForms([@state.edit_game], cb)
-                  deleteFieldOption: ({field_option, new_field_option}, cb) =>
-                    @props.aris.call 'fields.deleteFieldOption',
-                      game_id: @state.edit_game.game_id
-                      field_id: field_option.field_id
-                      field_option_id: field_option.field_option_id
-                      new_field_option_id: new_field_option?.field_option_id
-                    , onSuccess => @updateForms([@state.edit_game], cb)
-              when 'categories'
-                child 'div.loginForm', =>
-                  tags = @state.tags[@state.edit_game.game_id]
-                  colors = @state.colors[@state.edit_game.colors_id or 1]
-                  child 'h2', =>
-                    props style:
-                      textAlign: 'center'
-                      marginBottom: 40
-                    raw "Categories for "
-                    child 'b', =>
-                      raw @state.edit_game.name
-                  if not tags?
-                    child 'p', style: {textAlign: 'center'}, =>
-                      raw 'Loading categories...'
-                  else if @state.delete_tag?
-                    child 'h4', =>
+                        @setState delete_tag: null
+                    child 'div', =>
                       props
                         style:
-                          textAlign: 'center'
-                          padding: 20
-                      raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
-                    for tag, i in tags
-                      continue if tag is @state.delete_tag
-                      do (tag, i) =>
-                        child 'div.category-button', =>
-                          props
-                            style:
-                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                            onClick: =>
-                              if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
-                                @props.aris.call 'tags.deleteTag',
-                                  tag_id: @state.delete_tag.tag_id
-                                  new_tag_id: tag.tag_id
-                                , =>
-                                  @setState delete_tag: null
-                                  @updateTags [@state.edit_game]
-                          raw tag.tag
-                    child 'a', href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          @setState delete_tag: null
-                      child 'div', =>
-                        props
-                          style:
-                            backgroundColor: 'rgb(97,201,226)'
-                            color: 'white'
-                            padding: 10
-                            fontSize: 20
-                            marginTop: 40
-                            textAlign: 'center'
-                        raw 'CANCEL'
-                  else
-                    for tag, i in tags
-                      do (tag, i) =>
-                        child 'div.category-button', =>
-                          props
-                            style:
-                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                            onClick: =>
-                              str = prompt "Enter a new name for this category...", tag.tag
-                              if str? and str isnt ''
-                                @props.aris.updateTag
-                                  game_id: @state.edit_game.game_id
-                                  tag_id: tag.tag_id
-                                  tag: str
-                                , =>
-                                  @updateTags [@state.edit_game]
-                          raw tag.tag
-                          child 'div.delete-category-x', =>
-                            props
-                              onClick: (e) =>
-                                e.stopPropagation()
-                                @setState delete_tag: tag
-                            raw 'X'
-                    child 'a', href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          str = prompt "Enter a new category..."
-                          if str? and str isnt ''
-                            tagObject = new Tag
-                            tagObject.tag = str
-                            tagObject.game_id = @state.edit_game.game_id
-                            @props.aris.createTag tagObject, =>
-                              @updateTags [@state.edit_game]
-                      child 'div', =>
-                        props
-                          style:
-                            backgroundColor: 'rgb(97,201,226)'
-                            color: 'white'
-                            padding: 10
-                            fontSize: 20
-                            marginTop: 40
-                            textAlign: 'center'
-                        raw 'NEW CATEGORY'
-                    child 'a', href: '#', =>
-                      child 'div', =>
-                        props
-                          style:
-                            backgroundColor: 'rgb(97,201,226)'
-                            color: 'white'
-                            padding: 10
-                            fontSize: 20
-                            marginTop: 10
-                            textAlign: 'center'
-                        raw 'BACK'
-              when 'new1'
-                f = (game, tag_string) => @setState
-                  new_game: game
-                  new_tag_string: tag_string
-                child NewStep1,
-                  game: @state.new_game
-                  tag_string: @state.new_tag_string
-                  icon: @state.new_icon
-                  onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
-                  onIconChange: (new_icon) => @setState {new_icon}
-              when 'new2'
-                child NewStep2,
-                  game: @state.new_game
-                  tag_string: @state.new_tag_string
-                  colors: @state.colors
-                  onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
-              when 'new3'
-                child NewStep3,
-                  game: @state.new_game
-                  onChange: (new_game) => @setState {new_game}
-              when 'new4'
-                child NewStep4,
-                  editing: false
-                  game: @state.new_game
-                  onChange: (new_game) => @setState {new_game}
-              when 'new5'
-                child NewStep5,
-                  game: @state.new_game
-                  onChange: (new_game) => @setState {new_game}
-                  onCreate: @createGame
-              else
-                child 'div', =>
-                  child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
-                    child 'a', href: '#new1', =>
-                      child 'span', =>
-                        props style:
-                          backgroundColor: 'rgb(51,191,224)'
+                          backgroundColor: 'rgb(97,201,226)'
                           color: 'white'
-                          paddingLeft: 40
-                          paddingRight: 40
-                          paddingTop: 10
-                          paddingBottom: 10
-                        raw 'NEW SIFTR'
-                  child SiftrList,
-                    games: @state.games
-                    colors: @state.colors
-                    notes: @state.notes
-                    tags: @state.tags
-                    onDelete: (game) =>
-                      @props.aris.call 'games.deleteGame',
-                        game_id: game.game_id
-                      , ({returnCode, returnCodeDescription}) =>
-                        if returnCode is 0
-                          @updateGames()
-                        else
-                          alert "There was an error deleting your Siftr: #{returnCodeDescription}"
+                          padding: 10
+                          fontSize: 20
+                          marginTop: 40
+                          textAlign: 'center'
+                      raw 'CANCEL'
+                else
+                  for tag, i in tags
+                    do (tag, i) =>
+                      child 'div.category-button', =>
+                        props
+                          style:
+                            backgroundColor: colors["tag_#{(i % 8) + 1}"]
+                          onClick: =>
+                            str = prompt "Enter a new name for this category...", tag.tag
+                            if str? and str isnt ''
+                              @props.aris.updateTag
+                                game_id: @state.edit_game.game_id
+                                tag_id: tag.tag_id
+                                tag: str
+                              , =>
+                                @updateTags [@state.edit_game]
+                        raw tag.tag
+                        child 'div.delete-category-x', =>
+                          props
+                            onClick: (e) =>
+                              e.stopPropagation()
+                              @setState delete_tag: tag
+                          raw 'X'
+                  child 'a', href: '#', =>
+                    props
+                      onClick: (e) =>
+                        e.preventDefault()
+                        str = prompt "Enter a new category..."
+                        if str? and str isnt ''
+                          tagObject = new Tag
+                          tagObject.tag = str
+                          tagObject.game_id = @state.edit_game.game_id
+                          @props.aris.createTag tagObject, =>
+                            @updateTags [@state.edit_game]
+                    child 'div', =>
+                      props
+                        style:
+                          backgroundColor: 'rgb(97,201,226)'
+                          color: 'white'
+                          padding: 10
+                          fontSize: 20
+                          marginTop: 40
+                          textAlign: 'center'
+                      raw 'NEW CATEGORY'
+                  child 'a', href: '#', =>
+                    child 'div', =>
+                      props
+                        style:
+                          backgroundColor: 'rgb(97,201,226)'
+                          color: 'white'
+                          padding: 10
+                          fontSize: 20
+                          marginTop: 10
+                          textAlign: 'center'
+                      raw 'BACK'
+            when 'new1'
+              f = (game, tag_string) => @setState
+                new_game: game
+                new_tag_string: tag_string
+              child NewStep1,
+                game: @state.new_game
+                tag_string: @state.new_tag_string
+                icon: @state.new_icon
+                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+                onIconChange: (new_icon) => @setState {new_icon}
+            when 'new2'
+              child NewStep2,
+                game: @state.new_game
+                tag_string: @state.new_tag_string
+                colors: @state.colors
+                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+            when 'new3'
+              child NewStep3,
+                game: @state.new_game
+                onChange: (new_game) => @setState {new_game}
+            when 'new4'
+              child NewStep4,
+                editing: false
+                game: @state.new_game
+                onChange: (new_game) => @setState {new_game}
+            when 'new5'
+              child NewStep5,
+                game: @state.new_game
+                onChange: (new_game) => @setState {new_game}
+                onCreate: @createGame
+            else
+              child 'div', =>
+                child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
+                  child 'a', href: '#new1', =>
+                    child 'span', =>
+                      props style:
+                        backgroundColor: 'rgb(51,191,224)'
+                        color: 'white'
+                        paddingLeft: 40
+                        paddingRight: 40
+                        paddingTop: 10
+                        paddingBottom: 10
+                      raw 'NEW SIFTR'
+                child SiftrList,
+                  games: @state.games
+                  colors: @state.colors
+                  notes: @state.notes
+                  tags: @state.tags
+                  onDelete: (game) =>
+                    @props.aris.call 'games.deleteGame',
+                      game_id: game.game_id
+                    , ({returnCode, returnCodeDescription}) =>
+                      if returnCode is 0
+                        @updateGames()
+                      else
+                        alert "There was an error deleting your Siftr: #{returnCodeDescription}"
           child 'div.accountMenuDesktop', =>
             child 'div', style: {textAlign: 'center'}, =>
               child 'a.unlink', href: '#account', =>

@@ -25,40 +25,42 @@ a {
   width: 100%;
   height: 100%;
   overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-#the-nav-bar {
-  position: absolute;
+.nav-bar {
   padding: 0;
   margin: 0;
-  width: 100%;
   background-color: white;
   color: black;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  height: 53px;
   border-bottom: 2px solid #E7E7E7;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.nav-bar-line {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 }
 
-#the-nav-bar > div {
+.nav-bar-line > * {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
 #the-content {
-  position: absolute;
-  top: 53px;
-  left: 0;
+  flex: 1;
   overflow-y: auto;
-  width: 100%;
-  height: calc(100% - 53px);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 #the-logo {
@@ -67,10 +69,7 @@ a {
 }
 
 #the-my-siftrs-button, #the-my-account-button, #the-discover-button {
-  height: 53px;
-  line-height: 53px;
-  margin-right: 25px;
-  vertical-align: middle;
+  margin: 10px 15px;
   text-decoration: none;
 }
 
@@ -245,14 +244,11 @@ a {
 }
 
 .newStepBox {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .newStep1, .newStep2, .newStep4, .newStep5 {

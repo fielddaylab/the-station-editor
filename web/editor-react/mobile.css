@@ -89,7 +89,7 @@
   font-size: 25px;
 }
 
-#the-logo, #the-my-siftrs-button, #the-my-account-button, #the-discover-button {
+.desktop-nav-bar {
   display: none;
 }
 
