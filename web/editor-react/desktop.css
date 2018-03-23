@@ -29,16 +29,6 @@
 }
 
 .newStep2LeftCol {
-  width: 50%;
-  padding-right: 10px;
-  float: left;
-  box-sizing: border-box;
-}
-
-.newStep2RightCol {
-  width: 50%;
-  padding-left: 10px;
-  float: right;
   box-sizing: border-box;
 }
 

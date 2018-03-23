@@ -394,6 +394,12 @@ App = React.createClass
           child 'div', =>
             child 'a', href: '..', =>
               child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
+            if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+              child 'h1.new-siftr-title', =>
+                if @state.new_game.name
+                  raw @state.new_game.name
+                else
+                  raw 'New Siftr'
           child 'div', =>
             child 'a', href: '../editor', =>
               child 'div.nav-button-right', =>
@@ -427,7 +433,9 @@ App = React.createClass
                 raw 'Data collection'
               child "a.create-step-tab#{selectTab 'new5'}", href: '#new5', =>
                 raw 'Settings'
-            child 'div'
+            child 'div', =>
+              child 'a.create-cancel', href: '#', =>
+                raw 'Cancel'
       child 'div.nav-bar.mobile-nav-bar', =>
         child 'div.nav-bar-line', =>
           child 'div', =>
@@ -439,6 +447,9 @@ App = React.createClass
               child 'div#the-mobile-menu-button', =>
                 raw '☰'
           child 'div', =>
+            if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+              child 'a.create-cancel', href: '#', =>
+                raw 'Cancel'
       child 'div#the-content', =>
         if @state.auth?
           switch @state.screen
@@ -1374,20 +1385,6 @@ NewStep1 = React.createClass
                       for file in e.dataTransfer.files
                         @loadImageFile file
                         break
-
-          child 'div', style: clear: 'both'
-        child 'p', =>
-          child 'a', href: '#', =>
-            child 'span', =>
-              props style:
-                float: 'right'
-                color: 'white'
-                backgroundColor: 'lightgray'
-                paddingLeft: 35
-                paddingRight: 35
-                paddingTop: 8
-                paddingBottom: 8
-              raw 'CANCEL'
       child 'div.new-siftr-hero', =>
         child 'div'
         child 'a', href: '#new2', =>
@@ -1521,20 +1518,6 @@ NewStep2 = React.createClass
                         paddingTop: 10
                         paddingBottom: 10
                     raw 'ADD CATEGORY'
-          child 'div.newStep2RightCol', =>
-          child 'div', style: clear: 'both'
-        child 'p', =>
-          child 'a', href: '#', =>
-            child 'span', =>
-              props style:
-                float: 'right'
-                color: 'white'
-                backgroundColor: 'lightgray'
-                paddingLeft: 35
-                paddingRight: 35
-                paddingTop: 8
-                paddingBottom: 8
-              raw 'CANCEL'
 
       child 'div.new-siftr-hero', =>
         child 'a', href: '#new1', =>
