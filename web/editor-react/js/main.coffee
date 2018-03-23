@@ -1316,27 +1316,13 @@ NewStep1 = React.createClass
   render: ->
     make 'div.newStepBox', =>
       child 'div.newStep1', =>
-        child 'h3', style: {textAlign: 'center'}, =>
-          raw 'What kind of Siftr do you want to make?'
-        child 'div', =>
-          child 'div.newStep1RightCol', =>
+        child 'div.newStep1Column.newStep1LeftColumn', =>
+          child 'h3', style: {textAlign: 'center'}, =>
+            raw 'What kind of Siftr do you want to make?'
+          child 'div', =>
             child 'label', =>
               child 'p', => raw 'NAME'
               child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
-            child 'label', =>
-              child 'p', =>
-                raw 'CATEGORIES '
-                child 'i', => raw 'separated by comma'
-              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string ? '', onChange: @handleChange, style: {width: '100%'}
-            child 'label', =>
-              child 'p', =>
-                raw 'DESCRIPTION '
-                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
-                  child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
-            child 'div',
-              dangerouslySetInnerHTML: renderMarkdown @props.game.description
-          child 'div.newStep1LeftCol', =>
             child 'label', =>
               child 'p', => raw 'SIFTR ICON'
               child 'a', href: '#', =>
@@ -1385,6 +1371,20 @@ NewStep1 = React.createClass
                       for file in e.dataTransfer.files
                         @loadImageFile file
                         break
+            child 'label', =>
+              child 'p', =>
+                raw 'CATEGORIES '
+                child 'i', => raw 'separated by comma'
+              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string ? '', onChange: @handleChange, style: {width: '100%'}
+            child 'label', =>
+              child 'p', =>
+                raw 'DESCRIPTION '
+                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
+                  child 'i', => raw 'markdown supported'
+              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
+            child 'div',
+              dangerouslySetInnerHTML: renderMarkdown @props.game.description
+        child 'div.newStep1Column.newStep1RightColumn'
       child 'div.new-siftr-hero', =>
         child 'div'
         child 'a', href: '#new2', =>
@@ -1869,58 +1869,59 @@ NewStep5 = React.createClass
 
   render: ->
     make 'div.newStepBox', =>
-      child 'div.newStep5', =>
-        child 'h2', style: {textAlign: 'center'}, => raw 'SETTINGS'
-        child 'h4', => raw 'PRIVACY'
-        child 'p', =>
-          raw 'Do you want '
-          child 'b', => raw @props.game.name
-          raw ' to appear in search results?'
-        child 'p', =>
-          props style:
-            marginTop: 30
-            marginBottom: 30
-          toggleSwitch 'YES', @props.game.published, =>
-            @props.onChange update @props.game, published: $set: true
-          toggleSwitch 'NO', not @props.game.published, =>
-            @props.onChange update @props.game, published: $set: false
-        child 'p', =>
-          raw 'Do you want to set a password to restrict access?'
-        child 'p', =>
-          child 'input',
-            type: 'text'
-            placeholder: 'Password (optional)'
-            value: @props.game.password ? ''
-            onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
-            style: width: '100%'
-        child 'h4', => raw 'MODERATION'
-        child 'p', =>
-          raw 'Do new user submissions have to be approved by you before they are added to '
-          child 'b', => raw @props.game.name
-          raw '?'
-        child 'p', =>
-          props style:
-            marginTop: 30
-            marginBottom: 30
-          toggleSwitch 'YES', @props.game.moderated, =>
-            @props.onChange update @props.game, moderated: $set: true
-          toggleSwitch 'NO', not @props.game.moderated, =>
-            @props.onChange update @props.game, moderated: $set: false
-        child 'h4', => raw 'URL'
-        child 'p', =>
-          child 'input',
-            type: 'text'
-            placeholder: 'URL (optional)'
-            value: @props.game.siftr_url ? ''
-            onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
-            style: width: '100%'
-        child 'p', =>
-          if @props.game.siftr_url
+      child 'div.newStep1', =>
+        child 'div.newStep1Column.newStep1LeftColumn', =>
+          child 'h4', => raw 'PRIVACY'
+          child 'p', =>
+            raw 'Do you want '
             child 'b', => raw @props.game.name
-            raw " will be located at "
-            child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url}"
-          else
-            raw "Enter a custom identifier for your Siftr's web address."
+            raw ' to appear in search results?'
+          child 'p', =>
+            props style:
+              marginTop: 30
+              marginBottom: 30
+            toggleSwitch 'YES', @props.game.published, =>
+              @props.onChange update @props.game, published: $set: true
+            toggleSwitch 'NO', not @props.game.published, =>
+              @props.onChange update @props.game, published: $set: false
+          child 'p', =>
+            raw 'Do you want to set a password to restrict access?'
+          child 'p', =>
+            child 'input',
+              type: 'text'
+              placeholder: 'Password (optional)'
+              value: @props.game.password ? ''
+              onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+              style: width: '100%'
+          child 'h4', => raw 'MODERATION'
+          child 'p', =>
+            raw 'Do new user submissions have to be approved by you before they are added to '
+            child 'b', => raw @props.game.name
+            raw '?'
+          child 'p', =>
+            props style:
+              marginTop: 30
+              marginBottom: 30
+            toggleSwitch 'YES', @props.game.moderated, =>
+              @props.onChange update @props.game, moderated: $set: true
+            toggleSwitch 'NO', not @props.game.moderated, =>
+              @props.onChange update @props.game, moderated: $set: false
+          child 'h4', => raw 'URL'
+          child 'p', =>
+            child 'input',
+              type: 'text'
+              placeholder: 'URL (optional)'
+              value: @props.game.siftr_url ? ''
+              onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
+              style: width: '100%'
+          child 'p', =>
+            if @props.game.siftr_url
+              child 'b', => raw @props.game.name
+              raw " will be located at "
+              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url}"
+            else
+              raw "Enter a custom identifier for your Siftr's web address."
+        child 'div.newStep1Column.newStep1RightColumn'
       child 'div.new-siftr-hero', =>
         child 'a', href: '#new4', =>
           child 'div.newPrevButton', =>
