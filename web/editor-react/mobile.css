@@ -19,6 +19,8 @@
   width: 100%;
   padding-left: 15px;
   padding-right: 15px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .newStep1RightColumn {

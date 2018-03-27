@@ -242,7 +242,7 @@ input[type=text], input[type=password], textarea {
   border: 2px solid white;
 }
 
-.new-siftr-hero {
+.bottom-step-buttons {
   background-color: white;
   display: flex;
   flex-direction: row;

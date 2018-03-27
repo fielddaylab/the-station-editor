@@ -405,6 +405,26 @@ App = React.createClass
     fr.readAsDataURL file
 
   render: ->
+    navBarActions = =>
+      child 'div', =>
+        if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+          child 'a.create-cancel', href: '#', =>
+            raw 'Cancel'
+        else if @state.screen in ['edit', 'map']
+          child 'a.create-cancel', href: '#', =>
+            props
+              onClick: (e) =>
+                e.preventDefault()
+                @props.aris.updateGame @state.edit_game, onSuccess =>
+                  @updateGames()
+                  window.location.hash = '#'
+            raw 'Save'
+          child 'a.create-cancel', href: '#', =>
+            raw 'Cancel'
+        else if @state.screen in ['categories', 'form']
+          child 'a.create-cancel', href: '#', =>
+            raw 'Done'
+
     make "div.topDiv.accountMenu#{if @state.account_menu then 'Open' else 'Closed'}", =>
       child 'div.nav-bar.desktop-nav-bar', =>
         child 'div.nav-bar-line', =>
@@ -450,23 +470,24 @@ App = React.createClass
                 raw 'Data collection'
               child "a.create-step-tab#{selectTab 'new5'}", href: '#new5', =>
                 raw 'Settings'
-            child 'div', =>
-              child 'a.create-cancel', href: '#', =>
-                raw 'Cancel'
-        else if @state.screen is 'map'
+            navBarActions()
+        else if @state.screen in ['edit', 'map', 'categories', 'form']
           child 'div.nav-bar-line', =>
-            child 'div'
             child 'div', =>
-              child 'a.create-cancel', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.aris.updateGame @state.edit_game, onSuccess =>
-                      @updateGames()
-                      window.location.hash = '#'
-                raw 'Save'
-              child 'a.create-cancel', href: '#', =>
-                raw 'Cancel'
+              selectTab = (step) =>
+                if @state.screen is step
+                  '.create-step-tab-selected'
+                else
+                  ''
+              child "a.create-step-tab#{selectTab 'edit'}", href: '#edit' + @state.edit_game.game_id, =>
+                raw 'Settings'
+              child "a.create-step-tab#{selectTab 'categories'}", href: '#categories' + @state.edit_game.game_id, =>
+                raw 'Categories'
+              child "a.create-step-tab#{selectTab 'map'}", href: '#map' + @state.edit_game.game_id, =>
+                raw 'Location'
+              child "a.create-step-tab#{selectTab 'form'}", href: '#form' + @state.edit_game.game_id, =>
+                raw 'Data collection'
+            navBarActions()
       child 'div.nav-bar.mobile-nav-bar', =>
         child 'div.nav-bar-line', =>
           child 'div', =>
@@ -477,21 +498,7 @@ App = React.createClass
                   @setState account_menu: not @state.account_menu
               child 'div#the-mobile-menu-button', =>
                 raw '☰'
-          child 'div', =>
-            if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
-              child 'a.create-cancel', href: '#', =>
-                raw 'Cancel'
-            else if @state.screen is 'map'
-              child 'a.create-cancel', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.aris.updateGame @state.edit_game, onSuccess =>
-                      @updateGames()
-                      window.location.hash = '#'
-                raw 'Save'
-              child 'a.create-cancel', href: '#', =>
-                raw 'Cancel'
+          navBarActions()
       child 'div#the-content', =>
         if @state.auth?
           switch @state.screen
@@ -647,6 +654,7 @@ App = React.createClass
             when 'form'
               child NewStep4,
                 editing: true
+                game: @state.edit_game
                 fields: @state.forms[@state.edit_game.game_id]
                 addField: (field_type) =>
                   @props.aris.call 'fields.createField',
@@ -690,112 +698,109 @@ App = React.createClass
                 onChange: (game) =>
                   @setState edit_game: game
             when 'categories'
-              child 'div.loginForm', =>
-                tags = @state.tags[@state.edit_game.game_id]
-                colors = @state.colors[@state.edit_game.colors_id or 1]
-                child 'h2', =>
-                  props style:
-                    textAlign: 'center'
-                    marginBottom: 40
-                  raw "Categories for "
-                  child 'b', =>
-                    raw @state.edit_game.name
-                if not tags?
-                  child 'p', style: {textAlign: 'center'}, =>
-                    raw 'Loading categories...'
-                else if @state.delete_tag?
-                  child 'h4', =>
-                    props
-                      style:
-                        textAlign: 'center'
-                        padding: 20
-                    raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
-                  for tag, i in tags
-                    continue if tag is @state.delete_tag
-                    do (tag, i) =>
-                      child 'div.category-button', =>
-                        props
-                          style:
-                            backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                          onClick: =>
-                            if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
-                              @props.aris.call 'tags.deleteTag',
-                                tag_id: @state.delete_tag.tag_id
-                                new_tag_id: tag.tag_id
-                              , =>
-                                @setState delete_tag: null
-                                @updateTags [@state.edit_game]
-                        raw tag.tag
-                  child 'a', href: '#', =>
-                    props
-                      onClick: (e) =>
-                        e.preventDefault()
-                        @setState delete_tag: null
-                    child 'div', =>
+              child 'div.newStepBox', =>
+                child 'div.loginForm', =>
+                  tags = @state.tags[@state.edit_game.game_id]
+                  colors = @state.colors[@state.edit_game.colors_id or 1]
+                  child 'h2', =>
+                    props style:
+                      textAlign: 'center'
+                      marginBottom: 40
+                    raw "Categories for "
+                    child 'b', =>
+                      raw @state.edit_game.name
+                  if not tags?
+                    child 'p', style: {textAlign: 'center'}, =>
+                      raw 'Loading categories...'
+                  else if @state.delete_tag?
+                    child 'h4', =>
                       props
                         style:
-                          backgroundColor: 'rgb(97,201,226)'
-                          color: 'white'
-                          padding: 10
-                          fontSize: 20
-                          marginTop: 40
                           textAlign: 'center'
-                      raw 'CANCEL'
-                else
-                  for tag, i in tags
-                    do (tag, i) =>
-                      child 'div.category-button', =>
-                        props
-                          style:
-                            backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                          onClick: =>
-                            str = prompt "Enter a new name for this category...", tag.tag
-                            if str? and str isnt ''
-                              @props.aris.updateTag
-                                game_id: @state.edit_game.game_id
-                                tag_id: tag.tag_id
-                                tag: str
-                              , =>
-                                @updateTags [@state.edit_game]
-                        raw tag.tag
-                        child 'div.delete-category-x', =>
+                          padding: 20
+                      raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
+                    for tag, i in tags
+                      continue if tag is @state.delete_tag
+                      do (tag, i) =>
+                        child 'div.category-button', =>
                           props
-                            onClick: (e) =>
-                              e.stopPropagation()
-                              @setState delete_tag: tag
-                          raw 'X'
-                  child 'a', href: '#', =>
-                    props
-                      onClick: (e) =>
-                        e.preventDefault()
-                        str = prompt "Enter a new category..."
-                        if str? and str isnt ''
-                          tagObject = new Tag
-                          tagObject.tag = str
-                          tagObject.game_id = @state.edit_game.game_id
-                          @props.aris.createTag tagObject, =>
-                            @updateTags [@state.edit_game]
-                    child 'div', =>
+                            style:
+                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
+                            onClick: =>
+                              if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
+                                @props.aris.call 'tags.deleteTag',
+                                  tag_id: @state.delete_tag.tag_id
+                                  new_tag_id: tag.tag_id
+                                , =>
+                                  @setState delete_tag: null
+                                  @updateTags [@state.edit_game]
+                          raw tag.tag
+                    child 'a', href: '#', =>
                       props
-                        style:
-                          backgroundColor: 'rgb(97,201,226)'
-                          color: 'white'
-                          padding: 10
-                          fontSize: 20
-                          marginTop: 40
-                          textAlign: 'center'
-                      raw 'NEW CATEGORY'
-                  child 'a', href: '#', =>
-                    child 'div', =>
+                        onClick: (e) =>
+                          e.preventDefault()
+                          @setState delete_tag: null
+                      child 'div', =>
+                        props
+                          style:
+                            backgroundColor: 'rgb(97,201,226)'
+                            color: 'white'
+                            padding: 10
+                            fontSize: 20
+                            marginTop: 40
+                            textAlign: 'center'
+                        raw 'CANCEL'
+                  else
+                    for tag, i in tags
+                      do (tag, i) =>
+                        child 'div.category-button', =>
+                          props
+                            style:
+                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
+                            onClick: =>
+                              str = prompt "Enter a new name for this category...", tag.tag
+                              if str? and str isnt ''
+                                @props.aris.updateTag
+                                  game_id: @state.edit_game.game_id
+                                  tag_id: tag.tag_id
+                                  tag: str
+                                , =>
+                                  @updateTags [@state.edit_game]
+                          raw tag.tag
+                          child 'div.delete-category-x', =>
+                            props
+                              onClick: (e) =>
+                                e.stopPropagation()
+                                @setState delete_tag: tag
+                            raw 'X'
+                    child 'a', href: '#', =>
                       props
-                        style:
-                          backgroundColor: 'rgb(97,201,226)'
-                          color: 'white'
-                          padding: 10
-                          fontSize: 20
-                          marginTop: 10
-                          textAlign: 'center'
-                      raw 'BACK'
+                        onClick: (e) =>
+                          e.preventDefault()
+                          str = prompt "Enter a new category..."
+                          if str? and str isnt ''
+                            tagObject = new Tag
+                            tagObject.tag = str
+                            tagObject.game_id = @state.edit_game.game_id
+                            @props.aris.createTag tagObject, =>
+                              @updateTags [@state.edit_game]
+                      child 'div', =>
+                        props
+                          style:
+                            backgroundColor: 'rgb(97,201,226)'
+                            color: 'white'
+                            padding: 10
+                            fontSize: 20
+                            marginTop: 40
+                            textAlign: 'center'
+                        raw 'NEW CATEGORY'
+                child 'div.bottom-step-buttons', =>
+                  child 'a', href: '#edit' + @state.edit_game.game_id, =>
+                    child 'div.newPrevButton', =>
+                      raw '< settings'
+                  child 'a', href: '#map' + @state.edit_game.game_id, =>
+                    child 'div.newNextButton', =>
+                      raw 'map >'
             when 'new1'
               f = (game, tag_string) => @setState
                 new_game: game
@@ -1098,15 +1103,6 @@ SiftrList = React.createClass
                     marginLeft: 5
                     color: 'black'
                 raw 'DELETE'
-            child 'a', href: "\#form#{game.game_id}", =>
-              child 'span.siftr-command-button', =>
-                raw 'FORM'
-            child 'a', href: "\#categories#{game.game_id}", =>
-              child 'span.siftr-command-button', =>
-                raw 'CATEGORIES'
-            child 'a', href: "\#map#{game.game_id}", =>
-              child 'span.siftr-command-button', =>
-                raw 'MAP'
             child 'a', href: "\#edit#{game.game_id}", =>
               child 'span.siftr-command-button', =>
                 raw 'EDIT'
@@ -1147,176 +1143,148 @@ EditSiftr = React.createClass
   displayName: 'EditSiftr'
 
   render: ->
-    make 'div.newStep1', =>
-      child 'div.newStep1LeftColumn', =>
-        child 'form', =>
-          child 'h2', => raw @props.game.name
-          child 'label', =>
-            child 'h4', => raw 'NAME'
-            child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
-          child 'label', =>
-            child 'h4', =>
-              raw 'DESCRIPTION '
-              child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
-                child 'i', => raw 'markdown supported'
-            child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
-          child 'div',
-            dangerouslySetInnerHTML: renderMarkdown @props.game.description
-          child 'label', =>
-            child 'h4', => raw 'URL'
+    make 'div.newStepBox', =>
+      child 'div.newStep1', =>
+        child 'div.newStep1LeftColumn', =>
+          child 'form', =>
+            child 'h2', => raw @props.game.name
+            child 'label', =>
+              child 'h4', => raw 'NAME'
+              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
+            child 'label', =>
+              child 'h4', =>
+                raw 'DESCRIPTION '
+                child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
+                  child 'i', => raw 'markdown supported'
+              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
+            child 'div',
+              dangerouslySetInnerHTML: renderMarkdown @props.game.description
+            child 'label', =>
+              child 'h4', => raw 'URL'
+              child 'p', =>
+                child 'input',
+                  type: 'text'
+                  placeholder: 'URL (optional)'
+                  value: @props.game.siftr_url ? ''
+                  onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
+                  style: width: '100%'
             child 'p', =>
-              child 'input',
-                type: 'text'
-                placeholder: 'URL (optional)'
-                value: @props.game.siftr_url ? ''
-                onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
-                style: width: '100%'
-          child 'p', =>
-            child 'b', => raw @props.game.name
-            raw " will be located at "
-            child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
-          child 'label', =>
-            child 'h4', => raw 'PROMPT'
-            child 'p', =>
-              raw 'Enter a caption prompt for a user uploading a photo.'
-            child 'p', =>
-              child 'input',
-                type: 'text'
-                placeholder: 'Enter a caption...'
-                value: @props.game.prompt ? ''
-                onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
-                style: width: '100%'
-          child 'p.editLocationMobile', =>
-            props style:
-              marginTop: 30
-              marginBottom: 30
-            child 'a', href: '#', =>
-              props
-                onClick: (e) =>
-                  e.preventDefault()
-                  @props.openMobileMap
-              child 'span', =>
-                props
-                  style:
-                    backgroundColor: 'rgb(51,191,224)'
-                    color: 'white'
-                    paddingLeft: 35
-                    paddingRight: 35
-                    paddingTop: 10
-                    paddingBottom: 10
-                raw 'EDIT LOCATION'
-          child 'h2', => raw 'SETTINGS'
-          child 'h4', => raw 'PRIVACY'
-          child 'p', =>
-            raw 'Do you want '
-            child 'b', => raw @props.game.name
-            raw ' to appear in search results?'
-          child 'p', =>
-            props style:
-              marginTop: 30
-              marginBottom: 30
-            toggleSwitch 'YES', @props.game.published, =>
-              @props.onChange update @props.game, published: $set: true
-            toggleSwitch 'NO', not @props.game.published, =>
-              @props.onChange update @props.game, published: $set: false
-          child 'p', =>
-            raw 'Do you want to set a password to restrict access?'
-          child 'p', =>
-            child 'input',
-              type: 'text'
-              placeholder: 'Password (optional)'
-              value: @props.game.password ? ''
-              onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
-              style: width: '100%'
-          child 'h4', => raw 'MODERATION'
-          child 'p', =>
-            raw 'Do new user submissions have to be approved by you before they are added to '
-            child 'b', => raw @props.game.name
-            raw '?'
-          child 'p', =>
-            props style:
-              marginTop: 30
-              marginBottom: 30
-            toggleSwitch 'YES', @props.game.moderated, =>
-              @props.onChange update @props.game, moderated: $set: true
-            toggleSwitch 'NO', not @props.game.moderated, =>
-              @props.onChange update @props.game, moderated: $set: false
-
-          child 'h2', => raw 'APPEARANCE'
-          child 'p', =>
-            raw 'What color palette should '
-            child 'b', => raw @props.game.name
-            raw ' use?'
-          colorsRow = (colors_ids) =>
-            child 'div', =>
+              child 'b', => raw @props.game.name
+              raw " will be located at "
+              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
+            child 'label', =>
+              child 'h4', => raw 'PROMPT'
+              child 'p', =>
+                raw 'Enter a caption prompt for a user uploading a photo.'
+              child 'p', =>
+                child 'input',
+                  type: 'text'
+                  placeholder: 'Enter a caption...'
+                  value: @props.game.prompt ? ''
+                  onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
+                  style: width: '100%'
+            child 'p.editLocationMobile', =>
               props style:
-                display: 'table'
-                width: '100%'
-                tableLayout: 'fixed'
-                fontSize: '13px'
-              for i in colors_ids
-                colors = @props.colors[i]
-                rgbs =
-                  if colors?
-                    colors["tag_#{j}"] for j in [1..5]
-                  else
-                    []
-                child 'label', key: "colors-#{i}", =>
-                  props style: display: 'table-cell'
-                  child 'p', => raw colors?.name
-                  child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-                  gradient = do =>
-                    percent = 0
-                    points = []
-                    for rgb in rgbs
-                      points.push "#{rgb} #{percent}%"
-                      percent += 20
-                      points.push "#{rgb} #{percent}%"
-                    "linear-gradient(to right, #{points.join(', ')})"
-                  child 'div', style:
-                    width: 90
-                    height: 35
-                    marginLeft: 10
-                    backgroundImage: gradient
-                    display: 'inline-block'
-          colorsRow [1, 2, 3]
-          colorsRow [4, 5, 6]
+                marginTop: 30
+                marginBottom: 30
+              child 'a', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.openMobileMap
+                child 'span', =>
+                  props
+                    style:
+                      backgroundColor: 'rgb(51,191,224)'
+                      color: 'white'
+                      paddingLeft: 35
+                      paddingRight: 35
+                      paddingTop: 10
+                      paddingBottom: 10
+                  raw 'EDIT LOCATION'
+            child 'h2', => raw 'SETTINGS'
+            child 'h4', => raw 'PRIVACY'
+            child 'p', =>
+              raw 'Do you want '
+              child 'b', => raw @props.game.name
+              raw ' to appear in search results?'
+            child 'p', =>
+              props style:
+                marginTop: 30
+                marginBottom: 30
+              toggleSwitch 'YES', @props.game.published, =>
+                @props.onChange update @props.game, published: $set: true
+              toggleSwitch 'NO', not @props.game.published, =>
+                @props.onChange update @props.game, published: $set: false
+            child 'p', =>
+              raw 'Do you want to set a password to restrict access?'
+            child 'p', =>
+              child 'input',
+                type: 'text'
+                placeholder: 'Password (optional)'
+                value: @props.game.password ? ''
+                onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+                style: width: '100%'
+            child 'h4', => raw 'MODERATION'
+            child 'p', =>
+              raw 'Do new user submissions have to be approved by you before they are added to '
+              child 'b', => raw @props.game.name
+              raw '?'
+            child 'p', =>
+              props style:
+                marginTop: 30
+                marginBottom: 30
+              toggleSwitch 'YES', @props.game.moderated, =>
+                @props.onChange update @props.game, moderated: $set: true
+              toggleSwitch 'NO', not @props.game.moderated, =>
+                @props.onChange update @props.game, moderated: $set: false
 
-          child 'p', =>
-            props style:
-              marginTop: 60
-              marginBottom: 30
-            child 'a', href: '#', =>
-              props
-                style:
-                  backgroundColor: 'rgb(51,191,224)'
-                  color: 'white'
-                  paddingLeft: 35
-                  paddingRight: 35
-                  paddingTop: 10
-                  paddingBottom: 10
-                  marginRight: 20
-                onClick: (e) =>
-                  e.preventDefault()
-                  unless @props.game.name
-                    alert 'Please enter a name for your Siftr.'
-                  else unless @props.game.description
-                    alert 'Please enter a description for your Siftr.'
-                  else
-                    @props.onSave()
-              raw 'SAVE'
-            child 'a', href: '#', =>
-              child 'span', =>
+            child 'h2', => raw 'APPEARANCE'
+            child 'p', =>
+              raw 'What color palette should '
+              child 'b', => raw @props.game.name
+              raw ' use?'
+            colorsRow = (colors_ids) =>
+              child 'div', =>
                 props style:
-                  backgroundColor: 'lightgray'
-                  color: 'white'
-                  paddingLeft: 35
-                  paddingRight: 35
-                  paddingTop: 10
-                  paddingBottom: 10
-                  marginRight: 20
-                raw 'CANCEL'
-      child 'div.newStep1RightColumn'
+                  display: 'table'
+                  width: '100%'
+                  tableLayout: 'fixed'
+                  fontSize: '13px'
+                for i in colors_ids
+                  colors = @props.colors[i]
+                  rgbs =
+                    if colors?
+                      colors["tag_#{j}"] for j in [1..5]
+                    else
+                      []
+                  child 'label', key: "colors-#{i}", =>
+                    props style: display: 'table-cell'
+                    child 'p', => raw colors?.name
+                    child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                    gradient = do =>
+                      percent = 0
+                      points = []
+                      for rgb in rgbs
+                        points.push "#{rgb} #{percent}%"
+                        percent += 20
+                        points.push "#{rgb} #{percent}%"
+                      "linear-gradient(to right, #{points.join(', ')})"
+                    child 'div', style:
+                      width: 90
+                      height: 35
+                      marginLeft: 10
+                      backgroundImage: gradient
+                      display: 'inline-block'
+            colorsRow [1, 2, 3]
+            colorsRow [4, 5, 6]
+
+        child 'div.newStep1RightColumn'
+      child 'div.bottom-step-buttons', =>
+        child 'div'
+        child 'a', href: '#categories' + @props.game.game_id, =>
+          child 'div.newNextButton', =>
+            raw 'categories >'
 
   handleChange: ->
     game = update @props.game,
@@ -1407,7 +1375,7 @@ NewStep1 = React.createClass
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
         child 'div.newStep1Column.newStep1RightColumn'
-      child 'div.new-siftr-hero', =>
+      child 'div.bottom-step-buttons', =>
         child 'div'
         child 'a', href: '#new2', =>
           child 'div.newNextButton', =>
@@ -1541,7 +1509,7 @@ NewStep2 = React.createClass
                         paddingBottom: 10
                     raw 'ADD CATEGORY'
 
-      child 'div.new-siftr-hero', =>
+      child 'div.bottom-step-buttons', =>
         child 'a', href: '#new1', =>
           child 'div.newPrevButton', =>
             raw '< setup'
@@ -1605,8 +1573,16 @@ NewStep3 = React.createClass
             zoom: Math.max(2, @props.game.zoom)
             options: minZoom: 2
             onChange: @handleMapChange
-      unless @props.editing
-        child 'div.new-siftr-hero', =>
+      if @props.editing
+        child 'div.bottom-step-buttons', =>
+          child 'a', href: '#categories' + @props.game.game_id, =>
+            child 'div.newPrevButton', =>
+              raw '< categories'
+          child 'a', href: '#form' + @props.game.game_id, =>
+            child 'div.newNextButton', =>
+              raw 'data >'
+      else
+        child 'div.bottom-step-buttons', =>
           child 'a', href: '#new2', =>
             child 'div.newPrevButton', =>
               raw '< appearance'
@@ -1635,24 +1611,6 @@ NewStep4 = React.createClass
 
   render: ->
     make 'div.newStepBox', =>
-      if @props.editing
-        child 'p',
-          style:
-            textAlign: 'center'
-        , =>
-          child 'a', href: '#', =>
-            props
-              style:
-                display: 'inline-block'
-                backgroundColor: 'rgb(97,201,226)'
-                color: 'white'
-                fontSize: 20
-                marginTop: 10
-                textAlign: 'center'
-                width: 250
-                padding: 5
-            raw 'BACK'
-
       fields =
         if @props.editing
           @props.fields ? []
@@ -1880,8 +1838,14 @@ NewStep4 = React.createClass
             child 'p', =>
               raw 'No field selected.'
 
-      unless @props.editing
-        child 'div.new-siftr-hero', =>
+      if @props.editing
+        child 'div.bottom-step-buttons', =>
+          child 'a', href: '#map' + @props.game.game_id, =>
+            child 'div.newPrevButton', =>
+              raw '< map'
+          child 'div'
+      else
+        child 'div.bottom-step-buttons', =>
           child 'a', href: '#new3', =>
             child 'div.newPrevButton', =>
               raw '< map'
@@ -1943,7 +1907,7 @@ NewStep5 = React.createClass
             else
               raw "Enter a custom identifier for your Siftr's web address."
         child 'div.newStep1Column.newStep1RightColumn'
-      child 'div.new-siftr-hero', =>
+      child 'div.bottom-step-buttons', =>
         child 'a', href: '#new4', =>
           child 'div.newPrevButton', =>
             raw '< data'

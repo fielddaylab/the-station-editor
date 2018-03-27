@@ -11,7 +11,7 @@
 }
 
 .newStep1Column {
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 25px;
 }
 
@@ -79,6 +79,7 @@
   padding-top: 100px;
   padding-left: 30%;
   width: 40%;
+  flex: 1;
 }
 
 .accountMenuMobile {
