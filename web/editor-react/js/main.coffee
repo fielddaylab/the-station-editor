@@ -411,16 +411,12 @@ App = React.createClass
           child 'a.create-cancel', href: '#', =>
             raw 'Cancel'
         else if @state.screen in ['edit', 'map']
+          if @state.autosaving
+            child 'span.create-spinner', =>
+              child 'span', => raw 'saving'
+              child 'img.spinny-saver', src: '../assets/icons/spinny-saver.png'
           child 'a.create-cancel', href: '#', =>
-            props
-              onClick: (e) =>
-                e.preventDefault()
-                @props.aris.updateGame @state.edit_game, onSuccess =>
-                  @updateGames()
-                  window.location.hash = '#'
-            raw 'Save'
-          child 'a.create-cancel', href: '#', =>
-            raw 'Cancel'
+            raw 'Done'
         else if @state.screen in ['categories', 'form']
           child 'a.create-cancel', href: '#', =>
             raw 'Done'
@@ -642,8 +638,13 @@ App = React.createClass
               child EditSiftr,
                 game: @state.edit_game
                 colors: @state.colors
-                onChange: (game) => @setState edit_game: game
-                onSave: @handleSave
+                onChange: (game, autosave = true) =>
+                  @setState edit_game: game
+                  if autosave
+                    @setState autosaving: true
+                    @props.aris.updateGame game, onSuccess =>
+                      @updateGames()
+                      @setState autosaving: false
                 mobileMapIsOpen: @state.mobile_map_is_open
                 openMobileMap: =>
                   @setState mobile_map_is_open: true
@@ -695,8 +696,13 @@ App = React.createClass
               child NewStep3,
                 editing: true
                 game: @state.edit_game
-                onChange: (game) =>
+                onChange: (game, autosave = true) =>
                   @setState edit_game: game
+                  if autosave
+                    @setState autosaving: true
+                    @props.aris.updateGame game, onSuccess =>
+                      @updateGames()
+                      @setState autosaving: false
             when 'categories'
               child 'div.newStepBox', =>
                 child 'div.loginForm', =>
@@ -1150,13 +1156,30 @@ EditSiftr = React.createClass
             child 'h2', => raw @props.game.name
             child 'label', =>
               child 'h4', => raw 'NAME'
-              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
+              child 'input',
+                type: 'text'
+                value: @props.game.name ? ''
+                onChange: (e) =>
+                  game = update @props.game,
+                    name:
+                      $set: e.target.value
+                  @props.onChange game, false
+                onBlur: => @props.onChange @props.game, true
+                style: {width: '100%'}
             child 'label', =>
               child 'h4', =>
                 raw 'DESCRIPTION '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
+              child 'textarea',
+                value: @props.game.description ? ''
+                onChange: (e) =>
+                  game = update @props.game,
+                    description:
+                      $set: e.target.value
+                  @props.onChange game, false
+                onBlur: => @props.onChange @props.game, true
+                style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
             child 'label', =>
@@ -1166,7 +1189,10 @@ EditSiftr = React.createClass
                   type: 'text'
                   placeholder: 'URL (optional)'
                   value: @props.game.siftr_url ? ''
-                  onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
+                  onChange: (e) =>
+                    url = e.target.value.replace(/[^A-Za-z0-9_\-]/g, '')
+                    @props.onChange update(@props.game, siftr_url: $set: url), false
+                  onBlur: => @props.onChange @props.game, true
                   style: width: '100%'
             child 'p', =>
               child 'b', => raw @props.game.name
@@ -1181,7 +1207,8 @@ EditSiftr = React.createClass
                   type: 'text'
                   placeholder: 'Enter a caption...'
                   value: @props.game.prompt ? ''
-                  onChange: (e) => @props.onChange update @props.game, prompt: $set: e.target.value
+                  onChange: (e) => @props.onChange update(@props.game, prompt: $set: e.target.value), false
+                  onBlur: => @props.onChange @props.game, true
                   style: width: '100%'
             child 'p.editLocationMobile', =>
               props style:
@@ -1223,7 +1250,8 @@ EditSiftr = React.createClass
                 type: 'text'
                 placeholder: 'Password (optional)'
                 value: @props.game.password ? ''
-                onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+                onChange: (e) => @props.onChange update(@props.game, password: $set: e.target.value), false
+                onBlur: => @props.onChange @props.game, true
                 style: width: '100%'
             child 'h4', => raw 'MODERATION'
             child 'p', =>
@@ -1261,7 +1289,20 @@ EditSiftr = React.createClass
                   child 'label', key: "colors-#{i}", =>
                     props style: display: 'table-cell'
                     child 'p', => raw colors?.name
-                    child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
+                    child 'input',
+                      ref: "colors_#{i}"
+                      type: 'radio'
+                      onChange: =>
+                        game = update @props.game,
+                          colors_id:
+                            $set: do =>
+                              for i in [1..6]
+                                if @refs["colors_#{i}"].checked
+                                  return i
+                              1
+                        @props.onChange game
+                      name: 'colors'
+                      checked: @props.game.colors_id is i
                     gradient = do =>
                       percent = 0
                       points = []
@@ -1285,20 +1326,6 @@ EditSiftr = React.createClass
         child 'a', href: '#categories' + @props.game.game_id, =>
           child 'div.newNextButton', =>
             raw 'categories >'
-
-  handleChange: ->
-    game = update @props.game,
-      name:
-        $set: @refs['name'].value
-      description:
-        $set: @refs['description'].value
-      colors_id:
-        $set: do =>
-          for i in [1..6]
-            if @refs["colors_#{i}"].checked
-              return i
-          1
-    @props.onChange game
 
 NewStep1 = React.createClass
   displayName: 'NewStep1'
@@ -1541,6 +1568,16 @@ NewStep2 = React.createClass
 
 NewStep3 = React.createClass
   displayName: 'NewStep3'
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    # This prevents the map from jerking back.
+    # The number comparisons are needed due to tiny floating point errors.
+    return true if @props.editing isnt nextProps.editing
+    return true if Math.abs(@props.game.latitude - nextProps.game.latitude) > 0.0000001
+    return true if Math.abs(@props.game.longitude - nextProps.game.longitude) > 0.0000001
+    return true if @props.game.zoom isnt nextProps.game.zoom
+    return true if @props.game.type isnt nextProps.game.type
+    false
 
   render: ->
     make 'div.newStepBox', =>
