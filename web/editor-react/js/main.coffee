@@ -521,7 +521,6 @@ App = React.createClass
           switch @state.screen
             when 'account'
               child 'div.loginForm', =>
-                props style: textAlign: 'center'
                 child 'h3', =>
                   raw 'Account Details'
                 child 'p', =>
@@ -719,19 +718,17 @@ App = React.createClass
                   colors = @state.colors[@state.edit_game.colors_id or 1]
                   child 'h2', =>
                     props style:
-                      textAlign: 'center'
                       marginBottom: 40
                     raw "Categories for "
                     child 'b', =>
                       raw @state.edit_game.name
                   if not tags?
-                    child 'p', style: {textAlign: 'center'}, =>
+                    child 'p', =>
                       raw 'Loading categories...'
                   else if @state.delete_tag?
                     child 'h4', =>
                       props
                         style:
-                          textAlign: 'center'
                           padding: 20
                       raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
                     for tag, i in tags
@@ -763,7 +760,6 @@ App = React.createClass
                             padding: 10
                             fontSize: 20
                             marginTop: 40
-                            textAlign: 'center'
                         raw 'CANCEL'
                   else
                     for tag, i in tags
@@ -788,7 +784,7 @@ App = React.createClass
                                 e.stopPropagation()
                                 @setState delete_tag: tag
                             raw 'X'
-                    child 'a', href: '#', =>
+                    child 'a.new-category-button', href: '#', =>
                       props
                         onClick: (e) =>
                           e.preventDefault()
@@ -799,15 +795,7 @@ App = React.createClass
                             tagObject.game_id = @state.edit_game.game_id
                             @props.aris.createTag tagObject, =>
                               @updateTags [@state.edit_game]
-                      child 'div', =>
-                        props
-                          style:
-                            backgroundColor: 'rgb(97,201,226)'
-                            color: 'white'
-                            padding: 10
-                            fontSize: 20
-                            marginTop: 40
-                            textAlign: 'center'
+                      child 'div.login-button', =>
                         raw 'NEW CATEGORY'
                 child 'div.bottom-step-buttons', =>
                   child 'a', href: '#edit' + @state.edit_game.game_id, =>
@@ -848,17 +836,9 @@ App = React.createClass
                 onCreate: @createGame
             else
               child 'div', =>
-                child 'p', style: {textAlign: 'center', paddingTop: 25}, =>
-                  child 'a', href: '#new1', =>
-                    child 'span', =>
-                      props style:
-                        backgroundColor: 'rgb(51,191,224)'
-                        color: 'white'
-                        paddingLeft: 40
-                        paddingRight: 40
-                        paddingTop: 10
-                        paddingBottom: 10
-                      raw 'NEW SIFTR'
+                child 'p.new-siftr-para', =>
+                  child 'a.new-siftr-button.login-button', href: '#new1', =>
+                    raw 'NEW SIFTR'
                 child SiftrList,
                   games: @state.games
                   colors: @state.colors
@@ -873,7 +853,7 @@ App = React.createClass
                       else
                         alert "There was an error deleting your Siftr: #{returnCodeDescription}"
           child 'div.accountMenuDesktop', =>
-            child 'div', style: {textAlign: 'center'}, =>
+            child 'div', =>
               child 'a.unlink', href: '#account', =>
                 child 'p', =>
                   child 'span', style:
@@ -899,7 +879,7 @@ App = React.createClass
           switch @state.screen
             when 'forgot'
               child 'div.loginForm', =>
-                child 'p', style: {textAlign: 'center'}, =>
+                child 'p', =>
                   raw 'Enter your username '
                   child 'b', => raw 'or'
                   raw ' email to reset your password.'
@@ -939,7 +919,7 @@ App = React.createClass
                     raw 'BACK'
             when 'signup'
               child 'div.loginForm', =>
-                child 'p', style: {textAlign: 'center'}, =>
+                child 'p', =>
                   raw 'Create a new Siftr account'
                 child 'p', =>
                   child 'input',
@@ -997,7 +977,7 @@ App = React.createClass
                     raw 'BACK'
             else
               child 'div.loginForm', =>
-                child 'p', style: {textAlign: 'center'}, =>
+                child 'p', =>
                   raw 'Login with a Siftr or ARIS account'
                 child 'p', =>
                   child 'input',
@@ -1037,9 +1017,6 @@ App = React.createClass
                   child 'div.login-button', =>
                     raw 'FORGOT PASSWORD?'
       child 'div.accountMenuMobile', =>
-        child 'span', =>
-          props
-            onClick: => @setState account_menu: false
         child 'a', href: '#', =>
           props
             onClick: (e) =>
@@ -1048,7 +1025,7 @@ App = React.createClass
           child 'div', =>
             child 'img',
               src: '../assets/icons/x-white.png'
-        child 'div', style: {textAlign: 'center'}, =>
+        child 'div.accountMenuMobileContents', =>
           if @state.auth?
             child 'a.unlink', href: '#account', =>
               child 'p', =>
@@ -1066,11 +1043,8 @@ App = React.createClass
           child 'p', =>
             child 'a', href: '..', =>
               child 'img', src: '../assets/logos/brand-mobile.png'
-          unlink =
-            color: 'white'
-            textDecoration: 'none'
-          child 'p', => child 'a', style: unlink, href: '../editor', => raw 'My Siftrs'
-          child 'p', => child 'a', style: unlink, href: '../discover', => raw 'Discover'
+          child 'p', => child 'a', href: '../editor', => raw 'My Siftrs'
+          child 'p', => child 'a', href: '../discover', => raw 'Discover'
           if @state.auth?
             child 'p', =>
               child 'a', href: '#', =>
@@ -1109,14 +1083,7 @@ SiftrList = React.createClass
                   e.preventDefault()
                   if confirm "Are you sure you want to delete \"#{game.name}\"?"
                     @props.onDelete game
-              child 'span', =>
-                props
-                  style:
-                    float: 'right'
-                    border: '1px solid black'
-                    padding: 5
-                    marginLeft: 5
-                    color: 'black'
+              child 'span.siftr-command-button', =>
                 raw 'DELETE'
             child 'a', href: "\#edit#{game.game_id}", =>
               child 'span.siftr-command-button', =>
@@ -1219,25 +1186,6 @@ EditSiftr = React.createClass
                   onChange: (e) => @props.onChange update(@props.game, prompt: $set: e.target.value), false
                   onBlur: => @props.onChange @props.game, true
                   style: width: '100%'
-            child 'p.editLocationMobile', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.openMobileMap
-                child 'span', =>
-                  props
-                    style:
-                      backgroundColor: 'rgb(51,191,224)'
-                      color: 'white'
-                      paddingLeft: 35
-                      paddingRight: 35
-                      paddingTop: 10
-                      paddingBottom: 10
-                  raw 'EDIT LOCATION'
             child 'h2', => raw 'SETTINGS'
             child 'h4', => raw 'PRIVACY'
             child 'p', =>
@@ -1343,7 +1291,7 @@ NewStep1 = React.createClass
     make 'div.newStepBox', =>
       child 'div.newStep1', =>
         child 'div.newStep1Column.newStep1LeftColumn', =>
-          child 'h3', style: {textAlign: 'center'}, =>
+          child 'h3', =>
             raw 'What kind of Siftr do you want to make?'
           child 'div', =>
             child 'label', =>
@@ -1356,24 +1304,17 @@ NewStep1 = React.createClass
                   onClick: (e) =>
                     e.preventDefault()
                     @selectImage()
-                child 'div', =>
-                  s =
-                    width: '100%'
-                    height: 260
-                    backgroundColor: '#eee'
-                    textAlign: 'center'
-                    boxSizing: 'border-box'
+                child 'div.siftr-icon-area', =>
                   if @props.icon?
-                    props style: update s, $merge:
+                    props style:
                       backgroundImage: "url(#{@props.icon})"
                       backgroundSize: 'contain'
                       backgroundRepeat: 'no-repeat'
                       backgroundPosition: 'center'
+                      height: 200
                   else
-                    props style: update s, $merge:
-                      paddingLeft: 40
-                      paddingRight: 40
-                      paddingTop: 30
+                    props style:
+                      padding: 30
                     child 'div', style:
                       backgroundColor: '#ccc'
                       height: 80
@@ -1445,7 +1386,7 @@ NewStep2 = React.createClass
     make 'div.newStepBox', =>
 
       child 'div.newStep2', =>
-        child 'h3', style: {textAlign: 'center'}, =>
+        child 'h3', =>
           raw 'Choose a color scheme for your new Siftr!'
         @tag_boxes = []
         child 'div.newStep2ColorTable', =>

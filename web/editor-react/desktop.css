@@ -69,6 +69,7 @@
   overflow-y: hidden;
   transition-property: max-height;
   transition-duration: 0.25s;
+  text-align: center;
 }
 
 .accountMenuOpen .accountMenuDesktop {

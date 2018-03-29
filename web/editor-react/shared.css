@@ -21,6 +21,10 @@ a:hover {
   text-decoration: underline;
 }
 
+a *:hover {
+  text-decoration: underline;
+}
+
 #the-container {
   overflow: visible;
 }
@@ -126,6 +130,10 @@ input[type=text], input[type=password], textarea {
   color: black;
 }
 
+.loginForm {
+  text-align: center;
+}
+
 .login-button {
   background-color: rgb(51,191,224);
   width: 100%;
@@ -134,6 +142,16 @@ input[type=text], input[type=password], textarea {
   text-align: center;
   color: white;
   margin-bottom: 15px;
+}
+
+.new-siftr-para {
+  text-align: center;
+  padding-top: 25px;
+}
+
+.new-siftr-button {
+  padding-left: 40px;
+  padding-right: 40px;
 }
 
 .nav-menu-button {
@@ -259,6 +277,10 @@ input[type=text], input[type=password], textarea {
   overflow-y: auto;
 }
 
+.newStepBox h3 {
+  text-align: center;
+}
+
 .newStep1, .newStep2, .newStep4, .newStep5 {
   flex: 1;
   overflow-y: scroll;
@@ -347,4 +369,15 @@ input[type=text], input[type=password], textarea {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.new-category-button .login-button {
+  margin-top: 30px;
+}
+
+.siftr-icon-area {
+  width: 100%;
+  background-color: #eee;
+  text-align: center;
+  box-sizing: border-box;
 }
