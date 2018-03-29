@@ -38,6 +38,10 @@ onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
   else
     alert "An error occurred: #{returnCodeDescription}"
 
+reactBind = (fn, obj) ->
+  fn
+  # TODO: when we upgrade to newer React, change this to fn.bind(obj)
+
 App = React.createClass
   displayName: 'App'
 
@@ -404,6 +408,23 @@ App = React.createClass
       @setState new_icon: fr.result
     fr.readAsDataURL file
 
+  continueAutosave: ->
+    if (game = @autosavePending)?
+      @autosavePending = null
+      @props.aris.updateGame game, onSuccess =>
+        @continueAutosave()
+    else
+      @updateGames()
+      @setState autosaving: false
+
+  autosave: (game, autosave = true) ->
+    @setState edit_game: game
+    if autosave
+      @autosavePending = game
+      unless @state.autosaving
+        @setState autosaving: true
+        @continueAutosave()
+
   render: ->
     navBarActions = =>
       child 'div', =>
@@ -638,13 +659,7 @@ App = React.createClass
               child EditSiftr,
                 game: @state.edit_game
                 colors: @state.colors
-                onChange: (game, autosave = true) =>
-                  @setState edit_game: game
-                  if autosave
-                    @setState autosaving: true
-                    @props.aris.updateGame game, onSuccess =>
-                      @updateGames()
-                      @setState autosaving: false
+                onChange: reactBind(@autosave, @)
                 mobileMapIsOpen: @state.mobile_map_is_open
                 openMobileMap: =>
                   @setState mobile_map_is_open: true
@@ -696,13 +711,7 @@ App = React.createClass
               child NewStep3,
                 editing: true
                 game: @state.edit_game
-                onChange: (game, autosave = true) =>
-                  @setState edit_game: game
-                  if autosave
-                    @setState autosaving: true
-                    @props.aris.updateGame game, onSuccess =>
-                      @updateGames()
-                      @setState autosaving: false
+                onChange: reactBind(@autosave, @)
             when 'categories'
               child 'div.newStepBox', =>
                 child 'div.loginForm', =>
