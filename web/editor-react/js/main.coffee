@@ -549,27 +549,22 @@ App = React.createClass
                       e.preventDefault()
                       @logout()
                   child 'div.login-button', =>
-                    props:
-                      style:
-                        marginBottom: 30
                     raw 'LOGOUT'
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Display Name'
                     value: @state.display_name ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState display_name: e.target.value
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Email'
                     value: @state.email ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState email: e.target.value
                 child 'a', href: '#', =>
                   props
@@ -603,31 +598,28 @@ App = React.createClass
                 child 'h3', =>
                   raw 'Change Password'
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Old password'
                     value: @state.old_password ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState old_password: e.target.value
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'New password'
                     value: @state.password ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState password: e.target.value
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Repeat new password'
                     value: @state.password2 ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState password2: e.target.value
                 child 'a', href: '#', =>
                   props
@@ -717,8 +709,6 @@ App = React.createClass
                   tags = @state.tags[@state.edit_game.game_id]
                   colors = @state.colors[@state.edit_game.colors_id or 1]
                   child 'h2', =>
-                    props style:
-                      marginBottom: 40
                     raw "Categories for "
                     child 'b', =>
                       raw @state.edit_game.name
@@ -727,9 +717,6 @@ App = React.createClass
                       raw 'Loading categories...'
                   else if @state.delete_tag?
                     child 'h4', =>
-                      props
-                        style:
-                          padding: 20
                       raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
                     for tag, i in tags
                       continue if tag is @state.delete_tag
@@ -747,19 +734,12 @@ App = React.createClass
                                   @setState delete_tag: null
                                   @updateTags [@state.edit_game]
                           raw tag.tag
-                    child 'a', href: '#', =>
+                    child 'a.new-category-button', href: '#', =>
                       props
                         onClick: (e) =>
                           e.preventDefault()
                           @setState delete_tag: null
-                      child 'div', =>
-                        props
-                          style:
-                            backgroundColor: 'rgb(97,201,226)'
-                            color: 'white'
-                            padding: 10
-                            fontSize: 20
-                            marginTop: 40
+                      child 'div.login-button', =>
                         raw 'CANCEL'
                   else
                     for tag, i in tags
@@ -856,14 +836,8 @@ App = React.createClass
             child 'div', =>
               child 'a.unlink', href: '#account', =>
                 child 'p', =>
-                  child 'span', style:
-                    width: 100
-                    height: 100
-                    borderRadius: 50
-                    backgroundColor: 'white'
+                  child 'span.account-menu-user-pic', style:
                     backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
-                    backgroundSize: 'cover'
-                    display: 'inline-block'
                 child 'p', =>
                   raw @state.auth.display_name
                 child 'div.nav-menu-button', =>
@@ -884,25 +858,23 @@ App = React.createClass
                   child 'b', => raw 'or'
                   raw ' email to reset your password.'
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
                     value: @state.username ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
                       if e.keyCode is 13
                         @sendPasswordReset()
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Email'
                     value: @state.email ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState email: e.target.value
                     onKeyDown: (e) =>
                       if e.keyCode is 13
@@ -922,46 +894,42 @@ App = React.createClass
                 child 'p', =>
                   raw 'Create a new Siftr account'
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Email'
                     value: @state.email ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState email: e.target.value
                     onKeyDown: (e) =>
                       @signup() if e.keyCode is 13
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
                     value: @state.username ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
                       @signup() if e.keyCode is 13
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Password'
                     value: @state.password ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState password: e.target.value
                     onKeyDown: (e) =>
                       @signup() if e.keyCode is 13
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Repeat password'
                     value: @state.password2 ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState password2: e.target.value
                     onKeyDown: (e) =>
                       @signup() if e.keyCode is 13
@@ -980,25 +948,23 @@ App = React.createClass
                 child 'p', =>
                   raw 'Login with a Siftr or ARIS account'
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'text'
                     placeholder: 'Username'
                     value: @state.username ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState username: e.target.value
                     onKeyDown: (e) =>
                       if e.keyCode is 13
                         @login @state.username, @state.password
                 child 'p', =>
-                  child 'input',
+                  child 'input.full-width-input',
                     autoCapitalize: 'off'
                     autoCorrect: 'off'
                     type: 'password'
                     placeholder: 'Password'
                     value: @state.password ? ''
-                    style: width: '100%'
                     onChange: (e) => @setState password: e.target.value
                     onKeyDown: (e) =>
                       if e.keyCode is 13
@@ -1029,14 +995,8 @@ App = React.createClass
           if @state.auth?
             child 'a.unlink', href: '#account', =>
               child 'p', =>
-                child 'span', style:
-                  width: 80
-                  height: 80
-                  borderRadius: 40
-                  backgroundColor: 'white'
+                child 'span.account-menu-user-pic', style:
                   backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
-                  backgroundSize: 'cover'
-                  display: 'inline-block'
               child 'p', => raw @state.auth.display_name
           else
             child 'p', => raw 'Not logged in'
@@ -1061,58 +1021,37 @@ SiftrList = React.createClass
     make 'div.siftrList', =>
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
-        child 'div', key: "game-#{game.game_id}", =>
-          props
-            style:
-              marginBottom: 50
-          child 'div', =>
-            props
-              style:
-                marginBottom: 10
-            child 'a', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
-              props
-                style:
-                  float: 'left'
-                  fontSize: '23px'
-                  color: 'black'
+        child 'div.siftr-entry', key: "game-#{game.game_id}", =>
+          child 'div.siftr-entry-title-buttons', =>
+            child 'a.siftr-entry-title', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
               raw game.name
-            child 'div.clearOnMobile'
-            child 'a', href: '#', =>
-              props
-                onClick: (e) =>
-                  e.preventDefault()
-                  if confirm "Are you sure you want to delete \"#{game.name}\"?"
-                    @props.onDelete game
-              child 'span.siftr-command-button', =>
-                raw 'DELETE'
-            child 'a', href: "\#edit#{game.game_id}", =>
-              child 'span.siftr-command-button', =>
-                raw 'EDIT'
-            child 'div', style: clear: 'both'
-          child 'div', =>
-            props
-              style:
-                width: '100%'
-                height: '10px'
-                margin: 0
-                padding: 0
-                backgroundImage:
-                  if (colors = @props.colors[game.colors_id])?
-                    percent = 0
-                    points = []
-                    for i in [1..5]
-                      rgb = colors["tag_#{i}"]
-                      points.push "#{rgb} #{percent}%"
-                      percent += 20
-                      points.push "#{rgb} #{percent}%"
-                    "linear-gradient(to right, #{points.join(', ')})"
-                  else
-                    'linear-gradient(to right, gray, gray)'
-          child 'div', =>
-            props
-              style:
-                marginTop: 10
-            sep = => child 'span', style: {marginLeft: 20, marginRight: 20}, => raw ' | '
+            child 'span', =>
+              child 'a', href: "\#edit#{game.game_id}", =>
+                child 'span.siftr-command-button', =>
+                  raw 'EDIT'
+              child 'a', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    if confirm "Are you sure you want to delete \"#{game.name}\"?"
+                      @props.onDelete game
+                child 'span.siftr-command-button', =>
+                  raw 'DELETE'
+          child 'div.siftr-color-bar', style:
+            backgroundImage:
+              if (colors = @props.colors[game.colors_id])?
+                percent = 0
+                points = []
+                for i in [1..5]
+                  rgb = colors["tag_#{i}"]
+                  points.push "#{rgb} #{percent}%"
+                  percent += 20
+                  points.push "#{rgb} #{percent}%"
+                "linear-gradient(to right, #{points.join(', ')})"
+              else
+                'linear-gradient(to right, gray, gray)'
+          child 'div.siftr-data', =>
+            sep = => child 'span.siftr-data-pipe', => raw '|'
             raw "#{notes?.length ? '...'} items"
             sep()
             raw "#{if notes? then countContributors(notes) else '...'} contributors"
@@ -1132,7 +1071,7 @@ EditSiftr = React.createClass
             child 'h2', => raw @props.game.name
             child 'label', =>
               child 'h4', => raw 'NAME'
-              child 'input',
+              child 'input.full-width-input',
                 type: 'text'
                 value: @props.game.name ? ''
                 onChange: (e) =>
@@ -1141,13 +1080,12 @@ EditSiftr = React.createClass
                       $set: e.target.value
                   @props.onChange game, false
                 onBlur: => @props.onChange @props.game, true
-                style: {width: '100%'}
             child 'label', =>
               child 'h4', =>
                 raw 'DESCRIPTION '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
-              child 'textarea',
+              child 'textarea.full-width-textarea',
                 value: @props.game.description ? ''
                 onChange: (e) =>
                   game = update @props.game,
@@ -1155,13 +1093,12 @@ EditSiftr = React.createClass
                       $set: e.target.value
                   @props.onChange game, false
                 onBlur: => @props.onChange @props.game, true
-                style: {width: '100%', height: 105}
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
             child 'label', =>
               child 'h4', => raw 'URL'
               child 'p', =>
-                child 'input',
+                child 'input.full-width-input',
                   type: 'text'
                   placeholder: 'URL (optional)'
                   value: @props.game.siftr_url ? ''
@@ -1169,7 +1106,6 @@ EditSiftr = React.createClass
                     url = e.target.value.replace(/[^A-Za-z0-9_\-]/g, '')
                     @props.onChange update(@props.game, siftr_url: $set: url), false
                   onBlur: => @props.onChange @props.game, true
-                  style: width: '100%'
             child 'p', =>
               child 'b', => raw @props.game.name
               raw " will be located at "
@@ -1179,50 +1115,46 @@ EditSiftr = React.createClass
               child 'p', =>
                 raw 'Enter a caption prompt for a user uploading a photo.'
               child 'p', =>
-                child 'input',
+                child 'input.full-width-input',
                   type: 'text'
                   placeholder: 'Enter a caption...'
                   value: @props.game.prompt ? ''
                   onChange: (e) => @props.onChange update(@props.game, prompt: $set: e.target.value), false
                   onBlur: => @props.onChange @props.game, true
-                  style: width: '100%'
             child 'h2', => raw 'SETTINGS'
             child 'h4', => raw 'PRIVACY'
-            child 'p', =>
-              raw 'Do you want '
-              child 'b', => raw @props.game.name
-              raw ' to appear in search results?'
-            child 'p', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              toggleSwitch 'YES', @props.game.published, =>
-                @props.onChange update @props.game, published: $set: true
-              toggleSwitch 'NO', not @props.game.published, =>
-                @props.onChange update @props.game, published: $set: false
+
+            hidden = not @props.game.published
+            child "a.form-multi-option.form-multi-option-#{if hidden then 'on' else 'off'}", href: '#', =>
+              props
+                onClick: (e) =>
+                  e.preventDefault()
+                  @props.onChange update @props.game, published: $set: hidden
+              child 'span.form-multi-option-text', =>
+                raw 'Hide from search'
+              child 'span.form-multi-option-switch', =>
+                child 'span.form-multi-option-ball'
+
             child 'p', =>
               raw 'Do you want to set a password to restrict access?'
             child 'p', =>
-              child 'input',
+              child 'input.full-width-input',
                 type: 'text'
                 placeholder: 'Password (optional)'
                 value: @props.game.password ? ''
                 onChange: (e) => @props.onChange update(@props.game, password: $set: e.target.value), false
                 onBlur: => @props.onChange @props.game, true
-                style: width: '100%'
-            child 'h4', => raw 'MODERATION'
-            child 'p', =>
-              raw 'Do new user submissions have to be approved by you before they are added to '
-              child 'b', => raw @props.game.name
-              raw '?'
-            child 'p', =>
-              props style:
-                marginTop: 30
-                marginBottom: 30
-              toggleSwitch 'YES', @props.game.moderated, =>
-                @props.onChange update @props.game, moderated: $set: true
-              toggleSwitch 'NO', not @props.game.moderated, =>
-                @props.onChange update @props.game, moderated: $set: false
+
+            moderated = @props.game.moderated
+            child "a.form-multi-option.form-multi-option-#{if moderated then 'on' else 'off'}", href: '#', =>
+              props
+                onClick: (e) =>
+                  e.preventDefault()
+                  @props.onChange update @props.game, moderated: $set: not moderated
+              child 'span.form-multi-option-text', =>
+                raw 'Require moderation?'
+              child 'span.form-multi-option-switch', =>
+                child 'span.form-multi-option-ball'
 
             child 'h2', => raw 'APPEARANCE'
             child 'p', =>
@@ -1230,12 +1162,7 @@ EditSiftr = React.createClass
               child 'b', => raw @props.game.name
               raw ' use?'
             colorsRow = (colors_ids) =>
-              child 'div', =>
-                props style:
-                  display: 'table'
-                  width: '100%'
-                  tableLayout: 'fixed'
-                  fontSize: '13px'
+              child 'div.color-table', =>
                 for i in colors_ids
                   colors = @props.colors[i]
                   rgbs =
@@ -1243,8 +1170,7 @@ EditSiftr = React.createClass
                       colors["tag_#{j}"] for j in [1..5]
                     else
                       []
-                  child 'label', key: "colors-#{i}", =>
-                    props style: display: 'table-cell'
+                  child 'label.color-table-cell', key: "colors-#{i}", =>
                     child 'p', => raw colors?.name
                     child 'input',
                       ref: "colors_#{i}"
@@ -1268,12 +1194,8 @@ EditSiftr = React.createClass
                         percent += 20
                         points.push "#{rgb} #{percent}%"
                       "linear-gradient(to right, #{points.join(', ')})"
-                    child 'div', style:
-                      width: 90
-                      height: 35
-                      marginLeft: 10
+                    child 'div.color-table-gradient', style:
                       backgroundImage: gradient
-                      display: 'inline-block'
             colorsRow [1, 2, 3]
             colorsRow [4, 5, 6]
 
@@ -1296,7 +1218,11 @@ NewStep1 = React.createClass
           child 'div', =>
             child 'label', =>
               child 'p', => raw 'NAME'
-              child 'input', ref: 'name', type: 'text', value: @props.game.name ? '', onChange: @handleChange, style: {width: '100%'}
+              child 'input.full-width-input',
+                ref: 'name'
+                type: 'text'
+                value: @props.game.name ? ''
+                onChange: @handleChange
             child 'label', =>
               child 'p', => raw 'SIFTR ICON'
               child 'a', href: '#', =>
@@ -1304,28 +1230,14 @@ NewStep1 = React.createClass
                   onClick: (e) =>
                     e.preventDefault()
                     @selectImage()
-                child 'div.siftr-icon-area', =>
+                child "div.siftr-icon-area.siftr-icon-#{if @props.icon? then 'filled' else 'empty'}", =>
                   if @props.icon?
                     props style:
                       backgroundImage: "url(#{@props.icon})"
-                      backgroundSize: 'contain'
-                      backgroundRepeat: 'no-repeat'
-                      backgroundPosition: 'center'
-                      height: 200
                   else
-                    props style:
-                      padding: 30
-                    child 'div', style:
-                      backgroundColor: '#ccc'
-                      height: 80
-                      width: 80
-                      borderRadius: '40px'
-                      marginLeft: 'auto'
-                      marginRight: 'auto'
+                    child 'div.siftr-icon-gray-circle'
                     child 'h3', =>
-                      raw 'Drag an image here or '
-                      child 'span', style: {color: 'rgb(20,156,201)'}, => raw 'browse'
-                      raw ' to upload one.'
+                      raw 'Drag an image here or click to browse.'
                     child 'p', => child 'i', =>
                       raw '200px by 200px recommended'
                   props
@@ -1342,13 +1254,20 @@ NewStep1 = React.createClass
               child 'p', =>
                 raw 'CATEGORIES '
                 child 'i', => raw 'separated by comma'
-              child 'input', ref: 'tag_string', type: 'text', value: @props.tag_string ? '', onChange: @handleChange, style: {width: '100%'}
+              child 'input.full-width-input',
+                ref: 'tag_string'
+                type: 'text'
+                value: @props.tag_string ? ''
+                onChange: @handleChange
             child 'label', =>
               child 'p', =>
                 raw 'DESCRIPTION '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
-              child 'textarea', ref: 'description', value: @props.game.description ? '', onChange: @handleChange, style: {width: '100%', height: 105}
+              child 'textarea.full-width-textarea',
+                ref: 'description'
+                value: @props.game.description ? ''
+                onChange: @handleChange
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
         child 'div.newStep1Column.newStep1RightColumn'
@@ -1389,13 +1308,7 @@ NewStep2 = React.createClass
         child 'h3', =>
           raw 'Choose a color scheme for your new Siftr!'
         @tag_boxes = []
-        child 'div.newStep2ColorTable', =>
-          props style:
-            display: 'table'
-            width: '100%'
-            tableLayout: 'fixed'
-            fontSize: '13px'
-
+        child 'div.color-table', =>
           colorsRow = (colors_ids) =>
             for i in colors_ids
               colors = @props.colors[i]
@@ -1404,8 +1317,7 @@ NewStep2 = React.createClass
                   colors["tag_#{j}"] for j in [1..5]
                 else
                   []
-              child 'label', key: "colors-#{i}", =>
-                props style: display: 'table-cell'
+              child 'label.color-table-cell', key: "colors-#{i}", =>
                 child 'p', => raw colors?.name
                 child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
                 gradient = do =>
@@ -1416,75 +1328,40 @@ NewStep2 = React.createClass
                     percent += 20
                     points.push "#{rgb} #{percent}%"
                   "linear-gradient(to right, #{points.join(', ')})"
-                child 'div', style:
-                  width: 90
-                  height: 35
-                  marginLeft: 10
+                child 'div.color-table-gradient', style:
                   backgroundImage: gradient
-                  display: 'inline-block'
-          child 'div.newStep2ColorRow', => colorsRow [1, 2, 3]
-          child 'div.newStep2ColorRow', => colorsRow [4, 5, 6]
+          child 'div.color-table-row', => colorsRow [1, 2, 3]
+          child 'div.color-table-row', => colorsRow [4, 5, 6]
 
-        child 'div', =>
-          props style: paddingTop: 20
-          child 'div.newStep2LeftCol', =>
-            child 'form', =>
-              child 'h3', => raw 'CATEGORIES'
-              for tag, i in @props.tag_string.split(',')
-                tag = tag.replace(/^\s+/, '')
-                do (i) =>
-                  child 'div', key: "tag-#{i}", =>
-                    props style:
-                      display: 'flex'
-                      flexDirection: 'row'
-                      alignItems: 'center'
-                      width: '100%'
-                      marginTop: 30
-                      marginBottom: 30
-                    child 'span', style:
-                      width: 30
-                      minWidth: 30
-                      height: 30
-                      borderRadius: 15
-                      margin: 5
-                      backgroundColor: @props.colors[@props.game.colors_id]["tag_#{(i % 8) + 1}"] or 'black'
-                    child 'input',
-                      style:
-                        flex: 1
-                        margin: 5
-                      type: 'text'
-                      value: tag
-                      onChange: @handleChange
-                      ref: (elt) => @tag_boxes.push(elt) unless elt is null
-                    child 'a', href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          @deleteTag i
-                      child 'span', =>
-                        props
-                          style:
-                            color: 'rgb(255,87,61)'
-                            fontSize: '25px'
-                            margin: 5
-                        raw '×'
-              child 'p', =>
-                props style: marginTop: 40
-                child 'a', href: '#', =>
-                  props
-                    onClick: (e) =>
-                      e.preventDefault()
-                      @addTag()
-                  child 'span', =>
+        child 'div.newStep2LeftCol', =>
+          child 'form', =>
+            child 'h3', => raw 'CATEGORIES'
+            for tag, i in @props.tag_string.split(',')
+              tag = tag.replace(/^\s+/, '')
+              do (i) =>
+                child 'div.create-category-row', key: "tag-#{i}", =>
+                  child 'span.create-category-dot', style:
+                    backgroundColor: @props.colors[@props.game.colors_id]?["tag_#{(i % 8) + 1}"] or 'black'
+                  child 'input.create-category-name',
+                    type: 'text'
+                    value: tag
+                    onChange: @handleChange
+                    ref: (elt) => @tag_boxes.push(elt) unless elt is null
+                  child 'a', href: '#', =>
                     props
-                      style:
-                        backgroundColor: 'rgb(97,201,226)'
-                        color: 'white'
-                        paddingLeft: 25
-                        paddingRight: 25
-                        paddingTop: 10
-                        paddingBottom: 10
-                    raw 'ADD CATEGORY'
+                      onClick: (e) =>
+                        e.preventDefault()
+                        @deleteTag i
+                    child 'span.create-category-x', =>
+                      raw '×'
+            child 'p', =>
+              child 'a', href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @addTag()
+                child 'span.create-category-add', =>
+                  raw 'ADD CATEGORY'
 
       child 'div.bottom-step-buttons', =>
         child 'a', href: '#new1', =>
@@ -1862,12 +1739,11 @@ NewStep5 = React.createClass
           child 'p', =>
             raw 'Do you want to set a password to restrict access?'
           child 'p', =>
-            child 'input',
+            child 'input.full-width-input',
               type: 'text'
               placeholder: 'Password (optional)'
               value: @props.game.password ? ''
               onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
-              style: width: '100%'
           moderated = @props.game.moderated
           child "a.form-multi-option.form-multi-option-#{if moderated then 'on' else 'off'}", href: '#', =>
             props
@@ -1880,12 +1756,11 @@ NewStep5 = React.createClass
               child 'span.form-multi-option-ball'
           child 'h4', => raw 'URL'
           child 'p', =>
-            child 'input',
+            child 'input.full-width-input',
               type: 'text'
               placeholder: 'URL (optional)'
               value: @props.game.siftr_url ? ''
               onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
-              style: width: '100%'
           child 'p', =>
             if @props.game.siftr_url
               child 'b', => raw @props.game.name

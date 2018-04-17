@@ -123,7 +123,6 @@ input[type=text], input[type=password], textarea {
 }
 
 .siftr-command-button {
-  float: right;
   border: 1px solid black;
   padding: 5px;
   margin-left: 5px;
@@ -142,6 +141,15 @@ input[type=text], input[type=password], textarea {
   text-align: center;
   color: white;
   margin-bottom: 15px;
+}
+
+.create-category-add {
+  background-color: rgb(51,191,224);
+  color: white;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .new-siftr-para {
@@ -382,6 +390,126 @@ input[type=text], input[type=password], textarea {
   box-sizing: border-box;
 }
 
+.siftr-icon-filled {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 200px;
+}
+
+.siftr-icon-empty {
+  padding: 30px;
+}
+
+.siftr-icon-gray-circle {
+  background-color: #ccc;
+  height: 80px;
+  width: 80px;
+  border-radius: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.full-width-input {
+  width: 100%;
+}
+
+.full-width-textarea {
+  width: 100%;
+  height: 105px;
+}
+
+.color-table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.color-table-row {
+  display: table-row;
+}
+
+.color-table-cell {
+  display: table-cell;
+}
+
+.color-table-gradient {
+  width: 90px;
+  height: 35px;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.create-category-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.create-category-dot {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  margin: 5px;
+}
+
+.create-category-name {
+  flex: 1;
+  margin: 5px;
+}
+
+.create-category-x {
+  color: rgb(255,87,61);
+  font-size: 25px;
+  margin: 5
+}
+
+.account-menu-user-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background-color: white;
+  background-size: cover;
+  display: inline-block;
+}
+
+.siftr-color-bar {
+  width: 100%;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.siftr-data {
+  margin-top: 10px;
+}
+
+.siftr-data-pipe {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.siftr-entry {
+  margin-bottom: 50px;
+}
+
+.siftr-entry-title-buttons {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.siftr-entry-title {
+  font-size: 23px;
+}
+
 @media screen and (max-width: 949px) {
 
   .topDiv {
@@ -415,14 +543,6 @@ input[type=text], input[type=password], textarea {
 
   .newStep2RightCol {
     margin-top: 30px;
-  }
-
-  .newStep2ColorTable {
-    display: table;
-  }
-
-  .newStep2ColorRow {
-    display: table-row;
   }
 
   .mobileSaveLocation {
@@ -526,12 +646,6 @@ input[type=text], input[type=password], textarea {
     box-sizing: border-box;
   }
 
-  .newStep2ColorRow {
-    display: table;
-    float: left;
-    width: 50%;
-  }
-
   .newStep4 {
     width: 100%;
     display: flex;
@@ -602,6 +716,5 @@ input[type=text], input[type=password], textarea {
   .newStep3Controls {
     width: 360px;
   }
-
 
 }
