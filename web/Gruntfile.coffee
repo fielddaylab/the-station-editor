@@ -32,8 +32,18 @@ module.exports = (grunt) ->
         maxBuffer: 99999999
         options:
           language_in: 'ECMASCRIPT5'
+    sass:
+      dist:
+        files:
+          "editor-react/style.css": "editor-react/scss/main.scss"
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-browserify'
   grunt.loadNpmTasks 'grunt-closure-compiler'
-  grunt.registerTask 'default', ['coffee', 'browserify', 'closure-compiler']
+  grunt.loadNpmTasks 'grunt-sass'
+  grunt.registerTask 'default', [
+    'coffee'
+    'browserify'
+    'closure-compiler'
+    'sass'
+  ]
