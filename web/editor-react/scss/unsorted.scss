@@ -1,0 +1,180 @@
+#the-container {
+  overflow: visible;
+}
+
+.topDiv {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#the-content {
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#the-logo {
+  height: 30px;
+  margin: 7px 13px;
+}
+
+.create-step-tab {
+  padding: 10px 15px;
+  border-bottom: 2px solid rgba(0,0,0,0);
+}
+
+.create-step-tab-selected {
+  border-bottom: 2px solid #73CECE;
+}
+
+.newPrevButton, .newNextButton {
+  background-color: white;
+  color: black;
+  padding: 14px;
+}
+
+.newPrevButton {
+  border-right: 2px solid #E7E7E7;
+}
+
+.newNextButton {
+  border-left: 2px solid #E7E7E7;
+}
+
+.unlink {
+  color: white;
+}
+
+.siftr-command-button {
+  border: 1px solid black;
+  padding: 5px;
+  margin-left: 5px;
+  color: black;
+}
+
+.loginForm {
+  text-align: center;
+}
+
+.login-button {
+  background-color: rgb(51,191,224);
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: center;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.new-siftr-para {
+  text-align: center;
+  padding-top: 25px;
+}
+
+.new-siftr-button {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.bottom-step-buttons {
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  border-top: 2px solid #E7E7E7;
+}
+
+.newStepBox {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.newStepBox h3 {
+  text-align: center;
+}
+
+.newStep1, .newStep2, .newStep4, .newStep5 {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.newStep3 {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+
+.newStep3MapContainer {
+  flex: 1;
+}
+
+.newStep3Controls {
+  padding: 5px 15px;
+}
+
+.new-siftr-title {
+  padding: 0;
+  margin: 8px;
+  font-size: 24px;
+}
+
+.create-cancel {
+  padding: 2px 8px;
+  border: 1px solid #979797;
+  border-radius: 3px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 25px;
+}
+
+.new-category-button .login-button {
+  margin-top: 30px;
+}
+
+.siftr-icon-area {
+  width: 100%;
+  background-color: #eee;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.siftr-icon-filled {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 200px;
+}
+
+.siftr-icon-empty {
+  padding: 30px;
+}
+
+.siftr-icon-gray-circle {
+  background-color: #ccc;
+  height: 80px;
+  width: 80px;
+  border-radius: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.full-width-input {
+  width: 100%;
+}
+
+.full-width-textarea {
+  width: 100%;
+  height: 105px;
+}

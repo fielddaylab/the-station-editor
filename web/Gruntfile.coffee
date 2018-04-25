@@ -17,6 +17,7 @@ module.exports = (grunt) ->
         files:
           'editor-react/js/browserify_out.js': ['editor-react/js/coffee_out.js']
           'discover/browserify_out.js'       : ['discover/coffee_out.js'       ]
+    ###
     "closure-compiler":
       editor:
         js: 'editor-react/js/browserify_out.js'
@@ -32,6 +33,7 @@ module.exports = (grunt) ->
         maxBuffer: 99999999
         options:
           language_in: 'ECMASCRIPT5'
+    ###
     sass:
       dist:
         files:
@@ -39,11 +41,11 @@ module.exports = (grunt) ->
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-browserify'
-  grunt.loadNpmTasks 'grunt-closure-compiler'
+  # grunt.loadNpmTasks 'grunt-closure-compiler'
   grunt.loadNpmTasks 'grunt-sass'
   grunt.registerTask 'default', [
     'coffee'
     'browserify'
-    'closure-compiler'
+    # 'closure-compiler'
     'sass'
   ]

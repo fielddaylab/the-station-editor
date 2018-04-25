@@ -1,0 +1,35 @@
+.siftrList {
+  padding-top: 30px;
+}
+
+.siftr-color-bar {
+  width: 100%;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.siftr-data {
+  margin-top: 10px;
+}
+
+.siftr-data-pipe {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.siftr-entry {
+  margin-bottom: 50px;
+}
+
+.siftr-entry-title-buttons {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.siftr-entry-title {
+  font-size: 23px;
+}

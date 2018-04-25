@@ -23,15 +23,6 @@ countContributors = (notes) ->
       user_ids[comment.user.user_id] = true
   Object.keys(user_ids).length
 
-toggleSwitch = (str, checked, check) =>
-  span = 'span.toggle-switch'
-  if checked
-    span += '.toggle-switch-on'
-  child span, =>
-    props
-      onClick: check
-    raw str
-
 onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
   if returnCode is 0
     fn()

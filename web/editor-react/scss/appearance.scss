@@ -1,0 +1,21 @@
+.color-table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.color-table-row {
+  display: table-row;
+}
+
+.color-table-cell {
+  display: table-cell;
+}
+
+.color-table-gradient {
+  width: 90px;
+  height: 35px;
+  margin-left: 10px;
+  display: inline-block;
+}
