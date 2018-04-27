@@ -650,10 +650,11 @@ App = React.createClass
                   , 250
                 closeMobileMap: => @setState mobile_map_is_open: false
             when 'form'
+              fields = @state.forms[@state.edit_game.game_id]
               child NewStep4,
                 editing: true
                 game: @state.edit_game
-                fields: @state.forms[@state.edit_game.game_id]
+                fields: fields
                 addField: (field_type) =>
                   @props.aris.call 'fields.createField',
                     game_id: @state.edit_game.game_id
@@ -669,8 +670,17 @@ App = React.createClass
                     game_id: @state.edit_game.game_id
                     field_id: field.field_id
                   , onSuccess => @updateForms([@state.edit_game])
-                reorderFields: (indexes) =>
-                  console.log indexes # TODO
+                reorderFields: (indexes, cb) =>
+                  n = fields.length
+                  for field, i in fields
+                    @props.aris.call 'fields.updateField',
+                      game_id: field.game_id
+                      field_id: field.field_id
+                      sort_index: indexes.indexOf(i)
+                    , onSuccess =>
+                      n -= 1
+                      if n is 0
+                        @updateForms([@state.edit_game], cb)
                 addFieldOption: ({field, option}, cb) =>
                   @props.aris.call 'fields.createFieldOption',
                     game_id: @state.edit_game.game_id
@@ -691,6 +701,18 @@ App = React.createClass
                     field_option_id: field_option.field_option_id
                     new_field_option_id: new_field_option?.field_option_id
                   , onSuccess => @updateForms([@state.edit_game], cb)
+                reorderFieldOptions: (field, indexes, cb) =>
+                  n = field.options.length
+                  for option, i in field.options
+                    @props.aris.call 'fields.updateFieldOption',
+                      game_id: field.game_id
+                      field_id: field.field_id
+                      field_option_id: option.field_option_id
+                      sort_index: indexes.indexOf(i)
+                    , onSuccess =>
+                      n -= 1
+                      if n is 0
+                        @updateForms([@state.edit_game], cb)
             when 'map'
               child NewStep3,
                 editing: true
@@ -1467,22 +1489,22 @@ NewStep4 = React.createClass
     deletingOption: null
 
   reorderFields: (indexes) ->
-    @setState
-      editingIndex:
-        if @state.editingIndex?
-          indexes[@state.editingIndex]
-        else
-          null
     if @props.editing
-      @props.reorderFields indexes
+      @props.reorderFields indexes, =>
+        if @state.editingIndex?
+          @setState
+            editingIndex: indexes[@state.editingIndex]
     else
+      if @state.editingIndex?
+        @setState
+          editingIndex: indexes[@state.editingIndex]
       @props.onChange update @props.game, fields: $set:
         for i in [0 .. indexes.length - 1]
           @props.game.fields[indexes[i]]
 
-  reorderFieldOptions: (indexes) ->
+  reorderFieldOptions: (indexes, cb) ->
     if @props.editing
-      null # TODO
+      @props.reorderFieldOptions @state.editingField, indexes, cb
     else
       @setState
         editingField:
@@ -1497,6 +1519,13 @@ NewStep4 = React.createClass
           @props.fields ? []
         else
           @props.game.fields ? []
+      makeArrow = (dir, enabled, wrap) =>
+        src = "../assets/icons/arrow-#{dir}.png"
+        if enabled
+          wrap =>
+            child 'img.sort-arrow', {src}
+        else
+          child 'img.sort-arrow.sort-arrow-disabled', {src}
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
           fields.forEach (field, i) =>
@@ -1518,7 +1547,7 @@ NewStep4 = React.createClass
                 raw(field.label or 'Unnamed field')
                 raw ' *' if field.required
               child 'div.form-field-x', =>
-                if i isnt 0
+                makeArrow 'up', i isnt 0, (f) =>
                   child 'a', href: '#', onClick: ((e) =>
                     e.preventDefault()
                     e.stopPropagation()
@@ -1531,9 +1560,8 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                  ), =>
-                    raw ' (^) '
-                if i isnt fields.length - 1
+                  ), f
+                makeArrow 'down', i isnt fields.length - 1, (f) =>
                   child 'a', href: '#', onClick: ((e) =>
                     e.preventDefault()
                     e.stopPropagation()
@@ -1546,8 +1574,7 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                  ), =>
-                    raw ' (v) '
+                  ), f
                 child 'a', href: '#', onClick: ((e) =>
                   e.preventDefault()
                   e.stopPropagation()
@@ -1680,13 +1707,7 @@ NewStep4 = React.createClass
                 child 'ul', =>
                   options.forEach (o, i) =>
                     child 'li', key: i, =>
-                      optionText =
-                        if @props.editing
-                          o.option
-                        else
-                          o
-                      raw "#{optionText} "
-                      if i isnt 0
+                      makeArrow 'up', i isnt 0, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           indexes =
@@ -1697,10 +1718,9 @@ NewStep4 = React.createClass
                                 j + 1
                               else
                                 j
-                          @reorderFieldOptions indexes
-                        ), =>
-                          raw ' (^) '
-                      if i isnt options.length - 1
+                          @reorderFieldOptions indexes, reloadThisField
+                        ), f
+                      makeArrow 'down', i isnt options.length - 1, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           indexes =
@@ -1711,9 +1731,14 @@ NewStep4 = React.createClass
                                 j - 1
                               else
                                 j
-                          @reorderFieldOptions indexes
-                        ), =>
-                          raw ' (v) '
+                          @reorderFieldOptions indexes, reloadThisField
+                        ), f
+                      optionText =
+                        if @props.editing
+                          o.option
+                        else
+                          o
+                      raw "#{optionText} "
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
                         if @props.editing
