@@ -1519,6 +1519,13 @@ NewStep4 = React.createClass
           @props.fields ? []
         else
           @props.game.fields ? []
+      makeArrow = (dir, enabled, wrap) =>
+        src = "../assets/icons/arrow-#{dir}.png"
+        if enabled
+          wrap =>
+            child 'img.sort-arrow', {src}
+        else
+          child 'img.sort-arrow.sort-arrow-disabled', {src}
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
           fields.forEach (field, i) =>
@@ -1540,7 +1547,7 @@ NewStep4 = React.createClass
                 raw(field.label or 'Unnamed field')
                 raw ' *' if field.required
               child 'div.form-field-x', =>
-                if i isnt 0
+                makeArrow 'up', i isnt 0, (f) =>
                   child 'a', href: '#', onClick: ((e) =>
                     e.preventDefault()
                     e.stopPropagation()
@@ -1553,9 +1560,8 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                  ), =>
-                    raw ' (^) '
-                if i isnt fields.length - 1
+                  ), f
+                makeArrow 'down', i isnt fields.length - 1, (f) =>
                   child 'a', href: '#', onClick: ((e) =>
                     e.preventDefault()
                     e.stopPropagation()
@@ -1568,8 +1574,7 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                  ), =>
-                    raw ' (v) '
+                  ), f
                 child 'a', href: '#', onClick: ((e) =>
                   e.preventDefault()
                   e.stopPropagation()
@@ -1702,13 +1707,7 @@ NewStep4 = React.createClass
                 child 'ul', =>
                   options.forEach (o, i) =>
                     child 'li', key: i, =>
-                      optionText =
-                        if @props.editing
-                          o.option
-                        else
-                          o
-                      raw "#{optionText} "
-                      if i isnt 0
+                      makeArrow 'up', i isnt 0, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           indexes =
@@ -1720,9 +1719,8 @@ NewStep4 = React.createClass
                               else
                                 j
                           @reorderFieldOptions indexes, reloadThisField
-                        ), =>
-                          raw ' (^) '
-                      if i isnt options.length - 1
+                        ), f
+                      makeArrow 'down', i isnt options.length - 1, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           indexes =
@@ -1734,8 +1732,13 @@ NewStep4 = React.createClass
                               else
                                 j
                           @reorderFieldOptions indexes, reloadThisField
-                        ), =>
-                          raw ' (v) '
+                        ), f
+                      optionText =
+                        if @props.editing
+                          o.option
+                        else
+                          o
+                      raw "#{optionText} "
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
                         if @props.editing
