@@ -1467,12 +1467,28 @@ NewStep4 = React.createClass
     deletingOption: null
 
   reorderFields: (indexes) ->
+    @setState
+      editingIndex:
+        if @state.editingIndex?
+          indexes[@state.editingIndex]
+        else
+          null
     if @props.editing
       @props.reorderFields indexes
     else
       @props.onChange update @props.game, fields: $set:
         for i in [0 .. indexes.length - 1]
           @props.game.fields[indexes[i]]
+
+  reorderFieldOptions: (indexes) ->
+    if @props.editing
+      null # TODO
+    else
+      @setState
+        editingField:
+          update @state.editingField, options: $set:
+            for i in [0 .. indexes.length - 1]
+              @state.editingField.options[indexes[i]]
 
   render: ->
     make 'div.newStepBox', =>
@@ -1485,7 +1501,7 @@ NewStep4 = React.createClass
         child 'div.newStep4Fields', =>
           fields.forEach (field, i) =>
             divFormFieldRow = 'div.form-field-row'
-            if field is @state.editingField
+            if i is @state.editingIndex
               divFormFieldRow += '.form-field-row-selected'
             child divFormFieldRow, key: i, =>
               child 'div.form-field-icon', =>
@@ -1502,12 +1518,10 @@ NewStep4 = React.createClass
                 raw(field.label or 'Unnamed field')
                 raw ' *' if field.required
               child 'div.form-field-x', =>
-                child 'a', href: '#', onClick: ((e) =>
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if i is 0
-                    null # can't move up, field is at top
-                  else
+                if i isnt 0
+                  child 'a', href: '#', onClick: ((e) =>
+                    e.preventDefault()
+                    e.stopPropagation()
                     @reorderFields(
                       for j in [0 .. fields.length - 1]
                         if j is i
@@ -1517,15 +1531,12 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                ), =>
-                  raw '(^)'
-                raw ' '
-                child 'a', href: '#', onClick: ((e) =>
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if i is fields.length - 1
-                    null # can't move down, field is at bottom
-                  else
+                  ), =>
+                    raw ' (^) '
+                if i isnt fields.length - 1
+                  child 'a', href: '#', onClick: ((e) =>
+                    e.preventDefault()
+                    e.stopPropagation()
                     @reorderFields(
                       for j in [0 .. fields.length - 1]
                         if j is i
@@ -1535,9 +1546,8 @@ NewStep4 = React.createClass
                         else
                           j
                     )
-                ), =>
-                  raw '(v)'
-                raw ' '
+                  ), =>
+                    raw ' (v) '
                 child 'a', href: '#', onClick: ((e) =>
                   e.preventDefault()
                   e.stopPropagation()
@@ -1676,6 +1686,34 @@ NewStep4 = React.createClass
                         else
                           o
                       raw "#{optionText} "
+                      if i isnt 0
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          indexes =
+                            for j in [0 .. options.length - 1]
+                              if j is i
+                                j - 1
+                              else if j is i - 1
+                                j + 1
+                              else
+                                j
+                          @reorderFieldOptions indexes
+                        ), =>
+                          raw ' (^) '
+                      if i isnt options.length - 1
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          indexes =
+                            for j in [0 .. options.length - 1]
+                              if j is i
+                                j + 1
+                              else if j is i + 1
+                                j - 1
+                              else
+                                j
+                          @reorderFieldOptions indexes
+                        ), =>
+                          raw ' (v) '
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
                         if @props.editing
