@@ -669,6 +669,8 @@ App = React.createClass
                     game_id: @state.edit_game.game_id
                     field_id: field.field_id
                   , onSuccess => @updateForms([@state.edit_game])
+                reorderFields: (indexes) =>
+                  console.log indexes # TODO
                 addFieldOption: ({field, option}, cb) =>
                   @props.aris.call 'fields.createFieldOption',
                     game_id: @state.edit_game.game_id
@@ -1464,6 +1466,14 @@ NewStep4 = React.createClass
     addingOption: ''
     deletingOption: null
 
+  reorderFields: (indexes) ->
+    if @props.editing
+      @props.reorderFields indexes
+    else
+      @props.onChange update @props.game, fields: $set:
+        for i in [0 .. indexes.length - 1]
+          @props.game.fields[indexes[i]]
+
   render: ->
     make 'div.newStepBox', =>
       fields =
@@ -1474,44 +1484,79 @@ NewStep4 = React.createClass
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
           fields.forEach (field, i) =>
-            child 'a', href: '#', onClick: (e) =>
-              e.preventDefault()
-              @setState
-                editingField: field
-                editingIndex: i
-                addingOption: ''
-                deletingOption: null
-            , =>
-              divFormFieldRow = 'div.form-field-row'
-              if field is @state.editingField
-                divFormFieldRow += '.form-field-row-selected'
-              child divFormFieldRow, key: i, =>
-                child 'div.form-field-icon', =>
-                  child 'img',
-                    src: "../assets/icons/form-#{field.field_type}.png"
-                child 'div.form-field-name', =>
-                  raw(field.label or 'Unnamed field')
-                  raw ' *' if field.required
-                child 'div.form-field-x', =>
-                  child 'a', href: '#', onClick: ((e) =>
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if @props.editing
-                      if confirm "Are you sure you want to delete the #{field.label or 'unnamed'} field?"
-                        @props.deleteField(field)
-                    else
-                      newFields = fields[..]
-                      newFields.splice(i, 1)
-                      @props.onChange update @props.game, fields: $set: newFields
-                      if i < @state.editingIndex
-                        @setState
-                          editingIndex: @state.editingIndex - 1
-                      else if i == @state.editingIndex
-                        @setState
-                          editingIndex: null
-                          editingField: null
-                  ), =>
-                    raw '(delete)'
+            divFormFieldRow = 'div.form-field-row'
+            if field is @state.editingField
+              divFormFieldRow += '.form-field-row-selected'
+            child divFormFieldRow, key: i, =>
+              child 'div.form-field-icon', =>
+                child 'img',
+                  src: "../assets/icons/form-#{field.field_type}.png"
+              child 'a.form-field-name', href: '#', onClick: (e) =>
+                e.preventDefault()
+                @setState
+                  editingField: field
+                  editingIndex: i
+                  addingOption: ''
+                  deletingOption: null
+              , =>
+                raw(field.label or 'Unnamed field')
+                raw ' *' if field.required
+              child 'div.form-field-x', =>
+                child 'a', href: '#', onClick: ((e) =>
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if i is 0
+                    null # can't move up, field is at top
+                  else
+                    @reorderFields(
+                      for j in [0 .. fields.length - 1]
+                        if j is i
+                          j - 1
+                        else if j is i - 1
+                          j + 1
+                        else
+                          j
+                    )
+                ), =>
+                  raw '(^)'
+                raw ' '
+                child 'a', href: '#', onClick: ((e) =>
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if i is fields.length - 1
+                    null # can't move down, field is at bottom
+                  else
+                    @reorderFields(
+                      for j in [0 .. fields.length - 1]
+                        if j is i
+                          j + 1
+                        else if j is i + 1
+                          j - 1
+                        else
+                          j
+                    )
+                ), =>
+                  raw '(v)'
+                raw ' '
+                child 'a', href: '#', onClick: ((e) =>
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if @props.editing
+                    if confirm "Are you sure you want to delete the #{field.label or 'unnamed'} field?"
+                      @props.deleteField(field)
+                  else
+                    newFields = fields[..]
+                    newFields.splice(i, 1)
+                    @props.onChange update @props.game, fields: $set: newFields
+                    if i < @state.editingIndex
+                      @setState
+                        editingIndex: @state.editingIndex - 1
+                    else if i == @state.editingIndex
+                      @setState
+                        editingIndex: null
+                        editingField: null
+                ), =>
+                  raw '(delete)'
           child 'p', => raw 'Add new field:'
           child 'p', =>
             types = [
