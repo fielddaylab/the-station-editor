@@ -650,10 +650,11 @@ App = React.createClass
                   , 250
                 closeMobileMap: => @setState mobile_map_is_open: false
             when 'form'
+              fields = @state.forms[@state.edit_game.game_id]
               child NewStep4,
                 editing: true
                 game: @state.edit_game
-                fields: @state.forms[@state.edit_game.game_id]
+                fields: fields
                 addField: (field_type) =>
                   @props.aris.call 'fields.createField',
                     game_id: @state.edit_game.game_id
@@ -669,8 +670,17 @@ App = React.createClass
                     game_id: @state.edit_game.game_id
                     field_id: field.field_id
                   , onSuccess => @updateForms([@state.edit_game])
-                reorderFields: (indexes) =>
-                  console.log indexes # TODO
+                reorderFields: (indexes, cb) =>
+                  n = fields.length
+                  for field, i in fields
+                    @props.aris.call 'fields.updateField',
+                      game_id: field.game_id
+                      field_id: field.field_id
+                      sort_index: indexes.indexOf(i)
+                    , onSuccess =>
+                      n -= 1
+                      if n is 0
+                        @updateForms([@state.edit_game], cb)
                 addFieldOption: ({field, option}, cb) =>
                   @props.aris.call 'fields.createFieldOption',
                     game_id: @state.edit_game.game_id
@@ -691,6 +701,18 @@ App = React.createClass
                     field_option_id: field_option.field_option_id
                     new_field_option_id: new_field_option?.field_option_id
                   , onSuccess => @updateForms([@state.edit_game], cb)
+                reorderFieldOptions: (field, indexes, cb) =>
+                  n = field.options.length
+                  for option, i in field.options
+                    @props.aris.call 'fields.updateFieldOption',
+                      game_id: field.game_id
+                      field_id: field.field_id
+                      field_option_id: option.field_option_id
+                      sort_index: indexes.indexOf(i)
+                    , onSuccess =>
+                      n -= 1
+                      if n is 0
+                        @updateForms([@state.edit_game], cb)
             when 'map'
               child NewStep3,
                 editing: true
@@ -1467,22 +1489,22 @@ NewStep4 = React.createClass
     deletingOption: null
 
   reorderFields: (indexes) ->
-    @setState
-      editingIndex:
-        if @state.editingIndex?
-          indexes[@state.editingIndex]
-        else
-          null
     if @props.editing
-      @props.reorderFields indexes
+      @props.reorderFields indexes, =>
+        if @state.editingIndex?
+          @setState
+            editingIndex: indexes[@state.editingIndex]
     else
+      if @state.editingIndex?
+        @setState
+          editingIndex: indexes[@state.editingIndex]
       @props.onChange update @props.game, fields: $set:
         for i in [0 .. indexes.length - 1]
           @props.game.fields[indexes[i]]
 
-  reorderFieldOptions: (indexes) ->
+  reorderFieldOptions: (indexes, cb) ->
     if @props.editing
-      null # TODO
+      @props.reorderFieldOptions @state.editingField, indexes, cb
     else
       @setState
         editingField:
@@ -1697,7 +1719,7 @@ NewStep4 = React.createClass
                                 j + 1
                               else
                                 j
-                          @reorderFieldOptions indexes
+                          @reorderFieldOptions indexes, reloadThisField
                         ), =>
                           raw ' (^) '
                       if i isnt options.length - 1
@@ -1711,7 +1733,7 @@ NewStep4 = React.createClass
                                 j - 1
                               else
                                 j
-                          @reorderFieldOptions indexes
+                          @reorderFieldOptions indexes, reloadThisField
                         ), =>
                           raw ' (v) '
                       child 'a', href: '#', onClick: ((e) =>
