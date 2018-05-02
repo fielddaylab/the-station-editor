@@ -42,9 +42,25 @@
   flex-direction: row;
 }
 
-.newStep4Fields, .newStep4FieldInfo {
-  flex: 1;
+.newStep4Fields {
+  width: 70%;
+  border-right: 2px solid #F4F4F4;
+  >p {
+    text-align:center;
+    margin:20px;
+    text-transform:uppercase;
+  }
+}
+
+.newStep4FieldInfo {
+  width: 30%;
   padding: 20px;
+  input[type=text] {
+    width:100%;
+    height:100px;
+    padding: 10px;
+    font-size: 12px;
+  }
 }
 
 .newStep5 {

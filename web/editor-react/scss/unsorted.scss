@@ -89,9 +89,17 @@
   background-color: white;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
-  border-top: 2px solid #E7E7E7;
+  padding: 10px;
+  box-shadow: 0 6px 44px rgba(0, 0, 0, 0.16);
+  a {
+    border-radius:2px;
+    &:hover {
+      background-color: #97F6E1;
+      text-decoration:none;
+    }
+  }
 }
 
 .newStepBox {

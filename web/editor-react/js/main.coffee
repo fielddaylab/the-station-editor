@@ -1675,7 +1675,7 @@ NewStep4 = React.createClass
                 child 'input',
                   type: 'text'
                   value: field.label
-                  placeholder: 'Enter a name for this field'
+                  placeholder: 'What Question are you asking?'
                   onChange: (e) =>
                     @setState
                       editingField:
