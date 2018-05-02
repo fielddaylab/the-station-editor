@@ -1593,7 +1593,8 @@ NewStep4 = React.createClass
                         editingIndex: null
                         editingField: null
                 ), =>
-                  raw '(delete)'
+                  child 'span.deleterow', =>
+                    raw 'delete'
           child 'p', => raw 'Add new field:'
           child 'p', =>
             types = [

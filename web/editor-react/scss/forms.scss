@@ -5,8 +5,10 @@
   border-bottom: 2px solid #F4F4F4;
   align-items: center;
   height:60px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s; 
   &:hover {
-    background: #97F6E1;
+    background: #CCFFF4;
     text-decoration:none;
   }
 }
@@ -27,11 +29,19 @@
 
 .form-field-name {
   flex: 1;
-  margin: 10px;
+  padding: 23px;
+  &:hover {
+    text-decoration:none;
+  }
 }
 
 .form-field-x {
   margin: 10px;
+  a {
+    &:hover {
+      text-decoration:none;
+    }
+  }
   img {
     width:10px;
     height:auto;
@@ -54,6 +64,7 @@
   &:hover {
     background:#97F6E1;
     text-decoration: none;
+    border:1px solid #97F6E1;
   }
 }
 

@@ -28,26 +28,18 @@
 }
 
 .create-step-tab {
-  padding: 10px 15px;
+  margin: 19px 15px;
   border-bottom: 2px solid rgba(0,0,0,0);
 }
 
 .create-step-tab-selected {
   border-bottom: 2px solid #73CECE;
+  margin-bottom: -1px;
+  padding-bottom: 20px;
 }
 
 .newPrevButton, .newNextButton {
-  background-color: white;
-  color: black;
-  padding: 14px;
-}
-
-.newPrevButton {
-  border-right: 2px solid #E7E7E7;
-}
-
-.newNextButton {
-  border-left: 2px solid #E7E7E7;
+  color: #ffffff;
 }
 
 .unlink {
@@ -86,18 +78,26 @@
 }
 
 .bottom-step-buttons {
-  background-color: white;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 10px 15px;
   box-shadow: 0 6px 44px rgba(0, 0, 0, 0.16);
+  text-decoration:none;
   a {
-    border-radius:2px;
+    border-radius: 4px;
+    background: #23C9A4;
+    color: #ffffff;
+    padding:10px;
+    text-decoration:none;
+    &:first-child{
+      background: #C9C0B8;
+      color:black;
+    }
     &:hover {
-      background-color: #97F6E1;
-      text-decoration:none;
+      background-color: #0BB08B;
+      text-decoration:none !important;
     }
   }
 }
@@ -145,7 +145,21 @@
   border-radius: 3px;
   margin-top: 5px;
   margin-bottom: 5px;
-  margin-right: 25px;
+  margin-right: 15px;
+}
+
+.deleterow {
+  padding:5px 10px;
+  display:inline-block;
+  background: #ECECEC;
+  border-radius:2px;
+  vertical-align:middle;
+  margin-left:10px;
+  color:#B8AEAE;
+  &:hover {
+    background: #CBC4C4;
+    color:#222222;
+  }
 }
 
 .new-category-button .login-button {
