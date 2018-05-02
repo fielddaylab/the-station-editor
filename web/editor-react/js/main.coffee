@@ -1532,7 +1532,7 @@ NewStep4 = React.createClass
             divFormFieldRow = 'div.form-field-row'
             if i is @state.editingIndex
               divFormFieldRow += '.form-field-row-selected'
-            child divFormFieldRow, key: i, =>
+            child divFormFieldRow, key: field.field_id, =>
               child 'div.form-field-icon', =>
                 child 'img',
                   src: "../assets/icons/form-#{field.field_type}.png"
@@ -1618,6 +1618,7 @@ NewStep4 = React.createClass
                             field_type: type
                             label: ''
                             required: false
+                            field_id: Date.now() # temporary, to use as React key
                         ]
               ), =>
                 child 'img', src: "../assets/icons/form-#{type}.png"
@@ -1707,7 +1708,7 @@ NewStep4 = React.createClass
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
-                    child 'li', key: i, =>
+                    child 'li', key: o.field_option_id, =>
                       makeArrow 'up', i isnt 0, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
@@ -1734,11 +1735,7 @@ NewStep4 = React.createClass
                                 j
                           @reorderFieldOptions indexes, reloadThisField
                         ), f
-                      optionText =
-                        if @props.editing
-                          o.option
-                        else
-                          o
+                      optionText = o.option
                       raw "#{optionText} "
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
@@ -1782,7 +1779,7 @@ NewStep4 = React.createClass
                       else
                         @setState
                           editingField:
-                            update field, options: $set: options.concat([@state.addingOption])
+                            update field, options: $set: options.concat([{option: @state.addingOption, field_option_id: Date.now()}])
                           addingOption: ''
                     ), =>
                       raw 'Add option'
