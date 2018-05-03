@@ -11,6 +11,8 @@
   text-rendering:optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
+  z-index: 100;
+  position: relative;
 }
 
 .nav-bar-line {

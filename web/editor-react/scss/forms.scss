@@ -6,10 +6,12 @@
   align-items: center;
   height:60px;
   -webkit-transition: all 0.2s;
-  transition: all 0.2s; 
+  transition: all 0.2s;
   &:hover {
-    background: #CCFFF4;
-    text-decoration:none;
+    text-decoration: none;
+    z-index: 1000;
+    border-bottom: 2px solid #fff;
+    box-shadow: 0 0px 37px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -39,13 +41,19 @@
   margin: 10px;
   a {
     &:hover {
-      text-decoration:none;
+      text-decoration:none !important;
     }
   }
   img {
-    width:10px;
-    height:auto;
+    width: 10px;
+    height: auto;
     vertical-align: middle;
+    padding: 9px;
+    border-radius: 3px;
+    background: #F4F4F4;
+    &:hover {
+      background: #DCD0D0;
+    }
   }
 }
 

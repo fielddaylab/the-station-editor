@@ -29,10 +29,12 @@ textarea {
   resize: none;
 }
 
-input[type=text], input[type=password], textarea {
+input[type=text], input[type=textarea], input[type=password], textarea {
   font-size: 14px;
   font-family: 'Open Sans', sans-serif;
   box-sizing: border-box;
   padding: 10px;
   letter-spacing: 1px;
+  border-radius: 2px;
+  border: 1px solid #969696;
 }

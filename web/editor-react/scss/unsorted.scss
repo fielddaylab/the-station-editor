@@ -108,6 +108,7 @@
   align-items: stretch;
   flex: 1;
   overflow-y: auto;
+  z-index: 50;
 }
 
 .newStepBox h3 {
@@ -151,14 +152,14 @@
 .deleterow {
   padding:5px 10px;
   display:inline-block;
-  background: #ECECEC;
+  background: #F4F4F4;
   border-radius:2px;
   vertical-align:middle;
   margin-left:10px;
   color:#B8AEAE;
   &:hover {
-    background: #CBC4C4;
-    color:#222222;
+    background: #F3583A;
+    color:#fff;
   }
 }
 

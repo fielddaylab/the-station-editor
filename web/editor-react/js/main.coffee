@@ -1670,21 +1670,31 @@ NewStep4 = React.createClass
                 , =>
                   raw "Cancel"
             else
-              child 'h2', =>
+              child 'div.inspectortitle', =>
                 switch field.field_type
                   when 'TEXT'
-                    raw 'Small text field'
+                    child 'img.inspectoricon', src: '../assets/icons/form-text.png'
+                    child 'h2', =>
+                      raw 'Small text field'
                   when 'TEXTAREA'
-                    raw 'Large text field'
+                    child 'img.inspectoricon', src: '../assets/icons/form-textarea.png'
+                    child 'h2', =>
+                      raw 'Large text field'
                   when 'MEDIA'
-                    raw 'Extra photo'
+                    child 'img.inspectoricon', src: '../assets/icons/form-media.png'
+                    child 'h2', =>
+                      raw 'Image upload'
                   when 'SINGLESELECT'
-                    raw 'Select one'
+                    child 'img.inspectoricon', src: '../assets/icons/form-singleselect.png'
+                    child 'h2', =>
+                      raw 'Select one'
                   when 'MULTISELECT'
-                    raw 'Select many'
-              child 'p', =>
+                    child 'img.inspectoricon', src: '../assets/icons/form-multiselect.png'
+                    child 'h2', =>
+                      raw 'Select Many'
+              child 'div.inspector-question', =>
                 child 'input',
-                  type: 'text'
+                  type: 'textarea'
                   value: field.label
                   placeholder: 'What Question are you asking?'
                   onChange: (e) =>
@@ -1775,9 +1785,9 @@ NewStep4 = React.createClass
                             editingField:
                               update field, options: $set: opts
                       ), =>
-                        raw '(delete)'
+                        child 'img.deletefield', src: '../assets/icons/deletefield.png'
                   child 'li', =>
-                    child 'button', type: 'button', onClick: (=>
+                    child 'a', onClick: (=>
                       if @props.editing
                         @props.addFieldOption
                           field: field
@@ -1788,11 +1798,12 @@ NewStep4 = React.createClass
                           editingField:
                             update field, options: $set: options.concat([{option: '', field_option_id: Date.now()}])
                     ), =>
-                      raw 'Add option'
+                      child 'span.addoption_btn', =>
+                        child 'img.addoption', src: '../assets/icons/addfield.png'
+                        raw 'add answer'
               unless @props.editing
-                child 'p', =>
-                  child 'button',
-                    type: 'button'
+                child 'p.savebutton', =>
+                  child 'span.button',
                     onClick: =>
                       @props.onChange update @props.game,
                         fields: singleObj(@state.editingIndex, {$set: field})
