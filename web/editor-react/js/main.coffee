@@ -1670,6 +1670,18 @@ NewStep4 = React.createClass
                 , =>
                   raw "Cancel"
             else
+              child 'h2', =>
+                switch field.field_type
+                  when 'TEXT'
+                    raw 'Small text field'
+                  when 'TEXTAREA'
+                    raw 'Large text field'
+                  when 'MEDIA'
+                    raw 'Extra photo'
+                  when 'SINGLESELECT'
+                    raw 'Select one'
+                  when 'MULTISELECT'
+                    raw 'Select many'
               child 'p', =>
                 child 'input',
                   type: 'text'
