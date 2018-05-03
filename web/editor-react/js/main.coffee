@@ -1485,7 +1485,6 @@ NewStep4 = React.createClass
   getInitialState: ->
     editingIndex: null
     editingField: null
-    addingOption: ''
     deletingOption: null
 
   reorderFields: (indexes) ->
@@ -1541,7 +1540,6 @@ NewStep4 = React.createClass
                 @setState
                   editingField: field
                   editingIndex: i
-                  addingOption: ''
                   deletingOption: null
               , =>
                 raw(field.label or 'Unnamed field')
@@ -1633,7 +1631,6 @@ NewStep4 = React.createClass
                   @setState
                     editingField: f
                     editingIndex: i
-                    addingOption: ''
                     deletingOption: null
                   return
 
@@ -1703,7 +1700,7 @@ NewStep4 = React.createClass
                         editingField: null
                         editingIndex: null
                   , =>
-                    raw 'Save above'
+                    raw 'Save'
               if field.field_type in ['SINGLESELECT', 'MULTISELECT']
                 options = field.options ? []
                 child 'ul', =>
@@ -1735,8 +1732,25 @@ NewStep4 = React.createClass
                                 j
                           @reorderFieldOptions indexes, reloadThisField
                         ), f
-                      optionText = o.option
-                      raw "#{optionText} "
+                      if @props.editing
+                        child 'input',
+                          type: 'text'
+                          defaultValue: o.option
+                          onChange: (e) =>
+                            @props.updateFieldOption
+                              field_option: o
+                              option: e.target.value
+                            , reloadThisField
+                      else
+                        child 'input',
+                          type: 'text'
+                          value: o.option
+                          onChange: (e) =>
+                            opts = options[..]
+                            opts.splice(i, 1, update(o, option: $set: e.target.value))
+                            @setState
+                              editingField:
+                                update field, options: $set: opts
                       child 'a', href: '#', onClick: ((e) =>
                         e.preventDefault()
                         if @props.editing
@@ -1750,37 +1764,17 @@ NewStep4 = React.createClass
                               update field, options: $set: opts
                       ), =>
                         raw '(delete)'
-                      if @props.editing
-                        raw ' '
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          str = prompt "Enter a new label for the option."
-                          if str?
-                            @props.updateFieldOption
-                              field_option: o
-                              option: str
-                            , reloadThisField
-                        ), =>
-                          raw '(edit)'
                   child 'li', =>
-                    child 'input',
-                      type: 'text'
-                      value: @state.addingOption
-                      onChange: (e) =>
-                        @setState addingOption: e.target.value
-                      placeholder: 'Enter option...'
-                    raw ' '
                     child 'button', type: 'button', onClick: (=>
                       if @props.editing
                         @props.addFieldOption
                           field: field
-                          option: @state.addingOption
+                          option: ''
                         , reloadThisField
                       else
                         @setState
                           editingField:
-                            update field, options: $set: options.concat([{option: @state.addingOption, field_option_id: Date.now()}])
-                          addingOption: ''
+                            update field, options: $set: options.concat([{option: '', field_option_id: Date.now()}])
                     ), =>
                       raw 'Add option'
               unless @props.editing
