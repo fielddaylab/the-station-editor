@@ -1671,26 +1671,18 @@ NewStep4 = React.createClass
                   raw "Cancel"
             else
               child 'div.inspectortitle', =>
-                switch field.field_type
-                  when 'TEXT'
-                    child 'img.inspectoricon', src: '../assets/icons/form-text.png'
-                    child 'h2', =>
+                child 'img.inspectoricon', src: "../assets/icons/form-#{field.field_type}.png"
+                child 'h2', =>
+                  switch field.field_type
+                    when 'TEXT'
                       raw 'Small text field'
-                  when 'TEXTAREA'
-                    child 'img.inspectoricon', src: '../assets/icons/form-textarea.png'
-                    child 'h2', =>
+                    when 'TEXTAREA'
                       raw 'Large text field'
-                  when 'MEDIA'
-                    child 'img.inspectoricon', src: '../assets/icons/form-media.png'
-                    child 'h2', =>
+                    when 'MEDIA'
                       raw 'Image upload'
-                  when 'SINGLESELECT'
-                    child 'img.inspectoricon', src: '../assets/icons/form-singleselect.png'
-                    child 'h2', =>
+                    when 'SINGLESELECT'
                       raw 'Select one'
-                  when 'MULTISELECT'
-                    child 'img.inspectoricon', src: '../assets/icons/form-multiselect.png'
-                    child 'h2', =>
+                    when 'MULTISELECT'
                       raw 'Select Many'
               child 'div.inspector-question', =>
                 child 'input',
