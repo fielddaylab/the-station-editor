@@ -1598,8 +1598,8 @@ NewStep4 = React.createClass
             types = [
               ['TEXT', 'small text field']
               ['TEXTAREA', 'large text field']
-              ['SINGLESELECT', 'select one']
-              ['MULTISELECT', 'select many']
+              ['SINGLESELECT', 'single choice']
+              ['MULTISELECT', 'multiple choice']
               ['MEDIA', 'extra photo']
             ]
             types.forEach ([type, name], i) =>
@@ -1681,9 +1681,9 @@ NewStep4 = React.createClass
                     when 'MEDIA'
                       raw 'Image upload'
                     when 'SINGLESELECT'
-                      raw 'Select one'
+                      raw 'Single choice'
                     when 'MULTISELECT'
-                      raw 'Select Many'
+                      raw 'Multiple choice'
               child 'div.inspector-question', =>
                 child 'input',
                   type: 'textarea'
