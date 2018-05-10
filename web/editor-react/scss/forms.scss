@@ -57,23 +57,42 @@
   }
 }
 
-.form-add-field {
+.form-add-field, .form-show-types {
   display: inline-block;
   border: 1px solid #c4c4c4;
   padding: 10px;
+  margin: 5px;
+
+  &:hover {
+    background: #97F6E1;
+    text-decoration: none;
+    border: 1px solid #97F6E1;
+  }
+}
+
+.form-show-types {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-show-types-plus {
+  font-size: 30px;
+  line-height: 16px;
+  margin-right: 7px;
+}
+
+.form-show-types-label {
+  font-size: 16px;
+}
+
+.form-add-field {
   width: 10vw;
   height:10vw;
   min-height:80px;
   min-width:80px;
-  margin: 5px;
   text-align: center;
   vertical-align:top;
-
-  &:hover {
-    background:#97F6E1;
-    text-decoration: none;
-    border:1px solid #97F6E1;
-  }
 }
 
 .form-add-field img {

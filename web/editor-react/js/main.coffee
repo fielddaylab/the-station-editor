@@ -1486,6 +1486,7 @@ NewStep4 = React.createClass
     editingIndex: null
     editingField: null
     deletingOption: null
+    showFieldTypes: false
 
   reorderFields: (indexes) ->
     if @props.editing
@@ -1593,35 +1594,45 @@ NewStep4 = React.createClass
                 ), =>
                   child 'span.deleterow', =>
                     raw 'delete'
-          child 'p', => raw 'Add new field:'
-          child 'p', =>
-            types = [
-              ['TEXT', 'small text field']
-              ['TEXTAREA', 'large text field']
-              ['SINGLESELECT', 'single choice']
-              ['MULTISELECT', 'multiple choice']
-              ['MEDIA', 'extra photo']
-            ]
-            types.forEach ([type, name], i) =>
-              child 'a.form-add-field', href: '#', onClick: ((e) =>
+          if @state.showFieldTypes
+            child 'p', => raw 'Add new field:'
+            child 'p', =>
+              types = [
+                ['TEXT', 'small text field']
+                ['TEXTAREA', 'large text field']
+                ['SINGLESELECT', 'single choice']
+                ['MULTISELECT', 'multiple choice']
+                ['MEDIA', 'extra photo']
+              ]
+              types.forEach ([type, name], i) =>
+                child 'a.form-add-field', href: '#', onClick: ((e) =>
+                  e.preventDefault()
+                  @setState showFieldTypes: false
+                  if @props.editing
+                    @props.addField type
+                  else
+                    @props.onChange update @props.game,
+                      fields:
+                        $set:
+                          fields.concat [
+                            new Field
+                              field_type: type
+                              label: ''
+                              required: false
+                              field_id: Date.now() # temporary, to use as React key
+                          ]
+                ), =>
+                  child 'img', src: "../assets/icons/form-#{type}.png"
+                  child 'br'
+                  raw name
+          else
+            child 'p', =>
+              child 'a.form-show-types', href: '#', onClick: ((e) =>
                 e.preventDefault()
-                if @props.editing
-                  @props.addField type
-                else
-                  @props.onChange update @props.game,
-                    fields:
-                      $set:
-                        fields.concat [
-                          new Field
-                            field_type: type
-                            label: ''
-                            required: false
-                            field_id: Date.now() # temporary, to use as React key
-                        ]
+                @setState showFieldTypes: true
               ), =>
-                child 'img', src: "../assets/icons/form-#{type}.png"
-                child 'br'
-                raw name
+                child 'span.form-show-types-plus', => raw '+'
+                child 'span.form-show-types-label', => raw 'add new field'
         child 'div.newStep4FieldInfo', =>
           if (field = @state.editingField)?
 
