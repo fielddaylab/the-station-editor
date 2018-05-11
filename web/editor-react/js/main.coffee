@@ -316,7 +316,9 @@ App = React.createClass
       if result.returnCode is 0 and result.data?
         window.location.hash = '#'
         newGame = result.data
-        tags = @state.new_tag_string.split(',')
+        tags = @state.new_tag_string.split(',').map((t) => t.trim()).filter((t) => t.length > 0)
+        if tags.length is 0
+          tags = ['Observation']
         tagsRemaining = tags.length
         @createNewIcon newGame, (result) =>
           if result?
@@ -326,8 +328,6 @@ App = React.createClass
             , ({data: game}) =>
               @updateStateGame(new Game(game))
         for tag, i in tags
-          tag = tag.replace(/^\s+/, '')
-          continue if tag is ''
           tagObject = new Tag
           tagObject.tag = tag
           tagObject.game_id = newGame.game_id
