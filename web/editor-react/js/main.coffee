@@ -1127,20 +1127,25 @@ EditSiftr = React.createClass
             child 'div',
               dangerouslySetInnerHTML: renderMarkdown @props.game.description
             child 'label', =>
-              child 'h4', => raw 'URL'
+              child 'h4', => raw 'PROJECT LINK'
               child 'p', =>
                 child 'input.full-width-input',
                   type: 'text'
-                  placeholder: 'URL (optional)'
+                  placeholder: 'Identifier (optional)'
                   value: @props.game.siftr_url ? ''
                   onChange: (e) =>
                     url = e.target.value.replace(/[^A-Za-z0-9_\-]/g, '')
                     @props.onChange update(@props.game, siftr_url: $set: url), false
                   onBlur: => @props.onChange @props.game, true
+            currentLink = (@props.game.siftr_url or @props.game.game_id)
             child 'p', =>
               child 'b', => raw @props.game.name
               raw " will be located at "
-              child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url ? @props.game.game_id}"
+              child 'code', => raw "#{SIFTR_URL}#{currentLink}"
+            child 'p', =>
+              raw 'Or in the mobile app, enter '
+              child 'code', => raw currentLink
+              raw ' in the search bar.'
             child 'label', =>
               child 'h4', => raw 'PROMPT'
               child 'p', =>
@@ -1909,19 +1914,24 @@ NewStep5 = React.createClass
               raw 'Require moderation?'
             child 'span.form-multi-option-switch', =>
               child 'span.form-multi-option-ball'
-          child 'h4', => raw 'URL'
+          child 'h4', => raw 'PROJECT LINK'
           child 'p', =>
             child 'input.full-width-input',
               type: 'text'
-              placeholder: 'URL (optional)'
+              placeholder: 'Identifier (optional)'
               value: @props.game.siftr_url ? ''
               onChange: (e) => @props.onChange update @props.game, siftr_url: $set: e.target.value
-          child 'p', =>
-            if @props.game.siftr_url
+          if @props.game.siftr_url
+            child 'p', =>
               child 'b', => raw @props.game.name
               raw " will be located at "
               child 'code', => raw "#{SIFTR_URL}#{@props.game.siftr_url}"
-            else
+            child 'p', =>
+              raw 'Or in the mobile app, enter '
+              child 'code', => raw @props.game.siftr_url
+              raw ' in the search bar.'
+          else
+            child 'p', =>
               raw "Enter a custom identifier for your Siftr's web address."
         child 'div.newStep1Column.newStep1RightColumn'
       child 'div.bottom-step-buttons', =>
