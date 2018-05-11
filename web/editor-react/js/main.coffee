@@ -475,7 +475,7 @@ App = React.createClass
                 if @state.screen is 'new1'
                   (e) =>
                     unless hasNameDesc @state.new_game
-                      alert 'Please enter a name and description for your Siftr.'
+                      alert 'Please enter a name and user instructions for your Siftr.'
                       e.preventDefault()
                 else
                   undefined
@@ -1113,9 +1113,11 @@ EditSiftr = React.createClass
                 onBlur: => @props.onChange @props.game, true
             child 'label', =>
               child 'h4', =>
-                raw 'DESCRIPTION '
+                raw 'USER INSTRUCTIONS '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
+              child 'p', =>
+                raw 'Tell your users what you want them to do and why.'
               child 'textarea.full-width-textarea',
                 value: @props.game.description ? ''
                 onChange: (e) =>
@@ -1297,9 +1299,11 @@ NewStep1 = React.createClass
                 onChange: @handleChange
             child 'label', =>
               child 'p', =>
-                raw 'DESCRIPTION '
+                raw 'USER INSTRUCTIONS '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
+              child 'p', =>
+                raw 'Tell your users what you want them to do and why.'
               child 'textarea.full-width-textarea',
                 ref: 'description'
                 value: @props.game.description ? ''
@@ -1312,7 +1316,7 @@ NewStep1 = React.createClass
         child 'a', href: '#new2', =>
           props onClick: (e) =>
             unless hasNameDesc @props.game
-              alert 'Please enter a name and description for your Siftr.'
+              alert 'Please enter a name and user instructions for your Siftr.'
               e.preventDefault()
           child 'div.newNextButton', =>
             raw 'appearance >'
