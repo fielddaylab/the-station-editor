@@ -1614,7 +1614,13 @@ NewStep4 = React.createClass
                   child 'span.deleterow', =>
                     raw 'delete'
           if @state.showFieldTypes
-            child 'p', => raw 'Add new field:'
+            child 'p', =>
+              child 'a.form-hide-types', href: '#', onClick: ((e) =>
+                e.preventDefault()
+                @setState showFieldTypes: false
+              ), =>
+                child 'img.form-show-types-plus', src: '../assets/icons/field-x.png'
+                child 'span.form-show-types-label', => raw 'cancel'
             child 'p', =>
               types = [
                 ['TEXT', 'small text field']
@@ -1650,7 +1656,7 @@ NewStep4 = React.createClass
                 e.preventDefault()
                 @setState showFieldTypes: true
               ), =>
-                child 'span.form-show-types-plus', => raw '+'
+                child 'img.form-show-types-plus', src: '../assets/icons/field-plus.png'
                 child 'span.form-show-types-label', => raw 'add new field'
         child 'div.newStep4FieldInfo', =>
           if (field = @state.editingField)?

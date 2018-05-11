@@ -57,7 +57,7 @@
   }
 }
 
-.form-add-field, .form-show-types {
+.form-add-field, .form-show-types, .form-hide-types {
   display: inline-block;
   border: 1px solid #c4c4c4;
   padding: 10px;
@@ -70,15 +70,19 @@
   }
 }
 
-.form-show-types {
+.form-hide-types {
+  background: rgb(236,236,236);
+}
+
+.form-show-types, .form-hide-types {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
 }
 
 .form-show-types-plus {
-  font-size: 30px;
-  line-height: 16px;
+  width: 22px;
+  height: 21px;
   margin-right: 7px;
 }
 
