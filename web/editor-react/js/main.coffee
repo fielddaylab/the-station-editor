@@ -33,6 +33,9 @@ reactBind = (fn, obj) ->
   fn
   # TODO: when we upgrade to newer React, change this to fn.bind(obj)
 
+hasNameDesc = (game) ->
+  game.name? and game.name.match(/\S/) and game.description? and game.description.match(/\S/)
+
 App = React.createClass
   displayName: 'App'
 
@@ -468,15 +471,27 @@ App = React.createClass
                   '.create-step-tab-selected'
                 else
                   ''
+              requireNameDesc =
+                if @state.screen is 'new1'
+                  (e) =>
+                    unless hasNameDesc @state.new_game
+                      alert 'Please enter a name and description for your Siftr.'
+                      e.preventDefault()
+                else
+                  undefined
               child "a.create-step-tab#{selectTab 'new1'}", href: '#new1', =>
                 raw 'Overview'
               child "a.create-step-tab#{selectTab 'new2'}", href: '#new2', =>
+                props onClick: requireNameDesc
                 raw 'Design'
               child "a.create-step-tab#{selectTab 'new3'}", href: '#new3', =>
+                props onClick: requireNameDesc
                 raw 'Location'
               child "a.create-step-tab#{selectTab 'new4'}", href: '#new4', =>
+                props onClick: requireNameDesc
                 raw 'Data collection'
               child "a.create-step-tab#{selectTab 'new5'}", href: '#new5', =>
+                props onClick: requireNameDesc
                 raw 'Settings'
             navBarActions()
         else if @state.screen in ['edit', 'map', 'categories', 'form']
@@ -1289,6 +1304,10 @@ NewStep1 = React.createClass
       child 'div.bottom-step-buttons', =>
         child 'div'
         child 'a', href: '#new2', =>
+          props onClick: (e) =>
+            unless hasNameDesc @props.game
+              alert 'Please enter a name and description for your Siftr.'
+              e.preventDefault()
           child 'div.newNextButton', =>
             raw 'appearance >'
 
