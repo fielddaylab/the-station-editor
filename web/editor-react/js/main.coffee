@@ -675,6 +675,7 @@ App = React.createClass
                     game_id: @state.edit_game.game_id
                     field_type: field_type
                     required: false
+                    sort_index: fields.length
                   , onSuccess => @updateForms([@state.edit_game])
                 updateField: (field) =>
                   @props.aris.call 'fields.updateField',
@@ -1531,13 +1532,25 @@ NewStep4 = React.createClass
             for i in [0 .. indexes.length - 1]
               @state.editingField.options[indexes[i]]
 
+  getPropsFields: (props = @props) ->
+    if props.editing
+      props.fields ? []
+    else
+      props.game.fields ? []
+
+  componentWillReceiveProps: (nextProps) ->
+    thisFields = @getPropsFields(@props)
+    nextFields = @getPropsFields(nextProps)
+    if thisFields.length < nextFields.length
+      index = nextFields.length - 1
+      @setState
+        editingIndex: index
+        editingField: nextFields[index]
+        deletingOption: null
+
   render: ->
     make 'div.newStepBox', =>
-      fields =
-        if @props.editing
-          @props.fields ? []
-        else
-          @props.game.fields ? []
+      fields = @getPropsFields()
       makeArrow = (dir, enabled, wrap) =>
         src = "../assets/icons/arrow-#{dir}.png"
         if enabled
