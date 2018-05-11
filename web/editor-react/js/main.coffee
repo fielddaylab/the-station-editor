@@ -1748,16 +1748,18 @@ NewStep4 = React.createClass
                       editingField:
                         update field, label: $set: e.target.value
               unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
-                child 'p', =>
-                  child 'label', =>
-                    child 'input',
-                      type: 'checkbox'
-                      checked: field.required
-                      onChange: (e) =>
-                        @setState
-                          editingField:
-                            update field, required: $set: e.target.checked
-                    raw ' Required'
+                req = field.required
+                child "a.form-multi-option.form-multi-option-#{if req then 'on' else 'off'}", href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @setState
+                        editingField:
+                          update field, required: $set: not req
+                  child 'span.form-multi-option-text', =>
+                    raw 'Required'
+                  child 'span.form-multi-option-switch', =>
+                    child 'span.form-multi-option-ball'
               if @props.editing
                 child 'p', =>
                   child 'button',
