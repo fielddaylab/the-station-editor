@@ -492,7 +492,7 @@ App = React.createClass
                 raw 'Data collection'
               child "a.create-step-tab#{selectTab 'new5'}", href: '#new5', =>
                 props onClick: requireNameDesc
-                raw 'Settings'
+                raw 'Share'
             navBarActions()
         else if @state.screen in ['edit', 'map', 'categories', 'form']
           child 'div.nav-bar-line', =>
@@ -1151,7 +1151,7 @@ EditSiftr = React.createClass
                   value: @props.game.prompt ? ''
                   onChange: (e) => @props.onChange update(@props.game, prompt: $set: e.target.value), false
                   onBlur: => @props.onChange @props.game, true
-            child 'h2', => raw 'SETTINGS'
+            child 'h2', => raw 'SHARE'
             child 'h4', => raw 'PRIVACY'
 
             hidden = not @props.game.published
@@ -1851,7 +1851,7 @@ NewStep4 = React.createClass
               raw '< map'
           child 'a', href: '#new5', =>
             child 'div.newNextButton', =>
-              raw 'settings >'
+              raw 'share >'
 
 NewStep5 = React.createClass
   displayName: 'NewStep5'
