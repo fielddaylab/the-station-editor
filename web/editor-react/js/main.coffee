@@ -1173,6 +1173,8 @@ EditSiftr = React.createClass
               child 'span.form-multi-option-switch', =>
                 child 'span.form-multi-option-ball'
 
+            # TODO uncomment when native app has password support
+            ###
             child 'p', =>
               raw 'Do you want to set a password to restrict access?'
             child 'p', =>
@@ -1182,6 +1184,7 @@ EditSiftr = React.createClass
                 value: @props.game.password ? ''
                 onChange: (e) => @props.onChange update(@props.game, password: $set: e.target.value), false
                 onBlur: => @props.onChange @props.game, true
+            ###
 
             moderated = @props.game.moderated
             child "a.form-multi-option.form-multi-option-#{if moderated then 'on' else 'off'}", href: '#', =>
@@ -1908,6 +1911,8 @@ NewStep5 = React.createClass
               raw 'Hide from search'
             child 'span.form-multi-option-switch', =>
               child 'span.form-multi-option-ball'
+          # TODO uncomment when native app has password support
+          ###
           child 'p', =>
             raw 'Do you want to set a password to restrict access?'
           child 'p', =>
@@ -1916,6 +1921,7 @@ NewStep5 = React.createClass
               placeholder: 'Password (optional)'
               value: @props.game.password ? ''
               onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
+          ###
           moderated = @props.game.moderated
           child "a.form-multi-option.form-multi-option-#{if moderated then 'on' else 'off'}", href: '#', =>
             props
