@@ -1667,6 +1667,11 @@ NewStep4 = React.createClass
                               label: ''
                               required: false
                               field_id: Date.now() # temporary, to use as React key
+                              options: switch type
+                                when 'SINGLESELECT', 'MULTISELECT'
+                                  ['']
+                                else
+                                  undefined
                           ]
                 ), =>
                   child 'img', src: "../assets/icons/form-#{type}.png"
@@ -1825,19 +1830,20 @@ NewStep4 = React.createClass
                             @setState
                               editingField:
                                 update field, options: $set: opts
-                      child 'a', href: '#', onClick: ((e) =>
-                        e.preventDefault()
-                        if @props.editing
-                          @setState
-                            deletingOption: o
-                        else
-                          opts = options[..]
-                          opts.splice(i, 1)
-                          @setState
-                            editingField:
-                              update field, options: $set: opts
-                      ), =>
-                        child 'img.deletefield', src: '../assets/icons/deletefield.png'
+                      if options.length > 1
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          if @props.editing
+                            @setState
+                              deletingOption: o
+                          else
+                            opts = options[..]
+                            opts.splice(i, 1)
+                            @setState
+                              editingField:
+                                update field, options: $set: opts
+                        ), =>
+                          child 'img.deletefield', src: '../assets/icons/deletefield.png'
                   child 'li', =>
                     child 'a', onClick: (=>
                       if @props.editing

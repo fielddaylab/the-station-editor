@@ -171,6 +171,7 @@ class Field
       @label      = json.label
       @required   = !!(parseInt json.required)
       @sort_index = if json.sort_index? then parseInt json.sort_index else null
+      @options    = json.options
 
 class FieldOption
   constructor: (json = null) ->
