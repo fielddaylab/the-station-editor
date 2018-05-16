@@ -62,6 +62,7 @@ App = React.createClass
     new_step: null
     new_icon: null
     account_menu: false
+    modal_game: null
 
   componentDidMount: ->
     @login undefined, undefined
@@ -357,6 +358,8 @@ App = React.createClass
               $set: null
             new_icon:
               $set: null
+            modal_game:
+              $set: newGame
 
   sendPasswordReset: ->
     @props.aris.call 'users.requestForgotPasswordEmail',
@@ -1044,6 +1047,33 @@ App = React.createClass
                     e.preventDefault()
                     @logout()
                 raw 'Logout'
+
+      if @state.modal_game?
+        game = @state.modal_game
+        child 'div.newGameFixedBox', =>
+          child 'a.newGameCurtain',
+            href: '#'
+            onClick: (e) =>
+              e.preventDefault()
+              @setState modal_game: null
+          child 'div.newGameModal', =>
+            onClick: (e) => e.stopPropagation()
+            child 'h1', =>
+              raw 'Awesome! Your Siftr project is now live.'
+            child 'p', =>
+              raw 'You can access it here:'
+            child 'p', =>
+              child 'a', =>
+                url = "#{SIFTR_URL}#{game.siftr_url or game.game_id}"
+                props
+                  target: '_blank'
+                  href: url
+                raw url
+            child 'p', =>
+              raw 'Or in the Siftr mobile app, enter '
+              child 'span.newGameMobileCode', =>
+                raw "#{game.siftr_url or game.game_id}"
+              raw ' in the search bar.'
 
 SiftrList = React.createClass
   displayName: 'SiftrList'
