@@ -1620,12 +1620,10 @@ NewStep4 = React.createClass
                   src: "../assets/icons/form-#{field.field_type}.png"
               child 'a.form-field-name', href: '#', onClick: (e) =>
                 e.preventDefault()
-                ###
                 @setState
                   editingField: field
                   editingIndex: i
                   deletingOption: null
-                ###
               , =>
                 raw(field.label or 'Unnamed field')
                 raw ' *' if field.required
@@ -1790,54 +1788,59 @@ NewStep4 = React.createClass
                 , =>
                   raw "Cancel"
             else
+              isLockedField = @state.editingIndex < 0
               child 'div.inspectortitle', =>
                 child 'img.inspectoricon', src: "../assets/icons/form-#{field.field_type}.png"
                 child 'h2', =>
-                  switch field.field_type
-                    when 'TEXT'
-                      raw 'Small text field'
-                    when 'TEXTAREA'
-                      raw 'Large text field'
-                    when 'MEDIA'
-                      raw 'Image upload'
-                    when 'SINGLESELECT'
-                      raw 'Single choice'
-                    when 'MULTISELECT'
-                      raw 'Multiple choice'
-              child 'div.inspector-question', =>
-                child 'input',
-                  type: 'textarea'
-                  value: field.label
-                  placeholder: 'What Question are you asking?'
-                  onChange: (e) =>
-                    @setState
-                      editingField:
-                        update field, label: $set: e.target.value
-              unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
-                req = field.required
-                child "a.form-multi-option.form-multi-option-#{if req then 'on' else 'off'}", href: '#', =>
-                  props
-                    onClick: (e) =>
-                      e.preventDefault()
+                  if isLockedField
+                    raw field.label
+                  else
+                    switch field.field_type
+                      when 'TEXT'
+                        raw 'Small text field'
+                      when 'TEXTAREA'
+                        raw 'Large text field'
+                      when 'MEDIA'
+                        raw 'Image upload'
+                      when 'SINGLESELECT'
+                        raw 'Single choice'
+                      when 'MULTISELECT'
+                        raw 'Multiple choice'
+              unless isLockedField
+                child 'div.inspector-question', =>
+                  child 'input',
+                    type: 'textarea'
+                    value: field.label
+                    placeholder: 'What Question are you asking?'
+                    onChange: (e) =>
                       @setState
                         editingField:
-                          update field, required: $set: not req
-                  child 'span.form-multi-option-text', =>
-                    raw 'Required'
-                  child 'span.form-multi-option-switch', =>
-                    child 'span.form-multi-option-ball'
-              if @props.editing
-                child 'p', =>
-                  child 'button',
-                    type: 'button'
-                    onClick: =>
-                      @props.updateField field
-                      @setState
-                        editingField: null
-                        editingIndex: null
-                  , =>
-                    raw 'Save'
-              if field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                          update field, label: $set: e.target.value
+                unless field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                  req = field.required
+                  child "a.form-multi-option.form-multi-option-#{if req then 'on' else 'off'}", href: '#', =>
+                    props
+                      onClick: (e) =>
+                        e.preventDefault()
+                        @setState
+                          editingField:
+                            update field, required: $set: not req
+                    child 'span.form-multi-option-text', =>
+                      raw 'Required'
+                    child 'span.form-multi-option-switch', =>
+                      child 'span.form-multi-option-ball'
+                if @props.editing
+                  child 'p', =>
+                    child 'button',
+                      type: 'button'
+                      onClick: =>
+                        @props.updateField field
+                        @setState
+                          editingField: null
+                          editingIndex: null
+                    , =>
+                      raw 'Save'
+              if field.field_type in ['SINGLESELECT', 'MULTISELECT'] and not isLockedField
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
@@ -1920,8 +1923,11 @@ NewStep4 = React.createClass
                 child 'p.savebutton', =>
                   child 'span.button',
                     onClick: =>
-                      @props.onChange update @props.game,
-                        fields: singleObj(@state.editingIndex, {$set: field})
+                      if isLockedField
+                        null # TODO
+                      else
+                        @props.onChange update @props.game,
+                          fields: singleObj(@state.editingIndex, {$set: field})
                       @setState
                         editingField: null
                         editingIndex: null
