@@ -1602,11 +1602,35 @@ NewStep4 = React.createClass
           child 'img.sort-arrow.sort-arrow-disabled', {src}
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
-          fields.forEach (field, i) =>
-            divFormFieldRow = 'div.form-field-row'
+          divFormFieldRow = (i) =>
+            row = 'div.form-field-row'
             if i is @state.editingIndex
-              divFormFieldRow += '.form-field-row-selected'
-            child divFormFieldRow, key: field.field_id, =>
+              row += '.form-field-row-selected'
+            row
+          lockedFields = [
+            new Field(field_type: 'MEDIA', label: 'Main Photo', required: true)
+            new Field(field_type: 'TEXTAREA', label: 'Caption', required: true)
+            new Field(field_type: 'SINGLESELECT', label: 'Category', required: true)
+          ]
+          lockedFields.forEach (field, i) =>
+            i -= lockedFields.length # so they go -3, -2, -1
+            child divFormFieldRow(i), key: field.label, =>
+              child 'div.form-field-icon', =>
+                child 'img',
+                  src: "../assets/icons/form-#{field.field_type}.png"
+              child 'a.form-field-name', href: '#', onClick: (e) =>
+                e.preventDefault()
+                ###
+                @setState
+                  editingField: field
+                  editingIndex: i
+                  deletingOption: null
+                ###
+              , =>
+                raw(field.label or 'Unnamed field')
+                raw ' *' if field.required
+          fields.forEach (field, i) =>
+            child divFormFieldRow(i), key: field.field_id, =>
               child 'div.form-field-icon', =>
                 child 'img',
                   src: "../assets/icons/form-#{field.field_type}.png"

@@ -169,7 +169,7 @@ class Field
       @game_id    = parseInt json.game_id
       @field_type = json.field_type
       @label      = json.label
-      @required   = !!(parseInt json.required)
+      @required   = if json.required in [true, false] then json.required else !!(parseInt json.required)
       @sort_index = if json.sort_index? then parseInt json.sort_index else null
       @options    = json.options
 
