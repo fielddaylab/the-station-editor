@@ -58,7 +58,7 @@ App = React.createClass
       g.zoom = 12
       g.is_siftr = true
       g
-    new_tag_string: ''
+    new_categories: ['']
     new_step: null
     new_icon: null
     account_menu: false
@@ -317,7 +317,7 @@ App = React.createClass
       if result.returnCode is 0 and result.data?
         window.location.hash = '#'
         newGame = result.data
-        tags = @state.new_tag_string.split(',').map((t) => t.trim()).filter((t) => t.length > 0)
+        tags = @state.new_categories.map((t) => t.trim()).filter((t) => t.length > 0)
         if tags.length is 0
           tags = ['Observation']
         tagsRemaining = tags.length
@@ -352,8 +352,8 @@ App = React.createClass
                 g.zoom = 12
                 g.is_siftr = true
                 g
-            new_tag_string:
-              $set: ''
+            new_categories:
+              $set: ['']
             new_step:
               $set: null
             new_icon:
@@ -673,6 +673,7 @@ App = React.createClass
                 editing: true
                 game: @state.edit_game
                 fields: fields
+                categories: @state.tags[@state.edit_game.game_id]
                 setPrompt: (prompt) =>
                   game = update @state.edit_game, prompt: $set: prompt
                   @props.aris.updateGame game, onSuccess (game) =>
@@ -823,21 +824,16 @@ App = React.createClass
                     child 'div.newNextButton', =>
                       raw 'map >'
             when 'new1'
-              f = (game, tag_string) => @setState
-                new_game: game
-                new_tag_string: tag_string
               child NewStep1,
                 game: @state.new_game
-                tag_string: @state.new_tag_string
                 icon: @state.new_icon
-                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+                onChange: (new_game) => @setState {new_game}
                 onIconChange: (new_icon) => @setState {new_icon}
             when 'new2'
               child NewStep2,
                 game: @state.new_game
-                tag_string: @state.new_tag_string
                 colors: @state.colors
-                onChange: (new_game, new_tag_string) => @setState {new_game, new_tag_string}
+                onChange: (new_game) => @setState {new_game}
             when 'new3'
               child NewStep3,
                 game: @state.new_game
@@ -846,7 +842,9 @@ App = React.createClass
               child NewStep4,
                 editing: false
                 game: @state.new_game
+                categories: @state.new_categories
                 onChange: (new_game) => @setState {new_game}
+                onChangeCategories: (new_categories) => @setState {new_categories}
             when 'new5'
               child NewStep5,
                 game: @state.new_game
@@ -1316,15 +1314,6 @@ NewStep1 = React.createClass
                         break
             child 'label', =>
               child 'p', =>
-                raw 'CATEGORIES '
-                child 'i', => raw 'separated by comma'
-              child 'input.full-width-input',
-                ref: 'tag_string'
-                type: 'text'
-                value: @props.tag_string ? ''
-                onChange: @handleChange
-            child 'label', =>
-              child 'p', =>
                 raw 'USER INSTRUCTIONS '
                 child 'a', href: 'https://daringfireball.net/projects/markdown/syntax', target: '_blank', =>
                   child 'i', => raw 'markdown supported'
@@ -1365,8 +1354,7 @@ NewStep1 = React.createClass
         $set: @refs.name.value
       description:
         $set: @refs.description.value
-    tag_string = @refs.tag_string.value
-    @props.onChange(game, tag_string)
+    @props.onChange(game)
 
 NewStep2 = React.createClass
   displayName: 'NewStep2'
@@ -1377,7 +1365,6 @@ NewStep2 = React.createClass
       child 'div.newStep2', =>
         child 'h3', =>
           raw 'Choose a color scheme for your new Siftr!'
-        @tag_boxes = []
         child 'div.color-table', =>
           colorsRow = (colors_ids) =>
             for i in colors_ids
@@ -1403,36 +1390,6 @@ NewStep2 = React.createClass
           child 'div.color-table-row', => colorsRow [1, 2, 3]
           child 'div.color-table-row', => colorsRow [4, 5, 6]
 
-        child 'div.newStep2LeftCol', =>
-          child 'form', =>
-            child 'h3', => raw 'CATEGORIES'
-            for tag, i in @props.tag_string.split(',')
-              tag = tag.replace(/^\s+/, '')
-              do (i) =>
-                child 'div.create-category-row', key: "tag-#{i}", =>
-                  child 'span.create-category-dot', style:
-                    backgroundColor: @props.colors[@props.game.colors_id]?["tag_#{(i % 8) + 1}"] or 'black'
-                  child 'input.create-category-name',
-                    type: 'text'
-                    value: tag
-                    onChange: @handleChange
-                    ref: (elt) => @tag_boxes.push(elt) unless elt is null
-                  child 'a', href: '#', =>
-                    props
-                      onClick: (e) =>
-                        e.preventDefault()
-                        @deleteTag i
-                    child 'span.create-category-x', =>
-                      raw '×'
-            child 'p', =>
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @addTag()
-                child 'span.create-category-add', =>
-                  raw 'ADD CATEGORY'
-
       child 'div.bottom-step-buttons', =>
         child 'a', href: '#new1', =>
           child 'div.newPrevButton', =>
@@ -1440,17 +1397,6 @@ NewStep2 = React.createClass
         child 'a', href: '#new3', =>
           child 'div.newNextButton', =>
             raw 'map >'
-
-  deleteTag: (index) ->
-    tags =
-      for input, i in @tag_boxes
-        continue if i is index
-        input.value
-    @props.onChange @props.game, tags.join(',')
-
-  addTag: ->
-    tag_string = @tag_boxes.map((input) => input.value).join(',') + ','
-    @props.onChange @props.game, tag_string
 
   handleChange: ->
     colors_id = 1
@@ -1460,8 +1406,7 @@ NewStep2 = React.createClass
     game = update @props.game,
       colors_id:
         $set: colors_id
-    tag_string = @tag_boxes.map((input) => input.value).join(',')
-    @props.onChange game, tag_string
+    @props.onChange game
 
 NewStep3 = React.createClass
   displayName: 'NewStep3'
@@ -1599,10 +1544,16 @@ NewStep4 = React.createClass
             if i is @state.editingIndex
               row += '.form-field-row-selected'
             row
+          categoryOptions =
+            if @props.editing
+              @props.categories
+            else
+              for cat, i in @props.categories
+                {option: cat, field_option_id: i}
           lockedFields = [
             new Field(field_type: 'MEDIA', label: 'Main Photo', required: true)
             new Field(field_type: 'TEXTAREA', label: 'Caption', required: true)
-            new Field(field_type: 'SINGLESELECT', label: 'Category', required: true)
+            new Field(field_type: 'SINGLESELECT', label: 'Category', required: true, options: categoryOptions)
           ]
           lockedFields.forEach (field, i) =>
             i -= lockedFields.length # so they go -3, -2, -1
@@ -1833,7 +1784,7 @@ NewStep4 = React.createClass
                     value: @props.game.prompt ? ''
                     onChange: (e) =>
                       @props.onChange update @props.game, prompt: $set: e.target.value
-              if field.field_type in ['SINGLESELECT', 'MULTISELECT'] and not isLockedField
+              if field.field_type in ['SINGLESELECT', 'MULTISELECT'] and not (@props.editing and isLockedField)
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
@@ -1918,9 +1869,11 @@ NewStep4 = React.createClass
                     if isLockedField
                       switch field.field_type
                         when 'TEXTAREA'
-                          @props.setPrompt @refs.caption.value
-                        else
-                          null # TODO
+                          if @props.editing
+                            @props.setPrompt @refs.caption.value
+                        when 'SINGLESELECT'
+                          if not @props.editing
+                            @props.onChangeCategories field.options.map (o) => o.option
                     else if @props.editing
                       @props.updateField field
                     else
