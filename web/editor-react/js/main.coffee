@@ -1551,15 +1551,14 @@ NewStep4 = React.createClass
     showFieldTypes: false
 
   reorderFields: (indexes) ->
-    if @props.editing
-      @props.reorderFields indexes, =>
-        if @state.editingIndex?
-          @setState
-            editingIndex: indexes[@state.editingIndex]
-    else
-      if @state.editingIndex?
+    fixIndex = =>
+      if @state.editingIndex? and @state.editingIndex >= 0
         @setState
           editingIndex: indexes[@state.editingIndex]
+    if @props.editing
+      @props.reorderFields indexes, fixIndex
+    else
+      fixIndex()
       @props.onChange update @props.game, fields: $set:
         for i in [0 .. indexes.length - 1]
           @props.game.fields[indexes[i]]
@@ -1829,17 +1828,15 @@ NewStep4 = React.createClass
                       raw 'Required'
                     child 'span.form-multi-option-switch', =>
                       child 'span.form-multi-option-ball'
+              if field.field_type is 'TEXTAREA' and isLockedField
                 if @props.editing
-                  child 'p', =>
-                    child 'button',
-                      type: 'button'
-                      onClick: =>
-                        @props.updateField field
-                        @setState
-                          editingField: null
-                          editingIndex: null
-                    , =>
-                      raw 'Save'
+                  null # TODO
+                else
+                  child 'textarea.full-width-textarea',
+                    placeholder: 'Pre-filled caption text'
+                    value: @props.game.prompt ? ''
+                    onChange: (e) =>
+                      @props.onChange update @props.game, prompt: $set: e.target.value
               if field.field_type in ['SINGLESELECT', 'MULTISELECT'] and not isLockedField
                 options = field.options ? []
                 child 'ul', =>
@@ -1919,20 +1916,21 @@ NewStep4 = React.createClass
                       child 'span.addoption_btn', =>
                         child 'img.addoption', src: '../assets/icons/addfield.png'
                         raw 'add answer'
-              unless @props.editing
-                child 'p.savebutton', =>
-                  child 'span.button',
-                    onClick: =>
-                      if isLockedField
-                        null # TODO
-                      else
-                        @props.onChange update @props.game,
-                          fields: singleObj(@state.editingIndex, {$set: field})
-                      @setState
-                        editingField: null
-                        editingIndex: null
-                  , =>
-                    raw 'Save field'
+              child 'p.savebutton', =>
+                child 'span.button',
+                  onClick: =>
+                    if isLockedField
+                      null # TODO
+                    else if @props.editing
+                      @props.updateField field
+                    else
+                      @props.onChange update @props.game,
+                        fields: singleObj(@state.editingIndex, {$set: field})
+                    @setState
+                      editingField: null
+                      editingIndex: null
+                , =>
+                  raw 'Save field'
           else
             child 'p', =>
               raw 'No field selected.'
