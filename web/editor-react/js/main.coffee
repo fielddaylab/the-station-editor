@@ -23,9 +23,9 @@ countContributors = (notes) ->
       user_ids[comment.user.user_id] = true
   Object.keys(user_ids).length
 
-onSuccess = (fn) -> ({returnCode, returnCodeDescription}) ->
+onSuccess = (fn) -> ({data, returnCode, returnCodeDescription}) ->
   if returnCode is 0
-    fn()
+    fn data
   else
     alert "An error occurred: #{returnCodeDescription}"
 
@@ -673,6 +673,10 @@ App = React.createClass
                 editing: true
                 game: @state.edit_game
                 fields: fields
+                setPrompt: (prompt) =>
+                  game = update @state.edit_game, prompt: $set: prompt
+                  @props.aris.updateGame game, onSuccess (game) =>
+                    @updateGames() # TODO just use the game from the result
                 addField: (field_type) =>
                   @props.aris.call 'fields.createField',
                     game_id: @state.edit_game.game_id
@@ -1178,17 +1182,6 @@ EditSiftr = React.createClass
               raw 'Or in the mobile app, enter '
               child 'code', => raw currentLink
               raw ' in the search bar.'
-            child 'label', =>
-              child 'h4', => raw 'PROMPT'
-              child 'p', =>
-                raw 'Enter a caption prompt for a user uploading a photo.'
-              child 'p', =>
-                child 'input.full-width-input',
-                  type: 'text'
-                  placeholder: 'Enter a caption...'
-                  value: @props.game.prompt ? ''
-                  onChange: (e) => @props.onChange update(@props.game, prompt: $set: e.target.value), false
-                  onBlur: => @props.onChange @props.game, true
             child 'h2', => raw 'SHARE'
             child 'h4', => raw 'PRIVACY'
 
@@ -1582,7 +1575,7 @@ NewStep4 = React.createClass
   componentWillReceiveProps: (nextProps) ->
     thisFields = @getPropsFields(@props)
     nextFields = @getPropsFields(nextProps)
-    if thisFields.length < nextFields.length
+    if thisFields.length + 1 is nextFields.length
       index = nextFields.length - 1
       @setState
         editingIndex: index
@@ -1830,7 +1823,10 @@ NewStep4 = React.createClass
                       child 'span.form-multi-option-ball'
               if field.field_type is 'TEXTAREA' and isLockedField
                 if @props.editing
-                  null # TODO
+                  child 'textarea.full-width-textarea',
+                    placeholder: 'Pre-filled caption text'
+                    defaultValue: @props.game.prompt ? ''
+                    ref: 'caption'
                 else
                   child 'textarea.full-width-textarea',
                     placeholder: 'Pre-filled caption text'
@@ -1920,7 +1916,11 @@ NewStep4 = React.createClass
                 child 'span.button',
                   onClick: =>
                     if isLockedField
-                      null # TODO
+                      switch field.field_type
+                        when 'TEXTAREA'
+                          @props.setPrompt @refs.caption.value
+                        else
+                          null # TODO
                     else if @props.editing
                       @props.updateField field
                     else
