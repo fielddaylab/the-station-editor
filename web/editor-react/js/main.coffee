@@ -251,7 +251,7 @@ App = React.createClass
                 $merge: singleObj(game.game_id, result.data)
           , cb
 
-  updateTags: (games) ->
+  updateTags: (games, cb = (->)) ->
     games.forEach (game) =>
       @props.aris.getTagsForGame
         game_id: game.game_id
@@ -261,6 +261,7 @@ App = React.createClass
             update previousState,
               tags:
                 $merge: singleObj(game.game_id, result.data)
+          , cb
 
   # Adds the game to the known games list,
   # or updates an existing game if it shares the game ID.
@@ -737,6 +738,19 @@ App = React.createClass
                       n -= 1
                       if n is 0
                         @updateForms([@state.edit_game], cb)
+                addCategory: ({name}, cb) =>
+                  tagObject = new Tag
+                  tagObject.tag = name
+                  tagObject.game_id = @state.edit_game.game_id
+                  @props.aris.createTag tagObject, =>
+                    @updateTags([@state.edit_game], cb)
+                updateCategory: ({tag_id, name}, cb) =>
+                  @props.aris.updateTag
+                    game_id: @state.edit_game.game_id
+                    tag_id: tag_id
+                    tag: name
+                  , =>
+                    @updateTags([@state.edit_game], cb)
             when 'map'
               child NewStep3,
                 editing: true
@@ -1537,6 +1551,13 @@ NewStep4 = React.createClass
             child 'img.sort-arrow', {src}
         else
           child 'img.sort-arrow.sort-arrow-disabled', {src}
+      categoryOptions = =>
+        if @props.editing
+          for cat in (@props.categories ? [])
+            {option: cat.tag, field_option_id: cat.tag_id}
+        else
+          for cat, i in @props.categories
+            {option: cat, field_option_id: i}
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
           divFormFieldRow = (i) =>
@@ -1544,16 +1565,10 @@ NewStep4 = React.createClass
             if i is @state.editingIndex
               row += '.form-field-row-selected'
             row
-          categoryOptions =
-            if @props.editing
-              @props.categories
-            else
-              for cat, i in @props.categories
-                {option: cat, field_option_id: i}
           lockedFields = [
             new Field(field_type: 'MEDIA', label: 'Main Photo', required: true)
             new Field(field_type: 'TEXTAREA', label: 'Caption', required: true)
-            new Field(field_type: 'SINGLESELECT', label: 'Category', required: true, options: categoryOptions)
+            new Field(field_type: 'SINGLESELECT', label: 'Category', required: true, options: categoryOptions())
           ]
           lockedFields.forEach (field, i) =>
             i -= lockedFields.length # so they go -3, -2, -1
@@ -1686,14 +1701,22 @@ NewStep4 = React.createClass
         child 'div.newStep4FieldInfo', =>
           if (field = @state.editingField)?
 
+            isLockedField = @state.editingIndex < 0
+
             reloadThisField = =>
-              for f, i in @props.fields
-                if f.field_id is field.field_id
+              if isLockedField
+                if field.field_type is 'SINGLESELECT'
                   @setState
-                    editingField: f
-                    editingIndex: i
+                    editingField: new Field(field_type: 'SINGLESELECT', label: 'Category', required: true, options: categoryOptions())
                     deletingOption: null
-                  return
+              else
+                for f, i in @props.fields
+                  if f.field_id is field.field_id
+                    @setState
+                      editingField: f
+                      editingIndex: i
+                      deletingOption: null
+                    return
 
             if @state.deletingOption?
               child 'p', =>
@@ -1731,7 +1754,6 @@ NewStep4 = React.createClass
                 , =>
                   raw "Cancel"
             else
-              isLockedField = @state.editingIndex < 0
               child 'div.inspectortitle', =>
                 child 'img.inspectoricon', src: "../assets/icons/form-#{field.field_type}.png"
                 child 'h2', =>
@@ -1784,46 +1806,54 @@ NewStep4 = React.createClass
                     value: @props.game.prompt ? ''
                     onChange: (e) =>
                       @props.onChange update @props.game, prompt: $set: e.target.value
-              if field.field_type in ['SINGLESELECT', 'MULTISELECT'] and not (@props.editing and isLockedField)
+              if field.field_type in ['SINGLESELECT', 'MULTISELECT']
+                editingCategory = @props.editing and isLockedField
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
                     child 'li', key: o.field_option_id, =>
-                      makeArrow 'up', i isnt 0, (f) =>
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          indexes =
-                            for j in [0 .. options.length - 1]
-                              if j is i
-                                j - 1
-                              else if j is i - 1
-                                j + 1
-                              else
-                                j
-                          @reorderFieldOptions indexes, reloadThisField
-                        ), f
-                      makeArrow 'down', i isnt options.length - 1, (f) =>
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          indexes =
-                            for j in [0 .. options.length - 1]
-                              if j is i
-                                j + 1
-                              else if j is i + 1
-                                j - 1
-                              else
-                                j
-                          @reorderFieldOptions indexes, reloadThisField
-                        ), f
+                      unless editingCategory
+                        makeArrow 'up', i isnt 0, (f) =>
+                          child 'a', href: '#', onClick: ((e) =>
+                            e.preventDefault()
+                            indexes =
+                              for j in [0 .. options.length - 1]
+                                if j is i
+                                  j - 1
+                                else if j is i - 1
+                                  j + 1
+                                else
+                                  j
+                            @reorderFieldOptions indexes, reloadThisField
+                          ), f
+                        makeArrow 'down', i isnt options.length - 1, (f) =>
+                          child 'a', href: '#', onClick: ((e) =>
+                            e.preventDefault()
+                            indexes =
+                              for j in [0 .. options.length - 1]
+                                if j is i
+                                  j + 1
+                                else if j is i + 1
+                                  j - 1
+                                else
+                                  j
+                            @reorderFieldOptions indexes, reloadThisField
+                          ), f
                       if @props.editing
                         child 'input',
                           type: 'text'
                           defaultValue: o.option
-                          onChange: (e) =>
-                            @props.updateFieldOption
-                              field_option: o
-                              option: e.target.value
-                            , reloadThisField
+                          onBlur: (e) =>
+                            if editingCategory
+                              @props.updateCategory
+                                tag_id: o.field_option_id
+                                name: e.target.value
+                              , reloadThisField
+                            else
+                              @props.updateFieldOption
+                                field_option: o
+                                option: e.target.value
+                              , reloadThisField
                       else
                         child 'input',
                           type: 'text'
@@ -1834,7 +1864,7 @@ NewStep4 = React.createClass
                             @setState
                               editingField:
                                 update field, options: $set: opts
-                      if options.length > 1
+                      if options.length > 1 and not editingCategory
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           if @props.editing
@@ -1851,10 +1881,15 @@ NewStep4 = React.createClass
                   child 'li', =>
                     child 'a', onClick: (=>
                       if @props.editing
-                        @props.addFieldOption
-                          field: field
-                          option: ''
-                        , reloadThisField
+                        if editingCategory
+                          @props.addCategory
+                            name: ''
+                          , reloadThisField
+                        else
+                          @props.addFieldOption
+                            field: field
+                            option: ''
+                          , reloadThisField
                       else
                         @setState
                           editingField:
