@@ -86,19 +86,6 @@ App = React.createClass
         @setState screen: 'main'
         # This is temporary if the user is currently being logged in,
         # because the list of games will load and re-call applyHash
-    else if (md = hash.match(/^categories(.*)/))?
-      game_id = parseInt md[1]
-      matchingGames =
-        game for game in @state.games when game.game_id is game_id
-      if matchingGames.length is 1
-        @setState
-          screen: 'categories'
-          delete_tag: null
-          edit_game: matchingGames[0]
-      else
-        @setState screen: 'main'
-        # This is temporary if the user is currently being logged in,
-        # because the list of games will load and re-call applyHash
     else if (md = hash.match(/^form(.*)/))?
       game_id = parseInt md[1]
       matchingGames =
@@ -498,7 +485,7 @@ App = React.createClass
                 props onClick: requireNameDesc
                 raw 'Share'
             navBarActions()
-        else if @state.screen in ['edit', 'map', 'categories', 'form']
+        else if @state.screen in ['edit', 'map', 'form']
           child 'div.nav-bar-line', =>
             child 'div', =>
               selectTab = (step) =>
@@ -508,8 +495,6 @@ App = React.createClass
                   ''
               child "a.create-step-tab#{selectTab 'edit'}", href: '#edit' + @state.edit_game.game_id, =>
                 raw 'Settings'
-              child "a.create-step-tab#{selectTab 'categories'}", href: '#categories' + @state.edit_game.game_id, =>
-                raw 'Categories'
               child "a.create-step-tab#{selectTab 'map'}", href: '#map' + @state.edit_game.game_id, =>
                 raw 'Location'
               child "a.create-step-tab#{selectTab 'form'}", href: '#form' + @state.edit_game.game_id, =>
@@ -772,87 +757,6 @@ App = React.createClass
                 editing: true
                 game: @state.edit_game
                 onChange: reactBind(@autosave, @)
-            when 'categories'
-              child 'div.newStepBox', =>
-                child 'div.loginForm', =>
-                  tags = @state.tags[@state.edit_game.game_id]
-                  colors = @state.colors[@state.edit_game.colors_id or 1]
-                  child 'h2', =>
-                    raw "Categories for "
-                    child 'b', =>
-                      raw @state.edit_game.name
-                  if not tags?
-                    child 'p', =>
-                      raw 'Loading categories...'
-                  else if @state.delete_tag?
-                    child 'h4', =>
-                      raw "Choose a category to reassign all #{@state.delete_tag.tag} notes to."
-                    for tag, i in tags
-                      continue if tag is @state.delete_tag
-                      do (tag, i) =>
-                        child 'div.category-button', =>
-                          props
-                            style:
-                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                            onClick: =>
-                              if confirm "Are you sure you want to delete the category \"#{@state.delete_tag.tag}\" and move all its notes to \"#{tag.tag}\"?"
-                                @props.aris.call 'tags.deleteTag',
-                                  tag_id: @state.delete_tag.tag_id
-                                  new_tag_id: tag.tag_id
-                                , =>
-                                  @setState delete_tag: null
-                                  @updateTags [@state.edit_game]
-                          raw tag.tag
-                    child 'a.new-category-button', href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          @setState delete_tag: null
-                      child 'div.login-button', =>
-                        raw 'CANCEL'
-                  else
-                    for tag, i in tags
-                      do (tag, i) =>
-                        child 'div.category-button', =>
-                          props
-                            style:
-                              backgroundColor: colors["tag_#{(i % 8) + 1}"]
-                            onClick: =>
-                              str = prompt "Enter a new name for this category...", tag.tag
-                              if str? and str isnt ''
-                                @props.aris.updateTag
-                                  game_id: @state.edit_game.game_id
-                                  tag_id: tag.tag_id
-                                  tag: str
-                                , =>
-                                  @updateTags [@state.edit_game]
-                          raw tag.tag
-                          child 'div.delete-category-x', =>
-                            props
-                              onClick: (e) =>
-                                e.stopPropagation()
-                                @setState delete_tag: tag
-                            raw 'X'
-                    child 'a.new-category-button', href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          str = prompt "Enter a new category..."
-                          if str? and str isnt ''
-                            tagObject = new Tag
-                            tagObject.tag = str
-                            tagObject.game_id = @state.edit_game.game_id
-                            @props.aris.createTag tagObject, =>
-                              @updateTags [@state.edit_game]
-                      child 'div.login-button', =>
-                        raw 'NEW CATEGORY'
-                child 'div.bottom-step-buttons', =>
-                  child 'a', href: '#edit' + @state.edit_game.game_id, =>
-                    child 'div.newPrevButton', =>
-                      raw '< settings'
-                  child 'a', href: '#map' + @state.edit_game.game_id, =>
-                    child 'div.newNextButton', =>
-                      raw 'map >'
             when 'new1'
               child NewStep1,
                 game: @state.new_game
@@ -1295,9 +1199,9 @@ EditSiftr = React.createClass
         child 'div.newStep1RightColumn'
       child 'div.bottom-step-buttons', =>
         child 'div'
-        child 'a', href: '#categories' + @props.game.game_id, =>
+        child 'a', href: '#map' + @props.game.game_id, =>
           child 'div.newNextButton', =>
-            raw 'categories >'
+            raw 'map >'
 
 NewStep1 = React.createClass
   displayName: 'NewStep1'
@@ -1485,9 +1389,9 @@ NewStep3 = React.createClass
             onChange: @handleMapChange
       if @props.editing
         child 'div.bottom-step-buttons', =>
-          child 'a', href: '#categories' + @props.game.game_id, =>
+          child 'a', href: '#edit' + @props.game.game_id, =>
             child 'div.newPrevButton', =>
-              raw '< categories'
+              raw '< settings'
           child 'a', href: '#form' + @props.game.game_id, =>
             child 'div.newNextButton', =>
               raw 'data >'
