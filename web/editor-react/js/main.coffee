@@ -675,6 +675,7 @@ App = React.createClass
                 game: @state.edit_game
                 fields: fields
                 categories: @state.tags[@state.edit_game.game_id]
+                colors: @state.colors
                 setPrompt: (prompt) =>
                   game = update @state.edit_game, prompt: $set: prompt
                   @props.aris.updateGame game, onSuccess (game) =>
@@ -872,6 +873,7 @@ App = React.createClass
                 editing: false
                 game: @state.new_game
                 categories: @state.new_categories
+                colors: @state.colors
                 onChange: (new_game) => @setState {new_game}
                 onChangeCategories: (new_categories) => @setState {new_categories}
             when 'new5'
@@ -1846,7 +1848,7 @@ NewStep4 = React.createClass
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
-                    child 'li', key: o.field_option_id, =>
+                    child 'li.field-option-row', key: o.field_option_id, =>
                       makeArrow 'up', i isnt 0, (f) =>
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
@@ -1873,6 +1875,9 @@ NewStep4 = React.createClass
                                 j
                           @reorderFieldOptions indexes, reloadThisField
                         ), f
+                      color = @props.colors[@props.game.colors_id or 1]["tag_#{i + 1}"]
+                      child 'div.category-color-dot', style:
+                        backgroundColor: color
                       if @props.editing
                         child 'input',
                           type: 'text'

@@ -120,3 +120,20 @@
 .required-star {
   color: red;
 }
+
+.field-option-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  input {
+    flex: 1;
+  }
+}
+
+.category-color-dot {
+  height: 24px;
+  width: 24px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 6px;
+}

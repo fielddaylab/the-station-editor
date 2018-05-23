@@ -95,10 +95,10 @@ arisHTTPS = (x) ->
 class Tag
   constructor: (json) ->
     if json?
-      @icon_url = arisHTTPS(json.media?.data?.url)
-      @tag      = json.tag
-      @tag_id   = parseInt json.tag_id
-      @game_id  = parseInt json.game_id
+      @icon_url   = arisHTTPS(json.media?.data?.url)
+      @tag        = json.tag
+      @tag_id     = parseInt json.tag_id
+      @game_id    = parseInt json.game_id
       @sort_index = parseInt json.sort_index
     else
       @icon_url   = null
