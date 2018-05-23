@@ -757,6 +757,15 @@ App = React.createClass
                     new_tag_id: new_tag_id
                   , =>
                     @updateTags([@state.edit_game], cb)
+                reorderCategories: (indexes, cb) =>
+                  tags = @state.tags[@state.edit_game.game_id]
+                  n = tags.length
+                  for tag, i in tags
+                    tag = update tag, sort_index: $set: indexes.indexOf(i)
+                    @props.aris.updateTag tag, onSuccess =>
+                      n -= 1
+                      if n is 0
+                        @updateTags([@state.edit_game], cb)
             when 'map'
               child NewStep3,
                 editing: true
@@ -1523,7 +1532,10 @@ NewStep4 = React.createClass
 
   reorderFieldOptions: (indexes, cb) ->
     if @props.editing
-      @props.reorderFieldOptions @state.editingField, indexes, cb
+      if @state.editingIndex < 0
+        @props.reorderCategories indexes, cb
+      else
+        @props.reorderFieldOptions @state.editingField, indexes, cb
     else
       @setState
         editingField:
@@ -1835,33 +1847,32 @@ NewStep4 = React.createClass
                 child 'ul', =>
                   options.forEach (o, i) =>
                     child 'li', key: o.field_option_id, =>
-                      unless editingCategory
-                        makeArrow 'up', i isnt 0, (f) =>
-                          child 'a', href: '#', onClick: ((e) =>
-                            e.preventDefault()
-                            indexes =
-                              for j in [0 .. options.length - 1]
-                                if j is i
-                                  j - 1
-                                else if j is i - 1
-                                  j + 1
-                                else
-                                  j
-                            @reorderFieldOptions indexes, reloadThisField
-                          ), f
-                        makeArrow 'down', i isnt options.length - 1, (f) =>
-                          child 'a', href: '#', onClick: ((e) =>
-                            e.preventDefault()
-                            indexes =
-                              for j in [0 .. options.length - 1]
-                                if j is i
-                                  j + 1
-                                else if j is i + 1
-                                  j - 1
-                                else
-                                  j
-                            @reorderFieldOptions indexes, reloadThisField
-                          ), f
+                      makeArrow 'up', i isnt 0, (f) =>
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          indexes =
+                            for j in [0 .. options.length - 1]
+                              if j is i
+                                j - 1
+                              else if j is i - 1
+                                j + 1
+                              else
+                                j
+                          @reorderFieldOptions indexes, reloadThisField
+                        ), f
+                      makeArrow 'down', i isnt options.length - 1, (f) =>
+                        child 'a', href: '#', onClick: ((e) =>
+                          e.preventDefault()
+                          indexes =
+                            for j in [0 .. options.length - 1]
+                              if j is i
+                                j + 1
+                              else if j is i + 1
+                                j - 1
+                              else
+                                j
+                          @reorderFieldOptions indexes, reloadThisField
+                        ), f
                       if @props.editing
                         child 'input',
                           type: 'text'

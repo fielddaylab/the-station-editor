@@ -99,16 +99,19 @@ class Tag
       @tag      = json.tag
       @tag_id   = parseInt json.tag_id
       @game_id  = parseInt json.game_id
+      @sort_index = parseInt json.sort_index
     else
-      @icon_url = null
-      @tag      = null
-      @tag_id   = null
-      @game_id  = null
+      @icon_url   = null
+      @tag        = null
+      @tag_id     = null
+      @game_id    = null
+      @sort_index = null
 
   createJSON: ->
     tag_id: @tag_id or undefined
     game_id: @game_id
     tag: @tag
+    sort_index: @sort_index
 
 class Comment
   constructor: (json) ->
@@ -192,6 +195,16 @@ class FieldData
       @media_id        = parseInt json.media_id
       @media           = json.media
       @field_option_id = parseInt json.field_option_id
+
+sortByIndex = (key_id) -> (a, b) ->
+  if a.sort_index? and b.sort_index?
+    a.sort_index - b.sort_index
+  else if a.sort_index?
+    1
+  else if b.sort_index?
+    -1
+  else
+    a[key_id] - b[key_id]
 
 # Handles Aris v2 authentication and API calls.
 class Aris
@@ -279,21 +292,16 @@ class Aris
         data.map_clusters
 
   getTagsForGame: (json, cb) ->
-    @callWrapped 'tags.getTagsForGame', json, cb, (data) -> new Tag o for o in data
+    @callWrapped 'tags.getTagsForGame', json, cb, (data) ->
+      tags =
+        new Tag o for o in data
+      tags.sort sortByIndex 'tag_id'
+      tags
 
   getUsersForGame: (json, cb) ->
     @callWrapped 'users.getUsersForGame', json, cb, (data) -> new User o for o in data
 
   getFieldsForGame: (json, cb) ->
-    sortByIndex = (key_id) -> (a, b) ->
-      if a.sort_index? and b.sort_index?
-        a.sort_index - b.sort_index
-      else if a.sort_index?
-        1
-      else if b.sort_index?
-        -1
-      else
-        a[key_id] - b[key_id]
     @callWrapped 'fields.getFieldsForGame', json, cb, (data) ->
       fields =
         new Field o for o in data.fields
