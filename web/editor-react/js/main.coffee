@@ -751,6 +751,12 @@ App = React.createClass
                     tag: name
                   , =>
                     @updateTags([@state.edit_game], cb)
+                deleteCategory: ({tag_id, new_tag_id}, cb) =>
+                  @props.aris.call 'tags.deleteTag',
+                    tag_id: tag_id
+                    new_tag_id: new_tag_id
+                  , =>
+                    @updateTags([@state.edit_game], cb)
             when 'map'
               child NewStep3,
                 editing: true
@@ -1720,7 +1726,10 @@ NewStep4 = React.createClass
 
             if @state.deletingOption?
               child 'p', =>
-                raw "Should data be reassigned from '#{@state.deletingOption.option}' to a different option?"
+                if isLockedField
+                  raw "Choose a category to reassign all '#{@state.deletingOption.option}' notes to."
+                else
+                  raw "Should data be reassigned from '#{@state.deletingOption.option}' to a different option?"
               confirmDelete = (new_option) =>
                 msg =
                   if new_option?
@@ -1728,10 +1737,16 @@ NewStep4 = React.createClass
                   else
                     "Are you sure you want to delete the option '#{@state.deletingOption.option}'?"
                 if confirm msg
-                  @props.deleteFieldOption
-                    field_option: @state.deletingOption
-                    new_field_option: new_option
-                  , reloadThisField
+                  if isLockedField
+                    @props.deleteCategory
+                      tag_id: @state.deletingOption.field_option_id
+                      new_tag_id: new_option.field_option_id
+                    , reloadThisField
+                  else
+                    @props.deleteFieldOption
+                      field_option: @state.deletingOption
+                      new_field_option: new_option
+                    , reloadThisField
               child 'ul', =>
                 (field.options ? []).forEach (o) =>
                   unless o.field_option_id is @state.deletingOption.field_option_id
@@ -1741,12 +1756,13 @@ NewStep4 = React.createClass
                         confirmDelete o
                       , =>
                         raw o.option
-              child 'p', =>
-                child 'a', href: '#', onClick: (e) =>
-                  e.preventDefault()
-                  confirmDelete null
-                , =>
-                  raw "Don't reassign"
+              unless isLockedField
+                child 'p', =>
+                  child 'a', href: '#', onClick: (e) =>
+                    e.preventDefault()
+                    confirmDelete null
+                  , =>
+                    raw "Don't reassign"
               child 'p', =>
                 child 'a', href: '#', onClick: (e) =>
                   e.preventDefault()
@@ -1864,7 +1880,7 @@ NewStep4 = React.createClass
                             @setState
                               editingField:
                                 update field, options: $set: opts
-                      if options.length > 1 and not editingCategory
+                      if options.length > 1
                         child 'a', href: '#', onClick: ((e) =>
                           e.preventDefault()
                           if @props.editing
