@@ -1779,9 +1779,10 @@ NewStep4 = React.createClass
                                 j
                           @reorderFieldOptions indexes, reloadThisField
                         ), f
-                      color = @props.colors[@props.game.colors_id or 1]["tag_#{i + 1}"]
-                      child 'div.category-color-dot', style:
-                        backgroundColor: color
+                      if isLockedField
+                        color = @props.colors[@props.game.colors_id or 1]["tag_#{i + 1}"]
+                        child 'div.category-color-dot', style:
+                          backgroundColor: color
                       if @props.editing
                         child 'input',
                           type: 'text'
