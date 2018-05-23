@@ -1590,7 +1590,12 @@ NewStep4 = React.createClass
                   deletingOption: null
               , =>
                 raw(field.label or 'Unnamed field')
-                raw ' *' if field.required
+                if field.required
+                  raw ' '
+                  child 'span.required-star', => raw '*'
+              child 'div.lock-icon', =>
+                child 'img',
+                  src: "../assets/icons/lock.png"
           fields.forEach (field, i) =>
             child divFormFieldRow(i), key: field.field_id, =>
               child 'div.form-field-icon', =>
@@ -1604,7 +1609,9 @@ NewStep4 = React.createClass
                   deletingOption: null
               , =>
                 raw(field.label or 'Unnamed field')
-                raw ' *' if field.required
+                if field.required
+                  raw ' '
+                  child 'span.required-star', => raw '*'
               child 'div.form-field-x', =>
                 makeArrow 'up', i isnt 0, (f) =>
                   child 'a', href: '#', onClick: ((e) =>
