@@ -791,6 +791,7 @@ App = React.createClass
                   child 'a.new-siftr-button.login-button', href: '#new1', =>
                     raw 'NEW SIFTR'
                 child SiftrList,
+                  updateStateGame: @updateStateGame
                   aris: @props.aris
                   games: @state.games
                   colors: @state.colors
@@ -1019,22 +1020,66 @@ SiftrIcon = React.createClass
   getInitialState: ->
     url: null
 
-  componentDidMount: ->
-    media_id = parseInt @props.game.icon_media_id
+  fetchIcon: (props) ->
+    media_id = parseInt props.game.icon_media_id
     return unless media_id
-    @props.aris.call 'media.getMedia',
+    return if media_id is @fetchedMediaID
+    @fetchedMediaID = media_id
+    props.aris.call 'media.getMedia',
       media_id: media_id
     , (result) =>
       if result.returnCode is 0 and result.data?
         @setState url: result.data.thumb_url
 
+  componentDidMount: ->
+    @fetchIcon @props
+
+  componentWillReceiveProps: (nextProps, nextState) ->
+    @fetchIcon nextProps
+
+  loadImageFile: (file) ->
+    fr = new FileReader
+    fr.onload = =>
+      dataURL = fr.result
+      return unless dataURL?
+      extmap =
+        jpg: 'data:image/jpeg;base64,'
+        png: 'data:image/png;base64,'
+        gif: 'data:image/gif;base64,'
+      ext = null
+      base64 = null
+      for k, v of extmap
+        if dataURL[0 .. v.length - 1] is v
+          ext    = k
+          base64 = dataURL[v.length ..]
+      if ext? and base64?
+        @props.aris.call 'media.createMedia',
+          game_id: @props.game.game_id
+          file_name: "upload.#{ext}"
+          data: base64
+        , (result) =>
+          if result?
+            @props.aris.call 'games.updateGame',
+              game_id: @props.game.game_id
+              icon_media_id: result.data.media_id
+            , ({data: game}) =>
+              @props.updateStateGame(new Game(game))
+    fr.readAsDataURL file
+
   render: ->
-    make 'div.siftr-icon',
-      if @state.url?
-        style:
+    make 'a.siftr-icon',
+      href: '#'
+      onClick: (e) =>
+        e.preventDefault()
+        input = document.createElement 'input'
+        input.type = 'file'
+        input.onchange = (e) => @loadImageFile e.target.files[0]
+        input.click()
+      style:
+        if @state.url?
           backgroundImage: "url(#{@state.url})"
-      else
-        {}
+        else
+          {}
 
 SiftrList = React.createClass
   displayName: 'SiftrList'
@@ -1044,7 +1089,7 @@ SiftrList = React.createClass
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
         child 'div.siftr-entry', key: "game-#{game.game_id}", =>
-          child SiftrIcon, game: game, aris: @props.aris
+          child SiftrIcon, game: game, aris: @props.aris, updateStateGame: @props.updateStateGame
           child 'div.siftr-entry-right', =>
             child 'div.siftr-entry-title-buttons', =>
               child 'a.siftr-entry-title', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
