@@ -791,6 +791,7 @@ App = React.createClass
                   child 'a.new-siftr-button.login-button', href: '#new1', =>
                     raw 'NEW SIFTR'
                 child SiftrList,
+                  aris: @props.aris
                   games: @state.games
                   colors: @state.colors
                   notes: @state.notes
@@ -1012,6 +1013,29 @@ App = React.createClass
                 raw "#{game.siftr_url or game.game_id}"
               raw ' in the search bar.'
 
+SiftrIcon = React.createClass
+  displayName: 'SiftrIcon'
+
+  getInitialState: ->
+    url: null
+
+  componentDidMount: ->
+    media_id = parseInt @props.game.icon_media_id
+    return unless media_id
+    @props.aris.call 'media.getMedia',
+      media_id: media_id
+    , (result) =>
+      if result.returnCode is 0 and result.data?
+        @setState url: result.data.thumb_url
+
+  render: ->
+    make 'div.siftr-icon',
+      if @state.url?
+        style:
+          backgroundImage: "url(#{@state.url})"
+      else
+        {}
+
 SiftrList = React.createClass
   displayName: 'SiftrList'
 
@@ -1020,43 +1044,50 @@ SiftrList = React.createClass
       @props.games.forEach (game) =>
         notes = @props.notes[game.game_id]
         child 'div.siftr-entry', key: "game-#{game.game_id}", =>
-          child 'div.siftr-entry-title-buttons', =>
-            child 'a.siftr-entry-title', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
-              raw game.name
-            child 'span', =>
-              child 'a', href: "\#edit#{game.game_id}", =>
-                child 'span.siftr-command-button', =>
-                  raw 'EDIT'
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    if confirm "Are you sure you want to delete \"#{game.name}\"?"
-                      @props.onDelete game
-                child 'span.siftr-command-button', =>
-                  raw 'DELETE'
-          child 'div.siftr-color-bar', style:
-            backgroundImage:
-              if (colors = @props.colors[game.colors_id])?
-                percent = 0
-                points = []
-                for i in [1..5]
-                  rgb = colors["tag_#{i}"]
-                  points.push "#{rgb} #{percent}%"
-                  percent += 20
-                  points.push "#{rgb} #{percent}%"
-                "linear-gradient(to right, #{points.join(', ')})"
-              else
-                'linear-gradient(to right, gray, gray)'
-          child 'div.siftr-data', =>
-            sep = => child 'span.siftr-data-pipe', => raw '|'
-            raw "#{notes?.length ? '...'} items"
-            sep()
-            raw "#{if notes? then countContributors(notes) else '...'} contributors"
-            sep()
-            raw (if game.published then 'Public' else 'Private')
-            sep()
-            raw (if game.moderated then 'Moderated' else 'Non-Moderated')
+          child SiftrIcon, game: game, aris: @props.aris
+          child 'div.siftr-entry-right', =>
+            child 'div.siftr-entry-title-buttons', =>
+              child 'a.siftr-entry-title', href: "#{SIFTR_URL}#{game.siftr_url or game.game_id}", target: '_blank', =>
+                raw game.name
+              child 'span', =>
+                child 'a', href: "\#edit#{game.game_id}", =>
+                  child 'span.siftr-command-button', =>
+                    raw 'EDIT'
+                child 'a', href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      if confirm "Are you sure you want to delete \"#{game.name}\"?"
+                        @props.onDelete game
+                  child 'span.siftr-command-button', =>
+                    raw 'DELETE'
+            child 'div.siftr-color-bar', style:
+              backgroundImage:
+                if (colors = @props.colors[game.colors_id])?
+                  percent = 0
+                  points = []
+                  for i in [1..5]
+                    rgb = colors["tag_#{i}"]
+                    points.push "#{rgb} #{percent}%"
+                    percent += 20
+                    points.push "#{rgb} #{percent}%"
+                  "linear-gradient(to right, #{points.join(', ')})"
+                else
+                  'linear-gradient(to right, gray, gray)'
+            child 'div.siftr-data', =>
+              sep = => child 'span.siftr-data-pipe', => raw '|'
+              plural = (n, noun) ->
+                if n is 1
+                  "#{n} #{noun}"
+                else
+                  "#{n ? '...'} #{noun}s"
+              raw plural(notes?.length, 'item')
+              sep()
+              raw plural((if notes? then countContributors(notes) else null), 'contributor')
+              sep()
+              raw (if game.published then 'Public' else 'Private')
+              sep()
+              raw (if game.moderated then 'Moderated' else 'Non-Moderated')
 
 EditSiftr = React.createClass
   displayName: 'EditSiftr'
