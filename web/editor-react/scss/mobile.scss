@@ -10,10 +10,11 @@
   margin-left: 300px;
 }
 
-.siftrList {
+.siftrList, .inner-nav {
   padding-left: 20px;
   padding-right: 20px;
-  width: calc(100% - 40px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .newStep1, .newStep2, .newStep4, .newStep5, .loginForm {

@@ -224,6 +224,8 @@ class Aris
         display_name: user.display_name
         media_id:     user.media_id
         email:        user.email
+        bio:          user.bio
+        url:          user.url
       try
         window.localStorage['aris-auth'] = JSON.stringify @auth
       catch err

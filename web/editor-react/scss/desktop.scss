@@ -1,9 +1,10 @@
 @media screen and (min-width: 950px) {
 
-.siftrList {
+.siftrList, .inner-nav {
   padding-left: 22%;
   padding-right: 22%;
-  width: 56%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .newStep1 {
@@ -175,6 +176,10 @@
   padding-left: 30%;
   width: 40%;
   flex: 1;
+}
+
+.accountDetails {
+  padding-top: 15px;
 }
 
 .accountMenuMobile {

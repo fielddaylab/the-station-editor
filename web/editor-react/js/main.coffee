@@ -513,9 +513,15 @@ App = React.createClass
           navBarActions()
       child 'div#the-content', =>
         if @state.auth?
+          innerNav = =>
+            child InnerNav,
+              screen: @state.screen
+              userPicture: @state.userPicture
+              auth: @state.auth
           switch @state.screen
             when 'account'
-              child 'div.loginForm', =>
+              innerNav()
+              child 'div.loginForm.accountDetails', =>
                 child 'h3', =>
                   raw 'Account Details'
                 child 'p', =>
@@ -787,9 +793,7 @@ App = React.createClass
                 onCreate: @createGame
             else
               child 'div', =>
-                child 'p.new-siftr-para', =>
-                  child 'a.new-siftr-button.login-button', href: '#new1', =>
-                    raw 'NEW SIFTR'
+                innerNav()
                 child SiftrList,
                   updateStateGame: @updateStateGame
                   aris: @props.aris
@@ -805,6 +809,9 @@ App = React.createClass
                         @updateGames()
                       else
                         alert "There was an error deleting your Siftr: #{returnCodeDescription}"
+                child 'p.new-siftr-para', =>
+                  child 'a.new-siftr-button.login-button', href: '#new1', =>
+                    raw 'NEW SIFTR'
           child 'div.accountMenuDesktop', =>
             child 'div', =>
               child 'a.unlink', href: '#account', =>
@@ -1013,6 +1020,39 @@ App = React.createClass
               child 'span.newGameMobileCode', =>
                 raw "#{game.siftr_url or game.game_id}"
               raw ' in the search bar.'
+
+InnerNav = React.createClass
+  displayName: 'InnerNav'
+
+  render: ->
+    make 'div.inner-nav', =>
+      child 'div.inner-nav-user', =>
+        child 'div.inner-nav-pic', style:
+          backgroundImage: if @props.userPicture? then "url(#{arisHTTPS @props.userPicture.thumb_url})" else undefined
+        child 'div.inner-nav-headers', =>
+          child 'h1.inner-nav-name', =>
+            raw @props.auth.display_name
+          if @props.auth.bio
+            child 'p.inner-nav-bio', =>
+              raw @props.auth.bio
+          if @props.auth.url
+            child 'p.inner-nav-url', =>
+              child 'a', href: @props.auth.url, target: '_blank', =>
+                raw @props.auth.url
+      child 'div.inner-nav-bar', =>
+        navs = [
+          {href: '#account', label: 'Account', screen: 'account'}
+          {href: '#', label: 'My Siftrs', screen: 'main'}
+        ]
+        for {href, label, screen} in navs
+          className =
+            if screen is @props.screen
+              'a.inner-nav-bar-item.inner-nav-bar-item-current'
+            else
+              'a.inner-nav-bar-item'
+          child className, href: href, =>
+            raw label
+        child 'a.inner-nav-bar-filler'
 
 SiftrIcon = React.createClass
   displayName: 'SiftrIcon'
