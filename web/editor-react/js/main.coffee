@@ -133,12 +133,6 @@ App = React.createClass
     else if hash is 'account'
       @setState
         screen: 'account'
-        display_name: @state.auth?.display_name
-        email: @state.auth?.email
-        old_password: ''
-        password: ''
-        password2: ''
-        new_icon: null
     else if hash is 'forgot'
       @setState screen: 'forgot'
     else if hash is 'signup'
@@ -276,8 +270,7 @@ App = React.createClass
       if result.returnCode is 0 and result.data?
         @updateStateGame result.data
 
-  createNewIcon: (game, cb) ->
-    dataURL = @state.new_icon
+  createNewIcon: (dataURL, game, cb) ->
     unless dataURL?
       cb null
       return
@@ -309,7 +302,7 @@ App = React.createClass
         if tags.length is 0
           tags = ['Observation']
         tagsRemaining = tags.length
-        @createNewIcon newGame, (result) =>
+        @createNewIcon @state.new_icon, newGame, (result) =>
           if result?
             @props.aris.call 'games.updateGame',
               game_id: newGame.game_id
@@ -380,18 +373,6 @@ App = React.createClass
         else
           window.location.replace '#'
           @login @state.username, @state.password
-
-  selectUserPicture: ->
-    input = document.createElement 'input'
-    input.type = 'file'
-    input.onchange = (e) => @loadUserPicture e.target.files[0]
-    input.click()
-
-  loadUserPicture: (file) ->
-    fr = new FileReader
-    fr.onload = =>
-      @setState new_icon: fr.result
-    fr.readAsDataURL file
 
   continueAutosave: ->
     if (game = @autosavePending)?
@@ -521,132 +502,43 @@ App = React.createClass
           switch @state.screen
             when 'account'
               innerNav()
-              child 'div.loginForm.accountDetails', =>
-                child 'h3', =>
-                  raw 'Account Details'
-                child 'p', =>
-                  child 'span.big-account-picture',
-                    style:
-                      backgroundImage:
-                        if @state.new_icon?
-                          "url(#{@state.new_icon})"
-                        else if @state.userPicture?
-                          "url(#{@state.userPicture.url})"
-                        else
-                          undefined
-                    onClick: @selectUserPicture
-                    onDragOver: (e) =>
-                      e.stopPropagation()
-                      e.preventDefault()
-                    onDrop: (e) =>
-                      e.stopPropagation()
-                      e.preventDefault()
-                      for file in e.dataTransfer.files
-                        @loadUserPicture file
-                        break
-                child 'a', href: '#', =>
-                  props
-                    onClick: (e) =>
-                      e.preventDefault()
+              child AccountSettings,
+                aris: @props.aris
+                auth: @state.auth
+                userPicture: @state.userPicture
+                logout: @logout
+                onSaveAccount: (obj) =>
+                  useMediaID = (media_id) =>
+                    @props.aris.call 'users.updateUser',
+                      user_id: @props.aris.auth.user_id
+                      display_name: obj.display_name
+                      email: obj.email
+                      media_id: media_id
+                    , ({returnCode, returnCodeDescription}) =>
+                      if returnCode is 0
+                        @login undefined, undefined
+                        window.location.replace '#'
+                      else
+                        alert "Couldn't save your account details: #{returnCodeDescription}"
+                  if obj.new_icon?
+                    @createNewIcon obj.new_icon, null, (result) =>
+                      if result?
+                        useMediaID result.data.media_id
+                      else
+                        alert "Your user picture is not of a supported type."
+                  else
+                    useMediaID null
+                onChangePassword: (obj) =>
+                  @props.aris.call 'users.changePassword',
+                    user_name: obj.user_name
+                    old_password: obj.old_password
+                    new_password: obj.new_password
+                  , ({returnCode, returnCodeDescription}) =>
+                    if returnCode is 0
                       @logout()
-                  child 'div.login-button', =>
-                    raw 'LOGOUT'
-                child 'p', =>
-                  child 'input.full-width-input',
-                    autoCapitalize: 'off'
-                    autoCorrect: 'off'
-                    type: 'text'
-                    placeholder: 'Display Name'
-                    value: @state.display_name ? ''
-                    onChange: (e) => @setState display_name: e.target.value
-                child 'p', =>
-                  child 'input.full-width-input',
-                    autoCapitalize: 'off'
-                    autoCorrect: 'off'
-                    type: 'text'
-                    placeholder: 'Email'
-                    value: @state.email ? ''
-                    onChange: (e) => @setState email: e.target.value
-                child 'a', href: '#', =>
-                  props
-                    onClick: (e) =>
-                      e.preventDefault()
-                      useMediaID = (media_id) =>
-                        @props.aris.call 'users.updateUser',
-                          user_id: @props.aris.auth.user_id
-                          display_name: @state.display_name
-                          email: @state.email
-                          media_id: media_id
-                        , ({returnCode, returnCodeDescription}) =>
-                          if returnCode is 0
-                            @login undefined, undefined
-                            window.location.replace '#'
-                          else
-                            alert "Couldn't save your account details: #{returnCodeDescription}"
-                      if @state.new_icon?
-                        @createNewIcon null, (result) =>
-                          if result?
-                            useMediaID result.data.media_id
-                          else
-                            alert "Your user picture is not of a supported type."
-                      else
-                        useMediaID null
-                  child 'div.login-button', =>
-                    raw 'SAVE CHANGES'
-                child 'a', href: '#', =>
-                  child 'div.login-button', =>
-                    raw 'BACK'
-                child 'h3', =>
-                  raw 'Change Password'
-                child 'p', =>
-                  child 'input.full-width-input',
-                    autoCapitalize: 'off'
-                    autoCorrect: 'off'
-                    type: 'password'
-                    placeholder: 'Old password'
-                    value: @state.old_password ? ''
-                    onChange: (e) => @setState old_password: e.target.value
-                child 'p', =>
-                  child 'input.full-width-input',
-                    autoCapitalize: 'off'
-                    autoCorrect: 'off'
-                    type: 'password'
-                    placeholder: 'New password'
-                    value: @state.password ? ''
-                    onChange: (e) => @setState password: e.target.value
-                child 'p', =>
-                  child 'input.full-width-input',
-                    autoCapitalize: 'off'
-                    autoCorrect: 'off'
-                    type: 'password'
-                    placeholder: 'Repeat new password'
-                    value: @state.password2 ? ''
-                    onChange: (e) => @setState password2: e.target.value
-                child 'a', href: '#', =>
-                  props
-                    onClick: (e) =>
-                      e.preventDefault()
-                      unless @state.old_password
-                        alert 'Please enter your current password.'
-                      else unless @state.password or @state.password2
-                        alert 'Please enter a new password.'
-                      else unless @state.password is @state.password2
-                        alert 'Your two password do not match.'
-                      else
-                        username = @props.aris.auth.username
-                        password = @state.password
-                        @props.aris.call 'users.changePassword',
-                          user_name: username
-                          old_password: @state.old_password
-                          new_password: password
-                        , ({returnCode, returnCodeDescription}) =>
-                          if returnCode is 0
-                            @logout()
-                            @login username, password
-                          else
-                            alert "Couldn't change your password: #{returnCodeDescription}"
-                  child 'div.login-button', =>
-                    raw 'CHANGE PASSWORD'
+                      @login obj.user_name, obj.new_password
+                    else
+                      alert "Couldn't change your password: #{returnCodeDescription}"
             when 'edit'
               child EditSiftr,
                 game: @state.edit_game
@@ -1020,6 +912,133 @@ App = React.createClass
               child 'span.newGameMobileCode', =>
                 raw "#{game.siftr_url or game.game_id}"
               raw ' in the search bar.'
+
+AccountSettings = React.createClass
+  displayName: 'AccountSettings'
+
+  getInitialState: ->
+    display_name: @props.auth.display_name
+    email: @props.auth.email
+    old_password: ''
+    password: ''
+    password2: ''
+    new_icon: null
+
+  selectUserPicture: ->
+    input = document.createElement 'input'
+    input.type = 'file'
+    input.onchange = (e) => @loadUserPicture e.target.files[0]
+    input.click()
+
+  loadUserPicture: (file) ->
+    fr = new FileReader
+    fr.onload = =>
+      @setState new_icon: fr.result
+    fr.readAsDataURL file
+
+  render: ->
+    make 'div.loginForm.accountDetails', =>
+      child 'h3', =>
+        raw 'Account Details'
+      child 'p', =>
+        child 'span.big-account-picture',
+          style:
+            backgroundImage:
+              if @state.new_icon?
+                "url(#{@state.new_icon})"
+              else if @props.userPicture?
+                "url(#{@props.userPicture.url})"
+              else
+                undefined
+          onClick: @selectUserPicture
+          onDragOver: (e) =>
+            e.stopPropagation()
+            e.preventDefault()
+          onDrop: (e) =>
+            e.stopPropagation()
+            e.preventDefault()
+            for file in e.dataTransfer.files
+              @loadUserPicture file
+              break
+      child 'a', href: '#', =>
+        props
+          onClick: (e) =>
+            e.preventDefault()
+            @props.logout()
+        child 'div.login-button', =>
+          raw 'LOGOUT'
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'text'
+          placeholder: 'Display Name'
+          value: @state.display_name ? ''
+          onChange: (e) => @setState display_name: e.target.value
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'text'
+          placeholder: 'Email'
+          value: @state.email ? ''
+          onChange: (e) => @setState email: e.target.value
+      child 'a', href: '#', =>
+        props
+          onClick: (e) =>
+            e.preventDefault()
+            @props.onSaveAccount
+              display_name: @state.display_name
+              email: @state.email
+              new_icon: @state.new_icon
+        child 'div.login-button', =>
+          raw 'SAVE CHANGES'
+      child 'a', href: '#', =>
+        child 'div.login-button', =>
+          raw 'BACK'
+      child 'h3', =>
+        raw 'Change Password'
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'password'
+          placeholder: 'Old password'
+          value: @state.old_password ? ''
+          onChange: (e) => @setState old_password: e.target.value
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'password'
+          placeholder: 'New password'
+          value: @state.password ? ''
+          onChange: (e) => @setState password: e.target.value
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'password'
+          placeholder: 'Repeat new password'
+          value: @state.password2 ? ''
+          onChange: (e) => @setState password2: e.target.value
+      child 'a', href: '#', =>
+        props
+          onClick: (e) =>
+            e.preventDefault()
+            unless @state.old_password
+              alert 'Please enter your current password.'
+            else unless @state.password or @state.password2
+              alert 'Please enter a new password.'
+            else unless @state.password is @state.password2
+              alert 'Your two passwords do not match.'
+            else
+              @props.onChangePassword
+                user_name: @props.aris.auth.username
+                old_password: @state.old_password
+                new_password: @state.password
+        child 'div.login-button', =>
+          raw 'CHANGE PASSWORD'
 
 InnerNav = React.createClass
   displayName: 'InnerNav'
