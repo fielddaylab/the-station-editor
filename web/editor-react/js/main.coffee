@@ -423,6 +423,9 @@ App = React.createClass
                   raw @state.new_game.name
                 else
                   raw 'New Siftr'
+            child 'a', href: '../discover', =>
+              child 'div.nav-button-right', =>
+                raw 'Discover'
           child 'div', =>
             child 'a', href: '../editor', =>
               child 'div.nav-button-right', =>
@@ -435,9 +438,6 @@ App = React.createClass
                     @setState account_menu: not @state.account_menu
                 child 'div.nav-button-right', =>
                   raw 'My Account'
-            child 'a', href: '../discover', =>
-              child 'div.nav-button-right', =>
-                raw 'Discover'
         if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
           child 'div.nav-bar-line', =>
             child 'div', =>
@@ -502,6 +502,7 @@ App = React.createClass
               screen: @state.screen
               userPicture: @state.userPicture
               auth: @state.auth
+              logout: @logout
           switch @state.screen
             when 'profile'
               innerNav()
@@ -943,8 +944,6 @@ AccountSettings = React.createClass
 
   render: ->
     make 'div.loginForm.accountDetails', =>
-      child 'h3', =>
-        raw 'Account Details'
       child 'p', =>
         child 'input.full-width-input',
           autoCapitalize: 'off'
@@ -1000,10 +999,7 @@ AccountSettings = React.createClass
             else
               save()
         child 'div.login-button', =>
-          raw 'SAVE CHANGES'
-      child 'a', href: '#', =>
-        child 'div.login-button', =>
-          raw 'BACK'
+          raw 'Save'
 
 ProfileSettings = React.createClass
   displayName: 'ProfileSettings'
@@ -1028,8 +1024,6 @@ ProfileSettings = React.createClass
 
   render: ->
     make 'div.loginForm.accountDetails', =>
-      child 'h3', =>
-        raw 'Profile'
       child 'p', =>
         child 'span.big-account-picture',
           style:
@@ -1083,10 +1077,7 @@ ProfileSettings = React.createClass
               bio: @state.bio
               url: @state.url
         child 'div.login-button', =>
-          raw 'SAVE CHANGES'
-      child 'a', href: '#', =>
-        child 'div.login-button', =>
-          raw 'BACK'
+          raw 'Save'
 
 InnerNav = React.createClass
   displayName: 'InnerNav'
@@ -1099,6 +1090,11 @@ InnerNav = React.createClass
         child 'div.inner-nav-headers', =>
           child 'h1.inner-nav-name', =>
             raw @props.auth.display_name
+            child 'a.inner-nav-logout', href: '#', =>
+              props onClick: (e) =>
+                e.preventDefault()
+                @props.logout()
+              raw 'Log Out'
           if @props.auth.bio
             child 'p.inner-nav-bio', =>
               raw @props.auth.bio

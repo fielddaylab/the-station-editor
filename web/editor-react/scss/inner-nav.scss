@@ -29,6 +29,16 @@
   }
 }
 
+.inner-nav-logout {
+  float: right;
+  font-size: 12px;
+  letter-spacing: 2px;
+  border: 2px solid rgb(132,122,130);
+  padding: 4px 8px;
+  display: inline-block;
+  border-radius: 3px;
+}
+
 .inner-nav-bar {
   display: flex;
   flex-direction: row;
