@@ -130,6 +130,9 @@ App = React.createClass
       @setState
         screen: 'new5'
         new_step: 5
+    else if hash is 'profile'
+      @setState
+        screen: 'profile'
     else if hash is 'account'
       @setState
         screen: 'account'
@@ -500,19 +503,19 @@ App = React.createClass
               userPicture: @state.userPicture
               auth: @state.auth
           switch @state.screen
-            when 'account'
+            when 'profile'
               innerNav()
-              child AccountSettings,
+              child ProfileSettings,
                 aris: @props.aris
                 auth: @state.auth
                 userPicture: @state.userPicture
-                logout: @logout
                 onSaveAccount: (obj) =>
                   useMediaID = (media_id) =>
                     @props.aris.call 'users.updateUser',
                       user_id: @props.aris.auth.user_id
                       display_name: obj.display_name
-                      email: obj.email
+                      bio: obj.bio
+                      url: obj.url
                       media_id: media_id
                     , ({returnCode, returnCodeDescription}) =>
                       if returnCode is 0
@@ -528,6 +531,21 @@ App = React.createClass
                         alert "Your user picture is not of a supported type."
                   else
                     useMediaID null
+            when 'account'
+              innerNav()
+              child AccountSettings,
+                aris: @props.aris
+                auth: @state.auth
+                onSaveAccount: (obj) =>
+                  @props.aris.call 'users.updateUser',
+                    user_id: @props.aris.auth.user_id
+                    email: obj.email
+                  , ({returnCode, returnCodeDescription}) =>
+                    if returnCode is 0
+                      @login undefined, undefined
+                      window.location.replace '#'
+                    else
+                      alert "Couldn't save your account details: #{returnCodeDescription}"
                 onChangePassword: (obj) =>
                   @props.aris.call 'users.changePassword',
                     user_name: obj.user_name
@@ -917,64 +935,15 @@ AccountSettings = React.createClass
   displayName: 'AccountSettings'
 
   getInitialState: ->
-    display_name: @props.auth.display_name
     email: @props.auth.email
     old_password: ''
     password: ''
     password2: ''
-    new_icon: null
-
-  selectUserPicture: ->
-    input = document.createElement 'input'
-    input.type = 'file'
-    input.onchange = (e) => @loadUserPicture e.target.files[0]
-    input.click()
-
-  loadUserPicture: (file) ->
-    fr = new FileReader
-    fr.onload = =>
-      @setState new_icon: fr.result
-    fr.readAsDataURL file
 
   render: ->
     make 'div.loginForm.accountDetails', =>
       child 'h3', =>
         raw 'Account Details'
-      child 'p', =>
-        child 'span.big-account-picture',
-          style:
-            backgroundImage:
-              if @state.new_icon?
-                "url(#{@state.new_icon})"
-              else if @props.userPicture?
-                "url(#{@props.userPicture.url})"
-              else
-                undefined
-          onClick: @selectUserPicture
-          onDragOver: (e) =>
-            e.stopPropagation()
-            e.preventDefault()
-          onDrop: (e) =>
-            e.stopPropagation()
-            e.preventDefault()
-            for file in e.dataTransfer.files
-              @loadUserPicture file
-              break
-      child 'a', href: '#', =>
-        props
-          onClick: (e) =>
-            e.preventDefault()
-            @props.logout()
-        child 'div.login-button', =>
-          raw 'LOGOUT'
-      child 'p', =>
-        child 'input.full-width-input',
-          autoCapitalize: 'off'
-          autoCorrect: 'off'
-          type: 'text'
-          placeholder: 'Display Name'
-          value: @state.display_name ? ''
-          onChange: (e) => @setState display_name: e.target.value
       child 'p', =>
         child 'input.full-width-input',
           autoCapitalize: 'off'
@@ -1040,6 +1009,89 @@ AccountSettings = React.createClass
         child 'div.login-button', =>
           raw 'CHANGE PASSWORD'
 
+ProfileSettings = React.createClass
+  displayName: 'ProfileSettings'
+
+  getInitialState: ->
+    display_name: @props.auth.display_name
+    new_icon: null
+    bio: @props.auth.bio
+    url: @props.auth.url
+
+  selectUserPicture: ->
+    input = document.createElement 'input'
+    input.type = 'file'
+    input.onchange = (e) => @loadUserPicture e.target.files[0]
+    input.click()
+
+  loadUserPicture: (file) ->
+    fr = new FileReader
+    fr.onload = =>
+      @setState new_icon: fr.result
+    fr.readAsDataURL file
+
+  render: ->
+    make 'div.loginForm.accountDetails', =>
+      child 'h3', =>
+        raw 'Profile'
+      child 'p', =>
+        child 'span.big-account-picture',
+          style:
+            backgroundImage:
+              if @state.new_icon?
+                "url(#{@state.new_icon})"
+              else if @props.userPicture?
+                "url(#{@props.userPicture.url})"
+              else
+                undefined
+          onClick: @selectUserPicture
+          onDragOver: (e) =>
+            e.stopPropagation()
+            e.preventDefault()
+          onDrop: (e) =>
+            e.stopPropagation()
+            e.preventDefault()
+            for file in e.dataTransfer.files
+              @loadUserPicture file
+              break
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'text'
+          placeholder: 'Display Name'
+          value: @state.display_name ? ''
+          onChange: (e) => @setState display_name: e.target.value
+      child 'p', =>
+        child 'input.full-width-input',
+          type: 'text'
+          placeholder: 'Bio'
+          value: @state.bio ? ''
+          onChange: (e) => @setState bio: e.target.value
+      child 'p', =>
+        child 'input.full-width-input',
+          autoCapitalize: 'off'
+          autoCorrect: 'off'
+          type: 'text'
+          placeholder: 'Website URL'
+          value: @state.url ? ''
+          onChange: (e) => @setState url: e.target.value
+      child 'a', href: '#', =>
+        props
+          onClick: (e) =>
+            e.preventDefault()
+            @props.onSaveAccount
+              display_name: @state.display_name
+              email: @state.email
+              new_icon: @state.new_icon
+              bio: @state.bio
+              url: @state.url
+        child 'div.login-button', =>
+          raw 'SAVE CHANGES'
+      child 'a', href: '#', =>
+        child 'div.login-button', =>
+          raw 'BACK'
+
 InnerNav = React.createClass
   displayName: 'InnerNav'
 
@@ -1060,6 +1112,7 @@ InnerNav = React.createClass
                 raw @props.auth.url
       child 'div.inner-nav-bar', =>
         navs = [
+          {href: '#profile', label: 'Profile', screen: 'profile'}
           {href: '#account', label: 'Account', screen: 'account'}
           {href: '#', label: 'My Siftrs', screen: 'main'}
         ]
