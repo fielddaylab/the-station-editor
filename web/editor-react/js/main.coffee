@@ -509,7 +509,7 @@ App = React.createClass
                 aris: @props.aris
                 auth: @state.auth
                 userPicture: @state.userPicture
-                onSaveAccount: (obj) =>
+                onSave: (obj) =>
                   useMediaID = (media_id) =>
                     @props.aris.call 'users.updateUser',
                       user_id: @props.aris.auth.user_id
@@ -536,27 +536,28 @@ App = React.createClass
               child AccountSettings,
                 aris: @props.aris
                 auth: @state.auth
-                onSaveAccount: (obj) =>
+                onSave: (obj) =>
                   @props.aris.call 'users.updateUser',
                     user_id: @props.aris.auth.user_id
                     email: obj.email
                   , ({returnCode, returnCodeDescription}) =>
                     if returnCode is 0
-                      @login undefined, undefined
-                      window.location.replace '#'
+                      if obj.new_password
+                        @props.aris.call 'users.changePassword',
+                          user_name: obj.user_name
+                          old_password: obj.old_password
+                          new_password: obj.new_password
+                        , ({returnCode, returnCodeDescription}) =>
+                          if returnCode is 0
+                            @logout()
+                            @login obj.user_name, obj.new_password
+                          else
+                            alert "Couldn't change your password: #{returnCodeDescription}"
+                      else
+                        @login undefined, undefined
+                        window.location.replace '#'
                     else
                       alert "Couldn't save your account details: #{returnCodeDescription}"
-                onChangePassword: (obj) =>
-                  @props.aris.call 'users.changePassword',
-                    user_name: obj.user_name
-                    old_password: obj.old_password
-                    new_password: obj.new_password
-                  , ({returnCode, returnCodeDescription}) =>
-                    if returnCode is 0
-                      @logout()
-                      @login obj.user_name, obj.new_password
-                    else
-                      alert "Couldn't change your password: #{returnCodeDescription}"
             when 'edit'
               child EditSiftr,
                 game: @state.edit_game
@@ -952,19 +953,6 @@ AccountSettings = React.createClass
           placeholder: 'Email'
           value: @state.email ? ''
           onChange: (e) => @setState email: e.target.value
-      child 'a', href: '#', =>
-        props
-          onClick: (e) =>
-            e.preventDefault()
-            @props.onSaveAccount
-              display_name: @state.display_name
-              email: @state.email
-              new_icon: @state.new_icon
-        child 'div.login-button', =>
-          raw 'SAVE CHANGES'
-      child 'a', href: '#', =>
-        child 'div.login-button', =>
-          raw 'BACK'
       child 'h3', =>
         raw 'Change Password'
       child 'p', =>
@@ -995,19 +983,27 @@ AccountSettings = React.createClass
         props
           onClick: (e) =>
             e.preventDefault()
-            unless @state.old_password
+            save = =>
+              @props.onSave
+                email: @state.email
+                user_name: @props.aris.auth.username
+                old_password: @state.old_password
+                new_password: @state.password
+            if @state.password is '' and @state.password2 is ''
+              save()
+            else unless @state.old_password
               alert 'Please enter your current password.'
             else unless @state.password or @state.password2
               alert 'Please enter a new password.'
             else unless @state.password is @state.password2
               alert 'Your two passwords do not match.'
             else
-              @props.onChangePassword
-                user_name: @props.aris.auth.username
-                old_password: @state.old_password
-                new_password: @state.password
+              save()
         child 'div.login-button', =>
-          raw 'CHANGE PASSWORD'
+          raw 'SAVE CHANGES'
+      child 'a', href: '#', =>
+        child 'div.login-button', =>
+          raw 'BACK'
 
 ProfileSettings = React.createClass
   displayName: 'ProfileSettings'
@@ -1080,7 +1076,7 @@ ProfileSettings = React.createClass
         props
           onClick: (e) =>
             e.preventDefault()
-            @props.onSaveAccount
+            @props.onSave
               display_name: @state.display_name
               email: @state.email
               new_icon: @state.new_icon
