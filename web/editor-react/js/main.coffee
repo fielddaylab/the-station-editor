@@ -427,17 +427,10 @@ App = React.createClass
               child 'div.nav-button-right', =>
                 raw 'Discover'
           child 'div', =>
-            child 'a', href: '../editor', =>
-              child 'div.nav-button-right', =>
-                raw 'My Siftrs'
             if @state.auth?
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @setState account_menu: not @state.account_menu
-                child 'div.nav-button-right', =>
-                  raw 'My Account'
+              child 'a.nav-user', href: '#profile', =>
+                child 'span', => raw @state.auth.display_name
+                child 'img', src: @state.userPicture?.thumb_url
         if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
           child 'div.nav-bar-line', =>
             child 'div', =>
@@ -724,23 +717,6 @@ App = React.createClass
                 child 'p.new-siftr-para', =>
                   child 'a.new-siftr-button.login-button', href: '#new1', =>
                     raw 'NEW SIFTR'
-          child 'div.accountMenuDesktop', =>
-            child 'div', =>
-              child 'a.unlink', href: '#account', =>
-                child 'p', =>
-                  child 'span.account-menu-user-pic', style:
-                    backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
-                child 'p', =>
-                  raw @state.auth.display_name
-                child 'div.nav-menu-button', =>
-                  raw 'ACCOUNT SETTINGS'
-              child 'a', href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @logout()
-                child 'div.nav-menu-button', =>
-                  raw 'LOGOUT'
         else
           switch @state.screen
             when 'forgot'
@@ -885,7 +861,7 @@ App = React.createClass
               src: '../assets/icons/x-white.png'
         child 'div.accountMenuMobileContents', =>
           if @state.auth?
-            child 'a.unlink', href: '#account', =>
+            child 'a.unlink', href: '#profile', =>
               child 'p', =>
                 child 'span.account-menu-user-pic', style:
                   backgroundImage: if @state.userPicture? then "url(#{arisHTTPS @state.userPicture.thumb_url})" else undefined
