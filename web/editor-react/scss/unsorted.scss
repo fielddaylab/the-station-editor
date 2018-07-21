@@ -50,6 +50,43 @@
   text-align: center;
 }
 
+.settings {
+  text-align: left;
+}
+
+.settings-save {
+  background-color: rgb(154,245,226);
+  padding: 8px 20px;
+  display: inline-block;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.para-account-picture {
+  text-align: center;
+}
+
+.settings {
+  input[type=text], input[type=password] {
+    border: none;
+    border-bottom: 1px solid gray;
+  }
+  h3 {
+    text-align: left;
+    font-size: 19px;
+    font-weight: normal;
+  }
+  h4 {
+    text-align: left;
+    margin-bottom: 0;
+    color: gray;
+    font-weight: normal;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+}
+
 .login-button {
   background-color: rgb(51,191,224);
   width: 100%;

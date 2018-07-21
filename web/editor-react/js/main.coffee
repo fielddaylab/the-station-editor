@@ -919,13 +919,14 @@ AccountSettings = React.createClass
     password2: ''
 
   render: ->
-    make 'div.loginForm.accountDetails', =>
+    make 'div.settings', =>
+      child 'h4', =>
+        raw 'Email'
       child 'p', =>
         child 'input.full-width-input',
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'text'
-          placeholder: 'Email'
           value: @state.email ? ''
           onChange: (e) => @setState email: e.target.value
       child 'h3', =>
@@ -935,7 +936,7 @@ AccountSettings = React.createClass
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'password'
-          placeholder: 'Old password'
+          placeholder: 'old password'
           value: @state.old_password ? ''
           onChange: (e) => @setState old_password: e.target.value
       child 'p', =>
@@ -943,7 +944,7 @@ AccountSettings = React.createClass
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'password'
-          placeholder: 'New password'
+          placeholder: 'new password'
           value: @state.password ? ''
           onChange: (e) => @setState password: e.target.value
       child 'p', =>
@@ -951,30 +952,30 @@ AccountSettings = React.createClass
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'password'
-          placeholder: 'Repeat new password'
+          placeholder: 'repeat password'
           value: @state.password2 ? ''
           onChange: (e) => @setState password2: e.target.value
-      child 'a', href: '#', =>
-        props
-          onClick: (e) =>
-            e.preventDefault()
-            save = =>
-              @props.onSave
-                email: @state.email
-                user_name: @props.aris.auth.username
-                old_password: @state.old_password
-                new_password: @state.password
-            if @state.password is '' and @state.password2 is ''
-              save()
-            else unless @state.old_password
-              alert 'Please enter your current password.'
-            else unless @state.password or @state.password2
-              alert 'Please enter a new password.'
-            else unless @state.password is @state.password2
-              alert 'Your two passwords do not match.'
-            else
-              save()
-        child 'div.login-button', =>
+      child 'p', =>
+        child 'a.settings-save', href: '#', =>
+          props
+            onClick: (e) =>
+              e.preventDefault()
+              save = =>
+                @props.onSave
+                  email: @state.email
+                  user_name: @props.aris.auth.username
+                  old_password: @state.old_password
+                  new_password: @state.password
+              if @state.password is '' and @state.password2 is ''
+                save()
+              else unless @state.old_password
+                alert 'Please enter your current password.'
+              else unless @state.password or @state.password2
+                alert 'Please enter a new password.'
+              else unless @state.password is @state.password2
+                alert 'Your two passwords do not match.'
+              else
+                save()
           raw 'Save'
 
 ProfileSettings = React.createClass
@@ -999,8 +1000,8 @@ ProfileSettings = React.createClass
     fr.readAsDataURL file
 
   render: ->
-    make 'div.loginForm.accountDetails', =>
-      child 'p', =>
+    make 'div.settings', =>
+      child 'p.para-account-picture', =>
         child 'span.big-account-picture',
           style:
             backgroundImage:
@@ -1020,39 +1021,42 @@ ProfileSettings = React.createClass
             for file in e.dataTransfer.files
               @loadUserPicture file
               break
+      child 'h4', =>
+        raw 'Display name'
       child 'p', =>
         child 'input.full-width-input',
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'text'
-          placeholder: 'Display Name'
           value: @state.display_name ? ''
           onChange: (e) => @setState display_name: e.target.value
+      child 'h4', =>
+        raw 'Bio'
       child 'p', =>
         child 'input.full-width-input',
           type: 'text'
-          placeholder: 'Bio'
           value: @state.bio ? ''
           onChange: (e) => @setState bio: e.target.value
+      child 'h4', =>
+        raw 'Website url'
       child 'p', =>
         child 'input.full-width-input',
           autoCapitalize: 'off'
           autoCorrect: 'off'
           type: 'text'
-          placeholder: 'Website URL'
           value: @state.url ? ''
           onChange: (e) => @setState url: e.target.value
-      child 'a', href: '#', =>
-        props
-          onClick: (e) =>
-            e.preventDefault()
-            @props.onSave
-              display_name: @state.display_name
-              email: @state.email
-              new_icon: @state.new_icon
-              bio: @state.bio
-              url: @state.url
-        child 'div.login-button', =>
+      child 'p', =>
+        child 'a.settings-save', href: '#', =>
+          props
+            onClick: (e) =>
+              e.preventDefault()
+              @props.onSave
+                display_name: @state.display_name
+                email: @state.email
+                new_icon: @state.new_icon
+                bio: @state.bio
+                url: @state.url
           raw 'Save'
 
 InnerNav = React.createClass
