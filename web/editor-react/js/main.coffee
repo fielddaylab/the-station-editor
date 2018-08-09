@@ -1773,7 +1773,7 @@ NewStep4 = React.createClass
                               field_id: Date.now() # temporary, to use as React key
                               options: switch type
                                 when 'SINGLESELECT', 'MULTISELECT'
-                                  ['']
+                                  [{option: '', field_option_id: Date.now()}]
                                 else
                                   undefined
                           ]
