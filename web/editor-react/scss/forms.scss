@@ -130,6 +130,12 @@
   }
 }
 
+.category-color-dots {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .category-color-dot {
   height: 24px;
   width: 24px;

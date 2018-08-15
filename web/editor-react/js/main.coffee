@@ -58,7 +58,7 @@ App = React.createClass
       g.zoom = 12
       g.is_siftr = true
       g
-    new_categories: ['']
+    new_categories: [{category: '', color: undefined}]
     new_step: null
     new_icon: null
     account_menu: false
@@ -301,9 +301,13 @@ App = React.createClass
       if result.returnCode is 0 and result.data?
         window.location.hash = '#'
         newGame = result.data
-        tags = @state.new_categories.map((t) => t.trim()).filter((t) => t.length > 0)
+        tags =
+          for cat in @state.new_categories
+            t = cat.category.trim()
+            continue unless t.length > 0
+            {category: t, color: cat.color}
         if tags.length is 0
-          tags = ['Observation']
+          tags = [{category: 'Observation', color: undefined}]
         tagsRemaining = tags.length
         @createNewIcon @state.new_icon, newGame, (result) =>
           if result?
@@ -314,7 +318,8 @@ App = React.createClass
               @updateStateGame(new Game(game))
         for tag, i in tags
           tagObject = new Tag
-          tagObject.tag = tag
+          tagObject.tag = tag.category
+          tagObject.color = tag.color
           tagObject.game_id = newGame.game_id
           @props.aris.createTag tagObject, (result) =>
             if result.returnCode is 0 and result.data?
@@ -337,7 +342,7 @@ App = React.createClass
                 g.is_siftr = true
                 g
             new_categories:
-              $set: ['']
+              $set: [{category: '', color: undefined}]
             new_step:
               $set: null
             new_icon:
@@ -639,13 +644,15 @@ App = React.createClass
                   tagObject = new Tag
                   tagObject.tag = name
                   tagObject.game_id = @state.edit_game.game_id
+                  tagObject.sort_index = @state.tags[@state.edit_game.game_id].length
                   @props.aris.createTag tagObject, =>
                     @updateTags([@state.edit_game], cb)
-                updateCategory: ({tag_id, name}, cb) =>
+                updateCategory: ({tag_id, name, color}, cb) =>
                   @props.aris.updateTag
                     game_id: @state.edit_game.game_id
                     tag_id: tag_id
                     tag: name
+                    color: color
                   , =>
                     @updateTags([@state.edit_game], cb)
                 deleteCategory: ({tag_id, new_tag_id}, cb) =>
@@ -1192,13 +1199,13 @@ SiftrList = React.createClass
                     raw 'DELETE'
             child 'div.siftr-color-bar', style:
               backgroundImage:
-                if (colors = @props.colors[game.colors_id])?
+                if (colors = @props.colors[game.colors_id])? and (tags = @props.tags[game.game_id])?
                   percent = 0
                   points = []
-                  for i in [1..5]
-                    rgb = colors["tag_#{i}"]
+                  for tag, i in tags
+                    rgb = tag.color or colors["tag_#{(i % 8) + 1}"]
                     points.push "#{rgb} #{percent}%"
-                    percent += 20
+                    percent += 100 / tags.length
                     points.push "#{rgb} #{percent}%"
                   "linear-gradient(to right, #{points.join(', ')})"
                 else
@@ -1574,6 +1581,112 @@ NewStep3 = React.createClass
         $set: zoom
     @props.onChange game
 
+makeArrow = (dir, enabled, wrap) =>
+  src = "../assets/icons/arrow-#{dir}.png"
+  if enabled
+    wrap =>
+      child 'img.sort-arrow', {src}
+  else
+    child 'img.sort-arrow.sort-arrow-disabled', {src}
+
+CategoryRow = React.createClass
+  getInitialState: ->
+    colorsOpen: false
+
+  updateOption: (opt) ->
+    opts = @props.options[..]
+    opts.splice(@props.i, 1, opt)
+    @props.updateOptions opts
+
+  render: ->
+    o = @props.o
+    i = @props.i
+    options = @props.options
+    colors =
+      for j in [1..8]
+        @props.colors[@props.game.colors_id or 1]["tag_#{j}"]
+    make 'div', =>
+      child 'li.field-option-row', =>
+        makeArrow 'up', i isnt 0, (f) =>
+          child 'a', href: '#', onClick: ((e) =>
+            e.preventDefault()
+            indexes =
+              for j in [0 .. options.length - 1]
+                if j is i
+                  j - 1
+                else if j is i - 1
+                  j + 1
+                else
+                  j
+            @props.reorderFieldOptions indexes
+          ), f
+        makeArrow 'down', i isnt options.length - 1, (f) =>
+          child 'a', href: '#', onClick: ((e) =>
+            e.preventDefault()
+            indexes =
+              for j in [0 .. options.length - 1]
+                if j is i
+                  j + 1
+                else if j is i + 1
+                  j - 1
+                else
+                  j
+            @props.reorderFieldOptions indexes
+          ), f
+        if @props.isLockedField
+          color = o.color or colors[i % 8]
+          child 'a', href: '#', =>
+            props onClick: (e) =>
+              e.preventDefault()
+              @setState colorsOpen: not @state.colorsOpen
+            child 'div.category-color-dot', style:
+              backgroundColor: color
+        if @props.editing
+          child 'input',
+            type: 'text'
+            defaultValue: o.option
+            onBlur: (e) =>
+              if @props.editingCategory
+                @props.updateCategory
+                  tag_id: o.field_option_id
+                  name: e.target.value
+              else
+                @props.updateFieldOption
+                  field_option: o
+                  option: e.target.value
+        else
+          child 'input',
+            type: 'text'
+            value: o.option
+            onChange: (e) => @updateOption update(o, option: $set: e.target.value)
+        if options.length > 1
+          child 'a', href: '#', onClick: ((e) =>
+            e.preventDefault()
+            if @props.editing
+              @startDeletingOption o
+            else
+              opts = options[..]
+              opts.splice(i, 1)
+              @props.updateOptions opts
+          ), =>
+            child 'img.deletefield', src: '../assets/icons/deletefield.png'
+      if @state.colorsOpen
+        child 'li.category-color-dots', =>
+          colors.forEach (color) =>
+            child 'a', href: '#', =>
+              props onClick: (e) =>
+                e.preventDefault()
+                if @props.editing
+                  # must be a category
+                  @props.updateCategory
+                    tag_id: o.field_option_id
+                    color: color
+                else
+                  @updateOption update(o, color: $set: color)
+                @setState colorsOpen: false
+              child 'div.category-color-dot', style:
+                backgroundColor: color
+
 NewStep4 = React.createClass
   displayName: 'NewStep4'
 
@@ -1628,20 +1741,13 @@ NewStep4 = React.createClass
   render: ->
     make 'div.newStepBox', =>
       fields = @getPropsFields()
-      makeArrow = (dir, enabled, wrap) =>
-        src = "../assets/icons/arrow-#{dir}.png"
-        if enabled
-          wrap =>
-            child 'img.sort-arrow', {src}
-        else
-          child 'img.sort-arrow.sort-arrow-disabled', {src}
       categoryOptions = =>
         if @props.editing
           for cat in (@props.categories ? [])
-            {option: cat.tag, field_option_id: cat.tag_id}
+            {option: cat.tag, field_option_id: cat.tag_id, color: cat.color}
         else
           for cat, i in @props.categories
-            {option: cat, field_option_id: i}
+            {option: cat.category, field_option_id: i, color: cat.color}
       child 'div.newStep4', =>
         child 'div.newStep4Fields', =>
           divFormFieldRow = (i) =>
@@ -1912,76 +2018,29 @@ NewStep4 = React.createClass
                 options = field.options ? []
                 child 'ul', =>
                   options.forEach (o, i) =>
-                    child 'li.field-option-row', key: o.field_option_id, =>
-                      makeArrow 'up', i isnt 0, (f) =>
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          indexes =
-                            for j in [0 .. options.length - 1]
-                              if j is i
-                                j - 1
-                              else if j is i - 1
-                                j + 1
-                              else
-                                j
-                          @reorderFieldOptions indexes, reloadThisField
-                        ), f
-                      makeArrow 'down', i isnt options.length - 1, (f) =>
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          indexes =
-                            for j in [0 .. options.length - 1]
-                              if j is i
-                                j + 1
-                              else if j is i + 1
-                                j - 1
-                              else
-                                j
-                          @reorderFieldOptions indexes, reloadThisField
-                        ), f
-                      if isLockedField
-                        color = @props.colors[@props.game.colors_id or 1]["tag_#{i + 1}"]
-                        child 'div.category-color-dot', style:
-                          backgroundColor: color
-                      if @props.editing
-                        child 'input',
-                          type: 'text'
-                          defaultValue: o.option
-                          onBlur: (e) =>
-                            if editingCategory
-                              @props.updateCategory
-                                tag_id: o.field_option_id
-                                name: e.target.value
-                              , reloadThisField
-                            else
-                              @props.updateFieldOption
-                                field_option: o
-                                option: e.target.value
-                              , reloadThisField
-                      else
-                        child 'input',
-                          type: 'text'
-                          value: o.option
-                          onChange: (e) =>
-                            opts = options[..]
-                            opts.splice(i, 1, update(o, option: $set: e.target.value))
-                            @setState
-                              editingField:
-                                update field, options: $set: opts
-                      if options.length > 1
-                        child 'a', href: '#', onClick: ((e) =>
-                          e.preventDefault()
-                          if @props.editing
-                            @setState
-                              deletingOption: o
-                          else
-                            opts = options[..]
-                            opts.splice(i, 1)
-                            @setState
-                              editingField:
-                                update field, options: $set: opts
-                        ), =>
-                          child 'img.deletefield', src: '../assets/icons/deletefield.png'
+                    child CategoryRow,
+                      key: o.field_option_id
+                      o: o
+                      i: i
+                      game: @props.game
+                      colors: @props.colors
+                      options: options
+                      isLockedField: isLockedField
+                      editing: @props.editing
+                      editingCategory: editingCategory
+                      reorderFieldOptions: (indexes) =>
+                        @reorderFieldOptions indexes, reloadThisField
+                      startDeletingOption: (o) =>
+                        @setState
+                          deletingOption: o
+                      updateOptions: (opts) =>
+                        @setState
+                          editingField:
+                            update field, options: $set: opts
+                      updateCategory: (obj) =>
+                        @props.updateCategory obj, reloadThisField
+                      updateFieldOption: (obj) =>
+                        @props.updateFieldOption obj, reloadThisField
                   child 'li', =>
                     child 'a', onClick: (=>
                       if @props.editing
@@ -2012,7 +2071,9 @@ NewStep4 = React.createClass
                             @props.setPrompt @refs.caption.value
                         when 'SINGLESELECT'
                           if not @props.editing
-                            @props.onChangeCategories field.options.map (o) => o.option
+                            @props.onChangeCategories field.options.map (o) =>
+                              category: o.option
+                              color: o.color
                     else if @props.editing
                       @props.updateField field
                     else
