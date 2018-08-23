@@ -114,10 +114,6 @@ App = React.createClass
       @setState
         screen: 'new1'
         new_step: 1
-    else if hash is 'new2'
-      @setState
-        screen: 'new2'
-        new_step: 2
     else if hash is 'new3'
       @setState
         screen: 'new3'
@@ -402,7 +398,7 @@ App = React.createClass
   render: ->
     navBarActions = =>
       child 'div', =>
-        if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+        if @state.screen in ['new1', 'new3', 'new4', 'new5']
           child 'a.create-cancel', href: '#', =>
             raw 'Cancel'
         else if @state.screen in ['edit', 'map']
@@ -422,7 +418,7 @@ App = React.createClass
           child 'div', =>
             child 'a', href: '..', =>
               child 'img#the-logo', src: '../assets/logos/siftr-logo-black.png'
-            if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+            if @state.screen in ['new1', 'new3', 'new4', 'new5']
               child 'h1.new-siftr-title', =>
                 if @state.new_game.name
                   raw @state.new_game.name
@@ -436,7 +432,7 @@ App = React.createClass
               child 'a.nav-user', href: '#profile', =>
                 child 'span', => raw @state.auth.display_name
                 child 'img', src: @state.userPicture?.thumb_url
-        if @state.screen in ['new1', 'new2', 'new3', 'new4', 'new5']
+        if @state.screen in ['new1', 'new3', 'new4', 'new5']
           child 'div.nav-bar-line', =>
             child 'div', =>
               selectTab = (step) =>
@@ -454,12 +450,9 @@ App = React.createClass
                   undefined
               child "a.create-step-tab#{selectTab 'new1'}", href: '#new1', =>
                 raw 'Overview'
-              child "a.create-step-tab#{selectTab 'new2'}", href: '#new2', =>
-                props onClick: requireNameDesc
-                raw 'Design'
               child "a.create-step-tab#{selectTab 'new3'}", href: '#new3', =>
                 props onClick: requireNameDesc
-                raw 'Location'
+                raw 'Map options'
               child "a.create-step-tab#{selectTab 'new4'}", href: '#new4', =>
                 props onClick: requireNameDesc
                 raw 'Data collection'
@@ -478,7 +471,7 @@ App = React.createClass
               child "a.create-step-tab#{selectTab 'edit'}", href: '#edit' + @state.edit_game.game_id, =>
                 raw 'Settings'
               child "a.create-step-tab#{selectTab 'map'}", href: '#map' + @state.edit_game.game_id, =>
-                raw 'Location'
+                raw 'Map options'
               child "a.create-step-tab#{selectTab 'form'}", href: '#form' + @state.edit_game.game_id, =>
                 raw 'Data collection'
             navBarActions()
@@ -674,6 +667,7 @@ App = React.createClass
               child NewStep3,
                 editing: true
                 game: @state.edit_game
+                colors: @state.colors
                 onChange: reactBind(@autosave, @)
             when 'new1'
               child NewStep1,
@@ -681,14 +675,10 @@ App = React.createClass
                 icon: @state.new_icon
                 onChange: (new_game) => @setState {new_game}
                 onIconChange: (new_icon) => @setState {new_icon}
-            when 'new2'
-              child NewStep2,
-                game: @state.new_game
-                colors: @state.colors
-                onChange: (new_game) => @setState {new_game}
             when 'new3'
               child NewStep3,
                 game: @state.new_game
+                colors: @state.colors
                 onChange: (new_game) => @setState {new_game}
             when 'new4'
               child NewStep4,
@@ -1320,49 +1310,6 @@ EditSiftr = React.createClass
               child 'span.form-multi-option-switch', =>
                 child 'span.form-multi-option-ball'
 
-            child 'h2', => raw 'APPEARANCE'
-            child 'p', =>
-              raw 'What color palette should '
-              child 'b', => raw @props.game.name
-              raw ' use?'
-            colorsRow = (colors_ids) =>
-              child 'div.color-table', =>
-                for i in colors_ids
-                  colors = @props.colors[i]
-                  rgbs =
-                    if colors?
-                      colors["tag_#{j}"] for j in [1..5]
-                    else
-                      []
-                  child 'label.color-table-cell', key: "colors-#{i}", =>
-                    child 'p', => raw colors?.name
-                    child 'input',
-                      ref: "colors_#{i}"
-                      type: 'radio'
-                      onChange: =>
-                        game = update @props.game,
-                          colors_id:
-                            $set: do =>
-                              for i in [1..6]
-                                if @refs["colors_#{i}"].checked
-                                  return i
-                              1
-                        @props.onChange game
-                      name: 'colors'
-                      checked: @props.game.colors_id is i
-                    gradient = do =>
-                      percent = 0
-                      points = []
-                      for rgb in rgbs
-                        points.push "#{rgb} #{percent}%"
-                        percent += 20
-                        points.push "#{rgb} #{percent}%"
-                      "linear-gradient(to right, #{points.join(', ')})"
-                    child 'div.color-table-gradient', style:
-                      backgroundImage: gradient
-            colorsRow [1, 2, 3]
-            colorsRow [4, 5, 6]
-
         child 'div.newStep1RightColumn'
       child 'div.bottom-step-buttons', =>
         child 'div'
@@ -1430,13 +1377,13 @@ NewStep1 = React.createClass
         child 'div.newStep1Column.newStep1RightColumn'
       child 'div.bottom-step-buttons', =>
         child 'div'
-        child 'a', href: '#new2', =>
+        child 'a', href: '#new3', =>
           props onClick: (e) =>
             unless hasNameDesc @props.game
               alert 'Please enter a name and user instructions for your Siftr.'
               e.preventDefault()
           child 'div.newNextButton', =>
-            raw 'appearance >'
+            raw 'map >'
 
   selectImage: ->
     input = document.createElement 'input'
@@ -1458,60 +1405,11 @@ NewStep1 = React.createClass
         $set: @refs.description.value
     @props.onChange(game)
 
-NewStep2 = React.createClass
-  displayName: 'NewStep2'
-
-  render: ->
-    make 'div.newStepBox', =>
-
-      child 'div.newStep2', =>
-        child 'h3', =>
-          raw 'Choose a color scheme for your new Siftr!'
-        child 'div.color-table', =>
-          colorsRow = (colors_ids) =>
-            for i in colors_ids
-              colors = @props.colors[i]
-              rgbs =
-                if colors?
-                  colors["tag_#{j}"] for j in [1..5]
-                else
-                  []
-              child 'label.color-table-cell', key: "colors-#{i}", =>
-                child 'p', => raw colors?.name
-                child 'input', ref: "colors_#{i}", type: 'radio', onChange: @handleChange, name: 'colors', checked: @props.game.colors_id is i
-                gradient = do =>
-                  percent = 0
-                  points = []
-                  for rgb in rgbs
-                    points.push "#{rgb} #{percent}%"
-                    percent += 20
-                    points.push "#{rgb} #{percent}%"
-                  "linear-gradient(to right, #{points.join(', ')})"
-                child 'div.color-table-gradient', style:
-                  backgroundImage: gradient
-          child 'div.color-table-row', => colorsRow [1, 2, 3]
-          child 'div.color-table-row', => colorsRow [4, 5, 6]
-
-      child 'div.bottom-step-buttons', =>
-        child 'a', href: '#new1', =>
-          child 'div.newPrevButton', =>
-            raw '< setup'
-        child 'a', href: '#new3', =>
-          child 'div.newNextButton', =>
-            raw 'map >'
-
-  handleChange: ->
-    colors_id = 1
-    for i in [1..6]
-      if @refs["colors_#{i}"].checked
-        colors_id = i
-    game = update @props.game,
-      colors_id:
-        $set: colors_id
-    @props.onChange game
-
 NewStep3 = React.createClass
   displayName: 'NewStep3'
+
+  getInitialState: ->
+    tab: 'focus'
 
   shouldComponentUpdate: (nextProps, nextState) ->
     # This prevents the map from jerking back.
@@ -1521,30 +1419,70 @@ NewStep3 = React.createClass
     return true if Math.abs(@props.game.longitude - nextProps.game.longitude) > 0.0000001
     return true if @props.game.zoom isnt nextProps.game.zoom
     return true if @props.game.type isnt nextProps.game.type
+    return true if @state.tab isnt nextState.tab
+    return true if @props.game.colors_id isnt nextProps.game.colors_id
     false
 
   render: ->
     make 'div.newStepBox', =>
       child 'div.newStep3', =>
         child 'div.newStep3Controls', =>
-          child 'p', =>
-            raw 'Is your Siftr tied to a specific location?'
-          location = @props.game.type isnt 'ANYWHERE'
-          child "a.form-multi-option.form-multi-option-#{if location then 'on' else 'off'}", href: '#', =>
-            props
-              onClick: (e) =>
-                e.preventDefault()
-                @props.onChange update @props.game, type: $set:
-                  if location
-                    'ANYWHERE'
-                  else
-                    'LOCATION'
-            child 'span.form-multi-option-text', =>
-              raw 'Load at location'
-            child 'span.form-multi-option-switch', =>
-              child 'span.form-multi-option-ball'
-          child 'p', =>
-            raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
+          child 'div.newStep3Tabs', =>
+            makeTab = (tab, btn) =>
+              child 'a.newStep3Tab', href: '#', =>
+                props onClick: (e) =>
+                  e.preventDefault()
+                  @setState tab: tab
+                btn()
+            makeTab 'focus', => raw 'Focus'
+            makeTab 'theme', => raw 'Theme'
+            makeTab 'pins', => raw 'Pins'
+          switch @state.tab
+            when 'theme'
+              null
+            when 'pins'
+              for k, colors of @props.colors
+                do (colors) =>
+                  rgbs =
+                    if colors?
+                      colors["tag_#{j}"] for j in [1..5]
+                    else
+                      []
+                  child 'a', href: '#', =>
+                    props onClick: (e) =>
+                      e.preventDefault()
+                      @props.onChange update @props.game,
+                        colors_id:
+                          $set: colors.colors_id
+                      @
+                    child 'div.pin-color', =>
+                      child 'div.pin-color-pins', =>
+                        for rgb in rgbs
+                          child 'div.pin-color-pin', style:
+                            backgroundColor: rgb
+                      child 'span.pin-color-name', => raw colors?.name
+                      child "div.form-multi-option-#{if @props.game.colors_id is colors.colors_id then 'on' else 'off'}", =>
+                        child 'span.form-multi-option-switch', =>
+                          child 'span.form-multi-option-ball'
+            when 'focus'
+              child 'p', =>
+                raw 'Is your Siftr tied to a specific location?'
+              location = @props.game.type isnt 'ANYWHERE'
+              child "a.form-multi-option.form-multi-option-#{if location then 'on' else 'off'}", href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.onChange update @props.game, type: $set:
+                      if location
+                        'ANYWHERE'
+                      else
+                        'LOCATION'
+                child 'span.form-multi-option-text', =>
+                  raw 'Load at location'
+                child 'span.form-multi-option-switch', =>
+                  child 'span.form-multi-option-ball'
+              child 'p', =>
+                raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
         child 'div.newStep3MapContainer', =>
           child GoogleMap,
             ref: 'map'
@@ -1564,9 +1502,9 @@ NewStep3 = React.createClass
               raw 'data >'
       else
         child 'div.bottom-step-buttons', =>
-          child 'a', href: '#new2', =>
+          child 'a', href: '#new1', =>
             child 'div.newPrevButton', =>
-              raw '< appearance'
+              raw '< setup'
           child 'a', href: '#new4', =>
             child 'div.newNextButton', =>
               raw 'data >'
