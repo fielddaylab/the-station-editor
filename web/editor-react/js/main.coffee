@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 update = require 'react-addons-update'
-GoogleMap = require 'google-map-react'
+{default: GoogleMap} = require 'google-map-react'
 {markdown} = require 'markdown'
 for k, v of require '../../shared/aris.js'
   window[k] = v
@@ -1470,24 +1470,6 @@ NewStep3 = React.createClass
         stylers: [visibility: 'off']
     styles
 
-  # the following is to manually update map styles
-  # because GoogleMap doesn't do it in response to props change
-
-  # TODO use this instead of componentWillReceiveProps after we update React
-  # getSnapshotBeforeUpdate: (prevProps, prevState) ->
-  #   if prevProps.game.theme_id isnt @props.game.theme_id or
-  #       prevProps.game.map_show_labels isnt @props.game.map_show_labels or
-  #       prevProps.game.map_show_roads isnt @props.game.map_show_roads
-  #     @map?.setOptions
-  #       styles: @getMapStyles()
-
-  componentWillReceiveProps: (nextProps) ->
-    if nextProps.game.theme_id isnt @props.game.theme_id or
-        nextProps.game.map_show_labels isnt @props.game.map_show_labels or
-        nextProps.game.map_show_roads isnt @props.game.map_show_roads
-      @map?.setOptions
-        styles: @getMapStyles(nextProps)
-
   render: ->
     make 'div.newStepBox', =>
       child 'div.newStep3', =>
@@ -1579,10 +1561,6 @@ NewStep3 = React.createClass
         child 'div.newStep3MapContainer', =>
           styles = @getMapStyles()
           child GoogleMap,
-            # we use the map object above to manually update styles
-            onGoogleApiLoaded: ({map, maps}) =>
-              @map = map
-            yesIWantToUseGoogleMapApiInternals: true
             bootstrapURLKeys:
               key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
             center: [@props.game.latitude, @props.game.longitude]
