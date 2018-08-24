@@ -8,57 +8,66 @@ SIFTR_URL = window.location.origin + '/'
 class Game
   constructor: (json) ->
     if json?
-      @game_id       = parseInt json.game_id
-      @name          = json.name
-      @description   = json.description
-      @latitude      = parseFloat json.map_latitude
-      @longitude     = parseFloat json.map_longitude
-      @zoom          = parseInt json.map_zoom_level
-      @siftr_url     = json.siftr_url or null
-      @is_siftr      = if parseInt json.is_siftr  then true else false
-      @published     = if parseInt json.published then true else false
-      @moderated     = if parseInt json.moderated then true else false
-      @colors_id     = parseInt(json.colors_id) or null
-      @icon_media_id = parseInt json.icon_media_id
-      @created       = new Date(json.created.replace(' ', 'T') + 'Z')
-      @prompt        = json.prompt
-      @password      = json.password
-      @type          = json.type
+      @game_id         = parseInt json.game_id
+      @name            = json.name
+      @description     = json.description
+      @latitude        = parseFloat json.map_latitude
+      @longitude       = parseFloat json.map_longitude
+      @zoom            = parseInt json.map_zoom_level
+      @siftr_url       = json.siftr_url or null
+      @is_siftr        = if parseInt json.is_siftr  then true else false
+      @published       = if parseInt json.published then true else false
+      @moderated       = if parseInt json.moderated then true else false
+      @colors_id       = parseInt(json.colors_id) or null
+      @theme_id        = parseInt(json.theme_id) or null
+      @icon_media_id   = parseInt json.icon_media_id
+      @created         = new Date(json.created.replace(' ', 'T') + 'Z')
+      @prompt          = json.prompt
+      @password        = json.password
+      @type            = json.type
+      @map_show_labels = if parseInt json.map_show_labels then true else false
+      @map_show_roads  = if parseInt json.map_show_roads then true else false
     else
-      @game_id       = null
-      @name          = null
-      @description   = null
-      @latitude      = null
-      @longitude     = null
-      @zoom          = null
-      @siftr_url     = null
-      @is_siftr      = null
-      @published     = null
-      @moderated     = null
-      @colors_id     = null
-      @icon_media_id = null
-      @created       = null
-      @prompt        = null
-      @password      = null
-      @type          = null
+      @game_id         = null
+      @name            = null
+      @description     = null
+      @latitude        = null
+      @longitude       = null
+      @zoom            = null
+      @siftr_url       = null
+      @is_siftr        = null
+      @published       = null
+      @moderated       = null
+      @colors_id       = null
+      @theme_id        = null
+      @icon_media_id   = null
+      @created         = null
+      @prompt          = null
+      @password        = null
+      @type            = null
+      @map_show_labels = null
+      @map_show_roads  = null
 
   createJSON: ->
-    game_id:        @game_id or undefined
-    name:           @name or ''
-    description:    @description or ''
-    map_latitude:   @latitude or 0
-    map_longitude:  @longitude or 0
-    map_zoom_level: @zoom or 0
-    siftr_url:      @siftr_url
-    is_siftr:       @is_siftr
-    published:      @published
-    moderated:      @moderated
-    colors_id:      @colors_id
-    icon_media_id:  @icon_media_id
-    prompt:         @prompt
-    fields:         @fields
-    password:       @password
-    type:           @type
+    game_id:         @game_id or undefined
+    name:            @name or ''
+    description:     @description or ''
+    map_latitude:    @latitude or 0
+    map_longitude:   @longitude or 0
+    map_zoom_level:  @zoom or 0
+    siftr_url:       @siftr_url
+    is_siftr:        @is_siftr
+    published:       @published
+    moderated:       @moderated
+    colors_id:       @colors_id
+    theme_id:        @theme_id
+    icon_media_id:   @icon_media_id
+    prompt:          @prompt
+    fields:          @fields
+    password:        @password
+    type:            @type
+    map_show_labels: @map_show_labels
+    map_show_roads:  @map_show_roads
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)
@@ -78,6 +87,13 @@ class Colors
       @tag_6     = json.tag_6
       @tag_7     = json.tag_7
       @tag_8     = json.tag_8
+
+class Theme
+  constructor: (json) ->
+    if json?
+      @theme_id     = parseInt json.theme_id
+      @name         = json.name
+      @gmaps_styles = json.gmaps_styles
 
 class User
   constructor: (json) ->
@@ -333,6 +349,9 @@ class Aris
 
   getColors: (json, cb) ->
     @callWrapped 'colors.getColors', json, cb, (data) -> new Colors data
+
+  getTheme: (json, cb) ->
+    @callWrapped 'themes.getTheme', json, cb, (data) -> new Theme data
 
   createTag: (tag, cb) ->
     @callWrapped 'tags.createTag', tag.createJSON(), cb, (data) -> new Tag data

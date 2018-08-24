@@ -46,6 +46,7 @@ App = React.createClass
     notes: {}
     forms: {}
     colors: {}
+    themes: {}
     username: ''
     password: ''
     screen: 'main'
@@ -53,6 +54,7 @@ App = React.createClass
     new_game: do =>
       g = new Game
       g.colors_id = 1
+      g.theme_id = 1
       g.latitude = 43.087806
       g.longitude = -89.430121
       g.zoom = 12
@@ -68,7 +70,7 @@ App = React.createClass
     @login undefined, undefined
     @applyHash()
     window.addEventListener 'hashchange', => @applyHash()
-    @getColors()
+    @getColorsAndThemes()
 
   applyHash: ->
     @setState account_menu: false
@@ -166,7 +168,7 @@ App = React.createClass
       @updateGames()
       @fetchUserPicture()
 
-  getColors: ->
+  getColorsAndThemes: ->
     for i in [1..6] # predefined schemes for now
       do (i) =>
         @props.aris.getColors
@@ -176,6 +178,16 @@ App = React.createClass
             @setState (previousState, currentProps) =>
               update previousState,
                 colors:
+                  $merge: singleObj(i, result.data)
+    for i in [1..4] # predefined schemes for now
+      do (i) =>
+        @props.aris.getTheme
+          theme_id: i
+        , (result) =>
+          if result.returnCode is 0 and result.data?
+            @setState (previousState, currentProps) =>
+              update previousState,
+                themes:
                   $merge: singleObj(i, result.data)
 
   fetchUserPicture: ->
@@ -332,6 +344,7 @@ App = React.createClass
               $set: do =>
                 g = new Game
                 g.colors_id = 1
+                g.theme_id = 1
                 g.latitude = 43.087806
                 g.longitude = -89.430121
                 g.zoom = 12
@@ -553,7 +566,6 @@ App = React.createClass
             when 'edit'
               child EditSiftr,
                 game: @state.edit_game
-                colors: @state.colors
                 onChange: reactBind(@autosave, @)
                 mobileMapIsOpen: @state.mobile_map_is_open
                 openMobileMap: =>
@@ -668,6 +680,7 @@ App = React.createClass
                 editing: true
                 game: @state.edit_game
                 colors: @state.colors
+                themes: @state.themes
                 onChange: reactBind(@autosave, @)
             when 'new1'
               child NewStep1,
@@ -679,6 +692,7 @@ App = React.createClass
               child NewStep3,
                 game: @state.new_game
                 colors: @state.colors
+                themes: @state.themes
                 onChange: (new_game) => @setState {new_game}
             when 'new4'
               child NewStep4,
@@ -1421,7 +1435,54 @@ NewStep3 = React.createClass
     return true if @props.game.type isnt nextProps.game.type
     return true if @state.tab isnt nextState.tab
     return true if @props.game.colors_id isnt nextProps.game.colors_id
+    return true if @props.game.theme_id isnt nextProps.game.theme_id
+    return true if @props.game.map_show_labels isnt nextProps.game.map_show_labels
+    return true if @props.game.map_show_roads isnt nextProps.game.map_show_roads
     false
+
+  getMapStyles: (props = @props) ->
+    styles = []
+    if (theme = props.themes[props.game.theme_id])?
+      styles = JSON.parse(theme.gmaps_styles)
+    styles.push
+      featureType: 'transit'
+      stylers: [visibility: 'off']
+    styles.push
+      featureType: 'poi'
+      stylers: [visibility: 'off']
+    unless props.game.map_show_roads
+      styles.push
+        featureType: 'road'
+        stylers: [visibility: 'off']
+    unless props.game.map_show_labels
+      styles.push
+        elementType: 'labels'
+        stylers: [visibility: 'off']
+      styles.push
+        featureType: 'administrative.land_parcel'
+        stylers: [visibility: 'off']
+      styles.push
+        featureType: 'administrative.neighborhood'
+        stylers: [visibility: 'off']
+    styles
+
+  # the following is to manually update map styles
+  # because GoogleMap doesn't do it in response to props change
+
+  # TODO use this instead of componentWillReceiveProps after we update React
+  # getSnapshotBeforeUpdate: (prevProps, prevState) ->
+  #   if prevProps.game.theme_id isnt @props.game.theme_id or
+  #       prevProps.game.map_show_labels isnt @props.game.map_show_labels or
+  #       prevProps.game.map_show_roads isnt @props.game.map_show_roads
+  #     @map?.setOptions
+  #       styles: @getMapStyles()
+
+  componentWillReceiveProps: (nextProps) ->
+    if nextProps.game.theme_id isnt @props.game.theme_id or
+        nextProps.game.map_show_labels isnt @props.game.map_show_labels or
+        nextProps.game.map_show_roads isnt @props.game.map_show_roads
+      @map?.setOptions
+        styles: @getMapStyles(nextProps)
 
   render: ->
     make 'div.newStepBox', =>
@@ -1439,7 +1500,35 @@ NewStep3 = React.createClass
             makeTab 'pins', => raw 'Pins'
           switch @state.tab
             when 'theme'
-              null
+              for k, theme of @props.themes
+                do (theme) =>
+                  child "a.form-multi-option.form-multi-option-#{if @props.game.theme_id is theme.theme_id then 'on' else 'off'}", href: '#', =>
+                    props
+                      onClick: (e) =>
+                        e.preventDefault()
+                        @props.onChange update @props.game, theme_id: $set: theme.theme_id
+                    child 'span.form-multi-option-text', =>
+                      raw "Theme: #{theme.name}"
+                    child 'span.form-multi-option-switch', =>
+                      child 'span.form-multi-option-ball'
+              child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_labels then 'on' else 'off'}", href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.onChange update @props.game, map_show_labels: $set: not @props.game.map_show_labels
+                child 'span.form-multi-option-text', =>
+                  raw 'Show labels'
+                child 'span.form-multi-option-switch', =>
+                  child 'span.form-multi-option-ball'
+              child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_roads then 'on' else 'off'}", href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.onChange update @props.game, map_show_roads: $set: not @props.game.map_show_roads
+                child 'span.form-multi-option-text', =>
+                  raw 'Show roads'
+                child 'span.form-multi-option-switch', =>
+                  child 'span.form-multi-option-ball'
             when 'pins'
               for k, colors of @props.colors
                 do (colors) =>
@@ -1484,13 +1573,19 @@ NewStep3 = React.createClass
               child 'p', =>
                 raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
         child 'div.newStep3MapContainer', =>
+          styles = @getMapStyles()
           child GoogleMap,
-            ref: 'map'
+            # we use the map object above to manually update styles
+            onGoogleApiLoaded: ({map, maps}) =>
+              @map = map
+            yesIWantToUseGoogleMapApiInternals: true
             bootstrapURLKeys:
               key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
             center: [@props.game.latitude, @props.game.longitude]
             zoom: Math.max(2, @props.game.zoom)
-            options: minZoom: 2
+            options:
+              minZoom: 2
+              styles: styles
             onChange: @handleMapChange
       if @props.editing
         child 'div.bottom-step-buttons', =>
