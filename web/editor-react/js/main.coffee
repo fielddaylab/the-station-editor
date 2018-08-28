@@ -1478,15 +1478,19 @@ NewStep3 = React.createClass
       child 'div.newStep3', =>
         child 'div.newStep3Controls', =>
           child 'div.newStep3Tabs', =>
-            makeTab = (tab, btn) =>
-              child 'a.newStep3Tab', href: '#', =>
-                props onClick: (e) =>
-                  e.preventDefault()
-                  @setState tab: tab
-                btn()
-            makeTab 'focus', => raw 'Focus'
-            makeTab 'theme', => raw 'Theme'
-            makeTab 'pins', => raw 'Pins'
+            makeTab = (tab, alt) =>
+              child 'div.newStep3Tab', =>
+                child 'a', href: '#', alt: alt, =>
+                  props onClick: (e) =>
+                    e.preventDefault()
+                    @setState tab: tab
+                  child 'img', src: "../assets/icons/map-#{tab}-#{if @state.tab is tab then 'on' else 'off'}.png"
+                child 'div.newStep3TabArrow', =>
+                  if @state.tab is tab
+                    child 'img', src: "../assets/icons/map-options-arrow.png"
+            makeTab 'focus', 'Focus'
+            makeTab 'theme', 'Theme'
+            makeTab 'pins', 'Pins'
           switch @state.tab
             when 'theme'
               for k, theme of @props.themes

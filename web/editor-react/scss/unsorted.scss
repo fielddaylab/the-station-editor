@@ -168,13 +168,29 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  justify-content: center;
 }
 
 .newStep3Tab {
-  padding: 10px;
   flex: 1;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  img {
+    height: 34px;
+    margin-top: 7px;
+  }
+}
+
+.newStep3TabArrow {
+  height: 16px;
+  background: url('../assets/icons/map-options-line.png');
+  background-size: 100% 100%;
+  img {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .new-siftr-title {
