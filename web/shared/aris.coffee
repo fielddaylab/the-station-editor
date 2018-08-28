@@ -27,6 +27,7 @@ class Game
       @type            = json.type
       @map_show_labels = if parseInt json.map_show_labels then true else false
       @map_show_roads  = if parseInt json.map_show_roads then true else false
+      @map_type        = json.map_type
     else
       @game_id         = null
       @name            = null
@@ -47,6 +48,7 @@ class Game
       @type            = null
       @map_show_labels = null
       @map_show_roads  = null
+      @map_type        = null
 
   createJSON: ->
     game_id:         @game_id or undefined
@@ -68,6 +70,7 @@ class Game
     type:            @type
     map_show_labels: @map_show_labels
     map_show_roads:  @map_show_roads
+    map_type:        @map_type
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)

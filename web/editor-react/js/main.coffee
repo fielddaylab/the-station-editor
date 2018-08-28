@@ -57,6 +57,7 @@ App = React.createClass
       g.theme_id = 1
       g.map_show_labels = true
       g.map_show_roads = true
+      g.map_type = 'STREET'
       g.latitude = 43.087806
       g.longitude = -89.430121
       g.zoom = 12
@@ -349,6 +350,7 @@ App = React.createClass
                 g.theme_id = 1
                 g.map_show_labels = true
                 g.map_show_roads = true
+                g.map_type = 'STREET'
                 g.latitude = 43.087806
                 g.longitude = -89.430121
                 g.zoom = 12
@@ -1442,11 +1444,12 @@ NewStep3 = React.createClass
     return true if @props.game.theme_id isnt nextProps.game.theme_id
     return true if @props.game.map_show_labels isnt nextProps.game.map_show_labels
     return true if @props.game.map_show_roads isnt nextProps.game.map_show_roads
+    return true if @props.game.map_type isnt nextProps.game.map_type
     false
 
   getMapStyles: (props = @props) ->
     styles = []
-    if (theme = props.themes[props.game.theme_id])?
+    if (theme = props.themes[props.game.theme_id])? and props.game.map_type is 'STREET'
       styles = JSON.parse(theme.gmaps_styles)
     styles.push
       featureType: 'transit'
@@ -1488,15 +1491,31 @@ NewStep3 = React.createClass
             when 'theme'
               for k, theme of @props.themes
                 do (theme) =>
-                  child "a.form-multi-option.form-multi-option-#{if @props.game.theme_id is theme.theme_id then 'on' else 'off'}", href: '#', =>
+                  child "a.form-multi-option.form-multi-option-#{
+                    if @props.game.theme_id is theme.theme_id and @props.game.map_type is 'STREET'
+                      'on'
+                    else
+                      'off'
+                  }", href: '#', =>
                     props
                       onClick: (e) =>
                         e.preventDefault()
-                        @props.onChange update @props.game, theme_id: $set: theme.theme_id
+                        @props.onChange update @props.game,
+                          theme_id: $set: theme.theme_id
+                          map_type: $set: 'STREET'
                     child 'span.form-multi-option-text', =>
                       raw "Theme: #{theme.name}"
                     child 'span.form-multi-option-switch', =>
                       child 'span.form-multi-option-ball'
+              child "a.form-multi-option.form-multi-option-#{if @props.game.map_type is 'HYBRID' then 'on' else 'off'}", href: '#', =>
+                props
+                  onClick: (e) =>
+                    e.preventDefault()
+                    @props.onChange update @props.game, map_type: $set: 'HYBRID'
+                child 'span.form-multi-option-text', =>
+                  raw 'Theme: Satellite'
+                child 'span.form-multi-option-switch', =>
+                  child 'span.form-multi-option-ball'
               child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_labels then 'on' else 'off'}", href: '#', =>
                 props
                   onClick: (e) =>
@@ -1565,9 +1584,14 @@ NewStep3 = React.createClass
               key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
             center: [@props.game.latitude, @props.game.longitude]
             zoom: Math.max(2, @props.game.zoom)
-            options:
+            options: (maps) =>
               minZoom: 2
               styles: styles
+              mapTypeId: switch @props.game.map_type
+                when 'STREET'
+                  maps.MapTypeId.ROADMAP
+                else
+                  maps.MapTypeId.HYBRID
             onChange: @handleMapChange
       if @props.editing
         child 'div.bottom-step-buttons', =>
