@@ -1566,7 +1566,6 @@ NewStep3 = React.createClass
                     for rgb in rgbs
                       child 'div.color-card-pin', =>
                         child 'div.siftr-map-note', =>
-                          # child 'div.siftr-map-note-shadow'
                           child 'div.siftr-map-note-pin', style:
                             backgroundColor: rgb
                     child 'div.color-card-name', => raw colors?.name
@@ -1611,6 +1610,26 @@ NewStep3 = React.createClass
                 else
                   maps.MapTypeId.HYBRID
             onChange: @handleMapChange
+          colors = @props.colors[@props.game.colors_id]
+          if colors?
+            for i in [1..5]
+              rgb = colors["tag_#{i}"]
+              child 'div.color-card-pin', =>
+                coords = [
+                  {x: 269, y: 646}
+                  {x: 653, y: 1046}
+                  {x: 749, y: 124}
+                  {x: 896, y: 599}
+                  {x: 1472, y: 474}
+                ][i - 1]
+                props style:
+                  position: 'absolute'
+                  left: "#{(coords.x / 1793) * 100}%"
+                  top: "#{(coords.y / 1280) * 100}%"
+                child 'div.siftr-map-note', =>
+                  child 'div.siftr-map-note-shadow'
+                  child 'div.siftr-map-note-pin', style:
+                    backgroundColor: rgb
       if @props.editing
         child 'div.bottom-step-buttons', =>
           child 'a', href: '#edit' + @props.game.game_id, =>

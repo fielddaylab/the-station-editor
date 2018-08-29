@@ -158,6 +158,7 @@
 
 .newStep3MapContainer {
   flex: 1;
+  position: relative; // so absolute pins work
 }
 
 .newStep3Controls {
