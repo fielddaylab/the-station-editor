@@ -1502,33 +1502,35 @@ NewStep3 = React.createClass
           child "div.newStep3-control.newStep3-control-#{@state.tab}", =>
             switch @state.tab
               when 'theme'
-                for k, theme of @props.themes
-                  do (theme) =>
-                    child "a.form-multi-option.form-multi-option-#{
-                      if @props.game.theme_id is theme.theme_id and @props.game.map_type is 'STREET'
-                        'on'
-                      else
-                        'off'
-                    }", href: '#', =>
-                      props
-                        onClick: (e) =>
-                          e.preventDefault()
-                          @props.onChange update @props.game,
-                            theme_id: $set: theme.theme_id
-                            map_type: $set: 'STREET'
-                      child 'span.form-multi-option-text', =>
-                        raw "Theme: #{theme.name}"
-                      child 'span.form-multi-option-switch', =>
-                        child 'span.form-multi-option-ball'
-                child "a.form-multi-option.form-multi-option-#{if @props.game.map_type is 'HYBRID' then 'on' else 'off'}", href: '#', =>
-                  props
-                    onClick: (e) =>
+                child 'h2', =>
+                  raw 'Select Map Theme'
+
+                makeCard = (image, text, selected, updater) =>
+                  child 'a.theme-card', href: '#', =>
+                    props onClick: (e) =>
                       e.preventDefault()
-                      @props.onChange update @props.game, map_type: $set: 'HYBRID'
-                  child 'span.form-multi-option-text', =>
-                    raw 'Theme: Satellite'
-                  child 'span.form-multi-option-switch', =>
-                    child 'span.form-multi-option-ball'
+                      @props.onChange update @props.game, updater
+                    child 'img.theme-card-image', src: image
+                    child 'div.theme-card-name', => raw text
+                    child 'div.theme-card-check', =>
+                      child 'img', src: "../assets/icons/radio-#{if selected then 'on' else 'off'}.png"
+
+                Object.values(@props.themes).forEach (theme) =>
+                  image = switch theme.name
+                    when 'Classic Siftr' then 'classic'
+                    when 'Aubergine' then 'midnight'
+                    when 'Retro' then 'retro'
+                    when 'Silver' then 'silver'
+                  selected = @props.game.theme_id is theme.theme_id and @props.game.map_type is 'STREET'
+                  updater =
+                    theme_id: $set: theme.theme_id
+                    map_type: $set: 'STREET'
+                  makeCard "../assets/icons/theme-#{image}.png", theme.name, selected, updater
+
+                makeCard '../assets/icons/theme-satellite.png', 'Satellite',
+                  @props.game.map_type is 'HYBRID',
+                  map_type: $set: 'HYBRID'
+
                 child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_labels then 'on' else 'off'}", href: '#', =>
                   props
                     onClick: (e) =>
