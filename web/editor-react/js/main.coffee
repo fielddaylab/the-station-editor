@@ -1484,103 +1484,116 @@ NewStep3 = React.createClass
                   props onClick: (e) =>
                     e.preventDefault()
                     @setState tab: tab
-                  child 'img', src: "../assets/icons/map-#{tab}-#{if @state.tab is tab then 'on' else 'off'}.png"
-                child 'div.newStep3TabArrow', =>
+                  child 'img',
+                    src: "../assets/icons/icon-#{tab}.png"
+                    className: if @state.tab is tab then '' else 'map-tab-off'
+                child "div.newStep3TabArrow#{if @state.tab is 'focus' then '.newStep3GrayBG' else ''}", =>
                   if @state.tab is tab
-                    child 'img', src: "../assets/icons/map-options-arrow.png"
+                    child 'img', src: "../assets/icons/map-options-arrow#{if tab is 'focus' then '-gray' else ''}.png"
+            makeTabDivider = =>
+              child 'div.newStep3Tab.newStep3TabDividerBox', =>
+                child 'div.newStep3TabDivider'
+                child "div.newStep3TabArrow#{if @state.tab is 'focus' then '.newStep3GrayBG' else ''}"
             makeTab 'focus', 'Focus'
+            makeTabDivider()
             makeTab 'theme', 'Theme'
+            makeTabDivider()
             makeTab 'pins', 'Pins'
-          switch @state.tab
-            when 'theme'
-              for k, theme of @props.themes
-                do (theme) =>
-                  child "a.form-multi-option.form-multi-option-#{
-                    if @props.game.theme_id is theme.theme_id and @props.game.map_type is 'STREET'
-                      'on'
-                    else
-                      'off'
-                  }", href: '#', =>
-                    props
-                      onClick: (e) =>
+          child "div.newStep3-control.newStep3-control-#{@state.tab}", =>
+            switch @state.tab
+              when 'theme'
+                for k, theme of @props.themes
+                  do (theme) =>
+                    child "a.form-multi-option.form-multi-option-#{
+                      if @props.game.theme_id is theme.theme_id and @props.game.map_type is 'STREET'
+                        'on'
+                      else
+                        'off'
+                    }", href: '#', =>
+                      props
+                        onClick: (e) =>
+                          e.preventDefault()
+                          @props.onChange update @props.game,
+                            theme_id: $set: theme.theme_id
+                            map_type: $set: 'STREET'
+                      child 'span.form-multi-option-text', =>
+                        raw "Theme: #{theme.name}"
+                      child 'span.form-multi-option-switch', =>
+                        child 'span.form-multi-option-ball'
+                child "a.form-multi-option.form-multi-option-#{if @props.game.map_type is 'HYBRID' then 'on' else 'off'}", href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @props.onChange update @props.game, map_type: $set: 'HYBRID'
+                  child 'span.form-multi-option-text', =>
+                    raw 'Theme: Satellite'
+                  child 'span.form-multi-option-switch', =>
+                    child 'span.form-multi-option-ball'
+                child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_labels then 'on' else 'off'}", href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @props.onChange update @props.game, map_show_labels: $set: not @props.game.map_show_labels
+                  child 'span.form-multi-option-text', =>
+                    raw 'Show labels'
+                  child 'span.form-multi-option-switch', =>
+                    child 'span.form-multi-option-ball'
+                child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_roads then 'on' else 'off'}", href: '#', =>
+                  props
+                    onClick: (e) =>
+                      e.preventDefault()
+                      @props.onChange update @props.game, map_show_roads: $set: not @props.game.map_show_roads
+                  child 'span.form-multi-option-text', =>
+                    raw 'Show roads'
+                  child 'span.form-multi-option-switch', =>
+                    child 'span.form-multi-option-ball'
+              when 'pins'
+                for k, colors of @props.colors
+                  do (colors) =>
+                    rgbs =
+                      if colors?
+                        colors["tag_#{j}"] for j in [1..5]
+                      else
+                        []
+                    child 'a', href: '#', =>
+                      props onClick: (e) =>
                         e.preventDefault()
                         @props.onChange update @props.game,
-                          theme_id: $set: theme.theme_id
-                          map_type: $set: 'STREET'
-                    child 'span.form-multi-option-text', =>
-                      raw "Theme: #{theme.name}"
-                    child 'span.form-multi-option-switch', =>
-                      child 'span.form-multi-option-ball'
-              child "a.form-multi-option.form-multi-option-#{if @props.game.map_type is 'HYBRID' then 'on' else 'off'}", href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.onChange update @props.game, map_type: $set: 'HYBRID'
-                child 'span.form-multi-option-text', =>
-                  raw 'Theme: Satellite'
-                child 'span.form-multi-option-switch', =>
-                  child 'span.form-multi-option-ball'
-              child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_labels then 'on' else 'off'}", href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.onChange update @props.game, map_show_labels: $set: not @props.game.map_show_labels
-                child 'span.form-multi-option-text', =>
-                  raw 'Show labels'
-                child 'span.form-multi-option-switch', =>
-                  child 'span.form-multi-option-ball'
-              child "a.form-multi-option.form-multi-option-#{if @props.game.map_show_roads then 'on' else 'off'}", href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.onChange update @props.game, map_show_roads: $set: not @props.game.map_show_roads
-                child 'span.form-multi-option-text', =>
-                  raw 'Show roads'
-                child 'span.form-multi-option-switch', =>
-                  child 'span.form-multi-option-ball'
-            when 'pins'
-              for k, colors of @props.colors
-                do (colors) =>
-                  rgbs =
-                    if colors?
-                      colors["tag_#{j}"] for j in [1..5]
-                    else
-                      []
-                  child 'a', href: '#', =>
-                    props onClick: (e) =>
-                      e.preventDefault()
-                      @props.onChange update @props.game,
-                        colors_id:
-                          $set: colors.colors_id
-                      @
-                    child 'div.pin-color', =>
-                      child 'div.pin-color-pins', =>
-                        for rgb in rgbs
-                          child 'div.pin-color-pin', style:
-                            backgroundColor: rgb
-                      child 'span.pin-color-name', => raw colors?.name
-                      child "div.form-multi-option-#{if @props.game.colors_id is colors.colors_id then 'on' else 'off'}", =>
-                        child 'span.form-multi-option-switch', =>
-                          child 'span.form-multi-option-ball'
-            when 'focus'
-              child 'p', =>
-                raw 'Is your Siftr tied to a specific location?'
-              location = @props.game.type isnt 'ANYWHERE'
-              child "a.form-multi-option.form-multi-option-#{if location then 'on' else 'off'}", href: '#', =>
-                props
-                  onClick: (e) =>
-                    e.preventDefault()
-                    @props.onChange update @props.game, type: $set:
-                      if location
-                        'ANYWHERE'
-                      else
-                        'LOCATION'
-                child 'span.form-multi-option-text', =>
-                  raw 'Load at location'
-                child 'span.form-multi-option-switch', =>
-                  child 'span.form-multi-option-ball'
-              child 'p', =>
-                raw 'If not checked, your Siftr will zoom to show all the pins on the map.'
+                          colors_id:
+                            $set: colors.colors_id
+                        @
+                      child 'div.pin-color', =>
+                        child 'div.pin-color-pins', =>
+                          for rgb in rgbs
+                            child 'div.pin-color-pin', style:
+                              backgroundColor: rgb
+                        child 'span.pin-color-name', => raw colors?.name
+                        child "div.form-multi-option-#{if @props.game.colors_id is colors.colors_id then 'on' else 'off'}", =>
+                          child 'span.form-multi-option-switch', =>
+                            child 'span.form-multi-option-ball'
+              when 'focus'
+                child 'h2', =>
+                  raw 'Choose Map Focus'
+                location = @props.game.type isnt 'ANYWHERE'
+                child 'div.newStep3FocusBlock', =>
+                  child 'div.newStep3FocusButtons', =>
+                    focusButton = (img, type) =>
+                      child 'a', href: '#', =>
+                        props onClick: (e) =>
+                          e.preventDefault()
+                          @props.onChange update @props.game, type: $set: type
+                        child 'img', src: "../assets/icons/focus-#{img}#{if @props.game.type is type then '-on' else ''}.png"
+                    focusButton 'pins', 'ANYWHERE'
+                    focusButton 'location', 'LOCATION'
+                  child 'div.newStep3FocusDivider'
+                  if @props.game.type is 'ANYWHERE'
+                    child 'h3', => raw 'Focus on Pins'
+                    child 'p', =>
+                      raw 'When someone views your Siftr, the map will start out zoomed out to encompass all of the pins in your Siftr.'
+                  else
+                    child 'h3', => raw 'Focus on Location'
+                    child 'p', =>
+                      raw 'When someone views your Siftr, the map will start with the center point and zoom level you choose here.'
         child 'div.newStep3MapContainer', =>
           styles = @getMapStyles()
           child GoogleMap,
