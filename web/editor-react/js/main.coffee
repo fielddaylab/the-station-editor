@@ -1550,29 +1550,28 @@ NewStep3 = React.createClass
                   child 'span.form-multi-option-switch', =>
                     child 'span.form-multi-option-ball'
               when 'pins'
-                for k, colors of @props.colors
-                  do (colors) =>
-                    rgbs =
-                      if colors?
-                        colors["tag_#{j}"] for j in [1..5]
-                      else
-                        []
-                    child 'a', href: '#', =>
-                      props onClick: (e) =>
-                        e.preventDefault()
-                        @props.onChange update @props.game,
-                          colors_id:
-                            $set: colors.colors_id
-                        @
-                      child 'div.pin-color', =>
-                        child 'div.pin-color-pins', =>
-                          for rgb in rgbs
-                            child 'div.pin-color-pin', style:
-                              backgroundColor: rgb
-                        child 'span.pin-color-name', => raw colors?.name
-                        child "div.form-multi-option-#{if @props.game.colors_id is colors.colors_id then 'on' else 'off'}", =>
-                          child 'span.form-multi-option-switch', =>
-                            child 'span.form-multi-option-ball'
+                child 'h2', =>
+                  raw 'Select Category Theme'
+                Object.values(@props.colors).forEach (colors) =>
+                  rgbs =
+                    if colors?
+                      colors["tag_#{j}"] for j in [1..5]
+                    else
+                      []
+                  child 'a.color-card', href: '#', =>
+                    props onClick: (e) =>
+                      e.preventDefault()
+                      @props.onChange update @props.game,
+                        colors_id: $set: colors.colors_id
+                    for rgb in rgbs
+                      child 'div.color-card-pin', =>
+                        child 'div.siftr-map-note', =>
+                          # child 'div.siftr-map-note-shadow'
+                          child 'div.siftr-map-note-pin', style:
+                            backgroundColor: rgb
+                    child 'div.color-card-name', => raw colors?.name
+                    child 'div.theme-card-check', =>
+                      child 'img', src: "../assets/icons/radio-#{if @props.game.colors_id is colors.colors_id then 'on' else 'off'}.png"
               when 'focus'
                 child 'h2', =>
                   raw 'Choose Map Focus'

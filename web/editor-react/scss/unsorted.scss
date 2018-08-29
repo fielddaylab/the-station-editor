@@ -251,7 +251,7 @@
   margin: 15px auto;
 }
 
-.theme-card {
+.color-card, .theme-card {
   display: flex;
   flex-direction: row;
   margin: 15px 8px;
@@ -263,15 +263,35 @@
   height: 60px;
 }
 
-.theme-card-name {
+.color-card-name, .theme-card-name {
   flex: 1;
   margin: 10px;
   font-size: 14px;
 }
 
-.theme-card-check img {
-  height: 21px;
-  margin: 8px 13px;
+.color-card-name {
+  margin-left: 23px;
+}
+
+.theme-card-check {
+  display: flex;
+  align-items: center;
+  img {
+    height: 21px;
+    margin: 8px 13px;
+  }
+}
+
+.color-card-pin {
+  width: 18px;
+  height: 40px;
+  .siftr-map-note {
+    top: 31px;
+    left: 17px;
+    .siftr-map-note-pin {
+      box-shadow: -1px 1px 1px 1px rgba(0,0,0,0.2);
+    }
+  }
 }
 
 .new-siftr-title {
