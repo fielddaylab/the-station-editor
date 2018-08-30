@@ -106,20 +106,37 @@
   margin: 15px 8px;
   box-shadow: 0 1px 1px 1px rgba(0,0,0,0.1);
   align-items: center;
+  border-radius:4px;
+  &:hover {
+    text-decoration: none;
+    background:#efefef;
+  }
 }
+
+.color-card {
+  padding: 10px;
+}
+
 
 .theme-card-image {
   height: 60px;
+  border-radius: 4px 0px 0px 4px;
 }
 
 .color-card-name, .theme-card-name {
   flex: 1;
   margin: 10px;
   font-size: 14px;
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .color-card-name {
   margin-left: 23px;
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .theme-card-check {

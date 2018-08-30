@@ -2616,6 +2616,9 @@ MapOptions = React.createClass({
                     $set: 'HYBRID'
                   }
                 });
+                child('h2', () => {
+                  raw('Map Options');
+                });
                 child(`a.form-multi-option.form-multi-option-${(this.props.game.map_show_labels ? 'on' : 'off')}`, {
                   href: '#'
                 }, () => {
