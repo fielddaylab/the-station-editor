@@ -26,11 +26,11 @@ gulp.task('webpack-editor', [], function() {
         ]
       },
     }, webpack))
-    .pipe(gulp.dest('editor-react/js/'));
+    .pipe(gulp.dest('editor-react/'));
 });
 
 gulp.task('webpack-discover', [], function() {
-  return gulp.src('discover/main.js')
+  return gulp.src('discover/js/main.js')
     .pipe(webpackStream({
       output: {filename: 'webpack_out.js'},
       plugins: [

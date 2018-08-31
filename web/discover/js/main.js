@@ -9,9 +9,9 @@ const React = require('react');
 
 const ReactDOM = require('react-dom');
 
-({make, child, raw, props} = require('../shared/react-writer.js'));
+({make, child, raw, props} = require('../../shared/react-writer.js'));
 
-({Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require('../shared/aris.js'));
+({Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} = require('../../shared/aris.js'));
 
 const update = require('react-addons-update');
 
