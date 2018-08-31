@@ -13,4 +13,5 @@ node_modules/
 browserify_out.js
 coffee_out.js
 minify_out.js
+webpack_out.js
 minify_out.js.report.txt

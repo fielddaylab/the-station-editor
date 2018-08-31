@@ -9,8 +9,8 @@ and [Tina Mailhot-Roberge](http://vervex.ca/) ([CC BY-SA 3.0](https://creativeco
 
 1. Checkout https://github.com/fielddaylab/SiftrNative next to folder
 
-2. Install `npm`, `closure-compiler`, `grunt`
+2. Install `npm`, `gulp`
 
-3. `make` or `grunt` inside the `web` folder
+3. `make` inside the `web` folder to build
 
 4. `make deploy` to deploy over rsync

@@ -3,9 +3,11 @@
 .git
 node_modules
 deploy.rb
-Gruntfile.coffee
+Gruntfile.*
+gulpfile.*
 package.json
 .sass-cache
+*.scss
 Makefile
 README.md
 .sublime-grunt.cache
