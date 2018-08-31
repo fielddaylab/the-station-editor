@@ -4,21 +4,7 @@ import React from 'react';
 import update from 'react-addons-update';
 import {make, child, raw, props} from '../../shared/react-writer';
 
-import {
-  SIFTR_URL,
-  Game,
-  Colors,
-  Theme,
-  User,
-  arisHTTPS,
-  Tag,
-  Comment,
-  Note,
-  Field,
-  FieldOption,
-  FieldData,
-  Aris,
-} from '../../shared/aris';
+import {SIFTR_URL} from '../../shared/aris';
 
 import {SiftrIcon} from './siftr-icon';
 
