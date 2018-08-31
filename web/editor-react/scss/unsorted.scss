@@ -20,6 +20,8 @@
   flex-direction: column;
   align-items: stretch;
   font-size: 13px;
+  line-height: 24px;
+  letter-spacing: 1px;
 }
 
 #the-logo {
@@ -129,6 +131,9 @@
     &:hover {
       background-color: #0BB08B;
       text-decoration:none !important;
+      div {
+        text-decoration:none !important;
+      }
     }
   }
 }
@@ -164,6 +169,10 @@
   margin-top: 5px;
   margin-bottom: 5px;
   margin-right: 15px;
+  &:hover {
+    text-decoration:none;
+    background:#efefef;
+  }
 }
 
 .deleterow {

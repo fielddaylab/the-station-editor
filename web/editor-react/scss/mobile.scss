@@ -1,4 +1,35 @@
-@media screen and (max-width: 949px) {
+@media screen and (max-width: 900px) {
+  .newStep3Controls {
+    width: 260px;
+    .theme-card {
+      .theme-card-name {
+        font-size:12px;
+      }
+      .theme-card-check {
+        img {
+          height:21px
+        }
+      }
+      img {
+        height: 45px;
+      }
+     }
+     .color-card {
+       .color-card-pin {
+         width: 13px;
+       }
+       .color-card-name {
+         font-size:12px;
+       }
+     }
+   }
+   .category-color-dot {
+     height: 20px;
+     width: 20px;
+     margin: 3px;
+   }
+}
+@media screen and (max-width: 767px) {
 
 .topDiv {
   margin-left: 0;
