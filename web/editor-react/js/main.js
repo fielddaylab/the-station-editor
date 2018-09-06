@@ -2366,7 +2366,7 @@ const FormEditor = createClass({
                     e.preventDefault();
                     e.stopPropagation();
                     if (this.props.editing) {
-                      if (confirm(`Are you sure you want to delete the ${field.label || 'unnamed'} field?`)) {
+                      if (confirm(`Are you sure you want to delete the ${field.label || 'unnamed'} field, and all the data it contains? This cannot be undone.`)) {
                         return this.props.deleteField(field);
                       }
                     } else {
