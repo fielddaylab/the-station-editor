@@ -1,7 +1,8 @@
 'use strict';
 
 import React from 'react';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
+import createClass from "create-react-class";
 
 import {
   Game,
@@ -12,7 +13,7 @@ import {
   Note,
 } from '../../shared/aris';
 
-export const SiftrIcon = React.createClass({
+export const SiftrIcon = createClass({
   displayName: 'SiftrIcon',
   getInitialState: function() {
     return {

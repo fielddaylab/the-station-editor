@@ -2,7 +2,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
+import createClass from "create-react-class";
 
 import {markdown} from 'markdown';
 
@@ -23,7 +24,7 @@ import {
   Aris,
 } from '../../shared/aris';
 
-export const ProfileSettings = React.createClass({
+export const ProfileSettings = createClass({
   displayName: 'ProfileSettings',
   getInitialState: function() {
     return {

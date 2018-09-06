@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import createClass from "create-react-class";
 
 import {
   Game,
@@ -13,7 +14,7 @@ import {
   Aris,
 } from '../../shared/aris';
 
-export const AccountSettings = React.createClass({
+export const AccountSettings = createClass({
   displayName: 'AccountSettings',
   getInitialState: function() {
     return {

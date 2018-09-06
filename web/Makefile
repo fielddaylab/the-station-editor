@@ -1,7 +1,7 @@
 .PHONY: default deploy
 
 default:
-	npm install
+	yarn
 	gulp
 
 deploy:

@@ -1,8 +1,9 @@
 'use strict';
 
 import React from 'react';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import {make, child, raw, props} from '../../shared/react-writer';
+import createClass from "create-react-class";
 
 import {SIFTR_URL} from '../../shared/aris';
 
@@ -23,7 +24,7 @@ function countContributors(notes) {
   return Object.keys(user_ids).length;
 }
 
-export const SiftrList = React.createClass({
+export const SiftrList = createClass({
   displayName: 'SiftrList',
   render: function() {
     return make('div.siftrList', () => {

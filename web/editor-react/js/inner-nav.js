@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 
 import {
   arisHTTPS,

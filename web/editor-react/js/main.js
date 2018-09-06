@@ -2,8 +2,9 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import {make, child, raw, props} from '../../shared/react-writer';
+import createClass from "create-react-class";
 
 import {markdown} from 'markdown';
 
@@ -52,11 +53,6 @@ function onSuccess(fn) {
   };
 }
 
-function reactBind(fn, obj) {
-  // TODO: when we upgrade to newer React, change this to fn.bind(obj)
-  return fn;
-}
-
 function hasNameDesc(game) {
   return (game.name != null) &&
     game.name.match(/\S/) &&
@@ -64,7 +60,7 @@ function hasNameDesc(game) {
     game.description.match(/\S/);
 }
 
-const App = React.createClass({
+const App = createClass({
   displayName: 'App',
   getInitialState: function() {
     return {
@@ -927,7 +923,7 @@ const App = React.createClass({
             case 'edit':
               return child(EditOverview, {
                 game: this.state.edit_game,
-                onChange: reactBind(this.autosave, this),
+                onChange: this.autosave.bind(this),
                 mobileMapIsOpen: this.state.mobile_map_is_open,
                 openMobileMap: () => {
                   this.setState({
@@ -1110,7 +1106,7 @@ const App = React.createClass({
                 game: this.state.edit_game,
                 colors: this.state.colors,
                 themes: this.state.themes,
-                onChange: reactBind(this.autosave, this)
+                onChange: this.autosave.bind(this)
               });
             case 'new1':
               return child(NewOverview, {
@@ -1566,7 +1562,7 @@ const App = React.createClass({
   }
 });
 
-const EditOverview = React.createClass({
+const EditOverview = createClass({
   displayName: 'EditOverview',
   render: function() {
     return make('div.newStepBox', () => {
@@ -1754,7 +1750,7 @@ const EditOverview = React.createClass({
   }
 });
 
-const NewOverview = React.createClass({
+const NewOverview = createClass({
   displayName: 'NewOverview',
   render: function() {
     return make('div.newStepBox', () => {
@@ -1918,7 +1914,7 @@ const makeArrow = (dir, enabled, wrap) => {
   }
 };
 
-const CategoryRow = React.createClass({
+const CategoryRow = createClass({
   getInitialState: function() {
     return {
       colorsOpen: false
@@ -2106,7 +2102,7 @@ const CategoryRow = React.createClass({
   }
 });
 
-const FormEditor = React.createClass({
+const FormEditor = createClass({
   displayName: 'FormEditor',
   getInitialState: function() {
     return {
@@ -2843,7 +2839,7 @@ const FormEditor = React.createClass({
   }
 });
 
-const ShareOptions = React.createClass({
+const ShareOptions = createClass({
   displayName: 'ShareOptions',
   render: function() {
     return make('div.newStepBox', () => {

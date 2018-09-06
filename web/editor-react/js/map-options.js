@@ -1,8 +1,9 @@
 'use strict';
 
 import React from 'react';
-import update from 'react-addons-update';
+import update from 'immutability-helper';
 import {make, child, raw, props} from '../../shared/react-writer';
+import createClass from "create-react-class";
 
 import GoogleMap from 'google-map-react';
 
@@ -14,7 +15,7 @@ import {
   Aris,
 } from '../../shared/aris';
 
-export const MapOptions = React.createClass({
+export const MapOptions = createClass({
   displayName: 'MapOptions',
 
   getInitialState: function() {

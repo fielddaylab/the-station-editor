@@ -1,6 +1,6 @@
 'use strict';
 
-import $ from 'jquery';
+import update from 'immutability-helper';
 
 export const ARIS_URL = 'https://arisgames.org/server/';
 
@@ -361,29 +361,46 @@ export class Aris {
   // Calls a function from the Aris v2 API.
   // The callback receives the entire JSON-decoded response.
   call(func, json, cb) {
-    var retry;
+    var trySend, handleError;
+    let req = new XMLHttpRequest();
+    req.open("POST", `${ARIS_URL}/json.php/v2.${func}`, true);
+    req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     if (this.auth != null) {
-      json.auth = this.auth;
+      json = update(json, {auth: {$set: this.auth}});
     }
-    retry = (n) => {
-      return $.ajax({
-        contentType: 'application/json',
-        data: JSON.stringify(json),
-        dataType: 'json',
-        success: cb,
-        error: (jqxhr, status, err) => {
-          if (n === 0) {
-            return cb([status, err]);
-          } else {
-            return retry(n - 1);
-          }
-        },
-        processData: false,
-        type: 'POST',
-        url: `${ARIS_URL}/json.php/v2.${func}`
-      });
+    let jsonString = JSON.stringify(json);
+    req.onload = () => {
+      var ref;
+      if (200 <= (ref = req.status) && ref < 400) {
+        return cb(JSON.parse(req.responseText));
+      } else {
+        return handleError(req.status);
+      }
     };
-    return retry(2);
+    req.onerror = () => {
+      return handleError("Could not connect to Siftr");
+    };
+    let tries = 3;
+    trySend = () => {
+      if (req.readyState === req.OPENED) {
+        return req.send(jsonString);
+      } else {
+        return cb({
+          error: "Could not connect to Siftr",
+          errorMore:
+            "Make sure you can connect to siftr.org and arisgames.org."
+        });
+      }
+    };
+    handleError = error => {
+      if (tries === 0) {
+        return cb({ error });
+      } else {
+        tries -= 1;
+        return trySend();
+      }
+    };
+    return trySend();
   }
 
   // Perform an ARIS call, but then wrap a successful result with a class.

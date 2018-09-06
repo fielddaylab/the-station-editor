@@ -9,7 +9,7 @@ and [Tina Mailhot-Roberge](http://vervex.ca/) ([CC BY-SA 3.0](https://creativeco
 
 1. Checkout https://github.com/fielddaylab/SiftrNative next to folder
 
-2. Install `npm`, `gulp`
+2. Install `yarn`, `gulp`
 
 3. `make` inside the `web` folder to build
 

@@ -5,7 +5,7 @@ var addClass, child, k, make, parseElement, props, raw, ref, v;
 
 const React = require('react');
 
-const update = require('react-addons-update');
+const update = require('immutability-helper');
 
 // Parses a string like "tag#id.class1.class2" into its separate parts.
 parseElement = function(str) {
