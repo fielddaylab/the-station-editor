@@ -1532,7 +1532,7 @@ const App = createClass({
               }
             });
             child('h1', () => {
-              raw('Awesome! Your Siftr project is now live.');
+              raw('Congrats! Your Siftr project is now live.');
             });
             child('p', () => {
               raw('You can access it here:');
