@@ -1695,22 +1695,30 @@ const EditOverview = createClass({
               child('span.form-multi-option-text', () => {
                 raw('Hide from search');
               });
-              return child('span.form-multi-option-switch', () => {
-                return child('span.form-multi-option-ball');
+              child('span.form-multi-option-switch', () => {
+                child('span.form-multi-option-ball');
               });
             });
             // TODO uncomment/translate when native app has password support
-            /*
-            child 'p', =>
-              raw 'Do you want to set a password to restrict access?'
-            child 'p', =>
-              child 'input.full-width-input',
-            type: 'text'
-            placeholder: 'Password (optional)'
-            value: @props.game.password ? ''
-            onChange: (e) => @props.onChange update(@props.game, password: $set: e.target.value), false
-            onBlur: => @props.onChange @props.game, true
-            */
+            child('p', () => {
+              raw('Do you want to set a password to restrict access?');
+            });
+            child('p', () => {
+              var ref;
+              child('input.full-width-input', {
+                type: 'text',
+                placeholder: 'Password (optional)',
+                value: (ref = this.props.game.password) != null ? ref : '',
+                onChange: (e) => {
+                  this.props.onChange(update(this.props.game, {
+                    password: {$set: e.target.value},
+                  }), false);
+                },
+                onBlur: () => {
+                  this.props.onChange(this.props.game, true);
+                },
+              });
+            });
             moderated = this.props.game.moderated;
             return child(`a.form-multi-option.form-multi-option-${(moderated ? 'on' : 'off')}`, {
               href: '#'
@@ -2870,17 +2878,22 @@ const ShareOptions = createClass({
               return child('span.form-multi-option-ball');
             });
           });
-          // TODO uncomment/translate when native app has password support
-          /*
-          child 'p', =>
-            raw 'Do you want to set a password to restrict access?'
-          child 'p', =>
-            child 'input.full-width-input',
-          type: 'text'
-          placeholder: 'Password (optional)'
-          value: @props.game.password ? ''
-          onChange: (e) => @props.onChange update @props.game, password: $set: e.target.value
-          */
+          child('p', () => {
+            raw('Do you want to set a password to restrict access?');
+          });
+          child('p', () => {
+            var ref;
+            child('input.full-width-input', {
+              type: 'text',
+              placeholder: 'Password (optional)',
+              value: (ref = this.props.game.password) != null ? ref : '',
+              onChange: (e) => {
+                this.props.onChange(update(this.props.game, {
+                  password: {$set: e.target.value},
+                }));
+              }
+            });
+          });
           moderated = this.props.game.moderated;
           child(`a.form-multi-option.form-multi-option-${(moderated ? 'on' : 'off')}`, {
             href: '#'
