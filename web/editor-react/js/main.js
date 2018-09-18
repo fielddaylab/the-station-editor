@@ -1159,6 +1159,24 @@ const App = createClass({
                   colors: this.state.colors,
                   notes: this.state.notes,
                   tags: this.state.tags,
+                  downloadCSV: (game) => {
+                    this.props.aris.call('notes.siftrCSV', {
+                      game_id: game.game_id
+                    }, ({data, returnCode, returnCodeDescription}) => {
+                      if (returnCode === 0) {
+                        if (data.indexOf("\r") === -1) {
+                          data = data.split("\n").join("\r\n");
+                        }
+                        const element = document.createElement('a');
+                        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(data));
+                        element.setAttribute('download', 'siftr-' + game.game_id + '.csv');
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                      }
+                    });
+                  },
                   onDelete: (game) => {
                     this.props.aris.call('games.deleteGame', {
                       game_id: game.game_id
