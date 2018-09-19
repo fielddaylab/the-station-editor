@@ -70,6 +70,19 @@ export const SiftrList = createClass({
                     raw('DELETE');
                   });
                 });
+                child('a', {
+                  href: '#'
+                }, () => {
+                  props({
+                    onClick: (e) => {
+                      e.preventDefault();
+                      this.props.downloadCSV(game);
+                    }
+                  });
+                  child('span.siftr-command-button', () => {
+                    raw('DOWNLOAD (.CSV)');
+                  });
+                });
               });
             });
             child('div.siftr-color-bar', {
@@ -108,13 +121,6 @@ export const SiftrList = createClass({
                 }
               };
               raw(plural(notes != null ? notes.length : undefined, 'item'));
-              raw(' ');
-              child('a', {href: '#', onClick: (e) => {
-                e.preventDefault();
-                this.props.downloadCSV(game);
-              }}, () => {
-                raw('(download)');
-              });
               sep();
               raw(plural((notes != null ? countContributors(notes) : null), 'contributor'));
               sep();

@@ -1169,7 +1169,7 @@ const App = createClass({
                         }
                         const element = document.createElement('a');
                         element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(data));
-                        element.setAttribute('download', 'siftr-' + game.game_id + '.csv');
+                        element.setAttribute('download', 'Siftr - ' + game.name + '.csv');
                         element.style.display = 'none';
                         document.body.appendChild(element);
                         element.click();

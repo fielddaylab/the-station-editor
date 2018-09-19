@@ -55,8 +55,9 @@
 
 .siftr-command-button {
   border: 1px solid black;
-  padding: 3px 7px;
+  padding: 0 7px;
   margin-left: 5px;
   color: black;
   border-radius: 4px;
+  display: inline-block;
 }
