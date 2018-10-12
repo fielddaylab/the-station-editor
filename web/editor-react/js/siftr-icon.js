@@ -11,6 +11,7 @@ import {
   User,
   Tag,
   Note,
+  arisHTTPS,
 } from '../../shared/aris';
 
 export const SiftrIcon = createClass({
@@ -105,7 +106,7 @@ export const SiftrIcon = createClass({
         return input.click();
       }}
       style={this.state.url == null ? {} : {
-        backgroundImage: `url(${this.state.url})`,
+        backgroundImage: `url(${arisHTTPS(this.state.url)})`,
       }}
     />;
   }

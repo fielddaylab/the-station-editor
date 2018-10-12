@@ -729,7 +729,7 @@ const App = createClass({
                   raw(this.state.auth.display_name);
                 });
                 return child('img', {
-                  src: (ref1 = this.state.userPicture) != null ? ref1.thumb_url : undefined
+                  src: (ref1 = this.state.userPicture) != null ? arisHTTPS(ref1.thumb_url) : undefined
                 });
               });
             }

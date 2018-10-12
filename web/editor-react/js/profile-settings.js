@@ -62,8 +62,8 @@ export const ProfileSettings = createClass({
             className="big-account-picture"
             style={{
               backgroundImage:
-                  this.state.new_icon    != null ? `url(${this.state.new_icon})`
-                : this.props.userPicture != null ? `url(${this.props.userPicture.url})`
+                  this.state.new_icon    != null ? `url(${arisHTTPS(this.state.new_icon)})`
+                : this.props.userPicture != null ? `url(${arisHTTPS(this.props.userPicture.url)})`
                 : undefined
             }}
             onClick={this.selectUserPicture}
