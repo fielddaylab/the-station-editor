@@ -2074,7 +2074,7 @@ const CategoryRow = createClass({
               var opts;
               e.preventDefault();
               if (this.props.editing) {
-                return this.startDeletingOption(o);
+                return this.props.startDeletingOption(o);
               } else {
                 opts = options.slice(0);
                 opts.splice(i, 1);
