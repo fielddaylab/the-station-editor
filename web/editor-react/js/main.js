@@ -1189,13 +1189,6 @@ const App = createClass({
                     });
                   }
                 });
-                return child('p.new-siftr-para', () => {
-                  return child('a.new-siftr-button.login-button', {
-                    href: '#new1'
-                  }, () => {
-                    raw('NEW SIFTR');
-                  });
-                });
               });
           }
         } else {

@@ -24,11 +24,14 @@ export const InnerNav = (props) => {
         <div className="inner-nav-headers">
           <h1 className="inner-nav-name">
             {props.auth.display_name}
-            <a href="#" className="inner-nav-logout" onClick={(e) => {
+            <a href="#" className="inner-nav-button" onClick={(e) => {
               e.preventDefault();
               props.logout();
             }}>
               Log Out
+            </a>
+            <a href="#new1" className="inner-nav-button">
+              New Siftr
             </a>
           </h1>
           {
