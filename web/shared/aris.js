@@ -29,6 +29,9 @@ export class Game {
       this.map_show_labels = parseInt(json.map_show_labels) ? true : false;
       this.map_show_roads = parseInt(json.map_show_roads) ? true : false;
       this.map_type = json.map_type;
+      this.field_id_preview = parseInt(json.field_id_preview) || null;
+      this.field_id_pin = parseInt(json.field_id_pin) || null;
+      this.field_id_caption = parseInt(json.field_id_caption) || null;
     } else {
       this.game_id = null;
       this.name = null;
@@ -50,6 +53,9 @@ export class Game {
       this.map_show_labels = null;
       this.map_show_roads = null;
       this.map_type = null;
+      this.field_id_preview = null;
+      this.field_id_pin = null;
+      this.field_id_caption = null;
     }
   }
 
@@ -78,6 +84,9 @@ export class Game {
     };
   }
 
+  newFormat() {
+    return this.field_id_preview || this.field_id_pin || this.field_id_caption;
+  }
 };
 
 function deserializeGame(json) {
@@ -266,6 +275,7 @@ export class FieldOption {
       this.game_id = parseInt(json.game_id);
       this.option = json.option;
       this.sort_index = json.sort_index != null ? parseInt(json.sort_index) : null;
+      this.color = json.color;
     }
   }
 
@@ -368,6 +378,7 @@ export class Aris {
     if (this.auth != null) {
       json = update(json, {auth: {$set: this.auth}});
     }
+    json = update(json, {api: {$set: 2}});
     let jsonString = JSON.stringify(json);
     req.onload = () => {
       var ref;

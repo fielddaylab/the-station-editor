@@ -2009,7 +2009,7 @@ const CategoryRow = createClass({
             })
           }, f);
         });
-        if (this.props.isLockedField) {
+        if (this.props.game.newFormat() || this.props.isLockedField) {
           color = o.color || colors[i % 8];
           child('a', {
             href: '#'
@@ -2090,7 +2090,7 @@ const CategoryRow = createClass({
               props({
                 onClick: (e) => {
                   e.preventDefault();
-                  if (this.props.editing) {
+                  if (this.props.editing && !this.props.game.newFormat()) {
                     // must be a category
                     this.props.updateCategory({
                       tag_id: o.field_option_id,
@@ -2247,24 +2247,28 @@ const FormEditor = createClass({
             }
             return row;
           };
-          lockedFields = [
-            new Field({
-              field_type: 'MEDIA',
-              label: 'Main Photo',
-              required: true
-            }),
-            new Field({
-              field_type: 'TEXTAREA',
-              label: 'Caption',
-              required: true
-            }),
-            new Field({
-              field_type: 'SINGLESELECT',
-              label: 'Category',
-              required: true,
-              options: categoryOptions()
-            })
-          ];
+          if (/*!(this.props.editing) || */ this.props.game.newFormat()) {
+            lockedFields = [];
+          } else {
+            lockedFields = [
+              new Field({
+                field_type: 'MEDIA',
+                label: 'Main Photo',
+                required: true
+              }),
+              new Field({
+                field_type: 'TEXTAREA',
+                label: 'Caption',
+                required: true
+              }),
+              new Field({
+                field_type: 'SINGLESELECT',
+                label: 'Category',
+                required: true,
+                options: categoryOptions()
+              })
+            ];
+          }
           lockedFields.forEach((field, i) => {
             i -= lockedFields.length; // so they go -3, -2, -1
             return child(divFormFieldRow(i), {
@@ -2329,6 +2333,15 @@ const FormEditor = createClass({
                   });
                 }
               });
+              if (field.field_id === this.props.game.field_id_preview || field.field_id === this.props.game.field_id_caption) {
+                child('img.role-icon', {
+                  src: "../assets/icons/role-card.png"
+                });
+              } else if (field.field_id === this.props.game.field_id_pin) {
+                child('img.role-icon', {
+                  src: "../assets/icons/role-pin.png"
+                });
+              }
               return child('div.form-field-x', () => {
                 makeArrow('up', i !== 0, (f) => {
                   return child('a', {
