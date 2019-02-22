@@ -1009,12 +1009,13 @@ const App = createClass({
                     this.updateForms([this.state.edit_game], cb);
                   }));
                 },
-                updateFieldOption: ({field_option, option}, cb) => {
+                updateFieldOption: ({field_option, option, color}, cb) => {
                   this.props.aris.call('fields.updateFieldOption', {
                     game_id: this.state.edit_game.game_id,
                     field_id: field_option.field_id,
                     field_option_id: field_option.field_option_id,
-                    option: option
+                    option: option,
+                    color: color,
                   }, onSuccess(() => {
                     this.updateForms([this.state.edit_game], cb);
                   }));
@@ -2035,12 +2036,12 @@ const CategoryRow = createClass({
             defaultValue: o.option,
             onBlur: (e) => {
               if (this.props.editingCategory) {
-                return this.props.updateCategory({
+                this.props.updateCategory({
                   tag_id: o.field_option_id,
                   name: e.target.value
                 });
               } else {
-                return this.props.updateFieldOption({
+                this.props.updateFieldOption({
                   field_option: o,
                   option: e.target.value
                 });
@@ -2052,7 +2053,7 @@ const CategoryRow = createClass({
             type: 'text',
             value: o.option,
             onChange: (e) => {
-              return this.updateOption(update(o, {
+              this.updateOption(update(o, {
                 option: {
                   $set: e.target.value
                 }
@@ -2097,11 +2098,18 @@ const CategoryRow = createClass({
                       color: color
                     });
                   } else {
-                    this.updateOption(update(o, {
-                      color: {
-                        $set: color
-                      }
-                    }));
+                    if (this.props.editing) {
+                      this.props.updateFieldOption({
+                        field_option: o,
+                        color: color,
+                      });
+                    } else {
+                      this.updateOption(update(o, {
+                        color: {
+                          $set: color
+                        }
+                      }));
+                    }
                   }
                   this.setState({
                     colorsOpen: false
