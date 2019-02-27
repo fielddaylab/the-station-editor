@@ -80,7 +80,10 @@ export class Game {
       type: this.type,
       map_show_labels: this.map_show_labels,
       map_show_roads: this.map_show_roads,
-      map_type: this.map_type
+      map_type: this.map_type,
+      field_id_preview: this.field_id_preview,
+      field_id_pin: this.field_id_pin,
+      field_id_caption: this.field_id_caption,
     };
   }
 

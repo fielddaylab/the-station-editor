@@ -969,8 +969,33 @@ const App = createClass({
                   }));
                 },
                 updateField: (field) => {
+                  let changedGame = false;
+                  const updateRole = (cb) => {
+                    if (field.useAsPin != null) {
+                      changedGame = true;
+                      this.props.aris.updateGame(update(this.state.edit_game, {
+                        field_id_pin: {$set: (field.useAsPin ? field.field_id : 0)},
+                      }), cb);
+                    } else if (field.useOnCards != null) {
+                      changedGame = true;
+                      if (field.field_type === 'MEDIA') {
+                        this.props.aris.updateGame(update(this.state.edit_game, {
+                          field_id_preview: {$set: (field.useOnCards ? field.field_id : 0)},
+                        }), cb);
+                      } else {
+                        this.props.aris.updateGame(update(this.state.edit_game, {
+                          field_id_caption: {$set: (field.useOnCards ? field.field_id : 0)},
+                        }), cb);
+                      }
+                    } else {
+                      cb();
+                    }
+                  };
                   this.props.aris.call('fields.updateField', field, onSuccess(() => {
-                    this.updateForms([this.state.edit_game]);
+                    updateRole(() => {
+                      if (changedGame) this.updateGames(); // TODO just use the game from the result
+                      this.updateForms([this.state.edit_game]);
+                    });
                   }));
                 },
                 deleteField: (field) => {
@@ -2692,6 +2717,59 @@ const FormEditor = createClass({
                     });
                     child('span.form-multi-option-text', () => {
                       raw('Required');
+                    });
+                    return child('span.form-multi-option-switch', () => {
+                      return child('span.form-multi-option-ball');
+                    });
+                  });
+                }
+                if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
+                  const bool = (field.useAsPin == null ? (this.props.game.field_id_pin == field.field_id) : field.useAsPin);
+                  child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
+                    href: '#'
+                  }, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
+                        this.setState({
+                          editingField: update(field, {
+                            useAsPin: {
+                              $set: !bool
+                            }
+                          })
+                        });
+                      }
+                    });
+                    child('span.form-multi-option-text', () => {
+                      raw('Use as Data Point');
+                    });
+                    return child('span.form-multi-option-switch', () => {
+                      return child('span.form-multi-option-ball');
+                    });
+                  });
+                }
+                if (['MEDIA', 'TEXT', 'TEXTAREA'].indexOf(field.field_type) !== -1) {
+                  const bool =
+                    (field.useOnCards == null
+                    ? (this.props.game.field_id_caption == field.field_id || this.props.game.field_id_preview == field.field_id)
+                    : field.useOnCards);
+                  child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
+                    href: '#'
+                  }, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
+                        this.setState({
+                          editingField: update(field, {
+                            useOnCards: {
+                              $set: !bool
+                            }
+                          })
+                        });
+                      }
+                    });
+                    child('span.form-multi-option-text', () => {
+                      raw('Use on Cards');
                     });
                     return child('span.form-multi-option-switch', () => {
                       return child('span.form-multi-option-ball');
