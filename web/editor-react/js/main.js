@@ -60,6 +60,39 @@ function hasNameDesc(game) {
     game.description.match(/\S/);
 }
 
+function standardFields() {
+  const fake_id = Date.now();
+  return [
+    new Field({
+      field_id: fake_id + 1,
+      field_type: 'SINGLESELECT',
+      label: 'Category',
+      required: false,
+      options: [
+        new FieldOption({
+          field_option_id: fake_id + 2,
+          option: 'Observation',
+        }),
+      ],
+      useAsPin: true,
+    }),
+    new Field({
+      field_id: fake_id + 3,
+      field_type: 'TEXTAREA',
+      label: 'Caption',
+      required: true,
+      useOnCards: true,
+    }),
+    new Field({
+      field_id: fake_id + 4,
+      field_type: 'MEDIA',
+      label: 'Main Photo',
+      required: true,
+      useOnCards: true,
+    }),
+  ];
+}
+
 const App = createClass({
   displayName: 'App',
   getInitialState: function() {
@@ -76,8 +109,7 @@ const App = createClass({
       screen: 'main',
       edit_game: null,
       new_game: (() => {
-        var g;
-        g = new Game;
+        let g = new Game;
         g.colors_id = 1;
         g.theme_id = 1;
         g.map_show_labels = true;
@@ -87,6 +119,7 @@ const App = createClass({
         g.longitude = -89.430121;
         g.zoom = 12;
         g.is_siftr = true;
+        g.fields = standardFields();
         return g;
       })(),
       new_categories: [
@@ -562,6 +595,7 @@ const App = createClass({
                 g.longitude = -89.430121;
                 g.zoom = 12;
                 g.is_siftr = true;
+                g.fields = standardFields();
                 return g;
               })()
             },
@@ -2035,7 +2069,7 @@ const CategoryRow = createClass({
             })
           }, f);
         });
-        if (this.props.game.newFormat() || this.props.isLockedField) {
+        if (!this.props.editing || this.props.game.newFormat() || this.props.isLockedField) {
           color = o.color || colors[i % 8];
           child('a', {
             href: '#'
@@ -2280,7 +2314,7 @@ const FormEditor = createClass({
             }
             return row;
           };
-          if (/*!(this.props.editing) || */ this.props.game.newFormat()) {
+          if (!(this.props.editing) || this.props.game.newFormat()) {
             lockedFields = [];
           } else {
             lockedFields = [
@@ -2366,11 +2400,11 @@ const FormEditor = createClass({
                   });
                 }
               });
-              if (field.field_id === this.props.game.field_id_preview || field.field_id === this.props.game.field_id_caption) {
+              if (field.field_id === this.props.game.field_id_preview || field.field_id === this.props.game.field_id_caption || field.useOnCards) {
                 child('img.role-icon', {
                   src: "../assets/icons/role-card.png"
                 });
-              } else if (field.field_id === this.props.game.field_id_pin) {
+              } else if (field.field_id === this.props.game.field_id_pin || field.useAsPin) {
                 child('img.role-icon', {
                   src: "../assets/icons/role-pin.png"
                 });
@@ -2483,7 +2517,7 @@ const FormEditor = createClass({
             });
             return child('p', () => {
               var types;
-              types = [['TEXT', 'small text field'], ['TEXTAREA', 'large text field'], ['SINGLESELECT', 'single choice'], ['MULTISELECT', 'multiple choice'], ['MEDIA', 'extra photo']];
+              types = [['TEXT', 'small text field'], ['TEXTAREA', 'large text field'], ['SINGLESELECT', 'single choice'], ['MULTISELECT', 'multiple choice'], ['MEDIA', 'photo']];
               return types.forEach(([type, name], i) => {
                 return child('a.form-add-field', {
                   href: '#',
@@ -2901,6 +2935,8 @@ const FormEditor = createClass({
                     } else if (this.props.editing) {
                       this.props.updateField(field);
                     } else {
+                      // TODO if we turn on useOnCards or useAsPin,
+                      // turn it off for the appropriate other fields
                       this.props.onChange(update(this.props.game, {
                         fields: singleObj(this.state.editingIndex, {
                           $set: field

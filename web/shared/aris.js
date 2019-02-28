@@ -265,6 +265,9 @@ export class Field {
       this.required = (ref = json.required) === true || ref === false ? json.required : !!(parseInt(json.required));
       this.sort_index = json.sort_index != null ? parseInt(json.sort_index) : null;
       this.options = json.options;
+      // used during new game creation
+      this.useAsPin = json.useAsPin;
+      this.useOnCards = json.useOnCards;
     }
   }
 
