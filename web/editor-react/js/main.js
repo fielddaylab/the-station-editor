@@ -1770,7 +1770,6 @@ const EditOverview = createClass({
                 child('span.form-multi-option-ball');
               });
             });
-            // TODO uncomment/translate when native app has password support
             child('p', () => {
               raw('Do you want to set a password to restrict access?');
             });
@@ -2935,12 +2934,27 @@ const FormEditor = createClass({
                     } else if (this.props.editing) {
                       this.props.updateField(field);
                     } else {
-                      // TODO if we turn on useOnCards or useAsPin,
-                      // turn it off for the appropriate other fields
                       this.props.onChange(update(this.props.game, {
-                        fields: singleObj(this.state.editingIndex, {
-                          $set: field
-                        })
+                        fields: {
+                          $apply: (fields) => (
+                            fields.map((someField, i) => {
+                              if (i === this.state.editingIndex) {
+                                return field;
+                              }
+                              if (field.useAsPin && someField.useAsPin) {
+                                return update(someField, {useAsPin: {$set: false}});
+                              }
+                              if (field.useOnCards && someField.useOnCards) {
+                                const thisIsPhoto = field.field_type === 'MEDIA';
+                                const thatIsPhoto = someField.field_type === 'MEDIA';
+                                if (thisIsPhoto === thatIsPhoto) {
+                                  return update(someField, {useOnCards: {$set: false}});
+                                }
+                              }
+                              return someField;
+                            })
+                          ),
+                        },
                       }));
                     }
                     this.setState({
