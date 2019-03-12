@@ -46,10 +46,10 @@
       </div>
     </div>
   </div>
-
+  <span class="rule"></span>
   <div class="section row content-block">
     <div class="col-sm order-1 order-sm-2 image">
-      <img class="img-fluid " src="/assets/img/illustration2.jpg">
+      <img class="img-fluid small" src="/assets/img/illustration2.jpg">
     </div>
     <div class="col-sm copy-wrap order-2 order-sm-1">
       <div class="copy">
@@ -58,10 +58,10 @@
       </div>
     </div>
   </div>
-
+  <span class="rule"></span>
   <div class="section row content-block">
     <div class="col-sm image">
-      <img class="img-fluid" src="/assets/img/illustration3.jpg">
+      <img class="img-fluid small" src="/assets/img/illustration3.jpg">
     </div>
     <div class="col-sm copy-wrap">
       <div class="copy">

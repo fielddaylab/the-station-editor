@@ -1,6 +1,9 @@
+<div class="section centered call-out">
+  <h3 class="underline uppercase">In the Field</h3>
+  <p class="centered">These teachers are transforming how they teach Field Research</p>
+</div>
 <section class="section card-module">
   <ul class="gridder cards">
-
     <li class="gridder-list card" data-griddercontent="#card-expand-1">
       <div class="img_wrap" style="background:url(assets/img/thumbs/thumb-larry.jpg); background-size:cover; background-position:center;"></div>
       <h5>Veroetry</h5>

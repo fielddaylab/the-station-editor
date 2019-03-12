@@ -83,7 +83,7 @@ p {
 
 .hide-for-small {
   display:none;
-  @include media-breakpoint-up(sm) {
+  @include media-breakpoint-up(md) {
     display:initial;
   }
 }

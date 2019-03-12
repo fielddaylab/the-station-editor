@@ -7033,13 +7033,13 @@ a.text-dark:hover, a.text-dark:focus {
   color: #EDF5F8; }
 
 .pink {
-  color: #FD7979; }
+  color: #F8B2B2; }
 
 .dark_pink {
-  color: #FD7979; }
+  color: #F8B2B2; }
 
 .light_pink {
-  color: #FD7979; }
+  color: #F8B2B2; }
 
 .dark_gray {
   color: #23283F; }
@@ -7100,13 +7100,13 @@ a.text-dark:hover, a.text-dark:focus {
       .button.blue:hover i, .button.blue.filled i {
         color: #fff; }
   .button.pink {
-    color: #FD7979;
-    border-color: #FD7979;
+    color: #F8B2B2;
+    border-color: #F8B2B2;
     background: transparent; }
     .button.pink i {
-      color: #FD7979; }
+      color: #F8B2B2; }
     .button.pink:hover, .button.pink.filled {
-      background: #FD7979;
+      background: #F8B2B2;
       color: #1C2B61; }
       .button.pink:hover i, .button.pink.filled i {
         color: #1C2B61; }
@@ -7175,7 +7175,7 @@ h1, h2, h3, h4, h5 {
       content: "";
       width: calc(100% + 11px);
       height: 44%;
-      background: #FD7979;
+      background: #F8B2B2;
       display: block;
       position: absolute;
       z-index: -1;
@@ -7244,7 +7244,7 @@ p {
 
 .hide-for-small {
   display: none; }
-  @media (min-width: 576px) {
+  @media (min-width: 768px) {
     .hide-for-small {
       display: initial; } }
 
@@ -7361,19 +7361,19 @@ p {
 
 .call-out p {
   text-align: left;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   margin-top: 20px; }
 
 @media (min-width: 576px) {
   .section {
-    max-width: 1400px;
+    max-width: 1200px;
     padding: 5vw;
     margin: 0 auto; } }
 
 .hero {
   width: 100%;
-  height: 70vh;
+  height: 80vh;
   background: url("/assets/img/hero-bg.jpg");
   background-size: contain;
   background-position: bottom;
@@ -7391,7 +7391,7 @@ p {
 
 @media (min-width: 768px) {
   .hero {
-    height: 80vh;
+    height: 90vh;
     background-size: 100% auto; }
     .hero .hero-contents .hero-info {
       background: #fff;
@@ -7459,8 +7459,6 @@ p {
     .gridder-list .card-summary p {
       font-size: 1em;
       min-height: 110px; }
-  .gridder-list:hover h3, .gridder-list:hover p, .gridder-list.selectedItem h3, .gridder-list.selectedItem p {
-    color: #fff; }
   .gridder-list .card-triangle {
     position: absolute;
     bottom: -15px;
@@ -7473,9 +7471,6 @@ p {
     display: block;
     opacity: 0;
     transition: all .3s ease-in-out; }
-
-.selectedItem {
-  border: 3px solid #1C2B61; }
 
 .gridder-navigation {
   position: relative;
@@ -7574,6 +7569,9 @@ p {
     font-weight: 400;
     letter-spacing: .3em; }
 
+.cards {
+  text-align: center; }
+
 .card {
   background: #fff;
   border-radius: 10px;
@@ -7584,21 +7582,22 @@ p {
   list-style: none;
   min-height: 200px;
   margin: 2.5%;
-  border: none; }
-  @media (min-width: 576px) {
+  border: none;
+  text-align: left; }
+  @media (min-width: 768px) {
     .card {
-      width: 31%;
+      width: 300px;
+      min-height: 450px;
       margin: 1%; } }
-  .card.selectedItem {
+  .card.selectedItem, .card:hover {
     box-shadow: 0 0px 0px 4px #081a49; }
   .card .img_wrap {
     width: 100%;
     height: 20vw;
     margin-bottom: 10px; }
-    @media (min-width: 576px) {
+    @media (min-width: 768px) {
       .card .img_wrap {
-        height: 15vh;
-        min-height: 250px; } }
+        height: 200px; } }
   .card img {
     width: 100%;
     height: auto; }
@@ -7656,6 +7655,8 @@ p {
 
 #gettingstarted img {
   max-height: 350px; }
+  #gettingstarted img.small {
+    max-height: 220px; }
 
 .create-with-siftr {
   max-height: 0;
@@ -7675,7 +7676,7 @@ p {
   .create-with-siftr .wrap {
     padding: 3vw; }
   .create-with-siftr .number h5 {
-    color: #FD7979 !important;
+    color: #F8B2B2 !important;
     opacity: .6;
     font-size: 40px;
     margin-bottom: 5px;
@@ -7697,3 +7698,9 @@ p {
     margin-left: -25px;
     cursor: pointer;
     top: -25px; }
+
+.rule {
+  width: 100%;
+  height: 2px;
+  display: block;
+  background: #EDF5F8; }

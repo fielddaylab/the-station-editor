@@ -68,9 +68,6 @@
         min-height: 110px;
       }
     }
-    &:hover, &.selectedItem {
-      h3, p { color: #fff; }
-    }
     .card-triangle {
       position: absolute;
       bottom: -15px;
@@ -86,9 +83,6 @@
     }
 }
 
-.selectedItem {
-  border:3px solid $blue;
-}
 .gridder-navigation {
 
   position: relative;

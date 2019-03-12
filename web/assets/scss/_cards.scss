@@ -1,4 +1,6 @@
-
+.cards{
+  text-align: center;
+}
 .card {
   background: #fff;
   border-radius:10px;
@@ -10,20 +12,21 @@
   min-height:200px;
   margin:2.5%;
   border:none;
-  @include media-breakpoint-up(sm) {
-    width:31%;
+  text-align:left;
+  @include media-breakpoint-up(md) {
+    width:300px;
+    min-height:450px;
     margin:1%;
   }
-  &.selectedItem {
+  &.selectedItem, &:hover {
     box-shadow: 0 0px 0px 4px rgba(8,26,73,1);
   }
   .img_wrap {
     width:100%;
     height:20vw;
     margin-bottom:10px;
-    @include media-breakpoint-up(sm) {
-      height:15vh;
-      min-height:250px;
+    @include media-breakpoint-up(md) {
+      height:200px;
     }
   }
   img {

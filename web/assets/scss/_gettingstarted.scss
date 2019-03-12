@@ -2,6 +2,8 @@
   .image {
     text-align:center;
   }
+  .content-block {
+  }
   .copy-wrap {
     display: flex;
     align-items: center;
@@ -18,6 +20,9 @@
   }
   img {
     max-height:350px;
+    &.small {
+      max-height:220px;
+    }
   }
 }
 
@@ -68,4 +73,11 @@
      cursor:pointer;
      top:-25px;
    }
+ }
+
+ .rule {
+   width:100%;
+   height:2px;
+   display:block;
+   background:$super_light_blue;
  }
