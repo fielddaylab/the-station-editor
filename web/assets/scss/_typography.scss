@@ -1,0 +1,89 @@
+@font-face {
+    font-family: 'league_spartanregular';
+    src: url('/assets/fonts/leaguespartan-bold.ttf') format('ttf'),
+         url('/assets/fonts/leaguespartan-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Lato', sans-serif;
+  font-weight:400;
+  color:$blue;
+}
+
+h1,h2,h3,h4,h5 {
+  font-family: 'league_spartanregular', sans-serif;
+  color:$blue;
+  position:relative;
+  &.uppercase { text-transform:uppercase; }
+  &.white { color:#fff; }
+  &.underline {
+    display:inline-block;
+    &:before {
+      content: "";
+      width: calc(100% + 11px);
+      height: 44%;
+      background: $pink;
+      display: block;
+      position: absolute;
+      z-index: -1;
+      bottom: -4%;
+      left: -5px;
+    }
+  }
+}
+h1, .h1 { font-size: $h1-font-size; }
+h2, .h2 { font-size: $h2-font-size; }
+h3, .h3 { font-size: $h3-font-size; }
+h4, .h4 { font-size: $h4-font-size; }
+h5, .h5 { font-size: $h5-font-size; }
+h6, .h6 { font-size: $h6-font-size * .8; }
+
+h1.uppercase { letter-spacing: $font-size-base * .5; }
+h2.uppercase { letter-spacing: $font-size-base * .3; }
+h3.uppercase { letter-spacing: $font-size-base * .3; }
+h4.uppercase { letter-spacing: $font-size-base * .2; }
+h5.uppercase { letter-spacing: $font-size-base * .1; }
+a {
+  font-weight:500;
+  color:$dark_pink;
+  &:hover {
+   color:$dark_pink;
+  }
+}
+.subheader {
+  font-family: 'league_spartanregular', sans-serif;
+  color: $light_blue;
+}
+
+p {
+  font-size: $font-size-sm;
+  line-height:23px;
+}
+
+@include media-breakpoint-up(sm) {
+  p {
+    font-size: $font-size-base;
+  }
+}
+
+.boldish {
+  font-family: 'league_spartanregular';
+  src: url('/assets/fonts/leaguespartan-bold.ttf') format('ttf'),
+       url('/assets/fonts/leaguespartan-bold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.subdue {
+  color: $light_blue;
+}
+
+.hide-for-small {
+  display:none;
+  @include media-breakpoint-up(sm) {
+    display:initial;
+  }
+}

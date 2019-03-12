@@ -1,0 +1,32 @@
+.section {
+  max-width:1200px;
+  padding:10vw;
+  margin: 0 auto;
+}
+
+.centered {
+  text-align:center;
+}
+
+.call-out {
+  img {
+    width:70px;
+    display:block;
+    margin:0 auto;
+    margin-bottom:20px;
+  }
+  p {
+    text-align:left;
+    max-width:400px;
+    margin: 0 auto;
+    margin-top:20px;
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  .section {
+    max-width:1400px;
+    padding:5vw;
+    margin: 0 auto;
+  }
+}

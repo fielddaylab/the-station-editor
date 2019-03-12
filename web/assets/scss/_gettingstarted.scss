@@ -1,0 +1,71 @@
+#gettingstarted {
+  .image {
+    text-align:center;
+  }
+  .copy-wrap {
+    display: flex;
+    align-items: center;
+    .copy {
+      padding:3vw;
+      text-align:center;
+      @include media-breakpoint-up(sm) {
+        text-align:left;
+      }
+      h2 {
+        margin-bottom:20px;
+      }
+    }
+  }
+  img {
+    max-height:350px;
+  }
+}
+
+.create-with-siftr {
+  max-height:0;
+  height:auto;
+  transition: all .4s ease-in-out;
+  opacity:0;
+  width:100%;
+  background:$blue;
+  background-image: url(/assets/img/wave.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position: bottom;
+  position:relative;
+  &.open {
+    opacity:1;
+    max-height:1500px;
+  }
+  .wrap {
+    padding:3vw;
+  }
+  .number h5 {
+    color:$pink !important;
+    opacity:.6;
+    font-size:40px;
+    margin-bottom:5px;
+    margin-left:-30px;
+
+  }
+  .create-block {
+    margin:10px 10px 25px 10px;
+    h2,h3,h4,,h5,p {
+      color: #fff;
+    }
+   }
+   .create-close {
+     background:#fff;
+     height:50px;
+     width:50px;
+     display:block;
+     padding:10px;
+     border-radius:25px;
+     margin:0 auto;
+     position:absolute;
+     left:50%;
+     margin-left:-25px;
+     cursor:pointer;
+     top:-25px;
+   }
+ }

@@ -1,0 +1,66 @@
+/* Buttons
+------------------------------------------ */
+.button {
+  display: inline-block;
+  padding: 12px 15px;
+  font-size: 16px;
+  line-height: 1.2em;
+  border: 2px solid $dark_gray;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  color: $black;
+  font-weight: 400;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  margin:5px 5px 5px 0px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  color:#fff;
+  &:hover { cursor: pointer; text-decoration: none; opacity: 0.9; }
+  &:active, &:visited, &:focus { text-decoration: none; outline: none; }
+  &:hover, &.filled {
+    background: $dark_gray; color: #fff;
+    i { color: #fff; }
+  }
+  &:focus { outline: none !important; box-shadow: none !important; -webkit-appearance: none !important; text-decoration: none; }
+  &.blue {
+    color: $blue; border-color: $blue; background: transparent;
+    i { color: $blue; }
+    &:hover, &.filled {
+      background: $blue; color: #fff;
+      i { color: #fff; }
+    }
+  }
+  &.pink {
+    color: $pink; border-color: $pink; background: transparent;
+    i { color: $pink; }
+    &:hover, &.filled {
+      background: $pink; color: $blue;
+      i { color: $blue; }
+    }
+  }
+  &.disabled {
+    color: $light_gray; border-color: $light_gray; background: transparent;
+    i { color: $light_gray; }
+    &.filled {
+      background: $light_gray; color: #fff;
+      i { color: #fff; }
+    }
+  }
+  &.white {
+    color: #fff; border-color: #fff; background: transparent;
+    i { color: #fff; }
+    &:hover, &.filled {
+      background: #fff; color: $black !important;
+      i { color: $black; }
+    }
+  }
+  &.small { min-width: auto; font-size: 13px; padding: 10px 18px; }
+  &.xsmall { min-width: auto; font-size: 10px; letter-spacing: 2px; padding: 10px 15px; }
+  &.full-width { text-align: center; }
+  &.round { border-radius: 30px; }
+  &[disabled='disabled'] { opacity: 0.5; cursor: not-allowed; }
+}
