@@ -1,0 +1,118 @@
+.main-nav {
+  position:fixed;
+  width:100%;
+  display:flex;
+  background: #fff;
+  align-items: center;
+  padding:10px;
+  z-index:1000;
+  box-shadow: 0 9px 10px 0 rgba(18,129,155,0.06);
+  .logo {
+    height:100%;
+    width:40px;
+  }
+  .nav-contents {
+    position: absolute;
+    width: 85vw;
+    height: 100vh;
+    z-index: 1000;
+    top: 0;
+    display: flex;
+    right: 0;
+    transform:translateX(80vw);
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    text-align:center;
+    justify-content: center;
+    flex-direction:column;
+    background:#fff;
+    box-shadow: -10px 9px 10px 0 rgba(18,129,155,0.06);
+    opacity:0;
+    .smily-pin {
+      width:30px;
+      display:block;
+      margin-top:20vh;
+    }
+    &.nav-open {
+      transform:translateX(0vw);
+      opacity:1;
+    }
+    .nav-items {
+      margin:0;
+      padding-left:0;
+      li {
+        font-family: 'league_spartanregular';
+        display:block;
+        margin:30px 10px;
+        vertical-align: middle;
+        a {
+          text-transform:uppercase;
+          font-size:14px;
+          letter-spacing:3px;
+          color:$blue;
+        }
+        &:last-child a {
+          border-right:none;
+        }
+      }
+    }
+  }
+  .mobile-nav-open {
+    background: url(/assets/icons/navicon.png);
+    width: 20px;
+    position: absolute;
+    right: 15px;
+    background-size: 20px 20px;
+    height: 20px;
+    cursor:pointer;
+    z-index:1001;
+    &:hover {
+      opacity:.7;
+    }
+  }
+  @include media-breakpoint-up(sm) {
+    .mobile-nav-open {
+      display:none;
+    }
+    .nav-contents {
+      position:relative;
+      height:initial;
+      width:initial;
+      transform:translateX(0vw);
+      background:none;
+      box-shadow:none;
+      opacity:1;
+      .nav-items {
+        margin-left:10px;
+        li {
+          display:inline;
+          a {
+            color:$blue;
+            border-right:2px solid $light_pink;
+            padding-right:15px;
+            font-size:10px;
+          }
+        }
+      }
+      .smily-pin {
+        display:none;
+      }
+    }
+  }
+}
+
+.nav-open {
+  .mobile-nav-open {
+    background: url(/assets/icons/close-icon-pink.png);
+    width: 20px;
+    position: absolute;
+    right: 15px;
+    background-size: 20px 20px;
+    height: 20px;
+    cursor:pointer;
+    z-index:1001;
+    &:hover {
+      opacity:.7;
+    }
+  }
+}
