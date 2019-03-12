@@ -25,5 +25,5 @@
   ga('send', 'pageview');
   ga('linker:autoLink', ['arisgames.org','fielddaylab.org','siftr.org'], false, true);
 </script>
-<link rel="stylesheet" href="./assets/css/styles.css">
+<link rel="stylesheet" href="/assets/css/styles.css">
 <body>
