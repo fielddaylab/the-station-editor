@@ -733,7 +733,7 @@ const App = createClass({
               href: '..'
             }, () => {
               child('img#the-logo', {
-                src: '../assets/logos/siftr-logo-black.png'
+                src: '../assets/logos/siftr-logo.png'
               });
             });
             if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
@@ -1548,8 +1548,8 @@ const App = createClass({
             return child('a', {
               href: '..'
             }, () => {
-              return child('img', {
-                src: '../assets/logos/brand-mobile.png'
+              return child('img#the-mobile-logo', {
+                src: '../assets/logos/siftr-logo.png'
               });
             });
           });
