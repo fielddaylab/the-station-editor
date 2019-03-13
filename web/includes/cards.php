@@ -25,7 +25,7 @@
       <p class="small hide-for-small">In this Siftr, students learn about clouds by collecting pictures of them and then categorizing them correctly…Cumulonimbus…Cirrus…Cumulus…Stratus…Nimbostratus. They were then asked to add observations about the wind and temperature in the description.</p>
     </li>
   </ul>
-</section>
+
 <div id="card-expand-1" class="card_expanded gridder-content">
   <div class="row">
     <div class="col-sm card_copy">
@@ -98,3 +98,4 @@
     </div>
   </div>
 </div>
+</section>

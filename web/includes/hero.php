@@ -1,4 +1,4 @@
-<div class="hero">
+<section class="hero">
   <div class="hero-contents">
     <div class="hero-info col-md-6">
       <h3>Citizen science and field work projects made easy</h3>
@@ -6,4 +6,4 @@
       <a class="button small filled blue" href="#">learn more</a>
     </div>
   </div>
-</div>
+</section>

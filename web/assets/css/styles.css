@@ -7577,6 +7577,9 @@ p {
     font-weight: 400;
     letter-spacing: .3em; }
 
+.card-module {
+  clear: both; }
+
 .cards {
   text-align: center; }
 
@@ -7712,6 +7715,9 @@ p {
   height: 2px;
   display: block;
   background: #EDF5F8; }
+
+.pricing {
+  clear: both; }
 
 .pricing_block {
   background: #fff;

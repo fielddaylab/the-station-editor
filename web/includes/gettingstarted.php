@@ -1,4 +1,4 @@
-<div id="gettingstarted">
+<section id="gettingstarted">
   <div class="section row content-block">
     <div class="col-sm image">
       <img class="img-fluid" src="/assets/img/illustration1.jpg">
@@ -71,4 +71,4 @@
     </div>
   </div>
     <span class="rule"></span>
-</div>
+</section>
