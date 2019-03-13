@@ -40,28 +40,34 @@ function arisCall(func, json, cb) {
   return trySend();
 }
 
-document.addEventListener('DOMContentLoaded', function(){
+function updateSiftrNav() {
   var authJSON = window.localStorage['aris-auth'];
   if (authJSON) {
     authJSON = JSON.parse(authJSON);
     var name = authJSON.display_name || authJSON.username;
     var media_id = parseInt(authJSON.media_id);
-    document.getElementById('nav-login').classList.add('nav-hide');
-    document.getElementById('nav-profile').classList.remove('nav-hide');
-    var link = document.getElementById('nav-profile-link');
-    link.innerHTML = name;
     arisCall('media.getMedia', {media_id: media_id}, function(result){
+      var src = undefined;
       if (result.data && result.returnCode === 0) {
-        var src = result.data.thumb_url;
-        link.appendChild(document.createTextNode(' '));
-        var img = new Image();
-        img.src = src;
-        img.classList.add('nav-profile-img');
-        link.appendChild(img);
+        src = result.data.thumb_url;
       }
+      document.getElementById('nav-login').classList.add('nav-hide');
+      document.getElementById('nav-profile').classList.remove('nav-hide');
+      var link = document.getElementById('nav-profile-link');
+      link.innerHTML = name;
+      link.appendChild(document.createTextNode(' '));
+      var img = new Image();
+      img.src = src;
+      img.classList.add('nav-profile-img');
+      link.appendChild(img);
     })
+  } else {
+    document.getElementById('nav-login').classList.remove('nav-hide');
+    document.getElementById('nav-profile').classList.add('nav-hide');
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', updateSiftrNav);
 
 </script>
 <nav class="main-nav">

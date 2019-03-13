@@ -286,6 +286,7 @@ const App = createClass({
     return this.updateLogin();
   },
   updateLogin: function() {
+    if (window.updateSiftrNav) window.updateSiftrNav();
     this.setState({
       auth: this.props.aris.auth,
       account_menu: false,
@@ -726,49 +727,6 @@ const App = createClass({
       var game;
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
-        child('div.nav-bar-line', () => {
-          child('div', () => {
-            var ref1;
-            child('a', {
-              href: '..'
-            }, () => {
-              child('img#the-logo', {
-                src: '../assets/logos/siftr-logo.png'
-              });
-            });
-            if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
-              child('h1.new-siftr-title', () => {
-                if (this.state.new_game.name) {
-                  raw(this.state.new_game.name);
-                } else {
-                  raw('New Siftr');
-                }
-              });
-            }
-            return child('a', {
-              href: '../discover'
-            }, () => {
-              child('div.nav-button-right', () => {
-                raw('Discover');
-              });
-            });
-          });
-          return child('div', () => {
-            if (this.state.auth != null) {
-              return child('a.nav-user', {
-                href: '#profile'
-              }, () => {
-                var ref1;
-                child('span', () => {
-                  raw(this.state.auth.display_name);
-                });
-                return child('img', {
-                  src: (ref1 = this.state.userPicture) != null ? arisHTTPS(ref1.thumb_url) : undefined
-                });
-              });
-            }
-          });
-        });
         if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
@@ -852,21 +810,6 @@ const App = createClass({
       child('div.nav-bar.mobile-nav-bar', () => {
         return child('div.nav-bar-line', () => {
           child('div', () => {
-            return child('a', {
-              href: '#'
-            }, () => {
-              props({
-                onClick: (e) => {
-                  e.preventDefault();
-                  this.setState({
-                    account_menu: !this.state.account_menu
-                  });
-                }
-              });
-              return child('div#the-mobile-menu-button', () => {
-                raw('☰');
-              });
-            });
           });
           return navBarActions();
         });
@@ -1504,85 +1447,6 @@ const App = createClass({
               });
           }
         }
-      });
-      child('div.accountMenuMobile', () => {
-        child('a', {
-          href: '#'
-        }, () => {
-          props({
-            onClick: (e) => {
-              e.preventDefault();
-              this.setState({
-                account_menu: false
-              });
-            }
-          });
-          return child('div', () => {
-            return child('img', {
-              src: '../assets/icons/x-white.png'
-            });
-          });
-        });
-        return child('div.accountMenuMobileContents', () => {
-          if (this.state.auth != null) {
-            child('a.unlink', {
-              href: '#profile'
-            }, () => {
-              child('p', () => {
-                return child('span.account-menu-user-pic', {
-                  style: {
-                    backgroundImage: this.state.userPicture != null ? `url(${arisHTTPS(this.state.userPicture.thumb_url)})` : undefined
-                  }
-                });
-              });
-              return child('p', () => {
-                raw(this.state.auth.display_name);
-              });
-            });
-          } else {
-            child('p', () => {
-              raw('Not logged in');
-            });
-          }
-          child('p', () => {
-            return child('a', {
-              href: '..'
-            }, () => {
-              return child('img#the-mobile-logo', {
-                src: '../assets/logos/siftr-logo.png'
-              });
-            });
-          });
-          child('p', () => {
-            return child('a', {
-              href: '../editor'
-            }, () => {
-              raw('My Siftrs');
-            });
-          });
-          child('p', () => {
-            return child('a', {
-              href: '../discover'
-            }, () => {
-              raw('Discover');
-            });
-          });
-          if (this.state.auth != null) {
-            return child('p', () => {
-              return child('a', {
-                href: '#'
-              }, () => {
-                props({
-                  onClick: (e) => {
-                    e.preventDefault();
-                    return this.logout();
-                  }
-                });
-                raw('Logout');
-              });
-            });
-          }
-        });
       });
       if (this.state.modal_game != null) {
         game = this.state.modal_game;

@@ -1,12 +1,12 @@
 #the-container {
-  overflow: visible;
+  flex: 1;
+  display: flex;
+  overflow-y: hidden;
 }
 
 .topDiv {
-  position: absolute;
   width: 100%;
-  height: 100%;
-  overflow: visible;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: stretch;
