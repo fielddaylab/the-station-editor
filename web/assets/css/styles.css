@@ -7297,8 +7297,17 @@ p {
           font-size: 14px;
           letter-spacing: 3px;
           color: #1C2B61; }
-        .main-nav .nav-contents .nav-items li:last-child a {
+        .main-nav .nav-contents .nav-items li:last-child a, .main-nav .nav-contents .nav-items li:nth-last-child(2) a {
           border-right: none; }
+        .main-nav .nav-contents .nav-items li.nav-hide {
+          display: none; }
+        .main-nav .nav-contents .nav-items li .nav-profile-img {
+          vertical-align: bottom;
+          background-color: white;
+          width: 20px;
+          height: 20px;
+          border-radius: 10px;
+          margin-left: 5px; }
   .main-nav .mobile-nav-open {
     background: url(/assets/icons/navicon.png);
     width: 20px;
