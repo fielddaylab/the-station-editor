@@ -10,6 +10,10 @@ $(document).ready(function(){
     $('#gettingstarted').toggleClass('open');
   });
 
+  $('.pricing_block').click(function(){
+    $(this).toggleClass('selected');
+  });
+
 });
 
 $(function() {

@@ -1,0 +1,108 @@
+
+.search_bar {
+  width: 100%;
+  font-size: 20px;
+  padding: 12px 20px;
+  border-radius: 25px;
+}
+
+.results_arrow {
+  cursor: pointer;
+  font-size: 25px;
+  vertical-align: middle;
+}
+
+/* lists */
+@media (min-width: 801px) {
+  .list_entry_faded {
+    height: 325px;
+    overflow: hidden;
+    position: relative;
+  }
+}
+.list_entry {
+  background: #fff;
+  border-radius:10px;
+  box-shadow: 0 2px 100px 0 rgba(1,15,91,0.19);
+  border-radius: 8px;
+  padding:15px 15px 5px 15px;
+}
+@media (min-width: 801px) {
+  .list_entry {
+    width: 25%;
+    float: left;
+  }
+}
+@media (max-width: 800px) {
+  .list_entry {
+    padding: 0 10px;
+  }
+}
+.list_image {
+  margin-right: 15px;
+  margin-bottom: 15px;
+  display: block;
+  width: 100px;
+  height: 100px;
+}
+.list_link {
+  color: black;
+  text-decoration: none;
+}
+.list_name {}
+.list_description {}
+.list_fadeout {
+  pointer-events: none;
+}
+@media (max-width: 800px) {
+  .list_fadeout {
+    display: none;
+  }
+}
+@media (min-width: 801px) {
+  .list_fadeout {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to top, white 0px, rgba(255, 255, 255, 0) 40px);
+    /* above used to be rgba(0,0,0,0) but that behaves differently in Safari */
+  }
+}
+
+.owner_picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  float: left;
+  margin-top: -10px;
+  margin-right: 10px;
+  background-color: #E9C32A;
+  text-align: center;
+  line-height: 40px;
+  overflow: hidden;
+  color: white;
+}
+
+.section {
+  padding: 1px; /* hack, to avoid some gap under search section??? */
+}
+
+#banner {
+  position: relative;
+  min-height: 300px;
+  background-image: url('../assets/photos/siftr-header.jpg');
+  background-size: cover;
+}
+
+#slogan {
+  width: 100%;
+  height: 30px;
+  margin: 0px auto;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 5px;
+  font-weight: light;
+  color: #FFFFFF;
+}
