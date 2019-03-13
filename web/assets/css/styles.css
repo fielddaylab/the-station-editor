@@ -7354,21 +7354,6 @@ p {
   .nav-open .mobile-nav-open:hover {
     opacity: .7; }
 
-/* Top Bar */
-.top_bar_logo {
-  float: left; }
-
-.top_bar_link {
-  margin: 7px 13px;
-  color: #FFFFFF;
-  float: right; }
-
-.signup_button {
-  border: 1px solid white;
-  border-radius: 999px;
-  padding: 8px 14px;
-  margin-top: -1px; }
-
 .search_bar {
   width: 100%;
   font-size: 20px;
@@ -7380,22 +7365,40 @@ p {
   font-size: 25px;
   vertical-align: middle; }
 
-/* lists */
-@media (min-width: 801px) {
-  .list_entry_faded {
-    height: 325px;
-    overflow: hidden;
-    position: relative; } }
+.list_entry_faded {
+  height: 325px;
+  overflow: hidden;
+  position: relative; }
 
 .list_entry {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0 10px;
-  overflow-x: hidden; }
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 100px 0 rgba(1, 15, 91, 0.19);
+  border-radius: 8px;
+  padding: 15px 15px 5px 15px;
+  margin: 2%;
+  transition: all .1s ease-in-out;
+  color: #1C2B61; }
+  .list_entry:hover {
+    text-decoration: none;
+    color: #1C2B61;
+    box-shadow: 0 0px 0px 4px #081a49; }
+  .list_entry h3 {
+    font-size: 1.2em;
+    line-height: 1.1em; }
+  .list_entry p {
+    font-size: .8em;
+    line-height: 1.9em; }
+
+.list_credit {
+  z-index: 10;
+  position: relative;
+  background: #fff;
+  padding-top: 15px; }
 
 @media (min-width: 801px) {
   .list_entry {
-    width: 25%;
+    width: 22%;
     float: left; } }
 
 @media (max-width: 800px) {
@@ -7406,8 +7409,11 @@ p {
   margin-right: 15px;
   margin-bottom: 15px;
   display: block;
-  width: 100px;
-  height: 100px; }
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  margin: 0 auto;
+  margin-bottom: 22px; }
 
 .list_link {
   color: black;
@@ -7427,6 +7433,7 @@ p {
     height: 100%;
     top: 0;
     left: 0;
+    z-index: 5;
     background-image: linear-gradient(to top, white 0px, rgba(255, 255, 255, 0) 40px);
     /* above used to be rgba(0,0,0,0) but that behaves differently in Safari */ } }
 

@@ -376,13 +376,13 @@ const App = createClass({
           for (i = 0, len = ref.length; i < len; i++) {
             game = ref[i];
             url = game.siftr_url || game.game_id;
-            child('div.list_entry', {
-              key: game.game_id
+            child('a.list_entry', {
+              key: game.game_id,
+              href: `../${url}`,
+              target: '_blank'
             }, () => {
               child('div.list_entry_faded', () => {
-                child('a.list_link', {
-                  href: `../${url}`,
-                  target: '_blank'
+                child('span.list_link', {
                 }, () => {
                   var ref1;
                   child('img.list_image', {
