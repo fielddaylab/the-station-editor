@@ -70,4 +70,5 @@
       </div>
     </div>
   </div>
+    <span class="rule"></span>
 </div>

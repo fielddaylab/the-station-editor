@@ -2,6 +2,16 @@
   max-width:1200px;
   padding:10vw;
   margin: 0 auto;
+  @include media-breakpoint-up(md) {
+    padding:7vw;
+  }
+}
+
+.section-header {
+  padding:0vw 10vw 4vw 10vw;
+  margin: 0 auto;
+  display:block;
+  width:100%;
 }
 
 .centered {
@@ -16,7 +26,6 @@
     margin-bottom:20px;
   }
   p {
-    text-align:left;
     max-width:500px;
     margin: 0 auto;
     margin-top:20px;

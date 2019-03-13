@@ -59,7 +59,7 @@ a {
 }
 
 p {
-  font-size: $font-size-sm;
+  font-size: calc($font-size-sm +.1);
   line-height:23px;
 }
 

@@ -8,4 +8,5 @@
 </div>
 <?php include 'includes/gettingstarted.php';?>
 <?php include 'includes/cards.php';?>
+<?php include 'includes/pricing.php';?>
 <?php include 'includes/footer.php';?>

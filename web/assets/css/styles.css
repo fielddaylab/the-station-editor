@@ -7027,7 +7027,7 @@ a.text-dark:hover, a.text-dark:focus {
   color: #1C2B61; }
 
 .light_blue {
-  color: #A2A9C1; }
+  color: #8B97C1; }
 
 .super_light_blue {
   color: #EDF5F8; }
@@ -7039,7 +7039,7 @@ a.text-dark:hover, a.text-dark:focus {
   color: #F8B2B2; }
 
 .light_pink {
-  color: #F8B2B2; }
+  color: #FFD9D9; }
 
 .dark_gray {
   color: #23283F; }
@@ -7223,10 +7223,10 @@ a {
 
 .subheader {
   font-family: 'league_spartanregular', sans-serif;
-  color: #A2A9C1; }
+  color: #8B97C1; }
 
 p {
-  font-size: 0.875rem;
+  font-size: calc($font-size-sm +.1);
   line-height: 23px; }
 
 @media (min-width: 576px) {
@@ -7240,7 +7240,7 @@ p {
   font-style: normal; }
 
 .subdue {
-  color: #A2A9C1; }
+  color: #8B97C1; }
 
 .hide-for-small {
   display: none; }
@@ -7327,7 +7327,7 @@ p {
           display: inline; }
           .main-nav .nav-contents .nav-items li a {
             color: #1C2B61;
-            border-right: 2px solid #FEB8B8;
+            border-right: 2px solid #FFD9D9;
             padding-right: 15px;
             font-size: 10px; }
       .main-nav .nav-contents .smily-pin {
@@ -7349,6 +7349,15 @@ p {
   max-width: 1200px;
   padding: 10vw;
   margin: 0 auto; }
+  @media (min-width: 768px) {
+    .section {
+      padding: 7vw; } }
+
+.section-header {
+  padding: 0vw 10vw 4vw 10vw;
+  margin: 0 auto;
+  display: block;
+  width: 100%; }
 
 .centered {
   text-align: center; }
@@ -7360,7 +7369,6 @@ p {
   margin-bottom: 20px; }
 
 .call-out p {
-  text-align: left;
   max-width: 500px;
   margin: 0 auto;
   margin-top: 20px; }
@@ -7607,7 +7615,7 @@ p {
   padding-left: 0; }
 
 .card_copy .author {
-  color: #A2A9C1;
+  color: #8B97C1;
   font-size: 15px;
   margin-bottom: 10px;
   display: block; }
@@ -7625,7 +7633,7 @@ p {
     display: inline;
     padding: 3px 10px 7px 10px;
     border-radius: 15px;
-    background: #EAEAEB;
+    background: #FFD9D9;
     margin: 10px 5px 10px 0px;
     font-size: 12px; }
 
@@ -7704,3 +7712,33 @@ p {
   height: 2px;
   display: block;
   background: #EDF5F8; }
+
+.pricing_block {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 100px 0 rgba(1, 15, 91, 0.19);
+  border-radius: 8px;
+  text-align: center;
+  padding: 50px;
+  margin: 30px;
+  transition: all .25s ease-in-out;
+  position: relative; }
+  .pricing_block img {
+    height: 70px;
+    margin-bottom: 20px; }
+  .pricing_block h2, .pricing_block h5 {
+    margin-bottom: 20px; }
+  .pricing_block .flag {
+    background: url(/assets/img/flag.png) no-repeat;
+    width: 15px;
+    height: 50px;
+    background-size: contain;
+    position: absolute;
+    right: 20px;
+    top: -1px;
+    opacity: 0;
+    transition: all .29s ease-in-out; }
+  .pricing_block.selectedItem, .pricing_block:hover {
+    box-shadow: 0 0px 0px 4px #081a49; }
+    .pricing_block.selectedItem .flag, .pricing_block:hover .flag {
+      opacity: 1; }
