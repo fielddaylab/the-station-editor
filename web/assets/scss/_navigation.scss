@@ -51,8 +51,19 @@
           letter-spacing:3px;
           color:$blue;
         }
-        &:last-child a {
+        &:last-child a, &:nth-last-child(2) a {
           border-right:none;
+        }
+        &.nav-hide {
+          display: none;
+        }
+        .nav-profile-img {
+          vertical-align: bottom;
+          background-color: white;
+          width: 20px;
+          height: 20px;
+          border-radius: 10px;
+          margin-left: 5px;
         }
       }
     }
