@@ -30,14 +30,8 @@
 <link href="main.css?cb=20181211" rel="stylesheet" type="text/css">
 <style type="text/css">
 
-@font-face {
-    font-family: 'league_spartanregular';
-    src: url('/assets/fonts/leaguespartan-bold.ttf') format('ttf'),
-         url('/assets/fonts/leaguespartan-bold-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
-
+.main-nav { box-sizing: border-box; }
+.main-nav * { box-sizing: border-box; }
 .main-nav {
   width: 100%;
   display: flex;
@@ -45,10 +39,13 @@
   align-items: center;
   padding: 10px;
   z-index: 1000;
-  box-shadow: 0 9px 10px 0 rgba(18, 129, 155, 0.06); }
+  box-shadow: 0 9px 10px 0 rgba(18, 129, 155, 0.06);
+  font-family: Lato, sans-serif;
+  line-height: 1.5;
+  letter-spacing: 0; }
   .main-nav .logo {
-    height: 100%;
-    width: 40px; }
+    width: 40px;
+    margin-right: 10px; }
   .main-nav .nav-contents {
     position: absolute;
     width: 85vw;
@@ -77,10 +74,11 @@
       margin: 0;
       padding-left: 0; }
       .main-nav .nav-contents .nav-items li {
-        font-family: 'league_spartanregular';
         display: block;
         margin: 30px 10px;
-        vertical-align: middle; }
+        vertical-align: middle;
+        line-height: 2;
+        font-weight: 500; }
         .main-nav .nav-contents .nav-items li a {
           text-transform: uppercase;
           font-size: 14px;
@@ -93,9 +91,9 @@
         .main-nav .nav-contents .nav-items li .nav-profile-img {
           vertical-align: bottom;
           background-color: white;
-          width: 20px;
-          height: 20px;
-          border-radius: 10px;
+          width: 30px;
+          height: 30px;
+          border-radius: 20px;
           margin-left: 5px; }
   .main-nav .mobile-nav-open {
     background: url(/assets/icons/navicon.png);
@@ -114,20 +112,21 @@
     .main-nav .nav-contents {
       position: relative;
       height: initial;
-      width: initial;
+      width: 100%;
       transform: translateX(0vw);
       background: none;
       box-shadow: none;
-      opacity: 1; }
-      .main-nav .nav-contents .nav-items {
-        margin-left: 10px; }
-        .main-nav .nav-contents .nav-items li {
-          display: inline; }
-          .main-nav .nav-contents .nav-items li a {
-            color: #1C2B61;
-            border-right: 2px solid #FFD9D9;
-            padding-right: 15px;
-            font-size: 10px; }
+      opacity: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between; }
+      .main-nav .nav-contents .nav-items li {
+        display: inline; }
+        .main-nav .nav-contents .nav-items li a {
+          color: #1C2B61;
+          border-right: 2px solid #FFD9D9;
+          padding-right: 15px;
+          font-size: 10px; }
       .main-nav .nav-contents .smily-pin {
         display: none; } }
 
@@ -142,6 +141,11 @@
   z-index: 1001; }
   .nav-open .mobile-nav-open:hover {
     opacity: .7; }
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle; }
 
 #top-level-container {
   position: fixed;
@@ -167,4 +171,18 @@
 
 </div>
 
-<?php $path = $_SERVER['DOCUMENT_ROOT']; $path .= "/includes/footer.php";  include_once($path); ?>
+<script src="/assets/js/vendor/jquery-3.0.0.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src='/assets/js/vendor/gridder.js'></script>
+<script src="/assets/js/scripts.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43951622-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>
