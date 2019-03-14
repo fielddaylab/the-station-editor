@@ -2620,7 +2620,7 @@ const FormEditor = createClass({
                     });
                   });
                 }
-                if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
+                if (field.field_type === 'SINGLESELECT' /* || field.field_type === 'MULTISELECT' */) {
                   const bool = (field.useAsPin == null ? (this.props.game.field_id_pin == field.field_id) : field.useAsPin);
                   child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
                     href: '#'
