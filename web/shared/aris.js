@@ -32,6 +32,7 @@ export class Game {
       this.field_id_preview = parseInt(json.field_id_preview) || null;
       this.field_id_pin = parseInt(json.field_id_pin) || null;
       this.field_id_caption = parseInt(json.field_id_caption) || null;
+      this.force_new_format = parseInt(json.force_new_format) ? true : false;
     } else {
       this.game_id = null;
       this.name = null;
@@ -56,6 +57,7 @@ export class Game {
       this.field_id_preview = null;
       this.field_id_pin = null;
       this.field_id_caption = null;
+      this.force_new_format = null;
     }
   }
 
@@ -88,7 +90,7 @@ export class Game {
   }
 
   newFormat() {
-    return this.field_id_preview || this.field_id_pin || this.field_id_caption;
+    return this.field_id_preview || this.field_id_pin || this.field_id_caption || this.force_new_format;
   }
 };
 
