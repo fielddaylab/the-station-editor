@@ -7,7 +7,7 @@
       <div class="copy">
         <h2>Create</h2>
         <p>Start by creating your project on the Siftr website. It takes about five minutes to get up and running. We’ll provide tips along the way.  </p>
-        <a href="#create-with-siftr" class="button blue small pane-open">5 steps to design a great project</a>
+        <a href="#create-with-siftr" class="button blue small pane-open">More Features</a>
       </div>
     </div>
   </div>
@@ -19,31 +19,28 @@
       <div class="section row">
         <div class="col-md create-block">
           <span class="number"><h5>01</h5></span>
-          <h5>Write instructions </h5>
-          <p>Use the instructions to explain why your topic matters. When participants go out into the field, they’ll understand your topic on an even deeper level.</p>
+          <h5>Download your data</h5>
+          <p>Export all of your project data as a .CSV file.</p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>02</h5></span>
-          <h5>Choose privacy settings</h5>
-          <p>Do you want your project to be public or private?  Some projects benefit from broader engagement. Others are designed for a closed group.
-
-  </p>
+          <h5>Custom form fields </h5>
+          <p>Choose your form fields to collect the data you need.</p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>03</h5></span>
-          <h5>Follow the experts</h5>
-          <p>Having trouble choosing categories? Experts have a lot to offer. Get inspired by the ideas of leaders in your field to design your project. </p>
+          <h5>Geo-located data</h5>
+          <p>Location and timestamp are logged automatically.</p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>04</h5></span>
-          <h5>Create data fields</h5>
-          <p> What data do you want to collect? Think about how much time your participants will have and how complex you want your project to be. </p>
+          <h5>Sharable maps</h5>
+          <p>Share your project with anyone.</p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>05</h5></span>
-          <h5>Think like a designer</h5>
-          <p>Review your project in the app and see how it looks! Add instructions, reference material, Youtube videos, and links to support your users.
-</p>
+          <h5>Community support</h5>
+          <p>Get help from forums and video courses</p>
         </div>
       </div>
     </div>

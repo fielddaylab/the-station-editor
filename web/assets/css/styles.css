@@ -7029,6 +7029,9 @@ a.text-dark:hover, a.text-dark:focus {
 .light_blue {
   color: #8B97C1; }
 
+.dark_blue {
+  color: #081A49; }
+
 .super_light_blue {
   color: #EDF5F8; }
 
@@ -7857,7 +7860,7 @@ p {
   transition: all .4s ease-in-out;
   opacity: 0;
   width: 100%;
-  background: #1C2B61;
+  background: #081A49;
   background-image: url(/assets/img/wave.png);
   background-repeat: no-repeat;
   background-size: contain;
