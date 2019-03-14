@@ -7,8 +7,7 @@
   padding:10px;
   z-index:1000;
   box-shadow: 0 9px 10px 0 rgba(18,129,155,0.06);
-  .logo {
-    height:100%;
+  .logo{
     width:40px;
   }
   .nav-contents {
@@ -40,6 +39,7 @@
     .nav-items {
       margin:0;
       padding-left:0;
+
       li {
         font-family: 'league_spartanregular';
         display:block;
@@ -94,7 +94,6 @@
       box-shadow:none;
       opacity:1;
       .nav-items {
-        margin-left:10px;
         li {
           display:inline;
           a {

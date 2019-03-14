@@ -14,6 +14,10 @@ $(document).ready(function(){
     $(this).toggleClass('selected');
   });
 
+  $('.search_bar').click(function(){
+    $(this).toggleClass('selected');
+  });
+
 });
 
 $(function() {

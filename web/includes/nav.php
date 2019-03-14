@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
 
 </script>
 <nav class="main-nav">
-  <img src="/assets/logos/siftr-logo.png" class="logo">
+  <a class="logo" href="/"><img class="img-fluid"src="/assets/logos/siftr-logo.png" /></a>
   <div class="nav-contents">
     <ul class="nav-items">
       <li><a href="/discover">discover</a></li>

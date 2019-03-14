@@ -1,3 +1,9 @@
+<section class="footer">
+  <img class="img-fluid footer_logo" src="/assets/logos/siftr-logo.png" />
+  <h4>Made with ❤️ ☕🍜 by <a href="http://fielddaylab.org" target="_blank">Field Day Lab</a></h4>
+</section>
+
+
 <script src="/assets/js/vendor/jquery-3.0.0.min.js"></script>
 <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script src='/assets/js/vendor/gridder.js'></script>

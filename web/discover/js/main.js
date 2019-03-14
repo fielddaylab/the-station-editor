@@ -211,16 +211,9 @@ const App = createClass({
       });
     }
     return make('div', () => {
-      child('div#banner.section.dark_bg', () => {
-        child('div.spacer', {
-          style: {
-            height: 60
-          }
-        });
+      child('div#banner.dark_bg', () => {
         child('div', {
           style: {
-            width: '600px',
-            maxWidth: 'calc(100% - 10px)',
             margin: '0px auto'
           }
         }, () => {
@@ -232,11 +225,6 @@ const App = createClass({
               return this.setText(e.target.value);
             }
           });
-        });
-        return child('div.spacer', {
-          style: {
-            height: 60
-          }
         });
       });
       return sections.forEach(({header, identifier}) => {
@@ -251,7 +239,7 @@ const App = createClass({
               padding: 20
             }
           }, () => {
-            child('h2', () => {
+            child('h3.underline', () => {
               return raw(header);
             });
             return child('h4', () => {
@@ -290,7 +278,7 @@ const App = createClass({
                 }, () => {
                   var ref1;
                   child('img.list_image', {
-                    src: (ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-nav-logo.png'
+                    src: (ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-logo.png'
                   });
                   return child('h3.list_name', () => {
                     return raw(game.name);
