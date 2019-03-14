@@ -6,7 +6,7 @@
     <div class="col-sm copy-wrap">
       <div class="copy">
         <h2>Create</h2>
-        <p>Start by creating your project here on the Siftr website. You’ll name your project, write instructions, set up the data fields, and choose your privacy settings. We’ll provide tips along the way.  </p>
+        <p>Start by creating your project on the Siftr website. It takes about five minutes to get up and running. We’ll provide tips along the way.  </p>
         <a href="#create-with-siftr" class="button blue small pane-open">5 steps to design a great project</a>
       </div>
     </div>
@@ -56,7 +56,7 @@
     <div class="col-sm copy-wrap order-2 order-sm-1">
       <div class="copy">
         <h2>Collect</h2>
-        <p>Start collecting data right away. Just send the link to your participants. Users can download the app on their smartphones or tablets, follow the link to your project, and then head out into the field.</p>
+        <p>Start collecting data right away. Users can download the app on their smartphones or tablets and head out into the field.</p>
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@
     <div class="col-sm copy-wrap">
       <div class="copy">
         <h2>View</h2>
-        <p>Siftr automatically creates a shareable webpage with live data visualization.  You can add posts, watch as data comes in, and make comments. Download your data as a .CSV file with the click of a button. </p>
+        <p>Siftr automatically creates a shareable webpage with live data visualization. Download your data as a .CSV file with the click of a button. </p>
       </div>
     </div>
   </div>

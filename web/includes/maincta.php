@@ -1,7 +1,8 @@
-<section class="maincta">
+<section class="maincta section">
   <div class="section-header centered call-out">
+    <img class="callout-img" src="/assets/img/face-pin.png">
     <h3 class="underline uppercase">Get started!</h3>
-    <p class="centered boldish light_blue">Make your own citizen science project!</p>
+    <p>Siftr is a citizen science app that allows you to create projects for any topic, from biology and ecology to photography and language studies. Participants will use your project to go out into the field and collect data.</p>
   </div>
   <div class="row centered cta-wrap">
     <div class="cta-block col-sm">
