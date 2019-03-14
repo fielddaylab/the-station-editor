@@ -7258,7 +7258,8 @@ p {
   z-index: 1000;
   box-shadow: 0 9px 10px 0 rgba(18, 129, 155, 0.06); }
   .main-nav .logo {
-    width: 40px; }
+    width: 40px;
+    margin-right: 10px; }
   .main-nav .nav-contents {
     position: absolute;
     width: 85vw;
@@ -7287,10 +7288,11 @@ p {
       margin: 0;
       padding-left: 0; }
       .main-nav .nav-contents .nav-items li {
-        font-family: 'league_spartanregular';
         display: block;
         margin: 30px 10px;
-        vertical-align: middle; }
+        vertical-align: middle;
+        line-height: 2;
+        font-weight: 700; }
         .main-nav .nav-contents .nav-items li a {
           text-transform: uppercase;
           font-size: 14px;
@@ -7303,9 +7305,9 @@ p {
         .main-nav .nav-contents .nav-items li .nav-profile-img {
           vertical-align: bottom;
           background-color: white;
-          width: 20px;
-          height: 20px;
-          border-radius: 10px;
+          width: 30px;
+          height: 30px;
+          border-radius: 20px;
           margin-left: 5px; }
   .main-nav .mobile-nav-open {
     background: url(/assets/icons/navicon.png);
@@ -7324,11 +7326,14 @@ p {
     .main-nav .nav-contents {
       position: relative;
       height: initial;
-      width: initial;
+      width: 100%;
       transform: translateX(0vw);
       background: none;
       box-shadow: none;
-      opacity: 1; }
+      opacity: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between; }
       .main-nav .nav-contents .nav-items li {
         display: inline; }
         .main-nav .nav-contents .nav-items li a {
