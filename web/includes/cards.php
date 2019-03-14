@@ -16,7 +16,7 @@
       <div class="img_wrap" style="background:url(assets/img/thumbs/thumb-shiela.jpg); background-size:cover;background-position:center;"></div>
       <h5>Faces</h5>
       <h6 class="subheader">Shiela Reaves, UW Madison</h6>
-      <p class="small hide-for-small">In this Siftr, students learn about clouds by collecting pictures of them and then categorizing them correctly…Cumulonimbus…Cirrus…Cumulus…Stratus…Nimbostratus. They were then asked to add observations about the wind and temperature in the description.</p>
+      <p class="small hide-for-small">Photography professor Shiela Reaves used Siftr to inspire her students. Each week, she made a Siftr focused on a certain theme, like “faces” or “color and light.” Then she sent her students out to take photos.</p>
     </li>
     <li class="gridder-list card" data-griddercontent="#card-expand-3">
       <div class="img_wrap" style="background:url(assets/img/thumbs/thumb-joe.jpg); background-size:cover; background-position:center;"></div>
