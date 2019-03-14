@@ -49,7 +49,7 @@ function updateSiftrNav() {
     arisCall('media.getMedia', {media_id: media_id}, function(result){
       var src = undefined;
       if (result.data && result.returnCode === 0) {
-        src = result.data.thumb_url;
+        src = result.data.thumb_url.replace('http://', 'https://');
       }
       document.getElementById('nav-login').classList.add('nav-hide');
       document.getElementById('nav-profile').classList.remove('nav-hide');
