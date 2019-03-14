@@ -7359,6 +7359,11 @@ p {
 #the-container {
   padding-top: 60px; }
 
+.list-wrap {
+  max-width: 1400px;
+  padding: 1vw 5vw 5vw 5vw;
+  margin: 0 auto; }
+
 .search_bar {
   width: 100%;
   font-size: 20px;
@@ -7374,10 +7379,32 @@ p {
   .search_bar.selected, .search_bar:hover {
     box-shadow: 0 0px 0px 4px #081a49; }
 
+.list_section {
+  position: relative; }
+
 .results_arrow {
   cursor: pointer;
-  font-size: 25px;
-  vertical-align: middle; }
+  vertical-align: middle;
+  background: #EDF5F8;
+  height: 100px;
+  width: 50px;
+  display: block;
+  position: absolute;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 2px 100px 0 rgba(1, 15, 91, 0.19); }
+  .results_arrow.left {
+    left: 0px;
+    top: 280px;
+    background: url(/assets/icons/prev.png) no-repeat;
+    background-size: 35%;
+    background-position: 15px center; }
+  .results_arrow.right {
+    right: 0px;
+    top: 280px;
+    background: url(/assets/icons/next.png) no-repeat;
+    background-size: 35%;
+    background-position: 15px center; }
 
 .list_entry_faded {
   height: 325px;
@@ -7415,7 +7442,7 @@ p {
 
 @media (min-width: 801px) {
   .list_entry {
-    width: 22%;
+    width: 23%;
     float: left; } }
 
 @media (max-width: 800px) {
@@ -7466,10 +7493,6 @@ p {
   line-height: 40px;
   overflow: hidden;
   color: white; }
-
-.section {
-  padding: 1px;
-  /* hack, to avoid some gap under search section??? */ }
 
 #banner {
   position: relative;

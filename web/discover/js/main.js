@@ -196,11 +196,11 @@ const App = createClass({
     var sections;
     sections = [
       {
-        header: 'RECENT SIFTRS',
+        header: 'RECENT',
         identifier: 'recent'
       },
       {
-        header: 'POPULAR SIFTRS',
+        header: 'POPULAR',
         identifier: 'popular'
       }
     ];
@@ -228,7 +228,7 @@ const App = createClass({
         });
       });
       return sections.forEach(({header, identifier}) => {
-        return child('div.section.white_bg.list_section', {
+        return child('div.white_bg.list_section', {
           key: `section_${identifier}`
         }, () => {
           var game, i, len, ref, url;
@@ -242,8 +242,8 @@ const App = createClass({
             child('h3.underline', () => {
               return raw(header);
             });
-            return child('h4', () => {
-              child('b.results_arrow', () => {
+            return child('p', () => {
+              child('span.results_arrow.left', () => {
                 props({
                   onClick: () => {
                     if (this.state[identifier].page !== 1) {
@@ -251,81 +251,81 @@ const App = createClass({
                     }
                   }
                 });
-                return raw(' < ');
               });
               raw(`page ${this.state[identifier].page}`);
-              return child('b.results_arrow', () => {
+              return child('span.results_arrow.right', () => {
                 props({
                   onClick: () => {
                     return this[identifier](this.state[identifier].page + 1);
                   }
                 });
-                return raw(' > ');
               });
             });
           });
-          ref = this.state[identifier].games;
-          for (i = 0, len = ref.length; i < len; i++) {
-            game = ref[i];
-            url = game.siftr_url || game.game_id;
-            child('a.list_entry', {
-              key: game.game_id,
-              href: `../${url}`,
-              target: '_blank'
-            }, () => {
-              child('div.list_entry_faded', () => {
-                child('span.list_link', {
-                }, () => {
-                  var ref1;
-                  child('img.list_image', {
-                    src: (ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-logo.png'
+          return child('div.list-wrap', () => {
+            ref = this.state[identifier].games;
+            for (i = 0, len = ref.length; i < len; i++) {
+              game = ref[i];
+              url = game.siftr_url || game.game_id;
+              child('a.list_entry', {
+                key: game.game_id,
+                href: `../${url}`,
+                target: '_blank'
+              }, () => {
+                child('div.list_entry_faded', () => {
+                  child('span.list_link', {
+                  }, () => {
+                    var ref1;
+                    child('img.list_image', {
+                      src: (ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-logo.png'
+                    });
+                    return child('h3.list_name', () => {
+                      return raw(game.name);
+                    });
                   });
-                  return child('h3.list_name', () => {
-                    return raw(game.name);
+                  child('div.list_description', {
+                    dangerouslySetInnerHTML: renderMarkdown(game.description)
                   });
+                  return child('div.list_fadeout');
                 });
-                child('div.list_description', {
-                  dangerouslySetInnerHTML: renderMarkdown(game.description)
-                });
-                return child('div.list_fadeout');
-              });
-              return child('div.list_credit', () => {
-                var owner;
-                if (this.state.owners[game.game_id] != null) {
-                  owner = this.state.owners[game.game_id][0];
-                  return child('p', () => {
-                    var chars, word;
-                    if (this.state.owner_pictures[owner.user_id] != null) {
-                      child('img.owner_picture', {
-                        src: this.state.owner_pictures[owner.user_id]
-                      });
-                    } else {
-                      chars = (function() {
-                        var j, len1, ref1, results;
-                        ref1 = owner.display_name.split(/\W+/);
-                        results = [];
-                        for (j = 0, len1 = ref1.length; j < len1; j++) {
-                          word = ref1[j];
-                          if (word !== '') {
-                            results.push(word[0]);
+                return child('div.list_credit', () => {
+                  var owner;
+                  if (this.state.owners[game.game_id] != null) {
+                    owner = this.state.owners[game.game_id][0];
+                    return child('p', () => {
+                      var chars, word;
+                      if (this.state.owner_pictures[owner.user_id] != null) {
+                        child('img.owner_picture', {
+                          src: this.state.owner_pictures[owner.user_id]
+                        });
+                      } else {
+                        chars = (function() {
+                          var j, len1, ref1, results;
+                          ref1 = owner.display_name.split(/\W+/);
+                          results = [];
+                          for (j = 0, len1 = ref1.length; j < len1; j++) {
+                            word = ref1[j];
+                            if (word !== '') {
+                              results.push(word[0]);
+                            }
                           }
-                        }
-                        return results;
-                      })();
-                      child('span.owner_picture', () => {
-                        return raw(chars.join('').slice(0, 2).toUpperCase());
-                      });
-                    }
-                    return raw(`By ${owner.display_name}`);
-                  });
-                }
+                          return results;
+                        })();
+                        child('span.owner_picture', () => {
+                          return raw(chars.join('').slice(0, 2).toUpperCase());
+                        });
+                      }
+                      return raw(`By ${owner.display_name}`);
+                    });
+                  }
+                });
               });
-            });
-          }
-          return child('div', {
-            style: {
-              clear: 'both'
             }
+            return child('div', {
+              style: {
+                clear: 'both'
+              }
+            });
           });
         });
       });
