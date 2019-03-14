@@ -24,7 +24,7 @@ $(function() {
     // Call Gridder
     $('.gridder').gridderExpander({
         scroll: true,
-        scrollOffset: 100,
+        scrollOffset: 150,
         scrollTo: "panel",                  // panel or listitem
         animationSpeed: 900,
         animationEasing: "easeInOutExpo",

@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
   <div class="nav-contents">
     <ul class="nav-items">
       <li><a href="/discover">discover</a></li>
-      <li><a href="#">pricing</a></li>
+      <li><a href="/#pricing">pricing</a></li>
     </ul>
     <ul class="nav-items">
       <li id="nav-login"><a href="/login">login</a></li>

@@ -1,0 +1,31 @@
+.maincta {
+  .cta-wrap {
+    margin-bottom:30px;
+  }
+  .call-out {
+    margin-bottom:2vw;
+  }
+  .cta-block {
+    padding:5vw;
+    &:first-child {
+      border-bottom:3px solid $super_light_blue;
+    }
+    .cta-icon {
+      height:80px;
+      margin-bottom:20px;
+    }
+    h5 {
+      margin-bottom:20px;
+    }
+    .applink {
+      margin-top:0px;
+    }
+    @include media-breakpoint-up(sm) {
+      border-top:none;
+      &:first-child {
+        border-right:3px solid $super_light_blue;
+        border-bottom:none;
+      }
+    }
+  }
+}
