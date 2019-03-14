@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 import {make, child, raw, props} from '../../shared/react-writer';
 
-import {Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL} from '../../shared/aris';
+import {Game, Colors, User, Tag, Comment, Note, Aris, ARIS_URL, arisHTTPS} from '../../shared/aris';
 
 import update from 'immutability-helper';
 import createClass from 'create-react-class';
@@ -277,7 +277,7 @@ const App = createClass({
                   }, () => {
                     var ref1;
                     child('img.list_image', {
-                      src: (ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-logo.png'
+                      src: arisHTTPS((ref1 = this.state.icons[game.game_id]) != null ? ref1 : '../assets/logos/siftr-logo.png')
                     });
                     return child('h3.list_name', () => {
                       return raw(game.name);
@@ -296,7 +296,7 @@ const App = createClass({
                       var chars, word;
                       if (this.state.owner_pictures[owner.user_id] != null) {
                         child('img.owner_picture', {
-                          src: this.state.owner_pictures[owner.user_id]
+                          src: arisHTTPS(this.state.owner_pictures[owner.user_id])
                         });
                       } else {
                         chars = (function() {
