@@ -1,8 +1,8 @@
 
 <section class="section card-module">
   <div class="section-header centered call-out">
-    <h3 class="underline uppercase">In the Field</h3>
-    <p class="centered boldish light_blue">These teachers are transforming how they teach Field Research</p>
+    <h3 class="underline uppercase">Siftr Edu</h3>
+    <p class="centered boldish light_blue">These teachers are transforming their students’ experience with data collection.</p>
   </div>
   <ul class="gridder cards">
     <li class="gridder-list card" data-griddercontent="#card-expand-1">

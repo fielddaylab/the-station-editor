@@ -6,8 +6,8 @@
     <div class="col-sm copy-wrap">
       <div class="copy">
         <h2>Create</h2>
-        <p>You can create a Siftr in five minutes. Need some ideas? Check out this framework to help you design your project.</p>
-        <a href="#create-with-siftr" class="button blue small pane-open">How to think with Siftr</a>
+        <p>Start by creating your project here on the Siftr website. You’ll name your project, write instructions, set up the data fields, and choose your privacy settings. We’ll provide tips along the way.  </p>
+        <a href="#create-with-siftr" class="button blue small pane-open">5 steps to design a great project</a>
       </div>
     </div>
   </div>
@@ -19,29 +19,31 @@
       <div class="section row">
         <div class="col-md create-block">
           <span class="number"><h5>01</h5></span>
-          <h5>Pick a topic</h5>
-          <p>Pick a topic from an upcoming class, exhibit or project. Past Siftrs have looked at topics like architectural styles and types of clouds. The sky’s the limit! </p>
+          <h5>Write instructions </h5>
+          <p>Use the instructions to explain why your topic matters. When participants go out into the field, they’ll understand your topic on an even deeper level.</p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>02</h5></span>
-          <h5>Set up your Project</h5>
-          <p>Is your Siftr for a closed group, or can anyone join? Do you want to invite parents or friends? Pinpoint your audience and decide if your Siftr should be private or public.
+          <h5>Choose privacy settings</h5>
+          <p>Do you want your project to be public or private?  Some projects benefit from broader engagement. Others are designed for a closed group.
+
   </p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>03</h5></span>
-          <h5>Pick your Learning Outcome</h5>
-          <p>Does your Siftr teach skills and concepts, set up a question for inquiry, or solve a problem?</p>
+          <h5>Follow the experts</h5>
+          <p>Having trouble choosing categories? Experts have a lot to offer. Get inspired by the ideas of leaders in your field to design your project. </p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>04</h5></span>
-          <h5>Create Categories</h5>
-          <p> Most people use a handful of categories. Others use hundreds! You can also start with just one category and create more with your students</p>
+          <h5>Create data fields</h5>
+          <p> What data do you want to collect? Think about how much time your participants will have and how complex you want your project to be. </p>
         </div>
         <div class="col-md create-block">
           <span class="number"><h5>05</h5></span>
-          <h5>Add Instructions</h5>
-          <p>Write a question or set of instructions that explains what people should look for in the field. This helps your audience stay focused! You can also add extra fields and customize colors and icons</p>
+          <h5>Think like a designer</h5>
+          <p>Review your project in the app and see how it looks! Add instructions, reference material, Youtube videos, and links to support your users.
+</p>
         </div>
       </div>
     </div>
@@ -54,7 +56,7 @@
     <div class="col-sm copy-wrap order-2 order-sm-1">
       <div class="copy">
         <h2>Collect</h2>
-        <p>As soon as you create your Siftr, you can share it. Just send the link to your audience! Users can download the app on their smartphones or tablets, enter the link, and then head out into the field!</p>
+        <p>Start collecting data right away. Just send the link to your participants. Users can download the app on their smartphones or tablets, follow the link to your project, and then head out into the field.</p>
       </div>
     </div>
   </div>
@@ -65,8 +67,8 @@
     </div>
     <div class="col-sm copy-wrap">
       <div class="copy">
-        <h2>Review</h2>
-        <p>Siftr automatically creates a website for your project! You can add posts, watch as data comes in, and make comments. You can also embed your Siftr on another website. </p>
+        <h2>View</h2>
+        <p>Siftr automatically creates a shareable webpage with live data visualization.  You can add posts, watch as data comes in, and make comments. Download your data as a .CSV file with the click of a button. </p>
       </div>
     </div>
   </div>
