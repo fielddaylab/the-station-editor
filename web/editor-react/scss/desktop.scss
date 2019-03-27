@@ -46,6 +46,7 @@
 .newStep4Fields {
   width: 70%;
   border-right: 2px solid #F4F4F4;
+  overflow-y: auto;
   >p {
     text-align:center;
     margin:20px;
@@ -56,6 +57,7 @@
 .newStep4FieldInfo {
   width: 30%;
   padding: 20px;
+  overflow-y: auto;
   .inspectortitle {
     margin-bottom:30px;
     img {

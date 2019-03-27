@@ -119,6 +119,7 @@ const App = createClass({
         g.longitude = -89.430121;
         g.zoom = 12;
         g.is_siftr = true;
+        g.type = 'ANYWHERE';
         g.fields = standardFields();
         return g;
       })(),
@@ -596,6 +597,7 @@ const App = createClass({
                 g.longitude = -89.430121;
                 g.zoom = 12;
                 g.is_siftr = true;
+                g.type = 'ANYWHERE';
                 g.fields = standardFields();
                 return g;
               })()
@@ -2380,7 +2382,14 @@ const FormEditor = createClass({
             });
             return child('p', () => {
               var types;
-              types = [['TEXT', 'small text field'], ['TEXTAREA', 'large text field'], ['SINGLESELECT', 'single choice'], ['MULTISELECT', 'multiple choice'], ['MEDIA', 'photo']];
+              types = [
+                ['TEXT', 'small text field'],
+                ['TEXTAREA', 'large text field'],
+                ['SINGLESELECT', 'single choice'],
+                ['MULTISELECT', 'multiple choice'],
+                ['MEDIA', 'photo'],
+                // ['NUMBER', 'number'],
+              ];
               return types.forEach(([type, name], i) => {
                 return child('a.form-add-field', {
                   href: '#',
@@ -2485,11 +2494,10 @@ const FormEditor = createClass({
             };
             if (this.state.deletingOption != null) {
               child('p', () => {
-                if (isLockedField) {
-                  raw(`Choose a category to reassign all '${this.state.deletingOption.option}' notes to.`);
-                } else {
-                  raw(`Should data be reassigned from '${this.state.deletingOption.option}' to a different option?`);
-                }
+                raw('Before you delete this option, you must reassign posts that use it to an existing option.');
+              });
+              child('p', () => {
+                raw(`Reassign posts with the '${this.state.deletingOption.option}' option to:`);
               });
               confirmDelete = (new_option) => {
                 var msg;
@@ -2620,7 +2628,7 @@ const FormEditor = createClass({
                     });
                   });
                 }
-                if (field.field_type === 'SINGLESELECT' /* || field.field_type === 'MULTISELECT' */) {
+                if (field.field_type === 'SINGLESELECT' || field.field_type === 'NUMBER' /* || field.field_type === 'MULTISELECT' */) {
                   const bool = (field.useAsPin == null ? (this.props.game.field_id_pin == field.field_id) : field.useAsPin);
                   child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
                     href: '#'
