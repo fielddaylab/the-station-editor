@@ -2053,6 +2053,80 @@ const CategoryRow = createClass({
   }
 });
 
+const NumberInput = createClass({
+  render: function() {
+    return make('input', {
+      type: 'number',
+      value: this.props.value,
+      onChange: (e) => {
+        this.props.onChangeValue(e.target.value);
+      },
+    });
+  },
+});
+
+const ColorNumberInput = createClass({
+  getInitialState: function() {
+    return {
+      colorsOpen: false
+    };
+  },
+  render: function() {
+    const colors = [1, 2, 3, 4, 5, 6, 7, 8].map((i) =>
+      this.props.colors[this.props.game.colors_id || 1][`tag_${i}`]
+    );
+    return make('div', () => {
+      child('li.field-option-row', () => {
+        child('a', {
+          href: '#'
+        }, () => {
+          props({
+            onClick: (e) => {
+              e.preventDefault();
+              this.setState({
+                colorsOpen: !this.state.colorsOpen
+              });
+            }
+          });
+          return child('div.category-color-dot', {
+            style: {
+              backgroundColor: this.props.color
+            }
+          });
+        });
+        child(NumberInput, {
+          value: this.props.value,
+          onChangeValue: this.props.onChangeValue,
+        });
+      });
+      if (this.state.colorsOpen) {
+        return child('li.category-color-dots', () => {
+          return colors.forEach((color) => {
+            return child('a', {
+              href: '#'
+            }, () => {
+              props({
+                onClick: (e) => {
+                  e.preventDefault();
+                  this.props.onChangeColor(color);
+                  this.setState({
+                    colorsOpen: false
+                  });
+                }
+              });
+              return child('div.category-color-dot', {
+                style: {
+                  backgroundColor: color
+                }
+              });
+            });
+          });
+        });
+      }
+    });
+  },
+});
+
 const FormEditor = createClass({
   displayName: 'FormEditor',
   getInitialState: function() {
@@ -2702,6 +2776,55 @@ const FormEditor = createClass({
                     }
                   });
                 }
+              }
+              if (field.field_type === 'NUMBER') {
+                child('ul', () => {
+                  child('p', () => raw('Min value'));
+                  child(ColorNumberInput, {
+                    game: this.props.game,
+                    colors: this.props.colors,
+                    value: field.min,
+                    color: field.min_color,
+                    onChangeValue: (v) => {
+                      this.setState({
+                        editingField: update(field, {min: {$set: v}}),
+                      });
+                    },
+                    onChangeColor: (v) => {
+                      this.setState({
+                        editingField: update(field, {min_color: {$set: v}}),
+                      });
+                    },
+                  });
+                  child('p', () => raw('Max value'));
+                  child(ColorNumberInput, {
+                    game: this.props.game,
+                    colors: this.props.colors,
+                    value: field.max,
+                    color: field.max_color,
+                    onChangeValue: (v) => {
+                      this.setState({
+                        editingField: update(field, {max: {$set: v}}),
+                      });
+                    },
+                    onChangeColor: (v) => {
+                      this.setState({
+                        editingField: update(field, {max_color: {$set: v}}),
+                      });
+                    },
+                  });
+                  child('p', () => raw('Step'));
+                  child('li.field-option-row', () => {
+                    child(NumberInput, {
+                      value: field.step,
+                      onChangeValue: (v) => {
+                        this.setState({
+                          editingField: update(field, {step: {$set: v}}),
+                        });
+                      },
+                    });
+                  });
+                });
               }
               if ((ref4 = field.field_type) === 'SINGLESELECT' || ref4 === 'MULTISELECT') {
                 editingCategory = this.props.editing && isLockedField;

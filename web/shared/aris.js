@@ -267,6 +267,11 @@ export class Field {
       this.required = (ref = json.required) === true || ref === false ? json.required : !!(parseInt(json.required));
       this.sort_index = json.sort_index != null ? parseInt(json.sort_index) : null;
       this.options = json.options;
+      this.min = parseFloat(json.min);
+      this.max = parseFloat(json.max);
+      this.step = parseFloat(json.step);
+      this.min_color = json.min_color;
+      this.max_color = json.max_color;
       // used during new game creation
       this.useAsPin = json.useAsPin;
       this.useOnCards = json.useOnCards;
