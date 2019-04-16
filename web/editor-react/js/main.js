@@ -2055,12 +2055,18 @@ const CategoryRow = createClass({
 
 const NumberInput = createClass({
   render: function() {
-    return make('input', {
-      type: 'number',
-      value: this.props.value,
-      onChange: (e) => {
-        this.props.onChangeValue(e.target.value);
-      },
+    return make('div.number-input-label', () => {
+      child('span', () => {
+        raw(this.props.label);
+      });
+      child('input', {
+        type: 'number',
+        value: this.props.value,
+        step: 0.00000001,
+        onChange: (e) => {
+          this.props.onChangeValue(e.target.value);
+        },
+      });
     });
   },
 });
@@ -2077,6 +2083,11 @@ const ColorNumberInput = createClass({
     );
     return make('div', () => {
       child('li.field-option-row', () => {
+        child(NumberInput, {
+          label: this.props.label,
+          value: this.props.value,
+          onChangeValue: this.props.onChangeValue,
+        });
         child('a', {
           href: '#'
         }, () => {
@@ -2093,10 +2104,6 @@ const ColorNumberInput = createClass({
               backgroundColor: this.props.color
             }
           });
-        });
-        child(NumberInput, {
-          value: this.props.value,
-          onChangeValue: this.props.onChangeValue,
         });
       });
       if (this.state.colorsOpen) {
@@ -2781,8 +2788,8 @@ const FormEditor = createClass({
               }
               if (field.field_type === 'NUMBER') {
                 child('ul', () => {
-                  child('p', () => raw('Min value'));
                   child(ColorNumberInput, {
+                    label: 'Min',
                     game: this.props.game,
                     colors: this.props.colors,
                     value: field.min,
@@ -2798,8 +2805,8 @@ const FormEditor = createClass({
                       });
                     },
                   });
-                  child('p', () => raw('Max value'));
                   child(ColorNumberInput, {
+                    label: 'Max',
                     game: this.props.game,
                     colors: this.props.colors,
                     value: field.max,
@@ -2815,9 +2822,9 @@ const FormEditor = createClass({
                       });
                     },
                   });
-                  child('p', () => raw('Step'));
                   child('li.field-option-row', () => {
                     child(NumberInput, {
+                      label: 'Step',
                       value: field.step,
                       onChangeValue: (v) => {
                         this.setState({

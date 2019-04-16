@@ -135,6 +135,18 @@
   }
 }
 
+.number-input-label {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  input, span {
+    margin-right: 15px;
+  }
+  input {
+    font-size: 15px;
+  }
+}
+
 .category-color-dots {
   display: flex;
   flex-direction: row;
