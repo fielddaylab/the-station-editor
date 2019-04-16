@@ -2689,7 +2689,8 @@ const FormEditor = createClass({
                           editingField: update(field, {
                             required: {
                               $set: !req
-                            }
+                            },
+                            useOnCards: (field.field_type === 'MEDIA' && req) ? {$set: false} : {},
                           })
                         });
                       }
@@ -2742,7 +2743,8 @@ const FormEditor = createClass({
                           editingField: update(field, {
                             useOnCards: {
                               $set: !bool
-                            }
+                            },
+                            required: !bool ? {$set: true} : {},
                           })
                         });
                       }
