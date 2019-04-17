@@ -2669,8 +2669,7 @@ const FormEditor = createClass({
               });
               if (!isLockedField) {
                 child('div.inspector-question', () => {
-                  return child('input', {
-                    type: 'textarea',
+                  return child('textarea', {
                     value: field.label,
                     placeholder: 'What Question are you asking?',
                     onChange: (e) => {
