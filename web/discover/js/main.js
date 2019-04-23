@@ -12,9 +12,10 @@ import createClass from 'create-react-class';
 import {markdown} from 'markdown';
 
 const renderMarkdown = function(str) {
-  return {
-    __html: markdown.toHTML(str)
-  };
+  str = markdown.toHTML(str);
+  str = str.replace(/<h\d>/g, '<p>');
+  str = str.replace(/<\/h\d>/g, '</p>');
+  return {__html: str};
 };
 
 const App = createClass({
