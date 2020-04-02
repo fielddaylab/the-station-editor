@@ -18,3 +18,5 @@ browserify_out.js
 minify_out.js.report.txt
 rsync-exclude
 beta
+babel.config.js
+webpack.config.js

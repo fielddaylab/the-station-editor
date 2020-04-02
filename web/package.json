@@ -2,27 +2,21 @@
   "name": "siftr",
   "description": "Explore and analyze your world through photos.",
   "version": "3.0.0",
-  "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.0",
-    "browser-sync": "^2.13.0",
-    "gulp": "^3.9.1",
-    "gulp-sass": "^4.0.1",
-    "webpack": "^3.5.5",
-    "webpack-stream": "^4.0.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/fielddaylab/siftr"
   },
   "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "babel-loader": "^8.1.0",
     "create-react-class": "^15.6.3",
-    "google-map-react": "^1.0.6",
-    "immutability-helper": "^2.7.1",
+    "google-map-react": "^1.1.7",
+    "immutability-helper": "^3.0.2",
     "markdown": "^0.5.0",
-    "react": "^16.5.0",
-    "react-dom": "^16.5.0"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "webpack": "^4.42.1"
   }
 }

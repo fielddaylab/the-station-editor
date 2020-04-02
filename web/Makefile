@@ -1,8 +1,9 @@
 .PHONY: default deploy
 
 default:
-	yarn
-	gulp
+	webpack
+	sass editor-react/scss/main.scss > editor-react/main.css
+	sass assets/scss/styles.scss > assets/css/styles.css
 
 deploy:
 	rsync -vrc * .htaccess mli-sft@mli.doit.wisc.edu:/httpdocs --exclude-from rsync-exclude
