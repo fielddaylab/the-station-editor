@@ -102,6 +102,7 @@ const App = createClass({
       tags: {},
       notes: {},
       forms: {},
+      quests: {},
       colors: {},
       themes: {},
       username: '',
@@ -383,6 +384,7 @@ const App = createClass({
           this.applyHash();
           this.updateTags(games);
           this.updateForms(games);
+          this.updateQuests(games);
           return this.updateNotes(games);
         } else {
           this.setState({
@@ -422,6 +424,23 @@ const App = createClass({
           this.setState((previousState, currentProps) => {
             return update(previousState, {
               forms: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+    });
+  },
+  updateQuests: function(games, cb = (function() {})) {
+    return games.forEach((game) => {
+      return this.props.aris.getQuestsForGame({
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              quests: {
                 $merge: singleObj(game.game_id, result.data)
               }
             });
@@ -1164,6 +1183,7 @@ const App = createClass({
                   colors: this.state.colors,
                   notes: this.state.notes,
                   tags: this.state.tags,
+                  quests: this.state.quests,
                   downloadCSV: (game) => {
                     this.props.aris.call('notes.siftrCSV', {
                       game_id: game.game_id

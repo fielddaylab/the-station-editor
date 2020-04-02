@@ -107,26 +107,16 @@ export const SiftrList = createClass({
               }
             });
             child('div.siftr-data', () => {
-              var plural, sep;
-              sep = () => {
-                child('span.siftr-data-pipe', () => {
-                  raw('|');
+              (this.props.quests[game.game_id] || []).forEach(quest => {
+                child('div.quest-line', () => {
+                  raw('Quest: ');
+                  raw(quest.name);
+                  raw(' ');
+                  child('a', {href: '#'}, () => {
+                    raw('(edit)');
+                  })
                 });
-              };
-              plural = function(n, noun) {
-                if (n === 1) {
-                  return `${n} ${noun}`;
-                } else {
-                  return `${n != null ? n : '...'} ${noun}s`;
-                }
-              };
-              raw(plural(notes != null ? notes.length : undefined, 'item'));
-              sep();
-              raw(plural((notes != null ? countContributors(notes) : null), 'contributor'));
-              sep();
-              raw((game.published ? 'Public' : 'Private'));
-              sep();
-              raw((game.moderated ? 'Moderated' : 'Non-Moderated'));
+              });
             });
           });
         });

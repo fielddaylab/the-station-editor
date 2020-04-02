@@ -23,7 +23,7 @@
   margin-bottom: 35px;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .siftr-icon {
@@ -60,4 +60,10 @@
   color: black;
   border-radius: 4px;
   display: inline-block;
+}
+
+.quest-line {
+  a {
+    color: #3279a8;
+  }
 }

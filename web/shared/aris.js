@@ -513,6 +513,12 @@ export class Aris {
     });
   }
 
+  getQuestsForGame(json, cb) {
+    return this.callWrapped('quests.getQuestsForGame', json, cb, function(data) {
+      return data;
+    });
+  }
+
   getFieldsForGame(json, cb) {
     return this.callWrapped('fields.getFieldsForGame', json, cb, function(data) {
       var field, fields, i, len, o, opt, options;
