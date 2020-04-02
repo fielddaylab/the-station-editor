@@ -2,7 +2,7 @@
 
 import update from 'immutability-helper';
 
-export const ARIS_URL = 'https://arisgames.org/server/';
+export const ARIS_URL = 'https://fieldday-web.wcer.wisc.edu/stemports/server/';
 
 export const SIFTR_URL = window.location.origin + '/';
 

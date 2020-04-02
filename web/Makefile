@@ -6,4 +6,4 @@ default:
 	sass assets/scss/styles.scss > assets/css/styles.css
 
 deploy:
-	rsync -vrc * .htaccess mli-sft@mli.doit.wisc.edu:/httpdocs --exclude-from rsync-exclude
+	rsync -vrc * tolly@fieldday-web.ad.education.wisc.edu:/var/www/stemports/siftr --exclude-from rsync-exclude
