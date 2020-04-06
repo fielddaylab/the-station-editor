@@ -229,6 +229,11 @@ const App = createClass({
         // This is temporary if the user is currently being logged in,
         // because the list of games will load and re-call applyHash
       }
+    } else if (hash === 'new0') {
+      this.setState({
+        screen: 'new0',
+        new_step: 0
+      });
     } else if (hash === 'new1') {
       this.setState({
         screen: 'new1',
@@ -713,7 +718,7 @@ const App = createClass({
     navBarActions = () => {
       child('div', () => {
         var ref1, ref2, ref3;
-        if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
           child('a.create-cancel', {
             href: '#'
           }, () => {
@@ -748,7 +753,7 @@ const App = createClass({
       var game;
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
-        if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
               var requireNameDesc, selectTab;
@@ -759,41 +764,43 @@ const App = createClass({
                   return '';
                 }
               };
-              requireNameDesc = this.state.screen === 'new1' ? (e) => {
+              requireNameDesc = (this.state.screen === 'new0' || this.state.screen === 'new1') ? (e) => {
                 if (!hasNameDesc(this.state.new_game)) {
                   alert('Please enter a name and user instructions for your Siftr.');
                   return e.preventDefault();
                 }
               } : undefined;
-              child(`a.create-step-tab${selectTab('new1')}`, {
-                href: '#new1'
-              }, () => {
-                raw('Overview');
-              });
-              child(`a.create-step-tab${selectTab('new3')}`, {
-                href: '#new3'
-              }, () => {
-                props({
-                  onClick: requireNameDesc
+              if (this.state.screen !== 'new0') {
+                child(`a.create-step-tab${selectTab('new1')}`, {
+                  href: '#new1'
+                }, () => {
+                  raw('Overview');
                 });
-                raw('Map options');
-              });
-              child(`a.create-step-tab${selectTab('new4')}`, {
-                href: '#new4'
-              }, () => {
-                props({
-                  onClick: requireNameDesc
+                child(`a.create-step-tab${selectTab('new3')}`, {
+                  href: '#new3'
+                }, () => {
+                  props({
+                    onClick: requireNameDesc
+                  });
+                  raw('Map options');
                 });
-                raw('Data collection');
-              });
-              return child(`a.create-step-tab${selectTab('new5')}`, {
-                href: '#new5'
-              }, () => {
-                props({
-                  onClick: requireNameDesc
+                child(`a.create-step-tab${selectTab('new4')}`, {
+                  href: '#new4'
+                }, () => {
+                  props({
+                    onClick: requireNameDesc
+                  });
+                  raw('Data collection');
                 });
-                raw('Share');
-              });
+                child(`a.create-step-tab${selectTab('new5')}`, {
+                  href: '#new5'
+                }, () => {
+                  props({
+                    onClick: requireNameDesc
+                  });
+                  raw('Share');
+                });
+              }
             });
             return navBarActions();
           });
@@ -1131,6 +1138,19 @@ const App = createClass({
                 colors: this.state.colors,
                 themes: this.state.themes,
                 onChange: this.autosave.bind(this)
+              });
+            case 'new0':
+              return child(NewOverview, {
+                game: this.state.new_game,
+                icon: this.state.new_icon,
+                onChange: (new_game) => {
+                  this.setState({new_game});
+                },
+                onIconChange: (new_icon) => {
+                  this.setState({new_icon});
+                },
+                scienceStation: true,
+                onCreate: this.createGame,
               });
             case 'new1':
               return child(NewOverview, {
@@ -1819,18 +1839,27 @@ const NewOverview = createClass({
       return child('div.bottom-step-buttons', () => {
         child('div');
         return child('a', {
-          href: '#new3'
+          href: this.props.scienceStation ? '#' : '#new3',
         }, () => {
           props({
             onClick: (e) => {
               if (!hasNameDesc(this.props.game)) {
                 alert('Please enter a name and user instructions for your Siftr.');
-                return e.preventDefault();
+                e.preventDefault();
+                return;
+              }
+              if (this.props.scienceStation) {
+                e.preventDefault();
+                this.props.onCreate();
               }
             }
           });
-          return child('div.newNextButton', () => {
-            raw('map >');
+          child('div.newNextButton', () => {
+            if (this.props.scienceStation) {
+              raw('create!');
+            } else {
+              raw('map >');
+            }
           });
         });
       });
