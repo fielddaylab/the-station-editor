@@ -31,7 +31,7 @@ export const InnerNav = (props) => {
               Log Out
             </a>
             <a href="#new0" className="inner-nav-button">
-              New Siftr
+              New Science Station
             </a>
           </h1>
           {
@@ -53,7 +53,7 @@ export const InnerNav = (props) => {
       <div className="inner-nav-bar">
         {navTab({href: '#profile', label: 'Profile', screen: 'profile'})}
         {navTab({href: '#account', label: 'Account', screen: 'account'})}
-        {navTab({href: '#', label: 'My Siftrs', screen: 'main'})}
+        {navTab({href: '#', label: 'My Science Stations', screen: 'main'})}
         <a className="inner-nav-bar-filler" />
       </div>
     </div>

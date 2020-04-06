@@ -1752,14 +1752,11 @@ const NewOverview = createClass({
     return make('div.newStepBox', () => {
       child('div.newStep1', () => {
         child('div.newStep1Column.newStep1LeftColumn', () => {
-          child('h3', () => {
-            raw('What kind of Siftr do you want to make?');
-          });
           return child('div', () => {
             child('label', () => {
               var ref1;
               child('p', () => {
-                raw('NAME');
+                raw(this.props.scienceStation ? 'Science Station Title' : 'Quest Title');
               });
               return child('input.full-width-input', {
                 ref: 'name',
@@ -1770,7 +1767,7 @@ const NewOverview = createClass({
             });
             child('label', () => {
               child('p', () => {
-                raw('SIFTR ICON');
+                raw(this.props.scienceStation ? 'Station Thumbnail' : 'Quest Thumbnail');
               });
               return child('a', {
                 href: '#'
@@ -1822,18 +1819,7 @@ const NewOverview = createClass({
             child('label', () => {
               var ref1;
               child('p', () => {
-                raw('USER INSTRUCTIONS ');
-                return child('a', {
-                  href: 'https://daringfireball.net/projects/markdown/syntax',
-                  target: '_blank'
-                }, () => {
-                  return child('i', () => {
-                    raw('markdown supported');
-                  });
-                });
-              });
-              child('p', () => {
-                raw('Tell your users what you want them to do and why.');
+                raw(this.props.scienceStation ? 'Station Summary' : 'Quest Summary');
               });
               return child('textarea.full-width-textarea', {
                 ref: 'description',
@@ -1856,7 +1842,7 @@ const NewOverview = createClass({
           props({
             onClick: (e) => {
               if (!hasNameDesc(this.props.game)) {
-                alert('Please enter a name and user instructions for your Siftr.');
+                alert(`Please enter a name and user instructions for your ${this.props.scienceStation ? 'science station' : 'quest'}.`);
                 e.preventDefault();
                 return;
               }
