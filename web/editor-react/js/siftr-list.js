@@ -117,6 +117,17 @@ export const SiftrList = createClass({
                   })
                 });
               });
+              child('div.quest-line', () => {
+                child('a', {href: '#'}, () => {
+                  props({
+                    onClick: (e) => {
+                      e.preventDefault();
+                      this.props.startNewQuest(game);
+                    }
+                  });
+                  raw('New Quest');
+                });
+              });
             });
           });
         });

@@ -130,7 +130,6 @@ const App = createClass({
           color: undefined
         }
       ],
-      new_step: null,
       new_icon: null,
       account_menu: false,
       modal_game: null
@@ -232,28 +231,39 @@ const App = createClass({
     } else if (hash === 'new0') {
       this.setState({
         screen: 'new0',
-        new_step: 0
       });
     } else if (hash === 'new1') {
-      this.setState({
-        screen: 'new1',
-        new_step: 1
-      });
+      if (this.state.edit_game) {
+        this.setState({
+          screen: 'new1',
+        });
+      } else {
+        window.location.hash = '#';
+      }
     } else if (hash === 'new3') {
-      this.setState({
-        screen: 'new3',
-        new_step: 3
-      });
+      if (this.state.edit_game) {
+        this.setState({
+          screen: 'new3',
+        });
+      } else {
+        window.location.hash = '#';
+      }
     } else if (hash === 'new4') {
-      this.setState({
-        screen: 'new4',
-        new_step: 4
-      });
+      if (this.state.edit_game) {
+        this.setState({
+          screen: 'new4',
+        });
+      } else {
+        window.location.hash = '#';
+      }
     } else if (hash === 'new5') {
-      this.setState({
-        screen: 'new5',
-        new_step: 5
-      });
+      if (this.state.edit_game) {
+        this.setState({
+          screen: 'new5',
+        });
+      } else {
+        window.location.hash = '#';
+      }
     } else if (hash === 'profile') {
       this.setState({
         screen: 'profile'
@@ -633,9 +643,6 @@ const App = createClass({
                   color: undefined
                 }
               ]
-            },
-            new_step: {
-              $set: null
             },
             new_icon: {
               $set: null
@@ -1232,7 +1239,12 @@ const App = createClass({
                         alert(`There was an error deleting your Siftr: ${returnCodeDescription}`);
                       }
                     });
-                  }
+                  },
+                  startNewQuest: (game) => {
+                    this.setState({edit_game: game}, () => {
+                      window.location.hash = '#new1';
+                    });
+                  },
                 });
               });
           }
