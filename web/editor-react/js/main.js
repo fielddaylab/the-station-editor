@@ -790,7 +790,7 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Map options');
+                  raw('Tour stops');
                 });
                 child(`a.create-step-tab${selectTab('new4')}`, {
                   href: '#new4'
@@ -798,7 +798,7 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Data collection');
+                  raw('Observations');
                 });
                 child(`a.create-step-tab${selectTab('new5')}`, {
                   href: '#new5'
@@ -806,7 +806,7 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Share');
+                  raw('Field notes');
                 });
               }
             });

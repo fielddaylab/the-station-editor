@@ -95,17 +95,55 @@ export const MapOptions = createClass({
         <div className="newStep3">
           <div className="newStep3Controls">
             {
-              this.props.game.plaques.map((plaque, i) =>
-                <div key={i}>Stop: {plaque.name}</div>
+              this.state.editPlaqueIndex != null && (
+                <div>
+                  <p>Editing Stop</p>
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={this.props.game.plaques[this.state.editPlaqueIndex].name}
+                    onChange={e => this.props.onChange(update(this.props.game, {
+                      plaques: {
+                        [this.state.editPlaqueIndex]: {
+                          name: {
+                            $set: e.target.value,
+                          },
+                        },
+                      },
+                    }))}
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={this.props.game.plaques[this.state.editPlaqueIndex].description}
+                    onChange={e => this.props.onChange(update(this.props.game, {
+                      plaques: {
+                        [this.state.editPlaqueIndex]: {
+                          description: {
+                            $set: e.target.value,
+                          },
+                        },
+                      },
+                    }))}
+                  />
+                  <p>
+                    <a href="#" onClick={(e) => {
+                      e.preventDefault();
+                      this.setState({editPlaqueIndex: null});
+                    }}>
+                      Close
+                    </a>
+                  </p>
+                </div>
               )
             }
-            <div>
+            <p>
               <a href="#" onClick={(e) => {
                 e.preventDefault();
                 this.props.onChange(update(this.props.game, {
                   plaques: {
                     $push: [{
                       name: 'A Tour Stop',
+                      description: '',
                       latitude: this.state.mapCenter.lat,
                       longitude: this.state.mapCenter.lng,
                     }],
@@ -114,7 +152,7 @@ export const MapOptions = createClass({
               }}>
                 Add Stop
               </a>
-            </div>
+            </p>
           </div>
           <div className="newStep3MapContainer">
             <GoogleMap
@@ -164,6 +202,7 @@ export const MapOptions = createClass({
                     className="color-card-pin"
                     lat={plaque.latitude}
                     lng={plaque.longitude}
+                    onClick={() => this.setState({editPlaqueIndex: i})}
                   >
                     <div className="siftr-map-note">
                       <div className="siftr-map-note-shadow" />
