@@ -122,6 +122,7 @@ const App = createClass({
         g.is_siftr = true;
         g.type = 'ANYWHERE';
         g.fields = standardFields();
+        g.plaques = [];
         return g;
       })(),
       new_categories: [
