@@ -241,6 +241,14 @@ const App = createClass({
       } else {
         window.location.hash = '#';
       }
+    } else if (hash === 'new2') {
+      if (this.state.edit_game) {
+        this.setState({
+          screen: 'new2',
+        });
+      } else {
+        window.location.hash = '#';
+      }
     } else if (hash === 'new3') {
       if (this.state.edit_game) {
         this.setState({
@@ -253,14 +261,6 @@ const App = createClass({
       if (this.state.edit_game) {
         this.setState({
           screen: 'new4',
-        });
-      } else {
-        window.location.hash = '#';
-      }
-    } else if (hash === 'new5') {
-      if (this.state.edit_game) {
-        this.setState({
-          screen: 'new5',
         });
       } else {
         window.location.hash = '#';
@@ -726,7 +726,7 @@ const App = createClass({
     navBarActions = () => {
       child('div', () => {
         var ref1, ref2, ref3;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4') {
           child('a.create-cancel', {
             href: '#'
           }, () => {
@@ -761,7 +761,7 @@ const App = createClass({
       var game;
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
               var requireNameDesc, selectTab;
@@ -784,6 +784,14 @@ const App = createClass({
                 }, () => {
                   raw('Overview');
                 });
+                child(`a.create-step-tab${selectTab('new2')}`, {
+                  href: '#new2'
+                }, () => {
+                  props({
+                    onClick: requireNameDesc
+                  });
+                  raw('Observations');
+                });
                 child(`a.create-step-tab${selectTab('new3')}`, {
                   href: '#new3'
                 }, () => {
@@ -794,14 +802,6 @@ const App = createClass({
                 });
                 child(`a.create-step-tab${selectTab('new4')}`, {
                   href: '#new4'
-                }, () => {
-                  props({
-                    onClick: requireNameDesc
-                  });
-                  raw('Observations');
-                });
-                child(`a.create-step-tab${selectTab('new5')}`, {
-                  href: '#new5'
                 }, () => {
                   props({
                     onClick: requireNameDesc
@@ -1171,16 +1171,7 @@ const App = createClass({
                   this.setState({new_icon});
                 }
               });
-            case 'new3':
-              return child(MapOptions, {
-                game: this.state.new_game,
-                colors: this.state.colors,
-                themes: this.state.themes,
-                onChange: (new_game) => {
-                  this.setState({new_game});
-                }
-              });
-            case 'new4':
+            case 'new2':
               return child(FormEditor, {
                 editing: false,
                 game: this.state.new_game,
@@ -1193,8 +1184,17 @@ const App = createClass({
                   this.setState({new_categories});
                 }
               });
-            case 'new5':
-              return child(ShareOptions, {
+            case 'new3':
+              return child(MapOptions, {
+                game: this.state.new_game,
+                colors: this.state.colors,
+                themes: this.state.themes,
+                onChange: (new_game) => {
+                  this.setState({new_game});
+                }
+              });
+            case 'new4':
+              return child(FieldNotes, {
                 game: this.state.new_game,
                 onChange: (new_game) => {
                   this.setState({new_game});
@@ -1838,7 +1838,7 @@ const NewOverview = createClass({
       return child('div.bottom-step-buttons', () => {
         child('div');
         return child('a', {
-          href: this.props.scienceStation ? '#' : '#new3',
+          href: this.props.scienceStation ? '#' : '#new2',
         }, () => {
           props({
             onClick: (e) => {
@@ -1857,7 +1857,7 @@ const NewOverview = createClass({
             if (this.props.scienceStation) {
               raw('create!');
             } else {
-              raw('map >');
+              raw('observations >');
             }
           });
         });
@@ -3039,17 +3039,17 @@ const FormEditor = createClass({
       } else {
         return child('div.bottom-step-buttons', () => {
           child('a', {
-            href: '#new3'
+            href: '#new1'
           }, () => {
             return child('div.newPrevButton', () => {
-              raw('< map');
+              raw('< overview');
             });
           });
           return child('a', {
-            href: '#new5'
+            href: '#new3'
           }, () => {
             return child('div.newNextButton', () => {
-              raw('share >');
+              raw('tour stops >');
             });
           });
         });
@@ -3058,123 +3058,22 @@ const FormEditor = createClass({
   }
 });
 
-const ShareOptions = createClass({
-  displayName: 'ShareOptions',
+const FieldNotes = createClass({
+  displayName: 'FieldNotes',
   render: function() {
     return make('div.newStepBox', () => {
       child('div.newStep1', () => {
         child('div.newStep1Column.newStep1LeftColumn', () => {
-          var hidden, moderated;
-          child('h4', () => {
-            raw('PRIVACY');
-          });
-          hidden = !this.props.game.published;
-          child(`a.form-multi-option.form-multi-option-${(hidden ? 'on' : 'off')}`, {
-            href: '#'
-          }, () => {
-            props({
-              onClick: (e) => {
-                e.preventDefault();
-                return this.props.onChange(update(this.props.game, {
-                  published: {
-                    $set: hidden
-                  }
-                }));
-              }
-            });
-            child('span.form-multi-option-text', () => {
-              raw('Hide from search');
-            });
-            return child('span.form-multi-option-switch', () => {
-              return child('span.form-multi-option-ball');
-            });
-          });
-          child('p', () => {
-            raw('Do you want to set a password to restrict access?');
-          });
-          child('p', () => {
-            var ref;
-            child('input.full-width-input', {
-              type: 'text',
-              placeholder: 'Password (optional)',
-              value: (ref = this.props.game.password) != null ? ref : '',
-              onChange: (e) => {
-                this.props.onChange(update(this.props.game, {
-                  password: {$set: e.target.value},
-                }));
-              }
-            });
-          });
-          moderated = this.props.game.moderated;
-          child(`a.form-multi-option.form-multi-option-${(moderated ? 'on' : 'off')}`, {
-            href: '#'
-          }, () => {
-            props({
-              onClick: (e) => {
-                e.preventDefault();
-                return this.props.onChange(update(this.props.game, {
-                  moderated: {
-                    $set: !moderated
-                  }
-                }));
-              }
-            });
-            child('span.form-multi-option-text', () => {
-              raw('Require moderation?');
-            });
-            return child('span.form-multi-option-switch', () => {
-              return child('span.form-multi-option-ball');
-            });
-          });
-          child('h4', () => {
-            raw('PROJECT LINK');
-          });
-          child('p', () => {
-            var ref1;
-            return child('input.full-width-input', {
-              type: 'text',
-              placeholder: 'Identifier (optional)',
-              value: (ref1 = this.props.game.siftr_url) != null ? ref1 : '',
-              onChange: (e) => {
-                return this.props.onChange(update(this.props.game, {
-                  siftr_url: {
-                    $set: e.target.value
-                  }
-                }));
-              }
-            });
-          });
-          if (this.props.game.siftr_url) {
-            child('p', () => {
-              child('b', () => {
-                raw(this.props.game.name);
-              });
-              raw(" will be located at ");
-              return child('code', () => {
-                raw(`${SIFTR_URL}${this.props.game.siftr_url}`);
-              });
-            });
-            return child('p', () => {
-              raw('Or in the mobile app, enter ');
-              child('code', () => {
-                raw(this.props.game.siftr_url);
-              });
-              raw(' in the search bar.');
-            });
-          } else {
-            return child('p', () => {
-              raw("Enter a custom identifier for your Siftr's web address.");
-            });
-          }
         });
-        return child('div.newStep1Column.newStep1RightColumn');
+        child('div.newStep1Column.newStep1RightColumn', () => {
+        });
       });
       return child('div.bottom-step-buttons', () => {
         child('a', {
-          href: '#new4'
+          href: '#new3'
         }, () => {
           return child('div.newPrevButton', () => {
-            raw('< data');
+            raw('< tour stops');
           });
         });
         return child('a', {

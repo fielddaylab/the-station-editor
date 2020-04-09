@@ -237,17 +237,17 @@ export const MapOptions = createClass({
           ) : (
             make('div.bottom-step-buttons', () => {
               child('a', {
-                href: '#new1'
+                href: '#new2'
               }, () => {
                 return child('div.newPrevButton', () => {
-                  raw('< setup');
+                  raw('< observations');
                 });
               });
               return child('a', {
                 href: '#new4'
               }, () => {
                 return child('div.newNextButton', () => {
-                  raw('data >');
+                  raw('field notes >');
                 });
               });
             })
