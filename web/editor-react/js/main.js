@@ -3060,37 +3060,61 @@ const FormEditor = createClass({
 
 const FieldNotes = createClass({
   displayName: 'FieldNotes',
+  getInitialState: function() {
+    return {};
+  },
   render: function() {
-    return make('div.newStepBox', () => {
-      child('div.newStep1', () => {
-        child('div.newStep1Column.newStep1LeftColumn', () => {
-        });
-        child('div.newStep1Column.newStep1RightColumn', () => {
-        });
-      });
-      return child('div.bottom-step-buttons', () => {
-        child('a', {
-          href: '#new3'
-        }, () => {
-          return child('div.newPrevButton', () => {
-            raw('< tour stops');
-          });
-        });
-        return child('a', {
-          href: "#"
-        }, () => {
-          props({
-            onClick: (e) => {
-              e.preventDefault();
-              return this.props.onCreate();
+
+    const fieldNoteGroups = this.props.game.fields.filter(field =>
+      field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT'
+    );
+
+    return (
+      <div className="newStepBox">
+        <div className="newStep1">
+          <div className="newStep1Column newStep1LeftColumn field-notes-groups">
+            {
+              fieldNoteGroups.map(group =>
+                <div className="field-notes-group">
+                  <h1>{group.label}</h1>
+                  {
+                    group.options.map(opt =>
+                      <a href="#" className={
+                        this.state.selectedOptionID === opt.field_option_id
+                        ? "field-notes-item selected"
+                        : "field-notes-item"
+                      } onClick={(e) => {
+                        e.preventDefault();
+                        this.setState({selectedOptionID: opt.field_option_id});
+                      }}>
+                        <h2>{opt.option}</h2>
+                      </a>
+                    )
+                  }
+                </div>
+              )
             }
-          });
-          return child('div.newNextButton', () => {
-            raw('publish!');
-          });
-        });
-      });
-    });
+          </div>
+          <div className="newStep1Column newStep1RightColumn">
+          </div>
+        </div>
+        <div className="bottom-step-buttons">
+          <a href="#new3">
+            <div className="newPrevButton">
+              {'< tour stops'}
+            </div>
+          </a>
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            this.props.onCreate();
+          }}>
+            <div className="newNextButton">
+              publish!
+            </div>
+          </a>
+        </div>
+      </div>
+    );
   }
 });
 
