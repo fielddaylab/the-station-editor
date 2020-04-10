@@ -90,18 +90,22 @@ export const MapOptions = createClass({
   },
 
   render: function() {
+    const editingStop = this.state.editPlaqueIndex != null ?
+      this.props.game.plaques[this.state.editPlaqueIndex] :
+      null;
+
     return (
       <div className="newStepBox">
         <div className="newStep3">
           <div className="newStep3Controls">
             {
-              this.state.editPlaqueIndex != null && (
+              editingStop && (
                 <div>
                   <p>Editing Stop</p>
                   <input
                     type="text"
                     placeholder="Title"
-                    value={this.props.game.plaques[this.state.editPlaqueIndex].name}
+                    value={editingStop.name}
                     onChange={e => this.props.onChange(update(this.props.game, {
                       plaques: {
                         [this.state.editPlaqueIndex]: {
@@ -114,7 +118,7 @@ export const MapOptions = createClass({
                   />
                   <textarea
                     placeholder="Description"
-                    value={this.props.game.plaques[this.state.editPlaqueIndex].description}
+                    value={editingStop.description}
                     onChange={e => this.props.onChange(update(this.props.game, {
                       plaques: {
                         [this.state.editPlaqueIndex]: {
@@ -125,6 +129,60 @@ export const MapOptions = createClass({
                       },
                     }))}
                   />
+                  <p>Attach Field Notes to stop:</p>
+                  <ul>
+                    {
+                      (editingStop.fieldNotes || []).map(fieldNoteID => {
+                        let matchOption = null;
+                        this.props.game.fields.forEach(field => {
+                          (field.options || []).forEach(option => {
+                            if (parseInt(option.field_option_id) === parseInt(fieldNoteID)) {
+                              matchOption = option;
+                            }
+                          });
+                        });
+                        if (matchOption) {
+                          return (
+                            <li>{matchOption.option}</li>
+                          );
+                        }
+                      }).filter(x => x)
+                    }
+                  </ul>
+                  <p>
+                    <select ref="selectFieldNote">
+                      {
+                        [].concat.apply([], this.props.game.fields.map(field =>
+                          (field.options || []).map(option =>
+                            <option value={option.field_option_id}>
+                              {option.option}
+                            </option>
+                          )
+                        ))
+                      }
+                    </select>
+                  </p>
+                  <p>
+                    <a href="#" onClick={e => {
+                      e.preventDefault();
+                      const fieldNoteID = this.refs.selectFieldNote.value;
+                      this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            $apply: (plaque => {
+                              if (plaque.fieldNotes) {
+                                return update(plaque, {fieldNotes: {$push: [fieldNoteID]}});
+                              } else {
+                                return update(plaque, {fieldNotes: {$set: [fieldNoteID]}});
+                              }
+                            }),
+                          },
+                        },
+                      }))
+                    }}>
+                      Attach Field Note
+                    </a>
+                  </p>
                   <p>
                     <a href="#" onClick={(e) => {
                       e.preventDefault();
