@@ -3068,6 +3068,56 @@ const FieldNotes = createClass({
     const fieldNoteGroups = this.props.game.fields.filter(field =>
       field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT'
     );
+    let selectedGroup = null;
+    let selectedOption = null;
+    if (this.state.selectedOptionID != null) {
+      fieldNoteGroups.forEach(group => {
+        group.options.forEach(option => {
+          if (this.state.selectedOptionID === option.field_option_id) {
+            selectedGroup = group;
+            selectedOption = option;
+          }
+        });
+      });
+    } else if (this.state.selectedGroupID != null) {
+      fieldNoteGroups.forEach(group => {
+        if (this.state.selectedGroupID === group.field_id) {
+          selectedGroup = group;
+        }
+      });
+    }
+
+    const updateSelectedGroup = (o) => {
+      this.props.onChange(update(this.props.game, {
+        fields: (fields) => fields.map(field => {
+          if (field.field_id === selectedGroup.field_id) {
+            return update(field, o);
+          } else {
+            return field;
+          }
+        }),
+      }));
+    };
+
+    const updateSelectedOption = (o) => {
+      this.props.onChange(update(this.props.game, {
+        fields: (fields) => fields.map(field => {
+          if (field.field_id === selectedGroup.field_id) {
+            return update(field, {
+              options: (options) => options.map(option => {
+                if (option.field_option_id === selectedOption.field_option_id) {
+                  return update(option, o);
+                } else {
+                  return option;
+                }
+              }),
+            });
+          } else {
+            return field;
+          }
+        }),
+      }));
+    };
 
     return (
       <div className="newStepBox">
@@ -3075,17 +3125,26 @@ const FieldNotes = createClass({
           <div className="newStep1Column newStep1LeftColumn field-notes-groups">
             {
               fieldNoteGroups.map(group =>
-                <div className="field-notes-group">
-                  <h1>{group.label}</h1>
+                <div className="field-notes-group" key={group.field_id}>
+                  <a href="#" className={
+                    this.state.selectedGroupID === group.field_id
+                    ? "field-notes-header selected"
+                    : "field-notes-header"
+                  } onClick={e => {
+                    e.preventDefault();
+                    this.setState({selectedGroupID: group.field_id, selectedOptionID: null});
+                  }}>
+                    <h1>{group.label}</h1>
+                  </a>
                   {
                     group.options.map(opt =>
-                      <a href="#" className={
+                      <a href="#" key={opt.field_option_id} className={
                         this.state.selectedOptionID === opt.field_option_id
                         ? "field-notes-item selected"
                         : "field-notes-item"
                       } onClick={(e) => {
                         e.preventDefault();
-                        this.setState({selectedOptionID: opt.field_option_id});
+                        this.setState({selectedOptionID: opt.field_option_id, selectedGroupID: null});
                       }}>
                         <h2>{opt.option}</h2>
                         <p>
@@ -3094,9 +3153,9 @@ const FieldNotes = createClass({
                               (plaque.fieldNotes || []).indexOf(opt.field_option_id) !== -1
                             );
                             if (plaque) {
-                              return <p>Attached to: {plaque.name}</p>;
+                              return <span>Attached to: {plaque.name}</span>;
                             } else {
-                              return <p>Spawns Randomly</p>;
+                              return <span>Spawns Randomly</span>;
                             }
                           })()}
                         </p>
@@ -3108,6 +3167,40 @@ const FieldNotes = createClass({
             }
           </div>
           <div className="newStep1Column newStep1RightColumn">
+            {
+              selectedOption && (
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={selectedOption.option}
+                    onChange={e => updateSelectedOption({option: {$set: e.target.value}})}
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={selectedOption.description || ''}
+                    onChange={e => updateSelectedOption({description: {$set: e.target.value}})}
+                  />
+                </div>
+              )
+            }
+            {
+              selectedGroup && !selectedOption && (
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={selectedGroup.label}
+                    onChange={e => updateSelectedGroup({label: {$set: e.target.value}})}
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={selectedGroup.prompt || ''}
+                    onChange={e => updateSelectedGroup({prompt: {$set: e.target.value}})}
+                  />
+                </div>
+              )
+            }
           </div>
         </div>
         <div className="bottom-step-buttons">
