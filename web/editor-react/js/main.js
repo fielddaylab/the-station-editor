@@ -553,6 +553,16 @@ const App = createClass({
       return cb(null);
     }
   },
+  createQuest: function() {
+    const input = update(this.state.new_game, {
+      game_id: {
+        $set: this.state.edit_game.game_id,
+      },
+    });
+    this.props.aris.call('quests.createStemportsQuest', input, (result) => {
+      console.log(result);
+    });
+  },
   createGame: function() {
     return this.props.aris.createGame(this.state.new_game, (result) => {
       var cat, i, l, len, newGame, t, tag, tagObject, tags, tagsRemaining;
@@ -1199,7 +1209,7 @@ const App = createClass({
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
-                onCreate: this.createGame
+                onCreate: this.createQuest
               });
             default:
               return child('div', () => {
@@ -3149,7 +3159,7 @@ const FieldNotes = createClass({
                         <h2>{opt.option}</h2>
                         <p>
                           {(() => {
-                            const plaque = this.props.game.plaques.find(plaque =>
+                            const plaque = (this.props.game.plaques || []).find(plaque =>
                               (plaque.fieldNotes || []).indexOf(opt.field_option_id) !== -1
                             );
                             if (plaque) {

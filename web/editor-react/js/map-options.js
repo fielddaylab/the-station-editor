@@ -143,7 +143,7 @@ export const MapOptions = createClass({
                         });
                         if (matchOption) {
                           return (
-                            <li>{matchOption.option}</li>
+                            <li key={matchOption.field_option_id}>{matchOption.option}</li>
                           );
                         }
                       }).filter(x => x)
@@ -255,7 +255,7 @@ export const MapOptions = createClass({
               }}
             >
               {
-                this.props.game.plaques.map((plaque, i) =>
+                (this.props.game.plaques || []).map((plaque, i) =>
                   <div key={i}
                     className="color-card-pin"
                     lat={plaque.latitude}
