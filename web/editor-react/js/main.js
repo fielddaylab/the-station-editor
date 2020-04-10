@@ -3088,6 +3088,18 @@ const FieldNotes = createClass({
                         this.setState({selectedOptionID: opt.field_option_id});
                       }}>
                         <h2>{opt.option}</h2>
+                        <p>
+                          {(() => {
+                            const plaque = this.props.game.plaques.find(plaque =>
+                              (plaque.fieldNotes || []).indexOf(opt.field_option_id) !== -1
+                            );
+                            if (plaque) {
+                              return <p>Attached to: {plaque.name}</p>;
+                            } else {
+                              return <p>Spawns Randomly</p>;
+                            }
+                          })()}
+                        </p>
                       </a>
                     )
                   }

@@ -136,7 +136,7 @@ export const MapOptions = createClass({
                         let matchOption = null;
                         this.props.game.fields.forEach(field => {
                           (field.options || []).forEach(option => {
-                            if (parseInt(option.field_option_id) === parseInt(fieldNoteID)) {
+                            if (option.field_option_id === fieldNoteID) {
                               matchOption = option;
                             }
                           });
@@ -165,7 +165,7 @@ export const MapOptions = createClass({
                   <p>
                     <a href="#" onClick={e => {
                       e.preventDefault();
-                      const fieldNoteID = this.refs.selectFieldNote.value;
+                      const fieldNoteID = parseInt(this.refs.selectFieldNote.value);
                       this.props.onChange(update(this.props.game, {
                         plaques: {
                           [this.state.editPlaqueIndex]: {
