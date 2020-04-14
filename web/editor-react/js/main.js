@@ -30,6 +30,7 @@ import {ProfileSettings} from './profile-settings';
 import {MapOptions} from './map-options';
 import {SiftrList} from './siftr-list';
 import {InnerNav} from './inner-nav';
+import {MediaSelect} from './media-select';
 
 function renderMarkdown(str) {
   return {
@@ -3211,26 +3212,21 @@ const FieldNotes = createClass({
                     value={selectedOption.description || ''}
                     onChange={e => updateSelectedOption({description: {$set: e.target.value}})}
                   />
-                  <p>
-                    {JSON.stringify(selectedOption.media)}
-                  </p>
-                  <p>
-                    <a href="#" onClick={e => {
-                      e.preventDefault();
-                      this.props.pickAndUploadMedia(this.props.game, media => {
-                        updateSelectedOption({
-                          media: {
-                            $set: media, // includes url for displaying
-                          },
-                          media_id: {
-                            $set: media.media_id, // to actually set in database
-                          },
-                        });
+                  <MediaSelect
+                    media={selectedOption.media}
+                    pickAndUploadMedia={this.props.pickAndUploadMedia}
+                    game={this.props.game}
+                    applyMedia={(media) => {
+                      updateSelectedOption({
+                        media: {
+                          $set: media, // includes url for displaying
+                        },
+                        media_id: {
+                          $set: media.media_id, // to actually set in database
+                        },
                       });
-                    }}>
-                      Select media
-                    </a>
-                  </p>
+                    }}
+                  />
                 </div>
               )
             }

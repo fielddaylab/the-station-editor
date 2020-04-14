@@ -15,6 +15,8 @@ import {
   Aris,
 } from '../../shared/aris';
 
+import {MediaSelect} from './media-select';
+
 export const MapOptions = createClass({
   displayName: 'MapOptions',
 
@@ -129,30 +131,25 @@ export const MapOptions = createClass({
                       },
                     }))}
                   />
-                  <p>
-                    {JSON.stringify(editingStop.media)}
-                  </p>
-                  <p>
-                    <a href="#" onClick={e => {
-                      e.preventDefault();
-                      this.props.pickAndUploadMedia(this.props.game, media => {
-                        this.props.onChange(update(this.props.game, {
-                          plaques: {
-                            [this.state.editPlaqueIndex]: {
-                              media: {
-                                $set: media, // includes url for displaying
-                              },
-                              media_id: {
-                                $set: media.media_id, // to actually set in database
-                              },
+                  <MediaSelect
+                    media={editingStop.media}
+                    pickAndUploadMedia={this.props.pickAndUploadMedia}
+                    game={this.props.game}
+                    applyMedia={(media) => {
+                      this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            media: {
+                              $set: media, // includes url for displaying
+                            },
+                            media_id: {
+                              $set: media.media_id, // to actually set in database
                             },
                           },
-                        }));
-                      });
-                    }}>
-                      Select media
-                    </a>
-                  </p>
+                        },
+                      }));
+                    }}
+                  />
                   <p>Attach Field Notes to stop:</p>
                   <ul>
                     {
