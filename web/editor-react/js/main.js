@@ -523,6 +523,24 @@ const App = createClass({
       }
     });
   },
+  pickAndUploadMedia: function(game, cb) {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      let fr = new FileReader;
+      fr.onload = () => {
+        const dataURL = fr.result;
+        this.createNewIcon(dataURL, game, (res) => {
+          if (res && res.returnCode === 0 && res.data) {
+            cb(res.data);
+          };
+        });
+      };
+      fr.readAsDataURL(file);
+    };
+    input.click();
+  },
   createNewIcon: function(dataURL, game, cb) {
     var base64, ext, extmap;
     if (dataURL == null) {
@@ -1201,7 +1219,8 @@ const App = createClass({
                 themes: this.state.themes,
                 onChange: (new_game) => {
                   this.setState({new_game});
-                }
+                },
+                pickAndUploadMedia: this.pickAndUploadMedia/*.bind(this)*/,
               });
             case 'new4':
               return child(FieldNotes, {
@@ -1209,7 +1228,8 @@ const App = createClass({
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
-                onCreate: this.createQuest
+                onCreate: this.createQuest,
+                pickAndUploadMedia: this.pickAndUploadMedia/*.bind(this)*/,
               });
             default:
               return child('div', () => {
@@ -3191,6 +3211,26 @@ const FieldNotes = createClass({
                     value={selectedOption.description || ''}
                     onChange={e => updateSelectedOption({description: {$set: e.target.value}})}
                   />
+                  <p>
+                    {JSON.stringify(selectedOption.media)}
+                  </p>
+                  <p>
+                    <a href="#" onClick={e => {
+                      e.preventDefault();
+                      this.props.pickAndUploadMedia(this.props.game, media => {
+                        updateSelectedOption({
+                          media: {
+                            $set: media, // includes url for displaying
+                          },
+                          media_id: {
+                            $set: media.media_id, // to actually set in database
+                          },
+                        });
+                      });
+                    }}>
+                      Select media
+                    </a>
+                  </p>
                 </div>
               )
             }

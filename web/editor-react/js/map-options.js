@@ -129,6 +129,30 @@ export const MapOptions = createClass({
                       },
                     }))}
                   />
+                  <p>
+                    {JSON.stringify(editingStop.media)}
+                  </p>
+                  <p>
+                    <a href="#" onClick={e => {
+                      e.preventDefault();
+                      this.props.pickAndUploadMedia(this.props.game, media => {
+                        this.props.onChange(update(this.props.game, {
+                          plaques: {
+                            [this.state.editPlaqueIndex]: {
+                              media: {
+                                $set: media, // includes url for displaying
+                              },
+                              media_id: {
+                                $set: media.media_id, // to actually set in database
+                              },
+                            },
+                          },
+                        }));
+                      });
+                    }}>
+                      Select media
+                    </a>
+                  </p>
                   <p>Attach Field Notes to stop:</p>
                   <ul>
                     {
@@ -154,7 +178,7 @@ export const MapOptions = createClass({
                       {
                         [].concat.apply([], this.props.game.fields.map(field =>
                           (field.options || []).map(option =>
-                            <option value={option.field_option_id}>
+                            <option value={option.field_option_id} key={option.field_option_id}>
                               {option.option}
                             </option>
                           )
