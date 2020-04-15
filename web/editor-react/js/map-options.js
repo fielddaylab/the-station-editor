@@ -102,35 +102,48 @@ export const MapOptions = createClass({
           <div className="newStep3Controls">
             {
               editingStop && (
-                <div>
-                  <p>Editing Stop</p>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={editingStop.name}
-                    onChange={e => this.props.onChange(update(this.props.game, {
-                      plaques: {
-                        [this.state.editPlaqueIndex]: {
-                          name: {
-                            $set: e.target.value,
+                <div className="tour-stop-edit">
+                  <h2>
+                    <img src="img/icon-tour-stop.png" style={{
+                      width: 144 / 4,
+                      height: 154 / 4,
+                    }} />
+                    <span>Tour Stop:</span>
+                  </h2>
+                  <hr />
+                  <label>
+                    Tour Stop Title:
+                    <input
+                      type="text"
+                      placeholder="eg: Aspen Tree"
+                      value={editingStop.name}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            name: {
+                              $set: e.target.value,
+                            },
                           },
                         },
-                      },
-                    }))}
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={editingStop.description}
-                    onChange={e => this.props.onChange(update(this.props.game, {
-                      plaques: {
-                        [this.state.editPlaqueIndex]: {
-                          description: {
-                            $set: e.target.value,
+                      }))}
+                    />
+                  </label>
+                  <label>
+                    Tour Stop Summary:
+                    <textarea
+                      placeholder="Describe your tour stop"
+                      value={editingStop.description}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            description: {
+                              $set: e.target.value,
+                            },
                           },
                         },
-                      },
-                    }))}
-                  />
+                      }))}
+                    />
+                  </label>
                   <MediaSelect
                     media={editingStop.media}
                     pickAndUploadMedia={this.props.pickAndUploadMedia}
@@ -150,6 +163,7 @@ export const MapOptions = createClass({
                       }));
                     }}
                   />
+                  <hr />
                   <p>Attach Field Notes to stop:</p>
                   <ul>
                     {
@@ -191,6 +205,7 @@ export const MapOptions = createClass({
                         plaques: {
                           [this.state.editPlaqueIndex]: {
                             $apply: (plaque => {
+                              // TODO don't add duplicate
                               if (plaque.fieldNotes) {
                                 return update(plaque, {fieldNotes: {$push: [fieldNoteID]}});
                               } else {
@@ -215,23 +230,6 @@ export const MapOptions = createClass({
                 </div>
               )
             }
-            <p>
-              <a href="#" onClick={(e) => {
-                e.preventDefault();
-                this.props.onChange(update(this.props.game, {
-                  plaques: {
-                    $push: [{
-                      name: 'A Tour Stop',
-                      description: '',
-                      latitude: this.state.mapCenter.lat,
-                      longitude: this.state.mapCenter.lng,
-                    }],
-                  },
-                }));
-              }}>
-                Add Stop
-              </a>
-            </p>
           </div>
           <div className="newStep3MapContainer">
             <GoogleMap
@@ -251,7 +249,8 @@ export const MapOptions = createClass({
                       default:
                         return maps.MapTypeId.HYBRID;
                     }
-                  }).call(this)
+                  }).call(this),
+                  fullscreenControl: false,
                 };
               }}
               onChange={({center, zoom}) => {
@@ -293,6 +292,34 @@ export const MapOptions = createClass({
                 )
               }
             </GoogleMap>
+            <a href="#" onClick={e => {
+              e.preventDefault();
+              this.props.onChange(update(this.props.game, {
+                plaques: {
+                  $push: [{
+                    name: 'A Tour Stop',
+                    description: '',
+                    latitude: this.state.mapCenter.lat,
+                    longitude: this.state.mapCenter.lng,
+                  }],
+                },
+              }));
+              this.setState({
+                editPlaqueIndex: this.props.game.plaques.length, // index of newly pushed stop
+              })
+            }} style={{
+              position: 'absolute',
+              color: 'white',
+              backgroundColor: 'rgb(96,95,236)',
+              right: 15,
+              top: 15,
+              padding: 8,
+              paddingLeft: 15,
+              paddingRight: 15,
+              borderRadius: 4,
+            }}>
+              Add Tour Stop
+            </a>
           </div>
         </div>
         {

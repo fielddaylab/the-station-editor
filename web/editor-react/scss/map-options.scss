@@ -156,3 +156,27 @@
     }
   }
 }
+
+.tour-stop-edit {
+  padding: 15px;
+  label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    input, textarea {
+      display: block;
+      width: 100%;
+    }
+  }
+  hr {
+    border: 1px solid rgb(224,230,236);
+  }
+  h2 {
+    img {
+      margin-right: 8px;
+    }
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
