@@ -524,23 +524,17 @@ const App = createClass({
       }
     });
   },
-  pickAndUploadMedia: function(game, cb) {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      let fr = new FileReader;
-      fr.onload = () => {
-        const dataURL = fr.result;
-        this.createNewIcon(dataURL, game, (res) => {
-          if (res && res.returnCode === 0 && res.data) {
-            cb(res.data);
-          };
-        });
-      };
-      fr.readAsDataURL(file);
+  uploadMedia: function(file, game, cb) {
+    let fr = new FileReader;
+    fr.onload = () => {
+      const dataURL = fr.result;
+      this.createNewIcon(dataURL, game, (res) => {
+        if (res && res.returnCode === 0 && res.data) {
+          cb(res.data);
+        };
+      });
     };
-    input.click();
+    fr.readAsDataURL(file);
   },
   createNewIcon: function(dataURL, game, cb) {
     var base64, ext, extmap;
@@ -1221,7 +1215,7 @@ const App = createClass({
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
-                pickAndUploadMedia: this.pickAndUploadMedia/*.bind(this)*/,
+                uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
             case 'new4':
               return child(FieldNotes, {
@@ -1230,7 +1224,7 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 onCreate: this.createQuest,
-                pickAndUploadMedia: this.pickAndUploadMedia/*.bind(this)*/,
+                uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
             default:
               return child('div', () => {
@@ -3214,7 +3208,7 @@ const FieldNotes = createClass({
                   />
                   <MediaSelect
                     media={selectedOption.media}
-                    pickAndUploadMedia={this.props.pickAndUploadMedia}
+                    uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
                     applyMedia={(media) => {
                       updateSelectedOption({

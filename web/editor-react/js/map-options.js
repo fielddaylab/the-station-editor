@@ -146,7 +146,7 @@ export const MapOptions = createClass({
                   </label>
                   <MediaSelect
                     media={editingStop.media}
-                    pickAndUploadMedia={this.props.pickAndUploadMedia}
+                    uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
                     applyMedia={(media) => {
                       this.props.onChange(update(this.props.game, {

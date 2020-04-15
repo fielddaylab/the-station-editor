@@ -158,6 +158,7 @@
 }
 
 .tour-stop-edit {
+  overflow-y: auto;
   padding: 15px;
   label {
     display: block;
@@ -179,4 +180,21 @@
     flex-direction: row;
     align-items: center;
   }
+}
+
+.media-some {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 175px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+}
+
+.media-none {
+  text-align: center;
+  border: 2px dashed gray;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
