@@ -1778,7 +1778,7 @@ const Onboarding = createClass({
                 <input class="full-width-input" type="text" />
               </label>
               <label>
-                <p>Panel 1 Title</p>
+                <p>Panel 1 Description</p>
                 <textarea class="full-width-textarea" />
               </label>
               <hr />
@@ -1787,7 +1787,7 @@ const Onboarding = createClass({
                 <input class="full-width-input" type="text" />
               </label>
               <label>
-                <p>Panel 2 Title</p>
+                <p>Panel 2 Description</p>
                 <textarea class="full-width-textarea" />
               </label>
               <hr />
@@ -1796,7 +1796,7 @@ const Onboarding = createClass({
                 <input class="full-width-input" type="text" />
               </label>
               <label>
-                <p>Panel 3 Title</p>
+                <p>Panel 3 Description</p>
                 <textarea class="full-width-textarea" />
               </label>
             </div>
