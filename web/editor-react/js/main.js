@@ -234,34 +234,10 @@ const App = createClass({
       this.setState({
         screen: 'new0',
       });
-    } else if (hash === 'new1') {
+    } else if (['new1', 'new2', 'new3', 'new4', 'new5'].indexOf(hash) !== -1) {
       if (this.state.edit_game) {
         this.setState({
-          screen: 'new1',
-        });
-      } else {
-        window.location.hash = '#';
-      }
-    } else if (hash === 'new2') {
-      if (this.state.edit_game) {
-        this.setState({
-          screen: 'new2',
-        });
-      } else {
-        window.location.hash = '#';
-      }
-    } else if (hash === 'new3') {
-      if (this.state.edit_game) {
-        this.setState({
-          screen: 'new3',
-        });
-      } else {
-        window.location.hash = '#';
-      }
-    } else if (hash === 'new4') {
-      if (this.state.edit_game) {
-        this.setState({
-          screen: 'new4',
+          screen: hash,
         });
       } else {
         window.location.hash = '#';
@@ -749,7 +725,7 @@ const App = createClass({
     navBarActions = () => {
       child('div', () => {
         var ref1, ref2, ref3;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
           child('a.create-cancel', {
             href: '#'
           }, () => {
@@ -784,7 +760,7 @@ const App = createClass({
       var game;
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4') {
+        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
               var requireNameDesc, selectTab;
@@ -813,7 +789,7 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Observations');
+                  raw('Onboarding');
                 });
                 child(`a.create-step-tab${selectTab('new3')}`, {
                   href: '#new3'
@@ -821,7 +797,7 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Tour stops');
+                  raw('Observation');
                 });
                 child(`a.create-step-tab${selectTab('new4')}`, {
                   href: '#new4'
@@ -829,7 +805,15 @@ const App = createClass({
                   props({
                     onClick: requireNameDesc
                   });
-                  raw('Field notes');
+                  raw('Field Notes');
+                });
+                child(`a.create-step-tab${selectTab('new5')}`, {
+                  href: '#new5'
+                }, () => {
+                  props({
+                    onClick: requireNameDesc
+                  });
+                  raw('Tour Stops');
                 });
               }
             });
@@ -1168,7 +1152,8 @@ const App = createClass({
                 game: this.state.edit_game,
                 colors: this.state.colors,
                 themes: this.state.themes,
-                onChange: this.autosave.bind(this)
+                onChange: this.autosave.bind(this),
+                onCreate: this.createGame,
               });
             case 'new0':
               return child(NewOverview, {
@@ -1195,6 +1180,8 @@ const App = createClass({
                 }
               });
             case 'new2':
+              return null; // TODO Onboarding tab
+            case 'new3':
               return child(FormEditor, {
                 editing: false,
                 game: this.state.new_game,
@@ -1207,16 +1194,6 @@ const App = createClass({
                   this.setState({new_categories});
                 }
               });
-            case 'new3':
-              return child(MapOptions, {
-                game: this.state.new_game,
-                colors: this.state.colors,
-                themes: this.state.themes,
-                onChange: (new_game) => {
-                  this.setState({new_game});
-                },
-                uploadMedia: this.uploadMedia/*.bind(this)*/,
-              });
             case 'new4':
               return child(FieldNotes, {
                 game: this.state.new_game,
@@ -1224,6 +1201,16 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 onCreate: this.createQuest,
+                uploadMedia: this.uploadMedia/*.bind(this)*/,
+              });
+            case 'new5':
+              return child(MapOptions, {
+                game: this.state.new_game,
+                colors: this.state.colors,
+                themes: this.state.themes,
+                onChange: (new_game) => {
+                  this.setState({new_game});
+                },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
             default:
@@ -1882,7 +1869,7 @@ const NewOverview = createClass({
             if (this.props.scienceStation) {
               raw('create!');
             } else {
-              raw('observations >');
+              raw('onboarding >');
             }
           });
         });
@@ -3064,17 +3051,17 @@ const FormEditor = createClass({
       } else {
         return child('div.bottom-step-buttons', () => {
           child('a', {
-            href: '#new1'
+            href: '#new2'
           }, () => {
             return child('div.newPrevButton', () => {
-              raw('< overview');
+              raw('< onboarding');
             });
           });
           return child('a', {
-            href: '#new3'
+            href: '#new4'
           }, () => {
             return child('div.newNextButton', () => {
-              raw('tour stops >');
+              raw('field notes >');
             });
           });
         });
@@ -3246,15 +3233,12 @@ const FieldNotes = createClass({
         <div className="bottom-step-buttons">
           <a href="#new3">
             <div className="newPrevButton">
-              {'< tour stops'}
+              {'< observation'}
             </div>
           </a>
-          <a href="#" onClick={(e) => {
-            e.preventDefault();
-            this.props.onCreate();
-          }}>
+          <a href="#new5">
             <div className="newNextButton">
-              publish!
+              {'tour stops >'}
             </div>
           </a>
         </div>

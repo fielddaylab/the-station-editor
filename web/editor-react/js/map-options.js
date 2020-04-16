@@ -341,22 +341,21 @@ export const MapOptions = createClass({
               });
             })
           ) : (
-            make('div.bottom-step-buttons', () => {
-              child('a', {
-                href: '#new2'
-              }, () => {
-                return child('div.newPrevButton', () => {
-                  raw('< observations');
-                });
-              });
-              return child('a', {
-                href: '#new4'
-              }, () => {
-                return child('div.newNextButton', () => {
-                  raw('field notes >');
-                });
-              });
-            })
+            <div className="bottom-step-buttons">
+              <a href="#new4">
+                <div class="newPrevButton">
+                  {'< field notes'}
+                </div>
+              </a>
+              <a href="#" onClick={(e) => {
+                e.preventDefault();
+                this.props.onCreate();
+              }}>
+                <div className="newNextButton">
+                  publish!
+                </div>
+              </a>
+            </div>
           )
         }
       </div>
