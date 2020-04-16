@@ -1180,7 +1180,12 @@ const App = createClass({
                 }
               });
             case 'new2':
-              return null; // TODO Onboarding tab
+              return child(Onboarding, {
+                game: this.state.new_game,
+                onChange: (new_game) => {
+                  this.setState({new_game});
+                },
+              });
             case 'new3':
               return child(FormEditor, {
                 editing: false,
@@ -1757,6 +1762,63 @@ const EditOverview = createClass({
       });
     });
   }
+});
+
+const Onboarding = createClass({
+  displayName: 'Onboarding',
+  render: function() {
+    return (
+      <div class="newStepBox">
+        <div class="newStep1">
+          <div class="newStep1Column newStep1LeftColumn">
+            <div>
+              <h1>Player Onboarding Setup:</h1>
+              <label>
+                <p>Panel 1 Title</p>
+                <input class="full-width-input" type="text" />
+              </label>
+              <label>
+                <p>Panel 1 Title</p>
+                <textarea class="full-width-textarea" />
+              </label>
+              <hr />
+              <label>
+                <p>Panel 2 Title</p>
+                <input class="full-width-input" type="text" />
+              </label>
+              <label>
+                <p>Panel 2 Title</p>
+                <textarea class="full-width-textarea" />
+              </label>
+              <hr />
+              <label>
+                <p>Panel 3 Title</p>
+                <input class="full-width-input" type="text" />
+              </label>
+              <label>
+                <p>Panel 3 Title</p>
+                <textarea class="full-width-textarea" />
+              </label>
+            </div>
+          </div>
+          <div class="newStep1Column newStep1RightColumn">
+          </div>
+        </div>
+        <div className="bottom-step-buttons">
+          <a href="#new1">
+            <div className="newPrevButton">
+              {'< overview'}
+            </div>
+          </a>
+          <a href="#new3">
+            <div className="newNextButton">
+              {'observation >'}
+            </div>
+          </a>
+        </div>
+      </div>
+    );
+  },
 });
 
 const NewOverview = createClass({
