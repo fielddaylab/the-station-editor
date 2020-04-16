@@ -184,8 +184,16 @@ export const MapOptions = createClass({
                       }).filter(x => x)
                     }
                   </ul>
-                  <p>
-                    <select ref="selectFieldNote">
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                    <select style={{
+                      fontSize: 20,
+                      flex: 1,
+                      marginRight: 10,
+                    }} ref="selectFieldNote">
                       {
                         [].concat.apply([], this.props.game.fields.map(field =>
                           (field.options || []).map(option =>
@@ -196,16 +204,23 @@ export const MapOptions = createClass({
                         ))
                       }
                     </select>
-                  </p>
-                  <p>
-                    <a href="#" onClick={e => {
+                    <a href="#" style={{
+                      color: 'rgb(101,88,245)',
+                      border: '2px solid rgb(199,194,252)',
+                      padding: 10,
+                      paddingTop: 6,
+                      paddingBottom: 6,
+                      borderRadius: 4,
+                    }} onClick={e => {
                       e.preventDefault();
                       const fieldNoteID = parseInt(this.refs.selectFieldNote.value);
                       this.props.onChange(update(this.props.game, {
                         plaques: {
                           [this.state.editPlaqueIndex]: {
                             $apply: (plaque => {
-                              // TODO don't add duplicate
+                              if (plaque.fieldNotes && plaque.fieldNotes.indexOf(fieldNoteID) !== -1) {
+                                return plaque; // don't add duplicate
+                              }
                               if (plaque.fieldNotes) {
                                 return update(plaque, {fieldNotes: {$push: [fieldNoteID]}});
                               } else {
@@ -216,17 +231,9 @@ export const MapOptions = createClass({
                         },
                       }))
                     }}>
-                      Attach Field Note
+                      Add note +
                     </a>
-                  </p>
-                  <p>
-                    <a href="#" onClick={(e) => {
-                      e.preventDefault();
-                      this.setState({editPlaqueIndex: null});
-                    }}>
-                      Close
-                    </a>
-                  </p>
+                  </div>
                 </div>
               )
             }
