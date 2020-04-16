@@ -1182,6 +1182,7 @@ const App = createClass({
             case 'new2':
               return child(Onboarding, {
                 game: this.state.new_game,
+                uploadMedia: this.uploadMedia/*.bind(this)*/,
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
@@ -1768,40 +1769,63 @@ const Onboarding = createClass({
   displayName: 'Onboarding',
   render: function() {
     return (
-      <div class="newStepBox">
-        <div class="newStep1">
-          <div class="newStep1Column newStep1LeftColumn">
+      <div className="newStepBox">
+        <div className="newStep1">
+          <div className="newStep1Column newStep1LeftColumn">
             <div>
               <h1>Player Onboarding Setup:</h1>
-              <label>
-                <p>Panel 1 Title</p>
-                <input class="full-width-input" type="text" />
-              </label>
-              <label>
-                <p>Panel 1 Description</p>
-                <textarea class="full-width-textarea" />
-              </label>
-              <hr />
-              <label>
-                <p>Panel 2 Title</p>
-                <input class="full-width-input" type="text" />
-              </label>
-              <label>
-                <p>Panel 2 Description</p>
-                <textarea class="full-width-textarea" />
-              </label>
-              <hr />
-              <label>
-                <p>Panel 3 Title</p>
-                <input class="full-width-input" type="text" />
-              </label>
-              <label>
-                <p>Panel 3 Description</p>
-                <textarea class="full-width-textarea" />
-              </label>
+              {
+                ['1', '2', '3'].map(i =>
+                  <div key={i}>
+                    <label>
+                      <p>Panel {i} Title</p>
+                      <input
+                        className="full-width-input"
+                        type="text"
+                        value={this.props.game[`tutorial_${i}_title`] || ""}
+                        onChange={e => this.props.onChange(update(this.props.game, {
+                          [`tutorial_${i}_title`]: {
+                            $set: e.target.value,
+                          },
+                        }))}
+                      />
+                    </label>
+                    <label>
+                      <p>Panel {i} Description</p>
+                      <textarea className="full-width-textarea"
+                        value={this.props.game[`tutorial_${i}`] || ""}
+                        onChange={e => this.props.onChange(update(this.props.game, {
+                          [`tutorial_${i}`]: {
+                            $set: e.target.value,
+                          },
+                        }))}
+                      />
+                    </label>
+                    <label>
+                      <p>Panel {i} Image</p>
+                      <MediaSelect
+                        media={this.props.game[`tutorial_${i}_media`]}
+                        uploadMedia={this.props.uploadMedia}
+                        game={this.props.game}
+                        applyMedia={(media) => {
+                          this.props.onChange(update(this.props.game, {
+                            [`tutorial_${i}_media`]: {
+                              $set: media, // includes url for displaying
+                            },
+                            [`tutorial_${i}_media_id`]: {
+                              $set: media.media_id, // to actually set in database
+                            },
+                          }));
+                        }}
+                      />
+                    </label>
+                    <hr />
+                  </div>
+                )
+              }
             </div>
           </div>
-          <div class="newStep1Column newStep1RightColumn">
+          <div className="newStep1Column newStep1RightColumn">
           </div>
         </div>
         <div className="bottom-step-buttons">

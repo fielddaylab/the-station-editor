@@ -350,7 +350,7 @@ export const MapOptions = createClass({
           ) : (
             <div className="bottom-step-buttons">
               <a href="#new4">
-                <div class="newPrevButton">
+                <div className="newPrevButton">
                   {'< field notes'}
                 </div>
               </a>

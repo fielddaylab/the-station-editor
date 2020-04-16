@@ -31,11 +31,11 @@ export const MediaSelect = (props) => {
     >
       {
         props.media ? (
-          <div class="media-some" style={{
+          <div className="media-some" style={{
             backgroundImage: `url(${props.media.big_thumb_url})`,
           }} />
         ) : (
-          <div class="media-none">
+          <div className="media-none">
             <p>
               <img src="img/icon-image.png" style={{
                 width: 274 / 4,
