@@ -549,7 +549,10 @@ const App = createClass({
       },
     });
     this.props.aris.call('quests.createStemportsQuest', input, (result) => {
-      console.log(result);
+      if (result.returnCode === 0) {
+        window.location.hash = '#';
+        this.setState({modal_quest: true});
+      }
     });
   },
   createGame: function() {
@@ -1218,6 +1221,7 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
+                onCreate: this.createQuest,
               });
             default:
               return child('div', () => {
@@ -1540,28 +1544,30 @@ const App = createClass({
               }
             });
             child('h1', () => {
-              raw('Congrats! Your Siftr project is now live.');
+              raw('Congrats! Your Stemports station has been created.');
             });
-            child('p', () => {
-              raw('You can access it here:');
-            });
-            child('p', () => {
-              return child('a', () => {
-                var url;
-                url = `${SIFTR_URL}${game.siftr_url || game.game_id}`;
-                props({
-                  target: '_blank',
-                  href: url
-                });
-                raw(url);
+          });
+        });
+      }
+      if (this.state.modal_quest != null) {
+        return child('div.newGameFixedBox', () => {
+          child('a.newGameCurtain', {
+            href: '#',
+            onClick: (e) => {
+              e.preventDefault();
+              this.setState({
+                modal_quest: null
               });
+            }
+          });
+          return child('div.newGameModal', () => {
+            ({
+              onClick: (e) => {
+                return e.stopPropagation();
+              }
             });
-            return child('p', () => {
-              raw('Or in the Siftr mobile app, enter ');
-              child('span.newGameMobileCode', () => {
-                raw(`${game.siftr_url || game.game_id}`);
-              });
-              raw(' in the search bar.');
+            child('h1', () => {
+              raw('Congrats! Your Stemports quest has been created.');
             });
           });
         });
