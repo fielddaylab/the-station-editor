@@ -71,15 +71,12 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
 
 </script>
 <nav class="main-nav">
-  <a class="logo" href="/"><img class="img-fluid"src="/assets/logos/siftr-logo.png" /></a>
   <div class="nav-contents">
     <ul class="nav-items">
-      <li><a href="/discover">discover</a></li>
-      <li><a href="/#pricing">pricing</a></li>
     </ul>
     <ul class="nav-items">
-      <li id="nav-login"><a href="/login">login</a></li>
-      <li id="nav-profile" class="nav-hide"><a href="/editor/#profile" id="nav-profile-link">profile</a></li>
+      <li id="nav-login"><a href="/stemports/siftr/editor-react/#">login</a></li>
+      <li id="nav-profile" class="nav-hide"><a href="/stemports/siftr/editor-react/#profile" id="nav-profile-link">profile</a></li>
     </ul>
     <img class="smily-pin" src="/assets/icons/smily-pin.png">
   </div>
