@@ -12,7 +12,7 @@ export const MediaSelect = (props) => {
         input.type = 'file';
         input.onchange = (e) => {
           const file = e.target.files[0];
-          props.uploadMedia(file, props.game, props.applyMedia);
+          props.uploadMedia(file, props.applyMedia);
         };
         input.click();
       }}
@@ -25,7 +25,7 @@ export const MediaSelect = (props) => {
         e.preventDefault();
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-          props.uploadMedia(files[0], props.game, props.applyMedia);
+          props.uploadMedia(files[0], props.applyMedia);
         }
       }}
     >

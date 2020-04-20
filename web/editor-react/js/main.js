@@ -471,11 +471,11 @@ const App = createClass({
       }
     });
   },
-  uploadMedia: function(file, game, cb) {
+  uploadMedia: function(file, cb) {
     let fr = new FileReader;
     fr.onload = () => {
       const dataURL = fr.result;
-      this.createNewIcon(dataURL, game, (res) => {
+      this.createNewIcon(dataURL, this.state.edit_game, (res) => {
         if (res && res.returnCode === 0 && res.data) {
           cb(res.data);
         };
