@@ -209,7 +209,30 @@ export const MapOptions = createClass({
                         });
                         if (matchOption) {
                           return (
-                            <li key={matchOption.field_option_id}>{matchOption.option}</li>
+                            <li key={matchOption.field_option_id}>
+                              {matchOption.option}
+                              <a href="#" onClick={e => {
+                                e.preventDefault();
+                                this.props.onChange(update(this.props.game, {
+                                  plaques: {
+                                    [this.state.editPlaqueIndex]: {
+                                      fieldNotes: {
+                                        $apply: (fieldNotes =>
+                                          fieldNotes.filter(fn => fn !== fieldNoteID)
+                                        ),
+                                      },
+                                    },
+                                  },
+                                }));
+                              }}>
+                                <img src="img/icon-delete.png" style={{
+                                  width: 62 / 2,
+                                  height: 62 / 2,
+                                  marginLeft: 10,
+                                  verticalAlign: 'middle',
+                                }} />
+                              </a>
+                            </li>
                           );
                         }
                       }).filter(x => x)
@@ -260,7 +283,7 @@ export const MapOptions = createClass({
                             }),
                           },
                         },
-                      }))
+                      }));
                     }}>
                       Add note +
                     </a>
