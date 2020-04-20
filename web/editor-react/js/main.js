@@ -62,36 +62,7 @@ function hasNameDesc(game) {
 }
 
 function standardFields() {
-  const fake_id = Date.now();
-  return [
-    new Field({
-      field_id: fake_id + 1,
-      field_type: 'SINGLESELECT',
-      label: 'Category',
-      required: false,
-      options: [
-        new FieldOption({
-          field_option_id: fake_id + 2,
-          option: 'Observation',
-        }),
-      ],
-      useAsPin: true,
-    }),
-    new Field({
-      field_id: fake_id + 3,
-      field_type: 'TEXTAREA',
-      label: 'Caption',
-      required: true,
-      useOnCards: true,
-    }),
-    new Field({
-      field_id: fake_id + 4,
-      field_type: 'MEDIA',
-      label: 'Main Photo',
-      required: true,
-      useOnCards: true,
-    }),
-  ];
+  return [];
 }
 
 const App = createClass({
@@ -557,36 +528,9 @@ const App = createClass({
   },
   createGame: function() {
     return this.props.aris.createGame(this.state.new_game, (result) => {
-      var cat, i, l, len, newGame, t, tag, tagObject, tags, tagsRemaining;
       if (result.returnCode === 0 && (result.data != null)) {
         window.location.hash = '#';
-        newGame = result.data;
-        tags = (function() {
-          var l, len, ref1, results;
-          ref1 = this.state.new_categories;
-          results = [];
-          for (l = 0, len = ref1.length; l < len; l++) {
-            cat = ref1[l];
-            t = cat.category.trim();
-            if (!(t.length > 0)) {
-              continue;
-            }
-            results.push({
-              category: t,
-              color: cat.color
-            });
-          }
-          return results;
-        }).call(this);
-        if (tags.length === 0) {
-          tags = [
-            {
-              category: 'Observation',
-              color: undefined
-            }
-          ];
-        }
-        tagsRemaining = tags.length;
+        let newGame = result.data;
         this.createNewIcon(this.state.new_icon, newGame, (result) => {
           if (result != null) {
             this.props.aris.call('games.updateGame', {
@@ -599,21 +543,7 @@ const App = createClass({
             });
           }
         });
-        for (i = l = 0, len = tags.length; l < len; i = ++l) {
-          tag = tags[i];
-          tagObject = new Tag;
-          tagObject.tag = tag.category;
-          tagObject.color = tag.color;
-          tagObject.game_id = newGame.game_id;
-          this.props.aris.createTag(tagObject, (result) => {
-            if (result.returnCode === 0 && (result.data != null)) {
-              tagsRemaining--;
-              if (tagsRemaining === 0) {
-                return this.updateTags([newGame]);
-              }
-            }
-          });
-        }
+        this.updateTags([newGame]);
         this.updateStateGame(newGame);
         this.updateForms([newGame]);
         this.setState((previousState, currentProps) => {
