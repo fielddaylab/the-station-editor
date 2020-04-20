@@ -144,6 +144,37 @@ export const MapOptions = createClass({
                       }))}
                     />
                   </label>
+                  <label>
+                    Tour Stop Coordinates:
+                    <input
+                      type="text"
+                      placeholder="Latitude"
+                      value={editingStop.latitude}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            latitude: {
+                              $set: e.target.value,
+                            },
+                          },
+                        },
+                      }))}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Longitude"
+                      value={editingStop.longitude}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          [this.state.editPlaqueIndex]: {
+                            longitude: {
+                              $set: e.target.value,
+                            },
+                          },
+                        },
+                      }))}
+                    />
+                  </label>
                   <MediaSelect
                     media={editingStop.media}
                     uploadMedia={this.props.uploadMedia}
