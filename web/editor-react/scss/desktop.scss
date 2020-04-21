@@ -26,6 +26,15 @@
 .newStep1RightColumn {
   width: 275px;
   border-left: 2px solid #F4F4F4;
+  label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    input, textarea {
+      display: block;
+      width: 100%;
+    }
+  }
 }
 
 .newStep2 {

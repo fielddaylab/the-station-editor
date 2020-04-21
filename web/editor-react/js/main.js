@@ -3205,17 +3205,24 @@ const FieldNotes = createClass({
             {
               selectedOption && (
                 <div>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={selectedOption.option}
-                    onChange={e => updateSelectedOption({option: {$set: e.target.value}})}
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={selectedOption.description || ''}
-                    onChange={e => updateSelectedOption({description: {$set: e.target.value}})}
-                  />
+                  <h2>Field Note</h2>
+                  <label>
+                    Field Note Title:
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      value={selectedOption.option}
+                      onChange={e => updateSelectedOption({option: {$set: e.target.value}})}
+                    />
+                  </label>
+                  <label>
+                    Field Note Summary:
+                    <textarea
+                      placeholder="Description"
+                      value={selectedOption.description || ''}
+                      onChange={e => updateSelectedOption({description: {$set: e.target.value}})}
+                    />
+                  </label>
                   <MediaSelect
                     media={selectedOption.media}
                     uploadMedia={this.props.uploadMedia}
@@ -3237,17 +3244,24 @@ const FieldNotes = createClass({
             {
               selectedGroup && !selectedOption && (
                 <div>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={selectedGroup.label}
-                    onChange={e => updateSelectedGroup({label: {$set: e.target.value}})}
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={selectedGroup.prompt || ''}
-                    onChange={e => updateSelectedGroup({prompt: {$set: e.target.value}})}
-                  />
+                  <h2>Field Note Group</h2>
+                  <label>
+                    Field Note Group Title:
+                    <input
+                      type="text"
+                      placeholder="Title"
+                      value={selectedGroup.label}
+                      onChange={e => updateSelectedGroup({label: {$set: e.target.value}})}
+                    />
+                  </label>
+                  <label>
+                    Field Note Group Prompt:
+                    <textarea
+                      placeholder="Description"
+                      value={selectedGroup.prompt || ''}
+                      onChange={e => updateSelectedGroup({prompt: {$set: e.target.value}})}
+                    />
+                  </label>
                 </div>
               )
             }
