@@ -28,6 +28,7 @@ import {
 import {AccountSettings} from './account-settings';
 import {ProfileSettings} from './profile-settings';
 import {MapOptions} from './map-options';
+import {StationLocation} from './station-location';
 import {SiftrList} from './siftr-list';
 import {InnerNav} from './inner-nav';
 import {MediaSelect} from './media-select';
@@ -201,11 +202,15 @@ const App = createClass({
         // This is temporary if the user is currently being logged in,
         // because the list of games will load and re-call applyHash
       }
-    } else if (hash === 'new0') {
+    } else if (hash === 'new1') {
       this.setState({
-        screen: 'new0',
+        screen: 'new1',
       });
-    } else if (['new1', 'new2', 'new3', 'new4', 'new5'].indexOf(hash) !== -1) {
+    } else if (hash === 'new2') {
+      this.setState({
+        screen: 'new2',
+      });
+    } else if (['quest1', 'quest2', 'quest3', 'quest4', 'quest5'].indexOf(hash) !== -1) {
       if (this.state.edit_game) {
         this.setState({
           screen: hash,
@@ -659,7 +664,7 @@ const App = createClass({
     navBarActions = () => {
       child('div', () => {
         var ref1, ref2, ref3;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
           child('a.create-cancel', {
             href: '#'
           }, () => {
@@ -694,7 +699,7 @@ const App = createClass({
       var game;
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
-        if ((ref1 = this.state.screen) === 'new0' || ref1 === 'new1' || ref1 === 'new2' || ref1 === 'new3' || ref1 === 'new4' || ref1 === 'new5') {
+        if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
               var requireNameDesc, selectTab;
@@ -705,13 +710,13 @@ const App = createClass({
                   return '';
                 }
               };
-              requireNameDesc = (this.state.screen === 'new0' || this.state.screen === 'new1') ? (e) => {
+              requireNameDesc = (this.state.screen === 'new1' || this.state.screen === 'quest1') ? (e) => {
                 if (!hasNameDesc(this.state.new_game)) {
                   alert('Please enter a name and user instructions for your Siftr.');
                   return e.preventDefault();
                 }
               } : undefined;
-              if (this.state.screen !== 'new0') {
+              if (this.state.screen === 'new1' || this.state.screen === 'new2') {
                 child(`a.create-step-tab${selectTab('new1')}`, {
                   href: '#new1'
                 }, () => {
@@ -720,29 +725,40 @@ const App = createClass({
                 child(`a.create-step-tab${selectTab('new2')}`, {
                   href: '#new2'
                 }, () => {
+                  raw('Location');
+                });
+              } else {
+                child(`a.create-step-tab${selectTab('quest1')}`, {
+                  href: '#quest1'
+                }, () => {
+                  raw('Overview');
+                });
+                child(`a.create-step-tab${selectTab('quest2')}`, {
+                  href: '#quest2'
+                }, () => {
                   props({
                     onClick: requireNameDesc
                   });
                   raw('Onboarding');
                 });
-                child(`a.create-step-tab${selectTab('new3')}`, {
-                  href: '#new3'
+                child(`a.create-step-tab${selectTab('quest3')}`, {
+                  href: '#quest3'
                 }, () => {
                   props({
                     onClick: requireNameDesc
                   });
                   raw('Observation');
                 });
-                child(`a.create-step-tab${selectTab('new4')}`, {
-                  href: '#new4'
+                child(`a.create-step-tab${selectTab('quest4')}`, {
+                  href: '#quest4'
                 }, () => {
                   props({
                     onClick: requireNameDesc
                   });
                   raw('Field Notes');
                 });
-                child(`a.create-step-tab${selectTab('new5')}`, {
-                  href: '#new5'
+                child(`a.create-step-tab${selectTab('quest5')}`, {
+                  href: '#quest5'
                 }, () => {
                   props({
                     onClick: requireNameDesc
@@ -1089,7 +1105,7 @@ const App = createClass({
                 onChange: this.autosave.bind(this),
                 onCreate: this.createGame,
               });
-            case 'new0':
+            case 'new1':
               return child(NewOverview, {
                 game: this.state.new_game,
                 icon: this.state.new_icon,
@@ -1100,9 +1116,16 @@ const App = createClass({
                   this.setState({new_icon});
                 },
                 scienceStation: true,
+              });
+            case 'new2':
+              return child(StationLocation, {
+                game: this.state.new_game,
+                onChange: (new_game) => {
+                  this.setState({new_game});
+                },
                 onCreate: this.createGame,
               });
-            case 'new1':
+            case 'quest1':
               return child(NewOverview, {
                 game: this.state.new_game,
                 icon: this.state.new_icon,
@@ -1113,7 +1136,7 @@ const App = createClass({
                   this.setState({new_icon});
                 }
               });
-            case 'new2':
+            case 'quest2':
               return child(Onboarding, {
                 game: this.state.new_game,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
@@ -1121,7 +1144,7 @@ const App = createClass({
                   this.setState({new_game});
                 },
               });
-            case 'new3':
+            case 'quest3':
               return child(FormEditor, {
                 editing: false,
                 game: this.state.new_game,
@@ -1134,7 +1157,7 @@ const App = createClass({
                   this.setState({new_categories});
                 }
               });
-            case 'new4':
+            case 'quest4':
               return child(FieldNotes, {
                 game: this.state.new_game,
                 onChange: (new_game) => {
@@ -1143,7 +1166,7 @@ const App = createClass({
                 onCreate: this.createQuest,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
-            case 'new5':
+            case 'quest5':
               return child(MapOptions, {
                 game: this.state.new_game,
                 colors: this.state.colors,
@@ -1196,7 +1219,7 @@ const App = createClass({
                   },
                   startNewQuest: (game) => {
                     this.setState({edit_game: game}, () => {
-                      window.location.hash = '#new1';
+                      window.location.hash = '#quest1';
                     });
                   },
                 });
@@ -1766,12 +1789,12 @@ const Onboarding = createClass({
           </div>
         </div>
         <div className="bottom-step-buttons">
-          <a href="#new1">
+          <a href="#quest1">
             <div className="newPrevButton">
               {'< overview'}
             </div>
           </a>
-          <a href="#new3">
+          <a href="#quest3">
             <div className="newNextButton">
               {'observation >'}
             </div>
@@ -1873,7 +1896,7 @@ const NewOverview = createClass({
       return child('div.bottom-step-buttons', () => {
         child('div');
         return child('a', {
-          href: this.props.scienceStation ? '#' : '#new2',
+          href: this.props.scienceStation ? '#new2' : '#quest2',
         }, () => {
           props({
             onClick: (e) => {
@@ -1882,15 +1905,11 @@ const NewOverview = createClass({
                 e.preventDefault();
                 return;
               }
-              if (this.props.scienceStation) {
-                e.preventDefault();
-                this.props.onCreate();
-              }
             }
           });
           child('div.newNextButton', () => {
             if (this.props.scienceStation) {
-              raw('create!');
+              raw('location >');
             } else {
               raw('onboarding >');
             }
@@ -3074,14 +3093,14 @@ const FormEditor = createClass({
       } else {
         return child('div.bottom-step-buttons', () => {
           child('a', {
-            href: '#new2'
+            href: '#quest2'
           }, () => {
             return child('div.newPrevButton', () => {
               raw('< onboarding');
             });
           });
           return child('a', {
-            href: '#new4'
+            href: '#quest4'
           }, () => {
             return child('div.newNextButton', () => {
               raw('field notes >');
@@ -3268,12 +3287,12 @@ const FieldNotes = createClass({
           </div>
         </div>
         <div className="bottom-step-buttons">
-          <a href="#new3">
+          <a href="#quest3">
             <div className="newPrevButton">
               {'< observation'}
             </div>
           </a>
-          <a href="#new5">
+          <a href="#quest5">
             <div className="newNextButton">
               {'tour stops >'}
             </div>

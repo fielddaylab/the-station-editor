@@ -30,7 +30,7 @@ export const InnerNav = (props) => {
             }}>
               Log Out
             </a>
-            <a href="#new0" className="inner-nav-button">
+            <a href="#new1" className="inner-nav-button">
               New Science Station
             </a>
           </h1>

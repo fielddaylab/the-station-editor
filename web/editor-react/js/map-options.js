@@ -403,7 +403,7 @@ export const MapOptions = createClass({
             })
           ) : (
             <div className="bottom-step-buttons">
-              <a href="#new4">
+              <a href="#quest4">
                 <div className="newPrevButton">
                   {'< field notes'}
                 </div>
