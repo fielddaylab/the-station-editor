@@ -77,6 +77,10 @@ const App = createClass({
       forms: {},
       quests: {},
       plaques: {},
+      triggers: {},
+      instances: {},
+      items: {},
+      events: {},
       colors: {},
       themes: {},
       username: '',
@@ -387,14 +391,27 @@ const App = createClass({
     });
   },
   updateForms: function(games, cb = (function() {})) {
-    return games.forEach((game) => {
-      return this.props.aris.getFieldsForGame({
+    games.forEach((game) => {
+      this.props.aris.getFieldsForGame({
         game_id: game.game_id
       }, (result) => {
         if (result.returnCode === 0 && (result.data != null)) {
           this.setState((previousState, currentProps) => {
             return update(previousState, {
               forms: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+      this.props.aris.call('items.getItemsForGame', {
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              items: {
                 $merge: singleObj(game.game_id, result.data)
               }
             });
@@ -421,14 +438,53 @@ const App = createClass({
     });
   },
   updatePlaques: function(games, cb = (function() {})) {
-    return games.forEach((game) => {
-      return this.props.aris.getPlaquesForGame({
+    games.forEach((game) => {
+      this.props.aris.getPlaquesForGame({
         game_id: game.game_id
       }, (result) => {
         if (result.returnCode === 0 && (result.data != null)) {
           this.setState((previousState, currentProps) => {
             return update(previousState, {
               plaques: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+      this.props.aris.call('instances.getInstancesForGame', {
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              instances: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+      this.props.aris.call('triggers.getTriggersForGame', {
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              triggers: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+      this.props.aris.call('events.getEventsForGame', {
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              events: {
                 $merge: singleObj(game.game_id, result.data)
               }
             });
@@ -1242,7 +1298,12 @@ const App = createClass({
                     });
                   },
                   duplicateQuest: (game, quest) => {
+                    const fields = this.state.forms[game.game_id].filter(field =>
+                      parseInt(field.quest_id) === parseInt(quest.quest_id)
+                    ); // TODO this needs extra stuff from the items
                     const quest_data = {
+                      name: quest.name,
+                      description: quest.description,
                       colors_id: 1,
                       theme_id: 1,
                       map_show_labels: true,
@@ -1253,17 +1314,41 @@ const App = createClass({
                       type: 'ANYWHERE',
                       latitude: game.latitude,
                       longitude: game.longitude,
-                      fields: this.state.forms[game.game_id].filter(field =>
-                        parseInt(field.quest_id) === parseInt(quest.quest_id)
-                      ),
-                      // plaques need several more pieces of data still
+                      fields: fields,
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
-                        parseInt(plaque.quest_id) === parseInt(quest.quest_id) || true // TODO
-                      ).map(plaque => update(plaque, {
-                        latitude: {$set: 0}, // TODO
-                        longitude: {$set: 0}, // TODO
-                        fieldNotes: {$set: []}, // TODO
-                      })),
+                        parseInt(plaque.quest_id) === parseInt(quest.quest_id)
+                      ).map(plaque => {
+                        const events = this.state.events[game.game_id].filter(event =>
+                          parseInt(event.event_package_id) === parseInt(plaque.event_package_id)
+                        );
+                        const instance = this.state.instances[game.game_id].find(instance =>
+                          instance.object_type === 'PLAQUE' &&
+                          parseInt(instance.object_id) === parseInt(plaque.plaque_id)
+                        );
+                        const trigger = this.state.triggers[game.game_id].find(trigger =>
+                          parseInt(trigger.instance_id) === parseInt(instance.instance_id)
+                        );
+                        return update(plaque, {
+                          latitude: {$set: trigger.latitude},
+                          longitude: {$set: trigger.longitude},
+                          fieldNotes: {
+                            $set: events.filter(e =>
+                              e.event === 'GIVE_ITEM'
+                            ).map(e => {
+                              const item_id = parseInt(e.content_id);
+                              let option = null;
+                              this.state.forms[game.game_id].forEach(field => {
+                                field.options && field.options.forEach(opt => {
+                                  if (parseInt(opt.remnant_id) === item_id) {
+                                    option = opt;
+                                  }
+                                });
+                              });
+                              return option && parseInt(option.field_option_id);
+                            }).filter(x => x),
+                          },
+                        });
+                      }),
                     };
                     this.setState({edit_game: game, new_game: quest_data}, () => {
                       window.location.hash = '#quest1';
