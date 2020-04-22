@@ -1107,7 +1107,25 @@ const App = createClass({
                   duplicateQuest: (game, quest) => {
                     const fields = this.state.forms[game.game_id].filter(field =>
                       parseInt(field.quest_id) === parseInt(quest.quest_id)
-                    ); // TODO this needs extra stuff from the items
+                    ).map(field => update(field, {
+                      options: (opts) => opts.map(opt => {
+                        const item = this.state.items[game.game_id].find(item =>
+                          parseInt(item.item_id) === parseInt(opt.remnant_id)
+                        );
+                        if (item) {
+                          return update(opt, {
+                            description: {
+                              $set: item.description,
+                            },
+                            media_id: {
+                              $set: item.media_id,
+                            },
+                          });
+                        } else {
+                          return opt;
+                        }
+                      }),
+                    }));
                     const quest_data = {
                       name: quest.name,
                       description: quest.description,
@@ -1122,6 +1140,15 @@ const App = createClass({
                       latitude: game.latitude,
                       longitude: game.longitude,
                       fields: fields,
+                      tutorial_1_title: quest.tutorial_1_title,
+                      tutorial_1: quest.tutorial_1,
+                      tutorial_1_media_id: quest.tutorial_1_media_id,
+                      tutorial_2_title: quest.tutorial_2_title,
+                      tutorial_2: quest.tutorial_2,
+                      tutorial_2_media_id: quest.tutorial_2_media_id,
+                      tutorial_3_title: quest.tutorial_3_title,
+                      tutorial_3: quest.tutorial_3,
+                      tutorial_3_media_id: quest.tutorial_3_media_id,
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {
