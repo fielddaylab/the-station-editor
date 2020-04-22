@@ -160,19 +160,25 @@ export const StationLocation = createClass({
           </div>
         </div>
         <div className="bottom-step-buttons">
-          <a href="#new1">
+          <a href={this.props.editing ? `#edit${this.props.game.game_id}` : "#new1"}>
             <div className="newPrevButton">
               {'< overview'}
             </div>
           </a>
-          <a href="#" onClick={(e) => {
-            e.preventDefault();
-            this.props.onCreate();
-          }}>
-            <div className="newNextButton">
-              publish!
-            </div>
-          </a>
+          {
+            this.props.editing ? (
+              <div />
+            ) : (
+              <a href="#" onClick={(e) => {
+                e.preventDefault();
+                this.props.onCreate();
+              }}>
+                <div className="newNextButton">
+                  publish!
+                </div>
+              </a>
+            )
+          }
         </div>
       </div>
     );

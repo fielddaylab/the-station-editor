@@ -787,7 +787,7 @@ const App = createClass({
               };
               requireNameDesc = (this.state.screen === 'new1' || this.state.screen === 'quest1') ? (e) => {
                 if (!hasNameDesc(this.state.new_game)) {
-                  alert('Please enter a name and user instructions for your Siftr.');
+                  alert('Please enter a name and description.');
                   return e.preventDefault();
                 }
               } : undefined;
@@ -863,12 +863,7 @@ const App = createClass({
               child(`a.create-step-tab${selectTab('map')}`, {
                 href: '#map' + this.state.edit_game.game_id
               }, () => {
-                raw('Map options');
-              });
-              return child(`a.create-step-tab${selectTab('form')}`, {
-                href: '#form' + this.state.edit_game.game_id
-              }, () => {
-                raw('Data collection');
+                raw('Location');
               });
             });
             return navBarActions();
@@ -968,7 +963,7 @@ const App = createClass({
             case 'edit':
               return child(EditOverview, {
                 game: this.state.edit_game,
-                onChange: this.autosave.bind(this),
+                onChange: this.autosave/*.bind(this)*/,
                 mobileMapIsOpen: this.state.mobile_map_is_open,
                 openMobileMap: () => {
                   this.setState({
@@ -984,201 +979,13 @@ const App = createClass({
                   });
                 }
               });
-            case 'form':
-              fields = this.state.forms[this.state.edit_game.game_id];
-              return child(FormEditor, {
-                editing: true,
-                game: this.state.edit_game,
-                fields: fields,
-                categories: this.state.tags[this.state.edit_game.game_id],
-                colors: this.state.colors,
-                setPrompt: (prompt) => {
-                  var game;
-                  game = update(this.state.edit_game, {
-                    prompt: {
-                      $set: prompt
-                    }
-                  });
-                  this.props.aris.updateGame(game, onSuccess((game) => {
-                    this.updateGames(); // TODO just use the game from the result
-                  }));
-                },
-                addField: (field_type) => {
-                  this.props.aris.call('fields.createField', {
-                    game_id: this.state.edit_game.game_id,
-                    field_type: field_type,
-                    required: false,
-                    sort_index: fields.length
-                  }, onSuccess(() => {
-                    this.updateForms([this.state.edit_game]);
-                  }));
-                },
-                updateField: (field) => {
-                  let changedGame = false;
-                  const updateRole = (cb) => {
-                    if (field.useAsPin != null) {
-                      changedGame = true;
-                      this.props.aris.updateGame(update(this.state.edit_game, {
-                        field_id_pin: {$set: (field.useAsPin ? field.field_id : 0)},
-                      }), cb);
-                    } else if (field.useOnCards != null) {
-                      changedGame = true;
-                      if (field.field_type === 'MEDIA') {
-                        this.props.aris.updateGame(update(this.state.edit_game, {
-                          field_id_preview: {$set: (field.useOnCards ? field.field_id : 0)},
-                        }), cb);
-                      } else {
-                        this.props.aris.updateGame(update(this.state.edit_game, {
-                          field_id_caption: {$set: (field.useOnCards ? field.field_id : 0)},
-                        }), cb);
-                      }
-                    } else {
-                      cb();
-                    }
-                  };
-                  this.props.aris.call('fields.updateField', field, onSuccess(() => {
-                    updateRole(() => {
-                      if (changedGame) this.updateGames(); // TODO just use the game from the result
-                      this.updateForms([this.state.edit_game]);
-                    });
-                  }));
-                },
-                deleteField: (field) => {
-                  this.props.aris.call('fields.deleteField', {
-                    game_id: this.state.edit_game.game_id,
-                    field_id: field.field_id
-                  }, onSuccess(() => {
-                    this.updateForms([this.state.edit_game]);
-                  }));
-                },
-                reorderFields: (indexes, cb) => {
-                  var field, i, l, len, n, results;
-                  n = fields.length;
-                  results = [];
-                  for (i = l = 0, len = fields.length; l < len; i = ++l) {
-                    field = fields[i];
-                    results.push(this.props.aris.call('fields.updateField', {
-                      game_id: field.game_id,
-                      field_id: field.field_id,
-                      sort_index: indexes.indexOf(i)
-                    }, onSuccess(() => {
-                      n -= 1;
-                      if (n === 0) {
-                        this.updateForms([this.state.edit_game], cb);
-                      }
-                    })));
-                  }
-                  return results;
-                },
-                addFieldOption: ({field, option}, cb) => {
-                  this.props.aris.call('fields.createFieldOption', {
-                    game_id: this.state.edit_game.game_id,
-                    field_id: field.field_id,
-                    option: option
-                  }, onSuccess(() => {
-                    this.updateForms([this.state.edit_game], cb);
-                  }));
-                },
-                updateFieldOption: ({field_option, option, color}, cb) => {
-                  this.props.aris.call('fields.updateFieldOption', {
-                    game_id: this.state.edit_game.game_id,
-                    field_id: field_option.field_id,
-                    field_option_id: field_option.field_option_id,
-                    option: option,
-                    color: color,
-                  }, onSuccess(() => {
-                    this.updateForms([this.state.edit_game], cb);
-                  }));
-                },
-                deleteFieldOption: ({field_option, new_field_option}, cb) => {
-                  this.props.aris.call('fields.deleteFieldOption', {
-                    game_id: this.state.edit_game.game_id,
-                    field_id: field_option.field_id,
-                    field_option_id: field_option.field_option_id,
-                    new_field_option_id: new_field_option != null ? new_field_option.field_option_id : undefined
-                  }, onSuccess(() => {
-                    this.updateForms([this.state.edit_game], cb);
-                  }));
-                },
-                reorderFieldOptions: (field, indexes, cb) => {
-                  var i, l, len, n, option, ref1, results;
-                  n = field.options.length;
-                  ref1 = field.options;
-                  results = [];
-                  for (i = l = 0, len = ref1.length; l < len; i = ++l) {
-                    option = ref1[i];
-                    results.push(this.props.aris.call('fields.updateFieldOption', {
-                      game_id: field.game_id,
-                      field_id: field.field_id,
-                      field_option_id: option.field_option_id,
-                      sort_index: indexes.indexOf(i)
-                    }, onSuccess(() => {
-                      n -= 1;
-                      if (n === 0) {
-                        this.updateForms([this.state.edit_game], cb);
-                      }
-                    })));
-                  }
-                  return results;
-                },
-                addCategory: ({name}, cb) => {
-                  var tagObject;
-                  tagObject = new Tag;
-                  tagObject.tag = name;
-                  tagObject.game_id = this.state.edit_game.game_id;
-                  tagObject.sort_index = this.state.tags[this.state.edit_game.game_id].length;
-                  this.props.aris.createTag(tagObject, () => {
-                    this.updateTags([this.state.edit_game], cb);
-                  });
-                },
-                updateCategory: ({tag_id, name, color}, cb) => {
-                  this.props.aris.updateTag({
-                    game_id: this.state.edit_game.game_id,
-                    tag_id: tag_id,
-                    tag: name,
-                    color: color
-                  }, () => {
-                    this.updateTags([this.state.edit_game], cb);
-                  });
-                },
-                deleteCategory: ({tag_id, new_tag_id}, cb) => {
-                  this.props.aris.call('tags.deleteTag', {
-                    tag_id: tag_id,
-                    new_tag_id: new_tag_id
-                  }, () => {
-                    this.updateTags([this.state.edit_game], cb);
-                  });
-                },
-                reorderCategories: (indexes, cb) => {
-                  var i, l, len, n, results, tag, tags;
-                  tags = this.state.tags[this.state.edit_game.game_id];
-                  n = tags.length;
-                  results = [];
-                  for (i = l = 0, len = tags.length; l < len; i = ++l) {
-                    tag = tags[i];
-                    tag = update(tag, {
-                      sort_index: {
-                        $set: indexes.indexOf(i)
-                      }
-                    });
-                    results.push(this.props.aris.updateTag(tag, onSuccess(() => {
-                      n -= 1;
-                      if (n === 0) {
-                        this.updateTags([this.state.edit_game], cb);
-                      }
-                    })));
-                  }
-                  return results;
-                }
-              });
             case 'map':
-              return child(MapOptions, {
+              return child(StationLocation, {
                 editing: true,
                 game: this.state.edit_game,
-                colors: this.state.colors,
-                themes: this.state.themes,
-                onChange: this.autosave.bind(this),
-                onCreate: this.createGame,
+                onChange: (new_game) => {
+                  this.autosave(new_game);
+                },
               });
             case 'new1':
               return child(NewOverview, {
@@ -1676,7 +1483,7 @@ const EditOverview = createClass({
             child('label', () => {
               var ref1;
               child('h4', () => {
-                raw('NAME');
+                raw('Science Station Title');
               });
               return child('input.full-width-input', {
                 type: 'text',
@@ -1698,18 +1505,7 @@ const EditOverview = createClass({
             child('label', () => {
               var ref1;
               child('h4', () => {
-                raw('USER INSTRUCTIONS ');
-                return child('a', {
-                  href: 'https://daringfireball.net/projects/markdown/syntax',
-                  target: '_blank'
-                }, () => {
-                  return child('i', () => {
-                    raw('markdown supported');
-                  });
-                });
-              });
-              child('p', () => {
-                raw('Tell your users what you want them to do and why.');
+                raw('Science Station Summary');
               });
               return child('textarea.full-width-textarea', {
                 value: (ref1 = this.props.game.description) != null ? ref1 : '',
@@ -1726,51 +1522,6 @@ const EditOverview = createClass({
                   return this.props.onChange(this.props.game, true);
                 }
               });
-            });
-            child('div', {
-              dangerouslySetInnerHTML: renderMarkdown(this.props.game.description)
-            });
-            child('label', () => {
-              child('h4', () => {
-                raw('PROJECT LINK');
-              });
-              return child('p', () => {
-                var ref1;
-                return child('input.full-width-input', {
-                  type: 'text',
-                  placeholder: 'Identifier (optional)',
-                  value: (ref1 = this.props.game.siftr_url) != null ? ref1 : '',
-                  onChange: (e) => {
-                    var url;
-                    url = e.target.value.replace(/[^A-Za-z0-9_\-]/g, '');
-                    return this.props.onChange(update(this.props.game, {
-                      siftr_url: {
-                        $set: url
-                      }
-                    }), false);
-                  },
-                  onBlur: () => {
-                    return this.props.onChange(this.props.game, true);
-                  }
-                });
-              });
-            });
-            currentLink = this.props.game.siftr_url || this.props.game.game_id;
-            child('p', () => {
-              child('b', () => {
-                raw(this.props.game.name);
-              });
-              raw(" will be located at ");
-              return child('code', () => {
-                raw(`${SIFTR_URL}${currentLink}`);
-              });
-            });
-            child('p', () => {
-              raw('Or in the mobile app, enter ');
-              child('code', () => {
-                raw(currentLink);
-              });
-              raw(' in the search bar.');
             });
             child('h2', () => {
               raw('SHARE');
@@ -1793,50 +1544,10 @@ const EditOverview = createClass({
                 }
               });
               child('span.form-multi-option-text', () => {
-                raw('Hide from search');
+                raw('Hide from other players');
               });
               child('span.form-multi-option-switch', () => {
                 child('span.form-multi-option-ball');
-              });
-            });
-            child('p', () => {
-              raw('Do you want to set a password to restrict access?');
-            });
-            child('p', () => {
-              var ref;
-              child('input.full-width-input', {
-                type: 'text',
-                placeholder: 'Password (optional)',
-                value: (ref = this.props.game.password) != null ? ref : '',
-                onChange: (e) => {
-                  this.props.onChange(update(this.props.game, {
-                    password: {$set: e.target.value},
-                  }), false);
-                },
-                onBlur: () => {
-                  this.props.onChange(this.props.game, true);
-                },
-              });
-            });
-            moderated = this.props.game.moderated;
-            return child(`a.form-multi-option.form-multi-option-${(moderated ? 'on' : 'off')}`, {
-              href: '#'
-            }, () => {
-              props({
-                onClick: (e) => {
-                  e.preventDefault();
-                  return this.props.onChange(update(this.props.game, {
-                    moderated: {
-                      $set: !moderated
-                    }
-                  }));
-                }
-              });
-              child('span.form-multi-option-text', () => {
-                raw('Require moderation?');
-              });
-              return child('span.form-multi-option-switch', () => {
-                return child('span.form-multi-option-ball');
               });
             });
           });
