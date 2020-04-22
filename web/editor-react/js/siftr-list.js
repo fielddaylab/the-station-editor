@@ -113,6 +113,12 @@ export const SiftrList = createClass({
                   raw(quest.name);
                   raw(' ');
                   child('a', {href: '#'}, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
+                        this.props.duplicateQuest(game, quest);
+                      },
+                    });
                     raw('(edit)');
                   })
                 });

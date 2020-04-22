@@ -272,6 +272,7 @@ export class Field {
       this.step = parseFloat(json.step);
       this.min_color = json.min_color;
       this.max_color = json.max_color;
+      this.quest_id = json.quest_id;
       // used during new game creation
       this.useAsPin = json.useAsPin;
       this.useOnCards = json.useOnCards;
@@ -289,6 +290,7 @@ export class FieldOption {
       this.option = json.option;
       this.sort_index = json.sort_index != null ? parseInt(json.sort_index) : null;
       this.color = json.color;
+      this.remnant_id = json.remnant_id;
     }
   }
 
@@ -515,6 +517,12 @@ export class Aris {
 
   getQuestsForGame(json, cb) {
     return this.callWrapped('quests.getQuestsForGame', json, cb, function(data) {
+      return data;
+    });
+  }
+
+  getPlaquesForGame(json, cb) {
+    return this.callWrapped('plaques.getPlaquesForGame', json, cb, function(data) {
       return data;
     });
   }

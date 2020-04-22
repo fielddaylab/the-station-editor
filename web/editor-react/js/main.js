@@ -76,6 +76,7 @@ const App = createClass({
       notes: {},
       forms: {},
       quests: {},
+      plaques: {},
       colors: {},
       themes: {},
       username: '',
@@ -354,6 +355,7 @@ const App = createClass({
           this.updateTags(games);
           this.updateForms(games);
           this.updateQuests(games);
+          this.updatePlaques(games);
           return this.updateNotes(games);
         } else {
           this.setState({
@@ -410,6 +412,23 @@ const App = createClass({
           this.setState((previousState, currentProps) => {
             return update(previousState, {
               quests: {
+                $merge: singleObj(game.game_id, result.data)
+              }
+            });
+          }, cb);
+        }
+      });
+    });
+  },
+  updatePlaques: function(games, cb = (function() {})) {
+    return games.forEach((game) => {
+      return this.props.aris.getPlaquesForGame({
+        game_id: game.game_id
+      }, (result) => {
+        if (result.returnCode === 0 && (result.data != null)) {
+          this.setState((previousState, currentProps) => {
+            return update(previousState, {
+              plaques: {
                 $merge: singleObj(game.game_id, result.data)
               }
             });
@@ -1219,6 +1238,34 @@ const App = createClass({
                   },
                   startNewQuest: (game) => {
                     this.setState({edit_game: game}, () => {
+                      window.location.hash = '#quest1';
+                    });
+                  },
+                  duplicateQuest: (game, quest) => {
+                    const quest_data = {
+                      colors_id: 1,
+                      theme_id: 1,
+                      map_show_labels: true,
+                      map_show_roads: true,
+                      map_type: 'STREET',
+                      zoom: 12,
+                      is_siftr: true,
+                      type: 'ANYWHERE',
+                      latitude: game.latitude,
+                      longitude: game.longitude,
+                      fields: this.state.forms[game.game_id].filter(field =>
+                        parseInt(field.quest_id) === parseInt(quest.quest_id)
+                      ),
+                      // plaques need several more pieces of data still
+                      plaques: this.state.plaques[game.game_id].filter(plaque =>
+                        parseInt(plaque.quest_id) === parseInt(quest.quest_id) || true // TODO
+                      ).map(plaque => update(plaque, {
+                        latitude: {$set: 0}, // TODO
+                        longitude: {$set: 0}, // TODO
+                        fieldNotes: {$set: []}, // TODO
+                      })),
+                    };
+                    this.setState({edit_game: game, new_game: quest_data}, () => {
                       window.location.hash = '#quest1';
                     });
                   },
