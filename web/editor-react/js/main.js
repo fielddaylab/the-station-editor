@@ -1025,6 +1025,7 @@ const App = createClass({
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
+                aris: this.props.aris,
               });
             case 'quest3':
               return child(FormEditor, {
@@ -1046,6 +1047,7 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 onCreate: this.createQuest,
+                aris: this.props.aris,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
             case 'quest5':
@@ -1058,6 +1060,7 @@ const App = createClass({
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 onCreate: this.createQuest,
+                aris: this.props.aris,
               });
             default:
               return child('div', () => {
@@ -1635,8 +1638,10 @@ const Onboarding = createClass({
                       <p>Panel {i} Image</p>
                       <MediaSelect
                         media={this.props.game[`tutorial_${i}_media`]}
+                        media_id={this.props.game[`tutorial_${i}_media_id`]}
                         uploadMedia={this.props.uploadMedia}
                         game={this.props.game}
+                        aris={this.props.aris}
                         applyMedia={(media) => {
                           this.props.onChange(update(this.props.game, {
                             [`tutorial_${i}_media`]: {
@@ -3114,8 +3119,10 @@ const FieldNotes = createClass({
                   </label>
                   <MediaSelect
                     media={selectedOption.media}
+                    media_id={selectedOption.media_id}
                     uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
+                    aris={this.props.aris}
                     applyMedia={(media) => {
                       updateSelectedOption({
                         media: {

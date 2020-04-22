@@ -177,8 +177,10 @@ export const MapOptions = createClass({
                   </label>
                   <MediaSelect
                     media={editingStop.media}
+                    media_id={editingStop.media_id}
                     uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
+                    aris={this.props.aris}
                     applyMedia={(media) => {
                       this.props.onChange(update(this.props.game, {
                         plaques: {
