@@ -288,6 +288,28 @@ export const MapOptions = createClass({
                       Add note +
                     </a>
                   </div>
+                  <hr />
+                  <p>
+                    <a href="#" style={{
+                      color: 'rgb(101,88,245)',
+                      border: '2px solid rgb(199,194,252)',
+                      padding: 10,
+                      paddingTop: 6,
+                      paddingBottom: 6,
+                      borderRadius: 4,
+                    }} onClick={e => {
+                      e.preventDefault();
+                      const fieldNoteID = parseInt(this.refs.selectFieldNote.value);
+                      this.props.onChange(update(this.props.game, {
+                        plaques: {
+                          $splice: [[this.state.editPlaqueIndex, 1]],
+                        },
+                      }));
+                      this.setState({editPlaqueIndex: null});
+                    }}>
+                      Delete tour stop
+                    </a>
+                  </p>
                 </div>
               )
             }
