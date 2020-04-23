@@ -70,6 +70,7 @@ export const SiftrList = createClass({
                     raw('DELETE');
                   });
                 });
+                /*
                 child('a', {
                   href: '#'
                 }, () => {
@@ -83,28 +84,8 @@ export const SiftrList = createClass({
                     raw('DOWNLOAD (.CSV)');
                   });
                 });
+                */
               });
-            });
-            child('div.siftr-color-bar', {
-              style: {
-                backgroundImage: (function() {
-                  var l, len;
-                  if (((colors = this.props.colors[game.colors_id]) != null) && ((tags = this.props.tags[game.game_id]) != null)) {
-                    percent = 0;
-                    points = [];
-                    for (i = l = 0, len = tags.length; l < len; i = ++l) {
-                      tag = tags[i];
-                      rgb = tag.color || colors[`tag_${(i % 8) + 1}`];
-                      points.push(`${rgb} ${percent}%`);
-                      percent += 100 / tags.length;
-                      points.push(`${rgb} ${percent}%`);
-                    }
-                    return `linear-gradient(to right, ${points.join(', ')})`;
-                  } else {
-                    return 'linear-gradient(to right, gray, gray)';
-                  }
-                }).call(this)
-              }
             });
             child('div.siftr-data', () => {
               (this.props.quests[game.game_id] || []).forEach(quest => {
@@ -120,6 +101,16 @@ export const SiftrList = createClass({
                       },
                     });
                     raw('(edit)');
+                  })
+                  raw(' ');
+                  child('a', {href: '#'}, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
+                        this.props.deleteQuest(quest);
+                      },
+                    });
+                    raw('(delete)');
                   })
                 });
               });

@@ -356,7 +356,6 @@ const App = createClass({
             notes: {}
           });
           this.applyHash();
-          this.updateTags(games);
           this.updateForms(games);
           this.updateQuests(games);
           this.updatePlaques(games);
@@ -493,23 +492,6 @@ const App = createClass({
       });
     });
   },
-  updateTags: function(games, cb = (function() {})) {
-    return games.forEach((game) => {
-      return this.props.aris.getTagsForGame({
-        game_id: game.game_id
-      }, (result) => {
-        if (result.returnCode === 0 && (result.data != null)) {
-          this.setState((previousState, currentProps) => {
-            return update(previousState, {
-              tags: {
-                $merge: singleObj(game.game_id, result.data)
-              }
-            });
-          }, cb);
-        }
-      });
-    });
-  },
   // Adds the game to the known games list,
   // or updates an existing game if it shares the game ID.
   updateStateGame: function(newGame) {
@@ -603,6 +585,7 @@ const App = createClass({
       if (result.returnCode === 0) {
         window.location.hash = '#';
         this.setState({modal_quest: true});
+        this.updateQuests([this.state.edit_game]);
       }
     });
   },
@@ -623,7 +606,6 @@ const App = createClass({
             });
           }
         });
-        this.updateTags([newGame]);
         this.updateStateGame(newGame);
         this.updateForms([newGame]);
         this.setState((previousState, currentProps) => {
@@ -1071,7 +1053,6 @@ const App = createClass({
                   games: this.state.games,
                   colors: this.state.colors,
                   notes: this.state.notes,
-                  tags: this.state.tags,
                   quests: this.state.quests,
                   downloadCSV: (game) => {
                     this.props.aris.call('notes.siftrCSV', {
@@ -1107,6 +1088,15 @@ const App = createClass({
                       window.location.hash = '#quest1';
                     });
                   },
+                  deleteQuest: (quest) => {
+                    if (confirm(`Delete the quest "${quest.name}"?`)) {
+                      this.props.aris.call('quests.deleteQuest', {
+                        quest_id: quest.quest_id,
+                      }, () => {
+                        this.updateQuests([quest]); // passing because it has the game_id
+                      });
+                    }
+                  },
                   duplicateQuest: (game, quest) => {
                     const fields = this.state.forms[game.game_id].filter(field =>
                       parseInt(field.quest_id) === parseInt(quest.quest_id)
@@ -1130,7 +1120,7 @@ const App = createClass({
                       }),
                     }));
                     const quest_data = {
-                      name: quest.name,
+                      name: quest.name + ' (Copy)',
                       description: quest.description,
                       colors_id: 1,
                       theme_id: 1,
