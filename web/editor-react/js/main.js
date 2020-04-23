@@ -710,6 +710,20 @@ const App = createClass({
     }
   },
   render: function() {
+    let breadcrumbs = [];
+    if (this.state.auth != null) {
+      breadcrumbs.push('<a href="#">Science Stations</a>');
+      if (this.state.screen.match(/new/)) {
+        breadcrumbs.push('New Science Station');
+      } else if (this.state.screen.match(/quest/)) {
+        breadcrumbs.push(`<a href="#edit${this.state.edit_game.game_id}">${this.state.edit_game.name}</a>`);
+        breadcrumbs.push('New Quest');
+      } else if (this.state.screen.match(/(edit|map)/)) {
+        breadcrumbs.push(this.state.edit_game.name);
+      }
+    }
+    document.getElementById('stemports-breadcrumbs').innerHTML = breadcrumbs.join(' &gt; ');
+
     var navBarActions;
     navBarActions = () => {
       child('div', () => {
@@ -1252,7 +1266,7 @@ const App = createClass({
             case 'signup':
               return child('div.loginForm', () => {
                 child('p', () => {
-                  raw('Create a new Siftr account');
+                  raw('Create a new STEMports account');
                 });
                 child('p', () => {
                   var ref1;
@@ -1358,7 +1372,7 @@ const App = createClass({
             default:
               return child('div.loginForm', () => {
                 child('p', () => {
-                  raw('Login with a Siftr or ARIS account');
+                  raw('Login with a STEMports account');
                 });
                 child('p', () => {
                   var ref1;

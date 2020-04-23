@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
 </script>
 <nav class="main-nav">
   <div class="nav-contents">
-    <ul class="nav-items">
+    <ul class="nav-items" id="stemports-breadcrumbs">
     </ul>
     <ul class="nav-items">
       <li id="nav-login"><a href="/stemports/siftr/editor-react/#">login</a></li>

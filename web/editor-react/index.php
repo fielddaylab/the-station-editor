@@ -153,6 +153,10 @@
   align-items: stretch;
 }
 
+#stemports-breadcrumbs a {
+  color: rgb(101,88,245);
+}
+
 </style>
 
 <body>
