@@ -66,6 +66,23 @@ function standardFields() {
   return [];
 }
 
+function blankGame() {
+  let g = new Game;
+  g.colors_id = 1;
+  g.theme_id = 1;
+  g.map_show_labels = true;
+  g.map_show_roads = true;
+  g.map_type = 'STREET';
+  g.latitude = 43.087806;
+  g.longitude = -89.430121;
+  g.zoom = 12;
+  g.is_siftr = true;
+  g.type = 'ANYWHERE';
+  g.fields = standardFields();
+  g.plaques = [];
+  return g;
+}
+
 const App = createClass({
   displayName: 'App',
   getInitialState: function() {
@@ -87,22 +104,7 @@ const App = createClass({
       password: '',
       screen: 'main',
       edit_game: null,
-      new_game: (() => {
-        let g = new Game;
-        g.colors_id = 1;
-        g.theme_id = 1;
-        g.map_show_labels = true;
-        g.map_show_roads = true;
-        g.map_type = 'STREET';
-        g.latitude = 43.087806;
-        g.longitude = -89.430121;
-        g.zoom = 12;
-        g.is_siftr = true;
-        g.type = 'ANYWHERE';
-        g.fields = standardFields();
-        g.plaques = [];
-        return g;
-      })(),
+      new_game: blankGame(),
       new_categories: [
         {
           category: '',
@@ -614,23 +616,7 @@ const App = createClass({
               $merge: singleObj(newGame.game_id, [])
             },
             new_game: {
-              $set: (() => {
-                var g;
-                g = new Game;
-                g.colors_id = 1;
-                g.theme_id = 1;
-                g.map_show_labels = true;
-                g.map_show_roads = true;
-                g.map_type = 'STREET';
-                g.latitude = 43.087806;
-                g.longitude = -89.430121;
-                g.zoom = 12;
-                g.is_siftr = true;
-                g.type = 'ANYWHERE';
-                g.fields = standardFields();
-                g.plaques = [];
-                return g;
-              })()
+              $set: blankGame(),
             },
             new_categories: {
               $set: [
@@ -1084,7 +1070,7 @@ const App = createClass({
                     });
                   },
                   startNewQuest: (game) => {
-                    this.setState({edit_game: game}, () => {
+                    this.setState({new_game: blankGame(), edit_game: game}, () => {
                       window.location.hash = '#quest1';
                     });
                   },
