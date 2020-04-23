@@ -1855,7 +1855,6 @@ const makeArrow = (dir, enabled, wrap) => {
 const CategoryRow = createClass({
   getInitialState: function() {
     return {
-      colorsOpen: false
     };
   },
   updateOption: function(opt) {
@@ -1928,26 +1927,6 @@ const CategoryRow = createClass({
             })
           }, f);
         });
-        if (!this.props.editing || this.props.game.newFormat() || this.props.isLockedField) {
-          color = o.color || colors[i % 8];
-          child('a', {
-            href: '#'
-          }, () => {
-            props({
-              onClick: (e) => {
-                e.preventDefault();
-                this.setState({
-                  colorsOpen: !this.state.colorsOpen
-                });
-              }
-            });
-            return child('div.category-color-dot', {
-              style: {
-                backgroundColor: color
-              }
-            });
-          });
-        }
         if (this.props.editing) {
           child('input', {
             type: 'text',
@@ -2000,49 +1979,6 @@ const CategoryRow = createClass({
           });
         }
       });
-      if (this.state.colorsOpen) {
-        return child('li.category-color-dots', () => {
-          return colors.forEach((color) => {
-            return child('a', {
-              href: '#'
-            }, () => {
-              props({
-                onClick: (e) => {
-                  e.preventDefault();
-                  if (this.props.editing && !this.props.game.newFormat()) {
-                    // must be a category
-                    this.props.updateCategory({
-                      tag_id: o.field_option_id,
-                      color: color
-                    });
-                  } else {
-                    if (this.props.editing) {
-                      this.props.updateFieldOption({
-                        field_option: o,
-                        color: color,
-                      });
-                    } else {
-                      this.updateOption(update(o, {
-                        color: {
-                          $set: color
-                        }
-                      }));
-                    }
-                  }
-                  this.setState({
-                    colorsOpen: false
-                  });
-                }
-              });
-              return child('div.category-color-dot', {
-                style: {
-                  backgroundColor: color
-                }
-              });
-            });
-          });
-        });
-      }
     });
   }
 });
@@ -2697,60 +2633,6 @@ const FormEditor = createClass({
                     });
                     child('span.form-multi-option-text', () => {
                       raw('Required');
-                    });
-                    return child('span.form-multi-option-switch', () => {
-                      return child('span.form-multi-option-ball');
-                    });
-                  });
-                }
-                if (field.field_type === 'SINGLESELECT' || field.field_type === 'NUMBER' /* || field.field_type === 'MULTISELECT' */) {
-                  const bool = (field.useAsPin == null ? (this.props.game.field_id_pin == field.field_id) : field.useAsPin);
-                  child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
-                    href: '#'
-                  }, () => {
-                    props({
-                      onClick: (e) => {
-                        e.preventDefault();
-                        this.setState({
-                          editingField: update(field, {
-                            useAsPin: {
-                              $set: !bool
-                            }
-                          })
-                        });
-                      }
-                    });
-                    child('span.form-multi-option-text', () => {
-                      raw('Use as Data Point');
-                    });
-                    return child('span.form-multi-option-switch', () => {
-                      return child('span.form-multi-option-ball');
-                    });
-                  });
-                }
-                if (['MEDIA', 'TEXT', 'TEXTAREA'].indexOf(field.field_type) !== -1) {
-                  const bool =
-                    (field.useOnCards == null
-                    ? (this.props.game.field_id_caption == field.field_id || this.props.game.field_id_preview == field.field_id)
-                    : field.useOnCards);
-                  child(`a.form-multi-option.form-multi-option-${(bool ? 'on' : 'off')}`, {
-                    href: '#'
-                  }, () => {
-                    props({
-                      onClick: (e) => {
-                        e.preventDefault();
-                        this.setState({
-                          editingField: update(field, {
-                            useOnCards: {
-                              $set: !bool
-                            },
-                            required: !bool ? {$set: true} : {},
-                          })
-                        });
-                      }
-                    });
-                    child('span.form-multi-option-text', () => {
-                      raw('Use on Cards');
                     });
                     return child('span.form-multi-option-switch', () => {
                       return child('span.form-multi-option-ball');
