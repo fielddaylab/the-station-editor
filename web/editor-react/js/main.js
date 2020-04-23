@@ -210,9 +210,16 @@ const App = createClass({
         // because the list of games will load and re-call applyHash
       }
     } else if (hash === 'new1') {
-      this.setState({
-        screen: 'new1',
-      });
+      if (this.state.screen === 'main' || this.state.screen === 'profile' || this.state.screen === 'account') {
+        this.setState({
+          screen: 'new1',
+          new_game: blankGame(),
+        });
+      } else {
+        this.setState({
+          screen: 'new1',
+        });
+      }
     } else if (hash === 'new2') {
       this.setState({
         screen: 'new2',
@@ -1737,9 +1744,29 @@ const NewOverview = createClass({
                 onChange: this.handleChange
               });
             });
-            return child('div', {
-              dangerouslySetInnerHTML: renderMarkdown(this.props.game.description)
-            });
+            if (this.props.scienceStation) {
+              const hidden = !this.props.game.published;
+              child(`a.form-multi-option.form-multi-option-${(hidden ? 'on' : 'off')}`, {
+                href: '#'
+              }, () => {
+                props({
+                  onClick: (e) => {
+                    e.preventDefault();
+                    return this.props.onChange(update(this.props.game, {
+                      published: {
+                        $set: hidden
+                      }
+                    }));
+                  }
+                });
+                child('span.form-multi-option-text', () => {
+                  raw('Hide from other players');
+                });
+                child('span.form-multi-option-switch', () => {
+                  child('span.form-multi-option-ball');
+                });
+              });
+            }
           });
         });
         return child('div.newStep1Column.newStep1RightColumn');
