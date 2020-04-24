@@ -368,7 +368,7 @@ const App = createClass({
           this.updateForms(games);
           this.updateQuests(games);
           this.updatePlaques(games);
-          return this.updateNotes(games);
+          this.updateNotes(games);
         } else {
           this.setState({
             games: []
@@ -595,6 +595,9 @@ const App = createClass({
         window.location.hash = '#';
         this.setState({modal_quest: true});
         this.updateQuests([this.state.edit_game]);
+        this.updateForms([this.state.edit_game]);
+        this.updatePlaques([this.state.edit_game]);
+        this.updateNotes([this.state.edit_game]);
       }
     });
   },
@@ -1005,7 +1008,9 @@ const App = createClass({
                 },
                 onIconChange: (new_icon) => {
                   this.setState({new_icon});
-                }
+                },
+                uploadMedia: this.uploadMedia/*.bind(this)*/,
+                aris: this.props.aris,
               });
             case 'quest2':
               return child(Onboarding, {
@@ -1149,6 +1154,7 @@ const App = createClass({
                       tutorial_3_title: quest.tutorial_3_title,
                       tutorial_3: quest.tutorial_3,
                       tutorial_3_media_id: quest.tutorial_3_media_id,
+                      active_icon_media_id: quest.active_icon_media_id,
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {
@@ -1700,52 +1706,72 @@ const NewOverview = createClass({
               child('p', () => {
                 raw(this.props.scienceStation ? 'Station Thumbnail' : 'Quest Thumbnail');
               });
-              return child('a', {
-                href: '#'
-              }, () => {
-                props({
-                  onClick: (e) => {
-                    e.preventDefault();
-                    return this.selectImage();
-                  }
-                });
-                return child(`div.siftr-icon-area.siftr-icon-${(this.props.icon != null ? 'filled' : 'empty')}`, () => {
-                  if (this.props.icon != null) {
-                    props({
-                      style: {
-                        backgroundImage: `url(${this.props.icon})`
-                      }
-                    });
-                  } else {
-                    child('div.siftr-icon-gray-circle');
-                    child('h3', () => {
-                      raw('Drag an image here or click to browse.');
-                    });
-                    child('p', () => {
-                      return child('i', () => {
-                        raw('200px by 200px recommended');
-                      });
-                    });
-                  }
-                  return props({
-                    onDragOver: (e) => {
-                      e.stopPropagation();
-                      return e.preventDefault();
-                    },
-                    onDrop: (e) => {
-                      var file, l, len, ref1;
-                      e.stopPropagation();
+              if (this.props.scienceStation) {
+                child('a', {
+                  href: '#'
+                }, () => {
+                  props({
+                    onClick: (e) => {
                       e.preventDefault();
-                      ref1 = e.dataTransfer.files;
-                      for (l = 0, len = ref1.length; l < len; l++) {
-                        file = ref1[l];
-                        this.loadImageFile(file);
-                        break;
-                      }
+                      return this.selectImage();
                     }
                   });
+                  return child(`div.siftr-icon-area.siftr-icon-${(this.props.icon != null ? 'filled' : 'empty')}`, () => {
+                    if (this.props.icon != null) {
+                      props({
+                        style: {
+                          backgroundImage: `url(${this.props.icon})`
+                        }
+                      });
+                    } else {
+                      child('div.siftr-icon-gray-circle');
+                      child('h3', () => {
+                        raw('Drag an image here or click to browse.');
+                      });
+                      child('p', () => {
+                        return child('i', () => {
+                          raw('200px by 200px recommended');
+                        });
+                      });
+                    }
+                    return props({
+                      onDragOver: (e) => {
+                        e.stopPropagation();
+                        return e.preventDefault();
+                      },
+                      onDrop: (e) => {
+                        var file, l, len, ref1;
+                        e.stopPropagation();
+                        e.preventDefault();
+                        ref1 = e.dataTransfer.files;
+                        for (l = 0, len = ref1.length; l < len; l++) {
+                          file = ref1[l];
+                          this.loadImageFile(file);
+                          break;
+                        }
+                      }
+                    });
+                  });
                 });
-              });
+              } else {
+                child(MediaSelect, {
+                  media: this.props.game.active_icon_media,
+                  media_id: this.props.game.active_icon_media_id,
+                  uploadMedia: this.props.uploadMedia,
+                  game: this.props.game,
+                  aris: this.props.aris,
+                  applyMedia: (media) => {
+                    this.props.onChange(update(this.props.game, {
+                      active_icon_media: {
+                        $set: media, // includes url for displaying
+                      },
+                      active_icon_media_id: {
+                        $set: media.media_id, // to actually set in database
+                      },
+                    }));
+                  },
+                });
+              }
             });
             child('label', () => {
               var ref1;
