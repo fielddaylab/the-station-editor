@@ -2207,8 +2207,7 @@ const FormEditor = createClass({
       };
       child('div.newStep4', () => {
         child('div.newStep4Fields', () => {
-          var divFormFieldRow, lockedFields;
-          divFormFieldRow = (i) => {
+          const divFormFieldRow = (i) => {
             var row;
             row = 'div.form-field-row';
             if (i === this.state.editingIndex) {
@@ -2216,64 +2215,6 @@ const FormEditor = createClass({
             }
             return row;
           };
-          if (!(this.props.editing) || this.props.game.newFormat()) {
-            lockedFields = [];
-          } else {
-            lockedFields = [
-              new Field({
-                field_type: 'MEDIA',
-                label: 'Main Photo',
-                required: true
-              }),
-              new Field({
-                field_type: 'TEXTAREA',
-                label: 'Caption',
-                required: true
-              }),
-              new Field({
-                field_type: 'SINGLESELECT',
-                label: 'Category',
-                required: true,
-                options: categoryOptions()
-              })
-            ];
-          }
-          lockedFields.forEach((field, i) => {
-            i -= lockedFields.length; // so they go -3, -2, -1
-            return child(divFormFieldRow(i), {
-              key: field.label
-            }, () => {
-              child('div.form-field-icon', () => {
-                return child('img', {
-                  src: `../assets/icons/form-${field.field_type}.png`
-                });
-              });
-              child('a.form-field-name', {
-                href: '#',
-                onClick: (e) => {
-                  e.preventDefault();
-                  this.setState({
-                    editingField: field,
-                    editingIndex: i,
-                    deletingOption: null
-                  });
-                }
-              }, () => {
-                raw(field.label || 'Unnamed field');
-                if (field.required) {
-                  raw(' ');
-                  return child('span.required-star', () => {
-                    raw('*');
-                  });
-                }
-              });
-              return child('div.lock-icon', () => {
-                return child('img', {
-                  src: "../assets/icons/lock.png"
-                });
-              });
-            });
-          });
           fields.forEach((field, i) => {
             return child(divFormFieldRow(i), {
               key: field.field_id
@@ -2639,7 +2580,7 @@ const FormEditor = createClass({
                     }
                   });
                 });
-                if ((ref1 = field.field_type) !== 'SINGLESELECT' && ref1 !== 'MULTISELECT') {
+                if (true) {
                   req = field.required;
                   child(`a.form-multi-option.form-multi-option-${(req ? 'on' : 'off')}`, {
                     href: '#'
@@ -2659,6 +2600,31 @@ const FormEditor = createClass({
                     });
                     child('span.form-multi-option-text', () => {
                       raw('Required');
+                    });
+                    return child('span.form-multi-option-switch', () => {
+                      return child('span.form-multi-option-ball');
+                    });
+                  });
+                }
+                if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
+                  const isFieldNote = !field.noFieldNote;
+                  child(`a.form-multi-option.form-multi-option-${(isFieldNote ? 'on' : 'off')}`, {
+                    href: '#'
+                  }, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
+                        this.setState({
+                          editingField: update(field, {
+                            noFieldNote: {
+                              $set: isFieldNote
+                            },
+                          })
+                        });
+                      }
+                    });
+                    child('span.form-multi-option-text', () => {
+                      raw('Collect as field notes');
                     });
                     return child('span.form-multi-option-switch', () => {
                       return child('span.form-multi-option-ball');
@@ -2920,7 +2886,8 @@ const FieldNotes = createClass({
   render: function() {
 
     const fieldNoteGroups = this.props.game.fields.filter(field =>
-      field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT'
+      (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT')
+      && !(field.noFieldNote)
     );
     let selectedGroup = null;
     let selectedOption = null;
