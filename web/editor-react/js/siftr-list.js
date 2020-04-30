@@ -97,6 +97,16 @@ export const SiftrList = createClass({
                     props({
                       onClick: (e) => {
                         e.preventDefault();
+                        this.props.renameQuest(game, quest);
+                      },
+                    });
+                    raw('(rename)');
+                  })
+                  raw(' ');
+                  child('a', {href: '#'}, () => {
+                    props({
+                      onClick: (e) => {
+                        e.preventDefault();
                         this.props.duplicateQuest(game, quest);
                       },
                     });

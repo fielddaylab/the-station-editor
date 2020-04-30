@@ -1100,6 +1100,16 @@ const App = createClass({
                       window.location.hash = '#quest1';
                     });
                   },
+                  renameQuest: (game, quest) => {
+                    const newName = prompt(`Enter a new name for the quest "${quest.name}".`);
+                    if (newName == null) return;
+                    this.props.aris.call('quests.updateQuest', {
+                      quest_id: quest.quest_id,
+                      name: newName,
+                    }, () => {
+                      this.updateQuests([game]);
+                    });
+                  },
                   deleteQuest: (quest) => {
                     if (confirm(`Delete the quest "${quest.name}"?`)) {
                       this.props.aris.call('quests.deleteQuest', {
