@@ -327,14 +327,7 @@ export const MapOptions = createClass({
                 return {
                   minZoom: 2,
                   styles: this.getMapStyles(),
-                  mapTypeId: (function() {
-                    switch (this.props.game.map_type) {
-                      case 'STREET':
-                        return maps.MapTypeId.ROADMAP;
-                      default:
-                        return maps.MapTypeId.HYBRID;
-                    }
-                  }).call(this),
+                  mapTypeControl: true,
                   fullscreenControl: false,
                 };
               }}

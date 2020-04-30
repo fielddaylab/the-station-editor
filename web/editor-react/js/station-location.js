@@ -126,8 +126,8 @@ export const StationLocation = createClass({
                 return {
                   minZoom: 2,
                   styles: this.getMapStyles(),
-                  mapTypeId: maps.MapTypeId.HYBRID,
                   fullscreenControl: false,
+                  mapTypeControl: true,
                 };
               }}
               draggable={!this.state.draggingPin}

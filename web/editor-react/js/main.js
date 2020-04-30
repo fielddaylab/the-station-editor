@@ -1113,6 +1113,7 @@ const App = createClass({
                     const fields = this.state.forms[game.game_id].filter(field =>
                       parseInt(field.quest_id) === parseInt(quest.quest_id)
                     ).map(field => update(field, {
+                      // TODO need to handle fields with no guides (set noFieldNote)
                       options: (opts) => opts.map(opt => {
                         const item = this.state.items[game.game_id].find(item =>
                           parseInt(item.item_id) === parseInt(opt.remnant_id)
