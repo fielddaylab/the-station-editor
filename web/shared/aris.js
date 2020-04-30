@@ -529,43 +529,14 @@ export class Aris {
 
   getFieldsForGame(json, cb) {
     return this.callWrapped('fields.getFieldsForGame', json, cb, function(data) {
-      var field, fields, i, len, o, opt, options;
-      fields = (function() {
-        var i, len, ref, results;
-        ref = data.fields;
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
-          results.push(new Field(o));
-        }
-        return results;
-      })();
+      let fields = data.fields.map(o => new Field(o));
       fields.sort(sortByIndex('field_id'));
-      options = (function() {
-        var i, len, ref, results;
-        ref = data.options;
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
-          results.push(new FieldOption(o));
-        }
-        return results;
-      })();
-      for (i = 0, len = fields.length; i < len; i++) {
-        field = fields[i];
-        field.options = (function() {
-          var j, len1, results;
-          results = [];
-          for (j = 0, len1 = options.length; j < len1; j++) {
-            opt = options[j];
-            if (field.field_id === opt.field_id) {
-              results.push(opt);
-            }
-          }
-          return results;
-        })();
+      let options = data.options.map(o => new FieldOption(o));
+      fields.forEach(field => {
+        field.options = options.filter(opt => field.field_id === opt.field_id);
         field.options.sort(sortByIndex('field_option_id'));
-      }
+        field.guide = data.guides.find(g => parseInt(g.field_id) === parseInt(field.field_id));
+      });
       return fields;
     });
   }
