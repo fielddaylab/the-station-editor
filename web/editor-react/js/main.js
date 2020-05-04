@@ -2577,13 +2577,29 @@ const FormEditor = createClass({
               });
               if (!isLockedField) {
                 child('div.inspector-question', () => {
-                  return child('textarea', {
+                  return child('input', {
+                    type: 'text',
                     value: field.label,
-                    placeholder: 'What Question are you asking?',
+                    placeholder: 'Label',
                     onChange: (e) => {
                       this.setState({
                         editingField: update(field, {
                           label: {
+                            $set: e.target.value
+                          }
+                        })
+                      });
+                    }
+                  });
+                });
+                child('div.inspector-question', () => {
+                  return child('textarea', {
+                    value: field.instruction,
+                    placeholder: 'Player instructions for observation',
+                    onChange: (e) => {
+                      this.setState({
+                        editingField: update(field, {
+                          instruction: {
                             $set: e.target.value
                           }
                         })
