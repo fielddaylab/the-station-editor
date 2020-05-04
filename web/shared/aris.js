@@ -276,6 +276,7 @@ export class Field {
       // used during new game creation
       this.useAsPin = json.useAsPin;
       this.useOnCards = json.useOnCards;
+      this.instruction = json.instruction;
     }
   }
 
