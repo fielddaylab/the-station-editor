@@ -122,7 +122,13 @@ const App = createClass({
     window.addEventListener('hashchange', () => {
       return this.applyHash();
     });
-    return this.getColorsAndThemes();
+    this.getColorsAndThemes();
+    document.addEventListener("keydown", (e) => {
+      if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        this.saveQuest();
+      }
+    }, false);
   },
   applyHash: function() {
     var game, game_id, hash, matchingGames, md;
@@ -601,7 +607,11 @@ const App = createClass({
       }
     });
   },
-  saveQuest: function(cb) {
+  saveQuest: function() {
+    if (this.state.savingQuest) return;
+    if (!this.state.screen.match('quest')) return;
+    if (!parseInt(this.state.new_game.quest_id)) return;
+    this.setState({savingQuest: true});
     const input = update(this.state.new_game, {
       game_id: {
         $set: this.state.edit_game.game_id,
@@ -611,7 +621,10 @@ const App = createClass({
       },
     });
     this.props.aris.call('quests.createStemportsQuest', input, (result) => {
-      cb(result);
+      this.setState({savingQuest: 'done'});
+      setTimeout(() => {
+        this.setState({savingQuest: false});
+      }, 1000);
       if (result.returnCode === 0) {
         this.updateQuests([this.state.edit_game]);
         this.updateForms([this.state.edit_game]);
@@ -756,13 +769,16 @@ const App = createClass({
               href: '#',
               onClick: (e) => {
                 e.preventDefault();
-                this.setState({savingQuest: true});
-                this.saveQuest((result) => {
-                  this.setState({savingQuest: false});
-                });
+                this.saveQuest();
               },
             }, () => {
-              raw(this.state.savingQuest ? 'Saving…' : 'Save');
+              if (this.state.savingQuest === 'done') {
+                raw('Saved!');
+              } else if (this.state.savingQuest) {
+                raw('Saving…');
+              } else {
+                raw('Save Quest');
+              }
             });
           } else {
             child('a.create-cancel', {
@@ -1045,7 +1061,6 @@ const App = createClass({
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 aris: this.props.aris,
-                onSave: this.saveQuest,
               });
             case 'quest2':
               return child(Onboarding, {
@@ -1055,7 +1070,6 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 aris: this.props.aris,
-                onSave: this.saveQuest,
               });
             case 'quest3':
               return child(FormEditor, {
@@ -1069,7 +1083,6 @@ const App = createClass({
                 onChangeCategories: (new_categories) => {
                   this.setState({new_categories});
                 },
-                onSave: this.saveQuest,
               });
             case 'quest4':
               return child(FieldNotes, {
@@ -1079,7 +1092,6 @@ const App = createClass({
                 },
                 aris: this.props.aris,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
-                onSave: this.saveQuest,
               });
             case 'quest5':
               return child(MapOptions, {
@@ -1091,7 +1103,6 @@ const App = createClass({
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 onCreate: this.createQuest,
-                onSave: this.saveQuest,
                 aris: this.props.aris,
               });
             default:

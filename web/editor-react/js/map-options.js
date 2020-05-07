@@ -425,14 +425,20 @@ export const MapOptions = createClass({
                   {'< field notes'}
                 </div>
               </a>
-              <a href="#" onClick={(e) => {
-                e.preventDefault();
-                this.props.onCreate();
-              }}>
-                <div className="newNextButton">
-                  publish!
-                </div>
-              </a>
+              {
+                parseInt(this.props.game.quest_id) ? (
+                  <div />
+                ) : (
+                  <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    this.props.onCreate();
+                  }}>
+                    <div className="newNextButton">
+                      publish!
+                    </div>
+                  </a>
+                )
+              }
             </div>
           )
         }
