@@ -97,20 +97,20 @@ export const SiftrList = createClass({
                     props({
                       onClick: (e) => {
                         e.preventDefault();
-                        this.props.renameQuest(game, quest);
+                        this.props.editOrCopyQuest(game, quest, false);
                       },
                     });
-                    raw('(rename)');
+                    raw('(edit)');
                   })
                   raw(' ');
                   child('a', {href: '#'}, () => {
                     props({
                       onClick: (e) => {
                         e.preventDefault();
-                        this.props.duplicateQuest(game, quest);
+                        this.props.editOrCopyQuest(game, quest, true);
                       },
                     });
-                    raw('(edit)');
+                    raw('(copy)');
                   })
                   raw(' ');
                   child('a', {href: '#'}, () => {

@@ -601,6 +601,25 @@ const App = createClass({
       }
     });
   },
+  saveQuest: function(cb) {
+    const input = update(this.state.new_game, {
+      game_id: {
+        $set: this.state.edit_game.game_id,
+      },
+      do_update: {
+        $set: true,
+      },
+    });
+    this.props.aris.call('quests.createStemportsQuest', input, (result) => {
+      cb(result);
+      if (result.returnCode === 0) {
+        this.updateQuests([this.state.edit_game]);
+        this.updateForms([this.state.edit_game]);
+        this.updatePlaques([this.state.edit_game]);
+        this.updateNotes([this.state.edit_game]);
+      }
+    });
+  },
   createGame: function() {
     return this.props.aris.createGame(this.state.new_game, (result) => {
       if (result.returnCode === 0 && (result.data != null)) {
@@ -732,11 +751,26 @@ const App = createClass({
       child('div', () => {
         var ref1, ref2, ref3;
         if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
-          child('a.create-cancel', {
-            href: '#'
-          }, () => {
-            raw('Cancel');
-          });
+          if (this.state.new_game && parseInt(this.state.new_game.quest_id)) {
+            child('a.create-cancel', {
+              href: '#',
+              onClick: (e) => {
+                e.preventDefault();
+                this.setState({savingQuest: true});
+                this.saveQuest((result) => {
+                  this.setState({savingQuest: false});
+                });
+              },
+            }, () => {
+              raw(this.state.savingQuest ? 'Saving…' : 'Save');
+            });
+          } else {
+            child('a.create-cancel', {
+              href: '#'
+            }, () => {
+              raw('Cancel');
+            });
+          }
         } else if ((ref2 = this.state.screen) === 'edit' || ref2 === 'map') {
           if (this.state.autosaving) {
             child('span.create-spinner', () => {
@@ -1011,6 +1045,7 @@ const App = createClass({
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 aris: this.props.aris,
+                onSave: this.saveQuest,
               });
             case 'quest2':
               return child(Onboarding, {
@@ -1020,6 +1055,7 @@ const App = createClass({
                   this.setState({new_game});
                 },
                 aris: this.props.aris,
+                onSave: this.saveQuest,
               });
             case 'quest3':
               return child(FormEditor, {
@@ -1032,7 +1068,8 @@ const App = createClass({
                 },
                 onChangeCategories: (new_categories) => {
                   this.setState({new_categories});
-                }
+                },
+                onSave: this.saveQuest,
               });
             case 'quest4':
               return child(FieldNotes, {
@@ -1040,9 +1077,9 @@ const App = createClass({
                 onChange: (new_game) => {
                   this.setState({new_game});
                 },
-                onCreate: this.createQuest,
                 aris: this.props.aris,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
+                onSave: this.saveQuest,
               });
             case 'quest5':
               return child(MapOptions, {
@@ -1054,6 +1091,7 @@ const App = createClass({
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 onCreate: this.createQuest,
+                onSave: this.saveQuest,
                 aris: this.props.aris,
               });
             default:
@@ -1100,16 +1138,6 @@ const App = createClass({
                       window.location.hash = '#quest1';
                     });
                   },
-                  renameQuest: (game, quest) => {
-                    const newName = prompt(`Enter a new name for the quest "${quest.name}".`);
-                    if (newName == null) return;
-                    this.props.aris.call('quests.updateQuest', {
-                      quest_id: quest.quest_id,
-                      name: newName,
-                    }, () => {
-                      this.updateQuests([game]);
-                    });
-                  },
                   deleteQuest: (quest) => {
                     if (confirm(`Delete the quest "${quest.name}"?`)) {
                       this.props.aris.call('quests.deleteQuest', {
@@ -1119,7 +1147,7 @@ const App = createClass({
                       });
                     }
                   },
-                  duplicateQuest: (game, quest) => {
+                  editOrCopyQuest: (game, quest, copy) => {
                     const fields = this.state.forms[game.game_id].filter(field =>
                       parseInt(field.quest_id) === parseInt(quest.quest_id)
                     ).map(field => update(field, {
@@ -1143,7 +1171,8 @@ const App = createClass({
                       }),
                     }));
                     const quest_data = {
-                      name: quest.name + ' (Copy)',
+                      name: copy ? quest.name + ' (Copy)' : quest.name,
+                      quest_id: copy ? null : quest.quest_id,
                       description: quest.description,
                       colors_id: 1,
                       theme_id: 1,
@@ -1202,7 +1231,11 @@ const App = createClass({
                       }),
                     };
                     this.setState({edit_game: game, new_game: quest_data}, () => {
-                      window.location.hash = '#quest1';
+                      if (copy) {
+                        this.createQuest();
+                      } else {
+                        window.location.hash = '#quest1';
+                      }
                     });
                   },
                 });
