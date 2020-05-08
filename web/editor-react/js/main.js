@@ -590,7 +590,7 @@ const App = createClass({
       return cb(null);
     }
   },
-  createQuest: function() {
+  createQuest: function(cb) {
     const input = update(this.state.new_game, {
       game_id: {
         $set: this.state.edit_game.game_id,
@@ -598,8 +598,7 @@ const App = createClass({
     });
     this.props.aris.call('quests.createStemportsQuest', input, (result) => {
       if (result.returnCode === 0) {
-        window.location.hash = '#';
-        this.setState({modal_quest: true});
+        cb && cb();
         this.updateQuests([this.state.edit_game]);
         this.updateForms([this.state.edit_game]);
         this.updatePlaques([this.state.edit_game]);
@@ -607,10 +606,14 @@ const App = createClass({
       }
     });
   },
-  saveQuest: function() {
-    if (this.state.savingQuest) return;
+  saveQuest: function(continuingSave = false) {
     if (!this.state.screen.match('quest')) return;
     if (!parseInt(this.state.new_game.quest_id)) return;
+
+    if (this.state.savingQuest && !continuingSave) {
+      this.pendingSave = true;
+      return;
+    }
     this.setState({savingQuest: true});
     const input = update(this.state.new_game, {
       game_id: {
@@ -621,10 +624,12 @@ const App = createClass({
       },
     });
     this.props.aris.call('quests.createStemportsQuest', input, (result) => {
-      this.setState({savingQuest: 'done'});
-      setTimeout(() => {
-        this.setState({savingQuest: false});
-      }, 1000);
+      if (this.pendingSave) {
+        this.pendingSave = false;
+        this.saveQuest(true);
+        return;
+      }
+      this.setState({savingQuest: false});
       if (result.returnCode === 0) {
         this.updateQuests([this.state.edit_game]);
         this.updateForms([this.state.edit_game]);
@@ -765,21 +770,9 @@ const App = createClass({
         var ref1, ref2, ref3;
         if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
           if (this.state.new_game && parseInt(this.state.new_game.quest_id)) {
-            child('a.create-cancel', {
-              href: '#',
-              onClick: (e) => {
-                e.preventDefault();
-                this.saveQuest();
-              },
-            }, () => {
-              if (this.state.savingQuest === 'done') {
-                raw('Saved!');
-              } else if (this.state.savingQuest) {
-                raw('Saving…');
-              } else {
-                raw('Save Quest');
-              }
-            });
+            if (this.state.savingQuest) {
+              raw('Saving…');
+            }
           } else {
             child('a.create-cancel', {
               href: '#'
@@ -819,7 +812,7 @@ const App = createClass({
         if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
           return child('div.nav-bar-line', () => {
             child('div', () => {
-              var requireNameDesc, selectTab;
+              var selectTab;
               selectTab = (step) => {
                 if (this.state.screen === step) {
                   return '.create-step-tab-selected';
@@ -827,12 +820,6 @@ const App = createClass({
                   return '';
                 }
               };
-              requireNameDesc = (this.state.screen === 'new1' || this.state.screen === 'quest1') ? (e) => {
-                if (!hasNameDesc(this.state.new_game)) {
-                  alert('Please enter a name and description.');
-                  return e.preventDefault();
-                }
-              } : undefined;
               if (this.state.screen === 'new1' || this.state.screen === 'new2') {
                 child(`a.create-step-tab${selectTab('new1')}`, {
                   href: '#new1'
@@ -853,33 +840,21 @@ const App = createClass({
                 child(`a.create-step-tab${selectTab('quest2')}`, {
                   href: '#quest2'
                 }, () => {
-                  props({
-                    onClick: requireNameDesc
-                  });
                   raw('Onboarding');
                 });
                 child(`a.create-step-tab${selectTab('quest3')}`, {
                   href: '#quest3'
                 }, () => {
-                  props({
-                    onClick: requireNameDesc
-                  });
                   raw('Observation');
                 });
                 child(`a.create-step-tab${selectTab('quest4')}`, {
                   href: '#quest4'
                 }, () => {
-                  props({
-                    onClick: requireNameDesc
-                  });
                   raw('Field Notes');
                 });
                 child(`a.create-step-tab${selectTab('quest5')}`, {
                   href: '#quest5'
                 }, () => {
-                  props({
-                    onClick: requireNameDesc
-                  });
                   raw('Tour Stops');
                 });
               }
@@ -1054,7 +1029,7 @@ const App = createClass({
                 game: this.state.new_game,
                 icon: this.state.new_icon,
                 onChange: (new_game) => {
-                  this.setState({new_game});
+                  this.setState({new_game}, () => this.saveQuest());
                 },
                 onIconChange: (new_icon) => {
                   this.setState({new_icon});
@@ -1067,7 +1042,7 @@ const App = createClass({
                 game: this.state.new_game,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
                 onChange: (new_game) => {
-                  this.setState({new_game});
+                  this.setState({new_game}, () => this.saveQuest());
                 },
                 aris: this.props.aris,
               });
@@ -1078,7 +1053,7 @@ const App = createClass({
                 categories: this.state.new_categories,
                 colors: this.state.colors,
                 onChange: (new_game) => {
-                  this.setState({new_game});
+                  this.setState({new_game}, () => this.saveQuest());
                 },
                 onChangeCategories: (new_categories) => {
                   this.setState({new_categories});
@@ -1088,7 +1063,7 @@ const App = createClass({
               return child(FieldNotes, {
                 game: this.state.new_game,
                 onChange: (new_game) => {
-                  this.setState({new_game});
+                  this.setState({new_game}, () => this.saveQuest());
                 },
                 aris: this.props.aris,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
@@ -1099,10 +1074,9 @@ const App = createClass({
                 colors: this.state.colors,
                 themes: this.state.themes,
                 onChange: (new_game) => {
-                  this.setState({new_game});
+                  this.setState({new_game}, () => this.saveQuest());
                 },
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
-                onCreate: this.createQuest,
                 aris: this.props.aris,
               });
             default:
@@ -1145,8 +1119,13 @@ const App = createClass({
                     });
                   },
                   startNewQuest: (game) => {
-                    this.setState({new_game: blankGame(), edit_game: game}, () => {
-                      window.location.hash = '#quest1';
+                    const quest = update(blankGame(), {
+                      name: {$set: 'New Quest'},
+                    });
+                    this.setState({new_game: quest, edit_game: game}, () => {
+                      this.createQuest(() => {
+                        // TODO open the new quest
+                      });
                     });
                   },
                   deleteQuest: (quest) => {
