@@ -2395,8 +2395,8 @@ const FormEditor = createClass({
             return child('p', () => {
               var types;
               types = [
-                ['TEXT', 'small text field'],
-                ['TEXTAREA', 'large text field'],
+                ['TEXT', 'small text'],
+                ['TEXTAREA', 'large text'],
                 ['SINGLESELECT', 'single choice'],
                 ['MULTISELECT', 'multiple choice'],
                 ['MEDIA', 'photo'],
@@ -2465,7 +2465,7 @@ const FormEditor = createClass({
                   src: '../assets/icons/field-plus.png'
                 });
                 return child('span.form-show-types-label', () => {
-                  raw('add new field');
+                  raw('add new task');
                 });
               });
             });
@@ -2585,9 +2585,9 @@ const FormEditor = createClass({
                   } else {
                     switch (field.field_type) {
                       case 'TEXT':
-                        return raw('Small text field');
+                        return raw('Small text');
                       case 'TEXTAREA':
-                        return raw('Large text field');
+                        return raw('Large text');
                       case 'MEDIA':
                         return raw('Image upload');
                       case 'SINGLESELECT':
@@ -2618,7 +2618,7 @@ const FormEditor = createClass({
                 child('div.inspector-question', () => {
                   return child('textarea', {
                     value: field.instruction,
-                    placeholder: 'Player instructions for observation',
+                    placeholder: 'Task instructions',
                     onChange: (e) => {
                       this.setState({
                         editingField: update(field, {
@@ -2884,13 +2884,13 @@ const FormEditor = createClass({
                     });
                   }
                 }, () => {
-                  raw('Save field');
+                  raw('Save task');
                 });
               });
             }
           } else {
             return child('p', () => {
-              raw('No field selected.');
+              raw('No task selected.');
             });
           }
         });
