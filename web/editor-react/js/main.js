@@ -622,6 +622,13 @@ const App = createClass({
       do_update: {
         $set: true,
       },
+      fields: (fields) => fields.map((field) => {
+        if (field.noObservation) {
+          return update(field, {sort_index: {$set: -1}});
+        } else {
+          return field;
+        }
+      }),
     });
     this.props.aris.call('quests.createStemportsQuest', input, (result) => {
       if (this.pendingSave) {
@@ -1142,6 +1149,7 @@ const App = createClass({
                       parseInt(field.quest_id) === parseInt(quest.quest_id)
                     ).map(field => update(field, {
                       noFieldNote: {$set: field.guide == null},
+                      noObservation: {$set: parseInt(field.sort_index) < 0},
                       options: (opts) => opts.map(opt => {
                         const item = this.state.items[game.game_id].find(item =>
                           parseInt(item.item_id) === parseInt(opt.remnant_id)
@@ -2269,12 +2277,17 @@ const FormEditor = createClass({
                   });
                 }
               }, () => {
-                raw(field.label || 'Unnamed field');
-                if (field.required) {
+                raw(field.label || 'Unnamed task');
+                if (field.noObservation) {
                   raw(' ');
-                  return child('span.required-star', () => {
-                    raw('*');
-                  });
+                  child('i', () => raw('[only field notes]'));
+                } else {
+                  if (field.required) {
+                    raw(' ');
+                    return child('span.required-star', () => {
+                      raw('*');
+                    });
+                  }
                 }
               });
               if (field.field_id === this.props.game.field_id_preview || field.field_id === this.props.game.field_id_caption || field.useOnCards) {
@@ -2342,26 +2355,28 @@ const FormEditor = createClass({
                     e.preventDefault();
                     e.stopPropagation();
                     if (this.props.editing) {
-                      if (confirm(`Are you sure you want to delete the ${field.label || 'unnamed'} field, and all the data it contains? This cannot be undone.`)) {
+                      if (confirm(`Are you sure you want to delete the ${field.label || 'unnamed'} task? This cannot be undone.`)) {
                         return this.props.deleteField(field);
                       }
                     } else {
-                      newFields = fields.slice(0);
-                      newFields.splice(i, 1);
-                      this.props.onChange(update(this.props.game, {
-                        fields: {
-                          $set: newFields
+                      if (confirm(`Are you sure you want to delete the ${field.label || 'unnamed'} task? This cannot be undone.`)) {
+                        newFields = fields.slice(0);
+                        newFields.splice(i, 1);
+                        this.props.onChange(update(this.props.game, {
+                          fields: {
+                            $set: newFields
+                          }
+                        }));
+                        if (i < this.state.editingIndex) {
+                          this.setState({
+                            editingIndex: this.state.editingIndex - 1
+                          });
+                        } else if (i === this.state.editingIndex) {
+                          this.setState({
+                            editingIndex: null,
+                            editingField: null
+                          });
                         }
-                      }));
-                      if (i < this.state.editingIndex) {
-                        this.setState({
-                          editingIndex: this.state.editingIndex - 1
-                        });
-                      } else if (i === this.state.editingIndex) {
-                        this.setState({
-                          editingIndex: null,
-                          editingField: null
-                        });
                       }
                     }
                   })
@@ -2657,27 +2672,26 @@ const FormEditor = createClass({
                   });
                 }
                 if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
-                  const isFieldNote = !field.noFieldNote;
-                  child(`a.form-multi-option.form-multi-option-${(isFieldNote ? 'on' : 'off')}`, {
-                    href: '#'
-                  }, () => {
-                    props({
-                      onClick: (e) => {
-                        e.preventDefault();
+                  const selectMode = field.noFieldNote ? 'observation' :
+                    field.noObservation ? 'field' :
+                    'both';
+                  child('div.form-multi-option', () => {
+                    child('select.full-width-input', {value: selectMode}, () => {
+                      props({onChange: e => {
                         this.setState({
                           editingField: update(field, {
                             noFieldNote: {
-                              $set: isFieldNote
+                              $set: e.target.value === 'observation',
+                            },
+                            noObservation: {
+                              $set: e.target.value === 'field',
                             },
                           })
                         });
-                      }
-                    });
-                    child('span.form-multi-option-text', () => {
-                      raw('Collect as field notes');
-                    });
-                    return child('span.form-multi-option-switch', () => {
-                      return child('span.form-multi-option-ball');
+                      }});
+                      child('option', {value: 'both'}, () => raw('Use as task and collect field notes'));
+                      child('option', {value: 'observation'}, () => raw("Only use as observation task"));
+                      child('option', {value: 'field'}, () => raw("Only collect as field notes"));
                     });
                   });
                 }
