@@ -252,7 +252,7 @@ export const MapOptions = createClass({
                     }} ref="selectFieldNote">
                       {
                         [].concat.apply([], this.props.game.fields.map(field =>
-                          (field.options || []).map(option =>
+                          field.noFieldNote ? [] : (field.options || []).map(option =>
                             <option value={option.field_option_id} key={option.field_option_id}>
                               {option.option}
                             </option>
