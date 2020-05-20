@@ -2434,6 +2434,7 @@ const FormEditor = createClass({
                             new Field({
                               field_type: type,
                               label: '',
+                              instruction: '',
                               required: false,
                               field_id: Date.now(), // temporary, to use as React key
                               options: (function() {
