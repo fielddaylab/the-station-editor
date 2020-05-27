@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = [{
-  mode: 'production',
+  mode: 'development',
   entry: './editor-react/js/main.js',
   output: {
     path: path.resolve(__dirname, "editor-react"),
@@ -19,7 +19,7 @@ module.exports = [{
     ]
   }
 }, {
-  mode: 'production',
+  mode: 'development',
   entry: './discover/js/main.js',
   output: {
     path: path.resolve(__dirname, "discover"),

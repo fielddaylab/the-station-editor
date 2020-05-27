@@ -3,6 +3,46 @@
 import React from 'react';
 import update from 'immutability-helper';
 import createClass from "create-react-class";
+import Croppie from 'croppie/croppie';
+
+const CropModal = createClass({
+  displayName: 'CropModal',
+  getInitialState: function(){
+    return {};
+  },
+  componentDidMount: function(){
+    this.crop = new Croppie(this.cropDiv, {
+      //enableExif: true,
+      viewport: {width: 200, height: 200, type: 'square'},
+    });
+    this.crop.bind({
+      url: this.props.url,
+    });
+  },
+  componentWillUnmount: function(){
+    this.crop.destroy();
+  },
+  render: function(){
+    return (
+      <div style={{
+        position: 'fixed',
+        zIndex: 999,
+        top: 0, left: 0, bottom: 0, right: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <div ref={(r) => (this.cropDiv = r)} style={{
+          width: 400,
+          height: 400,
+          overflow: 'hidden',
+          backgroundColor: 'white',
+        }} />
+      </div>
+    );
+  },
+});
 
 export const MediaSelect = createClass({
   displayName: 'MediaSelect',
@@ -40,6 +80,15 @@ export const MediaSelect = createClass({
   },
   render: function(){
     const mediaObject = this.props.media || this.getLoadedMedia();
+
+    if (this.state.croppingURL) {
+      return (
+        <CropModal
+          url={this.state.croppingURL}
+        />
+      );
+    }
+
     return (
       <a href="#"
         onClick={e => {
@@ -48,7 +97,16 @@ export const MediaSelect = createClass({
           input.type = 'file';
           input.onchange = (e) => {
             const file = e.target.files[0];
-            this.props.uploadMedia(file, this.props.applyMedia);
+            if (window.mikedebug) {
+              let fr = new FileReader;
+              fr.onload = () => {
+                const dataURL = fr.result;
+                this.setState({croppingURL: dataURL});
+              };
+              fr.readAsDataURL(file);
+            } else {
+              this.props.uploadMedia(file, this.props.applyMedia);
+            }
           };
           input.click();
         }}
@@ -61,6 +119,12 @@ export const MediaSelect = createClass({
           e.preventDefault();
           const files = e.dataTransfer.files;
           if (files.length > 0) {
+            // let fr = new FileReader;
+            // fr.onload = () => {
+            //   const dataURL = fr.result;
+            //   this.setState({croppingURL: dataURL});
+            // };
+            // fr.readAsDataURL(files[0]);
             this.props.uploadMedia(files[0], this.props.applyMedia);
           }
         }}
