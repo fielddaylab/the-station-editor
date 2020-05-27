@@ -14,9 +14,11 @@ const CropModal = createClass({
     this.crop = new Croppie(this.cropDiv, {
       //enableExif: true,
       viewport: {width: 200, height: 200, type: 'square'},
+      showZoomer: false,
     });
     this.crop.bind({
       url: this.props.url,
+      zoom: 0, // set to lowest possible
     });
   },
   componentWillUnmount: function(){
@@ -33,12 +35,36 @@ const CropModal = createClass({
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <div ref={(r) => (this.cropDiv = r)} style={{
-          width: 400,
-          height: 400,
-          overflow: 'hidden',
+        <div style={{
           backgroundColor: 'white',
-        }} />
+          padding: 15,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+        }}>
+          <p>Adjust crop area</p>
+          <hr style={{width: '100%'}} />
+          <div ref={(r) => (this.cropDiv = r)} style={{
+            width: 450,
+            height: 300,
+            alignSelf: 'center',
+            margin: 10,
+          }} />
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            if (!this.crop) return;
+            this.crop.result({type: 'blob', size: 'original'}).then(this.props.onCrop)
+          }} style={{
+            margin: 10,
+            backgroundColor: 'rgb(100,94,242)',
+            color: 'white',
+            padding: 10,
+            alignSelf: 'center',
+            borderRadius: 5,
+          }}>
+            Crop and Save
+          </a>
+        </div>
       </div>
     );
   },
@@ -85,6 +111,10 @@ export const MediaSelect = createClass({
       return (
         <CropModal
           url={this.state.croppingURL}
+          onCrop={(file) => {
+            this.props.uploadMedia(file, this.props.applyMedia);
+            this.setState({croppingURL: null});
+          }}
         />
       );
     }
