@@ -26,7 +26,9 @@ const CropModal = createClass({
   },
   render: function(){
     return (
-      <div style={{
+      <div onMouseDown={(e) => {
+        this.props.onCancel();
+      }} style={{
         position: 'fixed',
         zIndex: 999,
         top: 0, left: 0, bottom: 0, right: 0,
@@ -35,7 +37,7 @@ const CropModal = createClass({
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <div style={{
+        <div onMouseDown={(e) => e.stopPropagation()} style={{
           backgroundColor: 'white',
           padding: 15,
           display: 'flex',
@@ -53,7 +55,14 @@ const CropModal = createClass({
           <a href="#" onClick={(e) => {
             e.preventDefault();
             if (!this.crop) return;
-            this.crop.result({type: 'blob', size: 'original'}).then(this.props.onCrop)
+            const points = this.crop.get().points;
+            // points are [x1, y1, x2, y2] into original image
+            const width = parseInt(points[2]) - parseInt(points[0]);
+            const maxSize = 800;
+            this.crop.result({
+              type: 'blob',
+              size: width > maxSize ? {width: maxSize} : 'original',
+            }).then(this.props.onCrop)
           }} style={{
             margin: 10,
             backgroundColor: 'rgb(100,94,242)',
@@ -111,6 +120,7 @@ export const MediaSelect = createClass({
       return (
         <CropModal
           url={this.state.croppingURL}
+          onCancel={() => this.setState({croppingURL: null})}
           onCrop={(file) => {
             this.props.uploadMedia(file, this.props.applyMedia);
             this.setState({croppingURL: null});
@@ -127,7 +137,7 @@ export const MediaSelect = createClass({
           input.type = 'file';
           input.onchange = (e) => {
             const file = e.target.files[0];
-            if (window.mikedebug) {
+            if (true) { // was gated for debugging
               let fr = new FileReader;
               fr.onload = () => {
                 const dataURL = fr.result;
