@@ -83,7 +83,12 @@ export const MediaSelect = createClass({
   displayName: 'MediaSelect',
   getInitialState: function(){
     return {
-      loadedFromID: null,
+      loadedFromID: [null],
+    };
+  },
+  getDefaultProps: function(){
+    return {
+      maxCount: 1,
     };
   },
   componentDidMount: function(){
@@ -93,102 +98,128 @@ export const MediaSelect = createClass({
     this.loadIfNeeded();
   },
   loadIfNeeded: function(){
-    if (this.props.media_id && !this.props.media && !this.getLoadedMedia()) {
-      this.props.aris.call('media.getMedia', {
-        media_id: this.props.media_id
-      }, (result) => {
-        if (result.returnCode === 0 && (result.data != null)) {
-          this.setState({
-            loadedFromID: result.data
-          });
-        }
-      });
+    for (var i = 0; i < this.props.maxCount; i++) {
+      let j = i;
+      if (parseInt(this.props.media_id[j]) && !this.getLoadedMedia(j)) {
+        this.props.aris.call('media.getMedia', {
+          media_id: this.props.media_id[j]
+        }, (result) => {
+          if (result.returnCode === 0 && (result.data != null)) {
+            this.setState({
+              [`loadedFromID_${j}`]: result.data
+            });
+          }
+        });
+      }
     }
   },
-  getLoadedMedia: function(){
-    if (this.state.loadedFromID) {
-      if (parseInt(this.state.loadedFromID.media_id) === parseInt(this.props.media_id)) {
-        return this.state.loadedFromID;
+  getLoadedMedia: function(i){
+    const key = `loadedFromID_${i}`;
+    if (this.state[key]) {
+      if (parseInt(this.state[key].media_id) === parseInt(this.props.media_id[i])) {
+        return this.state[key];
       }
     }
     return null;
   },
   render: function(){
-    const mediaObject = this.props.media || this.getLoadedMedia();
-
     if (this.state.croppingURL) {
       return (
         <CropModal
           url={this.state.croppingURL}
           onCancel={() => this.setState({croppingURL: null})}
           onCrop={(file) => {
-            this.props.uploadMedia(file, this.props.applyMedia);
+            this.props.uploadMedia(file, media => {
+              this.props.applyMedia(update(this.props.media_id, {
+                [this.state.croppingIndex]: {
+                  $set: media.media_id,
+                },
+              }));
+            });
             this.setState({croppingURL: null});
           }}
         />
       );
     }
 
+    let count = this.props.maxCount;
+    while (count > 1) {
+      if (parseInt(this.props.media_id[count - 2])) {
+        break;
+      } else {
+        count--;
+      }
+    }
+    let indexes = [];
+    for (var i = 0; i < count; i++) {
+      indexes.push(i);
+    }
     return (
-      <a href="#"
-        onClick={e => {
-          e.preventDefault();
-          let input = document.createElement('input');
-          input.type = 'file';
-          input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (true) { // was gated for debugging
-              let fr = new FileReader;
-              fr.onload = () => {
-                const dataURL = fr.result;
-                this.setState({croppingURL: dataURL});
-              };
-              fr.readAsDataURL(file);
-            } else {
-              this.props.uploadMedia(file, this.props.applyMedia);
-            }
-          };
-          input.click();
-        }}
-        onDragOver={e => {
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-        onDrop={e => {
-          e.stopPropagation();
-          e.preventDefault();
-          const files = e.dataTransfer.files;
-          if (files.length > 0) {
-            // let fr = new FileReader;
-            // fr.onload = () => {
-            //   const dataURL = fr.result;
-            //   this.setState({croppingURL: dataURL});
-            // };
-            // fr.readAsDataURL(files[0]);
-            this.props.uploadMedia(files[0], this.props.applyMedia);
-          }
-        }}
-      >
+      <div>
         {
-          mediaObject ? (
-            <div className="media-some" style={{
-              backgroundImage: `url(${mediaObject.big_thumb_url})`,
-            }} />
-          ) : (
-            <div className="media-none">
-              <p>
-                <img src="img/icon-image.png" style={{
-                  width: 274 / 4,
-                  height: 276 / 4,
-                }} />
-              </p>
-              <p>
-                Drag and Drop Image
-              </p>
-            </div>
-          )
+          indexes.map(i => {
+            const mediaObject = this.getLoadedMedia(i);
+            return (
+              <div key={i}
+                onDragOver={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+                onDrop={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  const files = e.dataTransfer.files;
+                  if (files.length > 0) {
+                    let fr = new FileReader;
+                    fr.onload = () => {
+                      const dataURL = fr.result;
+                      this.setState({croppingURL: dataURL, croppingIndex: i});
+                    };
+                    fr.readAsDataURL(files[0]);
+                  }
+                }}
+              >
+                {
+                  mediaObject ? (
+                    <div className="media-some">
+                      <img src={mediaObject.big_thumb_url} />
+                      <a href="#" onClick={e => {
+                        e.preventDefault();
+                        this.props.applyMedia(update(this.props.media_id, {
+                          $splice: [[i, 1]],
+                        }));
+                      }}>
+                        Delete
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="media-none">
+                      <img src="img/icon-image.png" />
+                      <a href="#" onClick={e => {
+                        e.preventDefault();
+                        let input = document.createElement('input');
+                        input.type = 'file';
+                        input.onchange = (e) => {
+                          const file = e.target.files[0];
+                          let fr = new FileReader;
+                          fr.onload = () => {
+                            const dataURL = fr.result;
+                            this.setState({croppingURL: dataURL, croppingIndex: i});
+                          };
+                          fr.readAsDataURL(file);
+                        };
+                        input.click();
+                      }}>
+                        Select Image
+                      </a>
+                    </div>
+                  )
+                }
+              </div>
+            );
+          })
         }
-      </a>
+      </div>
     );
   },
 });

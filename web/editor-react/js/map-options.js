@@ -176,20 +176,16 @@ export const MapOptions = createClass({
                     />
                   </label>
                   <MediaSelect
-                    media={editingStop.media}
-                    media_id={editingStop.media_id}
+                    media_id={[editingStop.media_id]}
                     uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
                     aris={this.props.aris}
-                    applyMedia={(media) => {
+                    applyMedia={(media_ids) => {
                       this.props.onChange(update(this.props.game, {
                         plaques: {
                           [this.state.editPlaqueIndex]: {
-                            media: {
-                              $set: media, // includes url for displaying
-                            },
                             media_id: {
-                              $set: media.media_id, // to actually set in database
+                              $set: media_ids[0], // to actually set in database
                             },
                           },
                         },

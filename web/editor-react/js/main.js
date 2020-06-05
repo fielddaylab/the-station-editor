@@ -1162,6 +1162,12 @@ const App = createClass({
                             media_id: {
                               $set: item.media_id,
                             },
+                            media_id_2: {
+                              $set: item.media_id_2,
+                            },
+                            media_id_3: {
+                              $set: item.media_id_3,
+                            },
                           });
                         } else {
                           return opt;
@@ -1682,18 +1688,14 @@ const Onboarding = createClass({
                     <label>
                       <p>Panel {i} Image</p>
                       <MediaSelect
-                        media={this.props.game[`tutorial_${i}_media`]}
-                        media_id={this.props.game[`tutorial_${i}_media_id`]}
+                        media_id={[this.props.game[`tutorial_${i}_media_id`]]}
                         uploadMedia={this.props.uploadMedia}
                         game={this.props.game}
                         aris={this.props.aris}
-                        applyMedia={(media) => {
+                        applyMedia={(media_ids) => {
                           this.props.onChange(update(this.props.game, {
-                            [`tutorial_${i}_media`]: {
-                              $set: media, // includes url for displaying
-                            },
                             [`tutorial_${i}_media_id`]: {
-                              $set: media.media_id, // to actually set in database
+                              $set: media_ids[0],
                             },
                           }));
                         }}
@@ -1797,18 +1799,14 @@ const NewOverview = createClass({
                 });
               } else {
                 child(MediaSelect, {
-                  media: this.props.game.active_icon_media,
-                  media_id: this.props.game.active_icon_media_id,
+                  media_id: [this.props.game.active_icon_media_id],
                   uploadMedia: this.props.uploadMedia,
                   game: this.props.game,
                   aris: this.props.aris,
-                  applyMedia: (media) => {
+                  applyMedia: (media_ids) => {
                     this.props.onChange(update(this.props.game, {
-                      active_icon_media: {
-                        $set: media, // includes url for displaying
-                      },
                       active_icon_media_id: {
-                        $set: media.media_id, // to actually set in database
+                        $set: media_ids[0],
                       },
                     }));
                   },
@@ -3075,18 +3073,21 @@ const FieldNotes = createClass({
                     />
                   </label>
                   <MediaSelect
-                    media={selectedOption.media}
-                    media_id={selectedOption.media_id}
+                    maxCount={3}
+                    media_id={[selectedOption.media_id, selectedOption.media_id_2, selectedOption.media_id_3]}
                     uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
                     aris={this.props.aris}
-                    applyMedia={(media) => {
+                    applyMedia={(media_ids) => {
                       updateSelectedOption({
-                        media: {
-                          $set: media, // includes url for displaying
-                        },
                         media_id: {
-                          $set: media.media_id, // to actually set in database
+                          $set: media_ids[0],
+                        },
+                        media_id_2: {
+                          $set: media_ids[1],
+                        },
+                        media_id_3: {
+                          $set: media_ids[2],
                         },
                       });
                     }}

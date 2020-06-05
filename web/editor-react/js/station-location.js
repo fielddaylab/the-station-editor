@@ -15,8 +15,6 @@ import {
   Aris,
 } from '../../shared/aris';
 
-import {MediaSelect} from './media-select';
-
 export const StationLocation = createClass({
   displayName: 'StationLocation',
 

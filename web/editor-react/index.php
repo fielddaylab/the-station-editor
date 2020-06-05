@@ -21,8 +21,8 @@
   ga('linker:autoLink', ['arisgames.org','fielddaylab.org','siftr.org'], false, true);
 </script>
 <!-- <link rel="stylesheet" href="../assets/css/styles.css"> -->
-<script src="webpack_out.js?cb=20190416"></script>
-<link href="main.css?cb=20190416" rel="stylesheet" type="text/css">
+<script src="webpack_out.js?cb=20200605"></script>
+<link href="main.css?cb=20200605" rel="stylesheet" type="text/css">
 <style type="text/css">
 
 .main-nav { box-sizing: border-box; }
