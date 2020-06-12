@@ -176,7 +176,8 @@ export const MapOptions = createClass({
                     />
                   </label>
                   <MediaSelect
-                    media_id={[editingStop.media_id]}
+                    maxCount={3}
+                    media_id={[editingStop.media_id, editingStop.media_id_2, editingStop.media_id_3]}
                     uploadMedia={this.props.uploadMedia}
                     game={this.props.game}
                     aris={this.props.aris}
@@ -185,7 +186,13 @@ export const MapOptions = createClass({
                         plaques: {
                           [this.state.editPlaqueIndex]: {
                             media_id: {
-                              $set: media_ids[0], // to actually set in database
+                              $set: media_ids[0],
+                            },
+                            media_id_2: {
+                              $set: media_ids[1],
+                            },
+                            media_id_3: {
+                              $set: media_ids[2],
                             },
                           },
                         },
