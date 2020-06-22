@@ -80,6 +80,7 @@ function blankGame() {
   g.type = 'ANYWHERE';
   g.fields = standardFields();
   g.plaques = [];
+  g.caches = [];
   return g;
 }
 
@@ -1199,6 +1200,7 @@ const App = createClass({
                       tutorial_3: quest.tutorial_3,
                       tutorial_3_media_id: quest.tutorial_3_media_id,
                       active_icon_media_id: quest.active_icon_media_id,
+                      caches: [], // TODO
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {

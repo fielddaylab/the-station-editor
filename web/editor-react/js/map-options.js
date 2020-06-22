@@ -95,13 +95,20 @@ export const MapOptions = createClass({
     const editingStop = this.state.editPlaqueIndex != null ?
       this.props.game.plaques[this.state.editPlaqueIndex] :
       null;
+    const editingCache = this.state.editCacheIndex != null ?
+      this.props.game.caches[this.state.editCacheIndex] :
+      null;
+
+    const fieldNoteOptions = [].concat.apply([], this.props.game.fields.map(field =>
+      field.noFieldNote ? [] : (field.options || [])
+    ));
 
     return (
       <div className="newStepBox">
         <div className="newStep3">
           <div className="newStep3Controls">
             {
-              editingStop && (
+              editingStop ? (
                 <div className="tour-stop-edit">
                   <h2>
                     <img src="img/icon-tour-stop.png" style={{
@@ -254,13 +261,11 @@ export const MapOptions = createClass({
                       marginRight: 10,
                     }} ref="selectFieldNote">
                       {
-                        [].concat.apply([], this.props.game.fields.map(field =>
-                          field.noFieldNote ? [] : (field.options || []).map(option =>
-                            <option value={option.field_option_id} key={option.field_option_id}>
-                              {option.option}
-                            </option>
-                          )
-                        ))
+                        fieldNoteOptions.map(option =>
+                          <option value={option.field_option_id} key={option.field_option_id}>
+                            {option.option}
+                          </option>
+                        )
                       }
                     </select>
                     <a href="#" style={{
@@ -304,7 +309,6 @@ export const MapOptions = createClass({
                       borderRadius: 4,
                     }} onClick={e => {
                       e.preventDefault();
-                      const fieldNoteID = parseInt(this.refs.selectFieldNote.value);
                       this.props.onChange(update(this.props.game, {
                         plaques: {
                           $splice: [[this.state.editPlaqueIndex, 1]],
@@ -316,7 +320,100 @@ export const MapOptions = createClass({
                     </a>
                   </p>
                 </div>
-              )
+              ) : editingCache ? (
+                <div className="tour-stop-edit">
+                  <h2>
+                    <img src="img/icon-tour-stop.png" style={{
+                      width: 144 / 4,
+                      height: 154 / 4,
+                    }} />
+                    <span>Cache:</span>
+                  </h2>
+                  <hr />
+                  <label>
+                    Cache Coordinates:
+                    <input
+                      type="text"
+                      placeholder="Latitude"
+                      value={editingCache.latitude}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        caches: {
+                          [this.state.editCacheIndex]: {
+                            latitude: {
+                              $set: e.target.value,
+                            },
+                          },
+                        },
+                      }))}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Longitude"
+                      value={editingCache.longitude}
+                      onChange={e => this.props.onChange(update(this.props.game, {
+                        caches: {
+                          [this.state.editCacheIndex]: {
+                            longitude: {
+                              $set: e.target.value,
+                            },
+                          },
+                        },
+                      }))}
+                    />
+                  </label>
+                  <hr />
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                    <select style={{
+                      fontSize: 20,
+                      flex: 1,
+                      marginRight: 10,
+                    }} value={editingCache.field_option_id} onChange={(e) => {
+                      this.props.onChange(update(this.props.game, {
+                        caches: {
+                          [this.state.editCacheIndex]: {
+                            field_option_id: {
+                              $set: e.target.value,
+                            },
+                          },
+                        },
+                      }));
+                    }}>
+                      {
+                        fieldNoteOptions.map(option =>
+                          <option value={option.field_option_id} key={option.field_option_id}>
+                            {option.option}
+                          </option>
+                        )
+                      }
+                    </select>
+                  </div>
+                  <hr />
+                  <p>
+                    <a href="#" style={{
+                      color: 'rgb(101,88,245)',
+                      border: '2px solid rgb(199,194,252)',
+                      padding: 10,
+                      paddingTop: 6,
+                      paddingBottom: 6,
+                      borderRadius: 4,
+                    }} onClick={e => {
+                      e.preventDefault();
+                      this.props.onChange(update(this.props.game, {
+                        caches: {
+                          $splice: [[this.state.editCacheIndex, 1]],
+                        },
+                      }));
+                      this.setState({editCacheIndex: null});
+                    }}>
+                      Delete cache
+                    </a>
+                  </p>
+                </div>
+              ) : null
             }
           </div>
           <div className="newStep3MapContainer">
@@ -342,9 +439,11 @@ export const MapOptions = createClass({
                 this.setState({draggingPin: true});
               }}
               onChildMouseMove={(childKey, childProps, mouse) => {
+                const pinType = childKey[0] === 'c' ? 'caches' : 'plaques';
+                const pinIndex = parseInt(childKey.slice(1));
                 this.props.onChange(update(this.props.game, {
-                  plaques: {
-                    [childKey]: {
+                  [pinType]: {
+                    [pinIndex]: {
                       latitude: {$set: mouse.lat},
                       longitude: {$set: mouse.lng},
                     },
@@ -357,16 +456,33 @@ export const MapOptions = createClass({
             >
               {
                 (this.props.game.plaques || []).map((plaque, i) =>
-                  <div key={i}
+                  <div key={'p' + i}
                     className="color-card-pin"
                     lat={plaque.latitude}
                     lng={plaque.longitude}
-                    onClick={() => this.setState({editPlaqueIndex: i})}
+                    onClick={() => this.setState({editPlaqueIndex: i, editCacheIndex: null})}
                   >
                     <div className="siftr-map-note">
                       <div className="siftr-map-note-shadow" />
                       <div className="siftr-map-note-pin" style={{
                         backgroundColor: '#37a',
+                      }} />
+                    </div>
+                  </div>
+                )
+              }
+              {
+                (this.props.game.caches || []).map((cache, i) =>
+                  <div key={'c' + i}
+                    className="color-card-pin"
+                    lat={cache.latitude}
+                    lng={cache.longitude}
+                    onClick={() => this.setState({editCacheIndex: i, editPlaqueIndex: null})}
+                  >
+                    <div className="siftr-map-note">
+                      <div className="siftr-map-note-shadow" />
+                      <div className="siftr-map-note-pin" style={{
+                        backgroundColor: '#73a',
                       }} />
                     </div>
                   </div>
@@ -387,6 +503,7 @@ export const MapOptions = createClass({
               }));
               this.setState({
                 editPlaqueIndex: this.props.game.plaques.length, // index of newly pushed stop
+                editCacheIndex: null,
               })
             }} style={{
               position: 'absolute',
@@ -400,6 +517,34 @@ export const MapOptions = createClass({
               borderRadius: 4,
             }}>
               Add Tour Stop
+            </a>
+            <a href="#" onClick={e => {
+              e.preventDefault();
+              this.props.onChange(update(this.props.game, {
+                caches: {
+                  $push: [{
+                    latitude: this.state.mapCenter.lat,
+                    longitude: this.state.mapCenter.lng,
+                    field_option_id: fieldNoteOptions[0].field_option_id,
+                  }],
+                },
+              }));
+              this.setState({
+                editPlaqueIndex: null,
+                editCacheIndex: this.props.game.caches.length, // index of newly pushed cache
+              })
+            }} style={{
+              position: 'absolute',
+              color: 'white',
+              backgroundColor: 'rgb(96,95,236)',
+              right: 15,
+              top: 73,
+              padding: 8,
+              paddingLeft: 15,
+              paddingRight: 15,
+              borderRadius: 4,
+            }}>
+              Add Cache
             </a>
           </div>
         </div>
