@@ -1200,7 +1200,27 @@ const App = createClass({
                       tutorial_3: quest.tutorial_3,
                       tutorial_3_media_id: quest.tutorial_3_media_id,
                       active_icon_media_id: quest.active_icon_media_id,
-                      caches: [], // TODO
+                      caches: this.state.instances[game.game_id].filter(instance =>
+                        instance.object_type === 'ITEM'
+                      ).map(instance => {
+                        const trigger = this.state.triggers[game.game_id].find(trigger =>
+                          parseInt(trigger.instance_id) === parseInt(instance.instance_id)
+                        );
+                        let field_option_id = null;
+                        fields.some(field => {
+                          field.options && field.options.some(opt => {
+                            if (parseInt(opt.remnant_id) === parseInt(instance.object_id)) {
+                              field_option_id = opt.field_option_id;
+                              return true;
+                            }
+                          });
+                        });
+                        return {
+                          latitude: trigger.latitude,
+                          longitude: trigger.longitude,
+                          field_option_id: field_option_id,
+                        };
+                      }),
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {
