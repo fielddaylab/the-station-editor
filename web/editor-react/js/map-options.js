@@ -437,6 +437,18 @@ export const MapOptions = createClass({
               draggable={!this.state.draggingPin}
               onChildMouseDown={(childKey, childProps, mouse) => {
                 this.setState({draggingPin: true});
+                if (this.gmap && childKey[0] === 'c') {
+                  this.stopCircles = (this.props.game.plaques || []).map(plaque =>
+                    new this.gmap.maps.Circle({
+                      strokeColor: 'black',
+                      strokeOpacity: 0.6,
+                      strokeWeight: 2,
+                      map: this.gmap.map,
+                      center: {lat: parseFloat(plaque.latitude), lng: parseFloat(plaque.longitude)},
+                      radius: 15,
+                    })
+                  );
+                }
               }}
               onChildMouseMove={(childKey, childProps, mouse) => {
                 const pinType = childKey[0] === 'c' ? 'caches' : 'plaques';
@@ -452,6 +464,13 @@ export const MapOptions = createClass({
               }}
               onChildMouseUp={(childKey, childProps, mouse) => {
                 this.setState({draggingPin: false});
+                if (this.stopCircles) {
+                  this.stopCircles.forEach(c => c.setMap(null));
+                  this.stopCircles = null;
+                }
+              }}
+              onGoogleApiLoaded={gmap => {
+                this.gmap = gmap;
               }}
             >
               {
