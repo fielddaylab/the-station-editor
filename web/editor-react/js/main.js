@@ -863,7 +863,7 @@ const App = createClass({
                 child(`a.create-step-tab${selectTab('quest5')}`, {
                   href: '#quest5'
                 }, () => {
-                  raw('Tour Stops');
+                  raw('Map');
                 });
               }
             });
@@ -3151,7 +3151,7 @@ const FieldNotes = createClass({
           </a>
           <a href="#quest5">
             <div className="newNextButton">
-              {'tour stops >'}
+              {'map >'}
             </div>
           </a>
         </div>

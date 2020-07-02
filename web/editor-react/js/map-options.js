@@ -476,34 +476,68 @@ export const MapOptions = createClass({
               {
                 (this.props.game.plaques || []).map((plaque, i) =>
                   <div key={'p' + i}
-                    className="color-card-pin"
                     lat={plaque.latitude}
                     lng={plaque.longitude}
                     onClick={() => this.setState({editPlaqueIndex: i, editCacheIndex: null})}
+                    style={{position: 'relative'}}
                   >
-                    <div className="siftr-map-note">
-                      <div className="siftr-map-note-shadow" />
-                      <div className="siftr-map-note-pin" style={{
-                        backgroundColor: '#37a',
-                      }} />
-                    </div>
+                    {
+                      this.state.editPlaqueIndex === i && (
+                        <div style={{
+                          width: 50,
+                          height: 50,
+                          boxSizing: 'border-box',
+                          border: '2px solid rgb(101,88,245)',
+                          left: -26,
+                          top: -25,
+                          zIndex: 1,
+                          position: 'absolute',
+                          borderRadius: 999,
+                        }} />
+                      )
+                    }
+                    <img src="img/icon-tour-stop-map.png" style={{
+                      width: 144 * 0.25,
+                      height: 154 * 0.25,
+                      marginLeft: (144 * 0.25) * -0.5,
+                      marginTop: (154 * 0.25) * -0.5,
+                      position: 'relative',
+                      zIndex: 2,
+                    }} />
                   </div>
                 )
               }
               {
                 (this.props.game.caches || []).map((cache, i) =>
                   <div key={'c' + i}
-                    className="color-card-pin"
                     lat={cache.latitude}
                     lng={cache.longitude}
                     onClick={() => this.setState({editCacheIndex: i, editPlaqueIndex: null})}
+                    style={{position: 'relative'}}
                   >
-                    <div className="siftr-map-note">
-                      <div className="siftr-map-note-shadow" />
-                      <div className="siftr-map-note-pin" style={{
-                        backgroundColor: '#73a',
-                      }} />
-                    </div>
+                    {
+                      this.state.editCacheIndex === i && (
+                        <div style={{
+                          width: 50,
+                          height: 50,
+                          boxSizing: 'border-box',
+                          border: '2px solid rgb(159,96,43)',
+                          left: -25,
+                          top: -25,
+                          zIndex: 1,
+                          position: 'absolute',
+                          borderRadius: 999,
+                        }} />
+                      )
+                    }
+                    <img src="img/icon-chest.png" style={{
+                      width: 62 * 0.5,
+                      height: 46 * 0.5,
+                      marginLeft: (62 * 0.5) * -0.5,
+                      marginTop: (46 * 0.5) * -0.5,
+                      position: 'relative',
+                      zIndex: 2,
+                    }} />
                   </div>
                 )
               }
