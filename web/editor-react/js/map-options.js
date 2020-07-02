@@ -17,6 +17,32 @@ import {
 
 import {MediaSelect} from './media-select';
 
+function meterDistance(posn1, posn2) {
+  // Haversine formula code from https://stackoverflow.com/a/14561433/509936
+
+  const toRad = function(n) {
+     return n * Math.PI / 180;
+  }
+
+  var lat2 = parseFloat(posn2.lat);
+  var lon2 = parseFloat(posn2.lng);
+  var lat1 = parseFloat(posn1.lat);
+  var lon1 = parseFloat(posn1.lng);
+
+  var R = 6371; // km
+  var x1 = lat2-lat1;
+  var dLat = toRad(x1);
+  var x2 = lon2-lon1;
+  var dLon = toRad(x2);
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c;
+
+  return d * 1000;
+}
+
 export const MapOptions = createClass({
   displayName: 'MapOptions',
 
@@ -102,6 +128,27 @@ export const MapOptions = createClass({
     const fieldNoteOptions = [].concat.apply([], this.props.game.fields.map(field =>
       field.noFieldNote ? [] : (field.options || [])
     ));
+
+    const setStopCirclesOpacity = (mouse) => {
+      if (!this.stopCircles) return;
+      let closestCircle = null;
+      let closestDistance = 15;
+      this.stopCircles.forEach(circle => {
+        const center = circle.getCenter();
+        const distance = meterDistance({lat: center.lat(), lng: center.lng()}, mouse);
+        if (distance < closestDistance) {
+          closestCircle = circle;
+          closestDistance = distance;
+        }
+      });
+      this.stopCircles.forEach(circle => {
+        if (circle === closestCircle) {
+          circle.setOptions({fillColor: 'black', fillOpacity: 0.4});
+        } else {
+          circle.setOptions({fillColor: 'black', fillOpacity: 0.2});
+        }
+      });
+    };
 
     return (
       <div className="newStepBox">
@@ -448,6 +495,7 @@ export const MapOptions = createClass({
                       radius: 15,
                     })
                   );
+                  setStopCirclesOpacity(mouse);
                 }
               }}
               onChildMouseMove={(childKey, childProps, mouse) => {
@@ -461,6 +509,7 @@ export const MapOptions = createClass({
                     },
                   },
                 }));
+                setStopCirclesOpacity(mouse);
               }}
               onChildMouseUp={(childKey, childProps, mouse) => {
                 this.setState({draggingPin: false});
