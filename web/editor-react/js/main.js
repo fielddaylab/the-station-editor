@@ -1199,6 +1199,7 @@ const App = createClass({
                       tutorial_3_title: quest.tutorial_3_title,
                       tutorial_3: quest.tutorial_3,
                       tutorial_3_media_id: quest.tutorial_3_media_id,
+                      stars: quest.stars,
                       active_icon_media_id: quest.active_icon_media_id,
                       caches: this.state.instances[game.game_id].filter(instance =>
                         instance.object_type === 'ITEM'
@@ -2269,6 +2270,45 @@ const FormEditor = createClass({
       };
       child('div.newStep4', () => {
         child('div.newStep4Fields', () => {
+
+          // number dropdown for how many observations required
+          child('label', () => {
+            props({style: {
+              display: 'flex',
+              flexDirection: 'row',
+              borderBottomColor: 'gray',
+              borderBottomWidth: 2,
+              alignItems: 'center',
+            }});
+            child('span', () => {
+              props({style: {
+                flex: 1,
+                margin: 15,
+              }});
+              raw('Number of required observations:');
+            });
+            child('select', () => {
+              props({
+                value: parseInt(this.props.game.stars) || 3,
+                style: {
+                  margin: 15,
+                },
+                onChange: (e) => {
+                  this.props.onChange(update(this.props.game, {
+                    stars: {
+                      $set: e.target.value,
+                    }
+                  }));
+                },
+              });
+              for (let i = 1; i <= 5; i++) {
+                child('option', {
+                  value: i,
+                }, () => raw(i));
+              }
+            });
+          });
+
           const divFormFieldRow = (i) => {
             var row;
             row = 'div.form-field-row';
@@ -2278,11 +2318,11 @@ const FormEditor = createClass({
             return row;
           };
           fields.forEach((field, i) => {
-            return child(divFormFieldRow(i), {
+            child(divFormFieldRow(i), {
               key: field.field_id
             }, () => {
               child('div.form-field-icon', () => {
-                return child('img', {
+                child('img', {
                   src: `../assets/icons/form-${field.field_type}.png`
                 });
               });
@@ -2304,7 +2344,7 @@ const FormEditor = createClass({
                 } else {
                   if (field.required) {
                     raw(' ');
-                    return child('span.required-star', () => {
+                    child('span.required-star', () => {
                       raw('*');
                     });
                   }
@@ -2507,7 +2547,7 @@ const FormEditor = createClass({
             });
           }
         });
-        return child('div.newStep4FieldInfo', () => {
+        child('div.newStep4FieldInfo', () => {
           var confirmDelete, editingCategory, field, isLockedField, options, ref1, ref2, ref3, ref4, ref5, reloadThisField, req;
           if ((field = this.state.editingField) != null) {
             isLockedField = this.state.editingIndex < 0;
