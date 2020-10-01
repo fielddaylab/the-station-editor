@@ -815,10 +815,29 @@ const App = createClass({
     };
     return make(`div.topDiv.accountMenu${(this.state.account_menu ? 'Open' : 'Closed')}`, () => {
       var game;
+      const tutorialLink = () => {
+        child('div', {
+          style: {
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            borderTop: '1px solid black',
+            borderRight: '1px solid black',
+            padding: 20,
+            backgroundColor: '#ccd',
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }, () => {
+          child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+            raw('Tutorial');
+          });
+        });
+      };
       child('div.nav-bar.desktop-nav-bar', () => {
         var ref1, ref2;
         if ((ref1 = this.state.screen) === 'new1' || ref1 === 'new2' || ref1 === 'quest1' || ref1 === 'quest2' || ref1 === 'quest3' || ref1 === 'quest4' || ref1 === 'quest5') {
-          return child('div.nav-bar-line', () => {
+          child('div.nav-bar-line', () => {
             child('div', () => {
               var selectTab;
               selectTab = (step) => {
@@ -869,8 +888,9 @@ const App = createClass({
             });
             return navBarActions();
           });
+          tutorialLink();
         } else if ((ref2 = this.state.screen) === 'edit' || ref2 === 'map' || ref2 === 'form') {
-          return child('div.nav-bar-line', () => {
+          child('div.nav-bar-line', () => {
             child('div', () => {
               var selectTab;
               selectTab = (step) => {
@@ -893,6 +913,7 @@ const App = createClass({
             });
             return navBarActions();
           });
+          tutorialLink();
         }
       });
       child('div.nav-bar.mobile-nav-bar', () => {
@@ -903,9 +924,9 @@ const App = createClass({
         });
       });
       child('div#the-content', () => {
-        var fields, innerNav;
+        var fields;
         if (this.state.auth != null) {
-          innerNav = () => {
+          const innerNav = () => {
             child(InnerNav, {
               screen: this.state.screen,
               userPicture: this.state.userPicture,
@@ -913,9 +934,30 @@ const App = createClass({
               logout: this.logout
             });
           };
+          const tutorialFloating = () => {
+            child('div', {
+              style: {
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                borderTop: '1px solid black',
+                borderRight: '1px solid black',
+                padding: 20,
+                backgroundColor: '#ccd',
+                fontWeight: 'bold',
+                fontSize: 18,
+                fontFamily: 'Varela Round, sans-serif',
+              },
+            }, () => {
+              child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+                raw('Tutorial');
+              });
+            });
+          };
           switch (this.state.screen) {
             case 'profile':
               innerNav();
+              tutorialFloating();
               return child(ProfileSettings, {
                 aris: this.props.aris,
                 auth: this.state.auth,
@@ -953,6 +995,7 @@ const App = createClass({
               });
             case 'account':
               innerNav();
+              tutorialFloating();
               return child(AccountSettings, {
                 aris: this.props.aris,
                 auth: this.state.auth,
@@ -1090,6 +1133,7 @@ const App = createClass({
             default:
               return child('div', () => {
                 innerNav();
+                tutorialFloating();
                 child(SiftrList, {
                   updateStateGame: this.updateStateGame,
                   aris: this.props.aris,
