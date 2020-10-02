@@ -45,6 +45,14 @@ function singleObj(k, v) {
   return obj;
 }
 
+function boolValue(x) {
+  if (typeof x === 'boolean') {
+    return x;
+  } else {
+    return !!(parseInt(x));
+  }
+}
+
 function onSuccess(fn) {
   return function({data, returnCode, returnCodeDescription}) {
     if (returnCode === 0) {
@@ -81,6 +89,7 @@ function blankGame() {
   g.fields = standardFields();
   g.plaques = [];
   g.caches = [];
+  g.published = false;
   return g;
 }
 
@@ -1244,6 +1253,7 @@ const App = createClass({
                       tutorial_3: quest.tutorial_3,
                       tutorial_3_media_id: quest.tutorial_3_media_id,
                       stars: quest.stars,
+                      published: quest.published,
                       active_icon_media_id: quest.active_icon_media_id,
                       caches: this.state.instances[game.game_id].filter(instance =>
                         instance.object_type === 'ITEM'
@@ -1624,7 +1634,7 @@ const EditOverview = createClass({
       child('div.newStep1', () => {
         child('div.newStep1LeftColumn', () => {
           return child('form', () => {
-            var currentLink, hidden, moderated;
+            var currentLink, moderated;
             child('h2', () => {
               raw(this.props.game.name);
             });
@@ -1677,7 +1687,7 @@ const EditOverview = createClass({
             child('h4', () => {
               raw('PRIVACY');
             });
-            hidden = !this.props.game.published;
+            const hidden = !boolValue(this.props.game.published);
             child(`a.form-multi-option.form-multi-option-${(hidden ? 'on' : 'off')}`, {
               href: '#'
             }, () => {
@@ -1891,29 +1901,28 @@ const NewOverview = createClass({
                 onChange: this.handleChange
               });
             });
-            if (this.props.scienceStation) {
-              const hidden = !this.props.game.published;
-              child(`a.form-multi-option.form-multi-option-${(hidden ? 'on' : 'off')}`, {
-                href: '#'
-              }, () => {
-                props({
-                  onClick: (e) => {
-                    e.preventDefault();
-                    return this.props.onChange(update(this.props.game, {
-                      published: {
-                        $set: hidden
-                      }
-                    }));
-                  }
-                });
-                child('span.form-multi-option-text', () => {
-                  raw('Hide from other players');
-                });
-                child('span.form-multi-option-switch', () => {
-                  child('span.form-multi-option-ball');
-                });
+
+            const hidden = !boolValue(this.props.game.published);
+            child(`a.form-multi-option.form-multi-option-${(hidden ? 'on' : 'off')}`, {
+              href: '#'
+            }, () => {
+              props({
+                onClick: (e) => {
+                  e.preventDefault();
+                  return this.props.onChange(update(this.props.game, {
+                    published: {
+                      $set: hidden
+                    }
+                  }));
+                }
               });
-            }
+              child('span.form-multi-option-text', () => {
+                raw('Hide from other players');
+              });
+              child('span.form-multi-option-switch', () => {
+                child('span.form-multi-option-ball');
+              });
+            });
           });
         });
         return child('div.newStep1Column.newStep1RightColumn');
