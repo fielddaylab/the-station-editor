@@ -769,9 +769,9 @@ const App = createClass({
   render: function() {
     let breadcrumbs = [];
     if (this.state.auth != null) {
-      breadcrumbs.push('<a href="#">Science Stations</a>');
+      breadcrumbs.push('<a href="#">Research Stations</a>');
       if (this.state.screen.match(/new/)) {
-        breadcrumbs.push('New Science Station');
+        breadcrumbs.push('New Research Station');
       } else if (this.state.screen.match(/quest/)) {
         breadcrumbs.push(`<a href="#edit${this.state.edit_game.game_id}">${this.state.edit_game.name}</a>`);
         breadcrumbs.push('New Quest');
@@ -1074,7 +1074,7 @@ const App = createClass({
                 onIconChange: (new_icon) => {
                   this.setState({new_icon});
                 },
-                scienceStation: true,
+                researchStation: true,
               });
             case 'new2':
               return child(StationLocation, {
@@ -1641,7 +1641,7 @@ const EditOverview = createClass({
             child('label', () => {
               var ref1;
               child('h4', () => {
-                raw('Science Station Title');
+                raw('Research Station Title');
               });
               return child('input.full-width-input', {
                 type: 'text',
@@ -1663,7 +1663,7 @@ const EditOverview = createClass({
             child('label', () => {
               var ref1;
               child('h4', () => {
-                raw('Science Station Summary');
+                raw('Research Station Summary');
               });
               return child('textarea.full-width-textarea', {
                 value: (ref1 = this.props.game.description) != null ? ref1 : '',
@@ -1814,7 +1814,7 @@ const NewOverview = createClass({
             child('label', () => {
               var ref1;
               child('p', () => {
-                raw(this.props.scienceStation ? 'Science Station Title' : 'Quest Title');
+                raw(this.props.researchStation ? 'Research Station Title' : 'Quest Title');
               });
               return child('input.full-width-input', {
                 ref: 'name',
@@ -1825,9 +1825,9 @@ const NewOverview = createClass({
             });
             child('label', () => {
               child('p', () => {
-                raw(this.props.scienceStation ? 'Station Thumbnail' : 'Quest Thumbnail');
+                raw(this.props.researchStation ? 'Station Thumbnail' : 'Quest Thumbnail');
               });
-              if (this.props.scienceStation) {
+              if (this.props.researchStation) {
                 child('a', {
                   href: '#'
                 }, () => {
@@ -1893,7 +1893,7 @@ const NewOverview = createClass({
             child('label', () => {
               var ref1;
               child('p', () => {
-                raw(this.props.scienceStation ? 'Station Summary' : 'Quest Summary');
+                raw(this.props.researchStation ? 'Station Summary' : 'Quest Summary');
               });
               return child('textarea.full-width-textarea', {
                 ref: 'description',
@@ -1930,19 +1930,19 @@ const NewOverview = createClass({
       return child('div.bottom-step-buttons', () => {
         child('div');
         return child('a', {
-          href: this.props.scienceStation ? '#new2' : '#quest2',
+          href: this.props.researchStation ? '#new2' : '#quest2',
         }, () => {
           props({
             onClick: (e) => {
               if (!hasNameDesc(this.props.game)) {
-                alert(`Please enter a name and user instructions for your ${this.props.scienceStation ? 'science station' : 'quest'}.`);
+                alert(`Please enter a name and user instructions for your ${this.props.researchStation ? 'research station' : 'quest'}.`);
                 e.preventDefault();
                 return;
               }
             }
           });
           child('div.newNextButton', () => {
-            if (this.props.scienceStation) {
+            if (this.props.researchStation) {
               raw('location >');
             } else {
               raw('onboarding >');

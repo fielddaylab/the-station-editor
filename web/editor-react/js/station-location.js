@@ -89,7 +89,7 @@ export const StationLocation = createClass({
           <div className="newStep3Controls">
             <div className="tour-stop-edit">
               <label>
-                Science Station Coordinates:
+                Research Station Coordinates:
                 <input
                   type="text"
                   placeholder="Latitude"
