@@ -1262,20 +1262,22 @@ const App = createClass({
                           parseInt(trigger.instance_id) === parseInt(instance.instance_id)
                         );
                         let field_option_id = null;
-                        fields.some(field => {
+                        if (!fields.some(field =>
                           field.options && field.options.some(opt => {
                             if (parseInt(opt.remnant_id) === parseInt(instance.object_id)) {
                               field_option_id = opt.field_option_id;
                               return true;
                             }
-                          });
-                        });
+                          })
+                        )) {
+                          return null; // not a stop for this quest
+                        }
                         return {
                           latitude: trigger.latitude,
                           longitude: trigger.longitude,
                           field_option_id: field_option_id,
                         };
-                      }),
+                      }).filter(x => x != null),
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {
