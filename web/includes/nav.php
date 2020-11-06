@@ -3,7 +3,7 @@
 function arisCall(func, json, cb) {
   var trySend, handleError;
   var req = new XMLHttpRequest();
-  req.open("POST", "https://arisgames.org/server/json.php/v2." + func, true);
+  req.open("POST", "https://fieldday-web.wcer.wisc.edu/stemports/server/json.php/v2." + func, true);
   req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
   var jsonString = JSON.stringify(json);
   req.onload = function(){
