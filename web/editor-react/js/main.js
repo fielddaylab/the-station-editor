@@ -279,6 +279,10 @@ const App = createClass({
       if (((username != null) || (password != null)) && (this.props.aris.auth == null)) {
         alert('Incorrect username or password.');
       }
+      if (this.props.aris.auth != null) {
+        gtag('event', 'login');
+      }
+      
     });
   },
   logout: function() {
@@ -601,6 +605,7 @@ const App = createClass({
     }
   },
   createQuest: function(cb) {
+    gtag('event', this.state.new_game+'/NewQuest');
     const input = update(this.state.new_game, {
       game_id: {
         $set: this.state.edit_game.game_id,
@@ -1065,6 +1070,7 @@ const App = createClass({
                 },
               });
             case 'new1':
+              gtag('event', 'NewScienceStation/Overview');
               return child(NewOverview, {
                 game: this.state.new_game,
                 icon: this.state.new_icon,
@@ -1077,6 +1083,7 @@ const App = createClass({
                 researchStation: true,
               });
             case 'new2':
+              gtag('event', 'NewScienceStation/Location');
               return child(StationLocation, {
                 game: this.state.new_game,
                 onChange: (new_game) => {
@@ -1085,6 +1092,7 @@ const App = createClass({
                 onCreate: this.createGame,
               });
             case 'quest1':
+              gtag('event', this.state.new_game+'/Edit/Overview');
               return child(NewOverview, {
                 game: this.state.new_game,
                 icon: this.state.new_icon,
@@ -1098,6 +1106,7 @@ const App = createClass({
                 aris: this.props.aris,
               });
             case 'quest2':
+              gtag('event', this.state.new_game+'/Edit/Onboarding');
               return child(Onboarding, {
                 game: this.state.new_game,
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
@@ -1107,6 +1116,7 @@ const App = createClass({
                 aris: this.props.aris,
               });
             case 'quest3':
+              gtag('event', this.state.new_game+'/Edit/Observation');
               return child(FormEditor, {
                 editing: false,
                 game: this.state.new_game,
@@ -1120,6 +1130,7 @@ const App = createClass({
                 },
               });
             case 'quest4':
+              gtag('event', this.state.new_game+'/Edit/FieldNotes');
               return child(FieldNotes, {
                 game: this.state.new_game,
                 onChange: (new_game) => {
@@ -1129,6 +1140,7 @@ const App = createClass({
                 uploadMedia: this.uploadMedia/*.bind(this)*/,
               });
             case 'quest5':
+              gtag('event', this.state.new_game+'/Edit/Map');
               return child(MapOptions, {
                 game: this.state.new_game,
                 colors: this.state.colors,

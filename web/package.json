@@ -2,7 +2,9 @@
   "name": "siftr",
   "description": "Explore and analyze your world through photos.",
   "version": "3.0.0",
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack-cli": "^4.2.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/fielddaylab/siftr"

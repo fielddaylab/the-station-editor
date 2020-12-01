@@ -10,16 +10,6 @@
 <meta content="True" name="HandheldFriendly">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Varela+Round|Lato:400,400i" rel="stylesheet">
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-72694027-1', 'auto');
-  ga('send', 'pageview');
-  ga('linker:autoLink', ['arisgames.org','fielddaylab.org','siftr.org'], false, true);
-</script>
 <!-- <link rel="stylesheet" href="../assets/css/styles.css"> -->
 <script src="webpack_out.js?cb=20201001"></script>
 <link href="main.css?cb=20201001" rel="stylesheet" type="text/css">
@@ -174,14 +164,13 @@
 <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script src="../assets/js/vendor/gridder.js"></script>
 <script src="../assets/js/scripts.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME1ZLZ8KRF"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-43951622-1', 'auto');
-  ga('send', 'pageview');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME1ZLZ8KRF');
+</script>
 </script>
 </body>
 </html>
