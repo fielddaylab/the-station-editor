@@ -830,20 +830,22 @@ const App = createClass({
     return make(`div.topDiv.accountMenu${(this.state.account_menu ? 'Open' : 'Closed')}`, () => {
       var game;
       const tutorialLink = () => {
-        child('div', {
-          style: {
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            borderTop: '1px solid black',
-            borderRight: '1px solid black',
-            padding: 20,
-            backgroundColor: '#ccd',
-            fontWeight: 'bold',
-            fontSize: 18,
-          },
-        }, () => {
-          child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+        child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+          child('div', {
+            style: {
+              position: 'fixed',
+              bottom: 10,
+              left: 10,
+              border: '2px solid #847a82',
+              borderRadius: 3,
+              padding: 20,
+              backgroundColor: '#1a9e81',
+              fontWeight: 'bold',
+              fontSize: 18,
+              fontFamily: 'Varela Round, sans-serif',
+              color: 'white',
+            },
+          }, () => {
             raw('Tutorial');
           });
         });
@@ -949,21 +951,22 @@ const App = createClass({
             });
           };
           const tutorialFloating = () => {
-            child('div', {
-              style: {
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                borderTop: '1px solid black',
-                borderRight: '1px solid black',
-                padding: 20,
-                backgroundColor: '#ccd',
-                fontWeight: 'bold',
-                fontSize: 18,
-                fontFamily: 'Varela Round, sans-serif',
-              },
-            }, () => {
-              child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+            child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+              child('div', {
+                style: {
+                  position: 'fixed',
+                  bottom: 10,
+                  left: 10,
+                  border: '2px solid #847a82',
+                  borderRadius: 3,
+                  padding: 20,
+                  backgroundColor: '#1a9e81',
+                  fontWeight: 'bold',
+                  fontSize: 18,
+                  fontFamily: 'Varela Round, sans-serif',
+                  color: 'white',
+                },
+              }, () => {
                 raw('Tutorial');
               });
             });
@@ -1799,6 +1802,11 @@ const Onboarding = createClass({
             </div>
           </div>
           <div className="newStep1Column newStep1RightColumn">
+            <p>
+              These three panels will introduce players to your quest.
+              If you decide to leave any or all of them blank they will
+              be filled with a generic introduction sequence.
+            </p>
           </div>
         </div>
         <div className="bottom-step-buttons">
@@ -2616,6 +2624,12 @@ const FormEditor = createClass({
         });
         child('div.newStep4FieldInfo', () => {
           var confirmDelete, editingCategory, field, isLockedField, options, ref1, ref2, ref3, ref4, ref5, reloadThisField, req;
+          child('p', () => {
+            raw("Create tasks for your players on this page, including Field Notes. Make sure to select them in the appropriate drop down menu.");
+          });
+          child('p', () => {
+            raw("Field Notes are collectable items that players will add to their in-game field guide.");
+          });
           if ((field = this.state.editingField) != null) {
             isLockedField = this.state.editingIndex < 0;
             reloadThisField = () => {
@@ -3030,10 +3044,6 @@ const FormEditor = createClass({
                 });
               });
             }
-          } else {
-            return child('p', () => {
-              raw('No task selected.');
-            });
           }
         });
       });
@@ -3180,6 +3190,13 @@ const FieldNotes = createClass({
             }
           </div>
           <div className="newStep1Column newStep1RightColumn">
+            <p>
+              If you do not see your Field Notes listed on this page
+              please return to the Observation page and double check
+              that you set them up properly. To edit a Field Note
+              simply click on it, fill in the summary box, and attach
+              any related photos.
+            </p>
             {
               selectedOption && (
                 <div>
