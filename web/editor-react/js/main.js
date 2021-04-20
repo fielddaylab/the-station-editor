@@ -1243,6 +1243,35 @@ const App = createClass({
                         }
                       }),
                     }));
+                    let caches = [];
+                    this.state.instances[game.game_id].filter(instance =>
+                      instance.object_type === 'ITEM'
+                    ).map(instance => {
+                      const trigger = this.state.triggers[game.game_id].find(trigger =>
+                        parseInt(trigger.instance_id) === parseInt(instance.instance_id)
+                      );
+                      let field_option_id = null;
+                      if (!fields.some(field =>
+                        field.options && field.options.some(opt => {
+                          if (parseInt(opt.remnant_id) === parseInt(instance.object_id)) {
+                            field_option_id = opt.field_option_id;
+                            return true;
+                          }
+                        })
+                      )) {
+                        return null; // not a stop for this quest
+                      }
+                      return {
+                        latitude: trigger.latitude,
+                        longitude: trigger.longitude,
+                        field_option_id: field_option_id,
+                      };
+                    }).filter(x => x != null).forEach(cache => {
+                      // make extra sure there aren't more than one cache for a field note
+                      if (!caches.some(c => c.field_option_id === cache.field_option_id)) {
+                        caches.push(cache);
+                      }
+                    });
                     const quest_data = {
                       name: copy ? quest.name + ' (Copy)' : quest.name,
                       quest_id: copy ? null : quest.quest_id,
@@ -1270,29 +1299,7 @@ const App = createClass({
                       stars: quest.stars,
                       published: quest.published,
                       active_icon_media_id: quest.active_icon_media_id,
-                      caches: this.state.instances[game.game_id].filter(instance =>
-                        instance.object_type === 'ITEM'
-                      ).map(instance => {
-                        const trigger = this.state.triggers[game.game_id].find(trigger =>
-                          parseInt(trigger.instance_id) === parseInt(instance.instance_id)
-                        );
-                        let field_option_id = null;
-                        if (!fields.some(field =>
-                          field.options && field.options.some(opt => {
-                            if (parseInt(opt.remnant_id) === parseInt(instance.object_id)) {
-                              field_option_id = opt.field_option_id;
-                              return true;
-                            }
-                          })
-                        )) {
-                          return null; // not a stop for this quest
-                        }
-                        return {
-                          latitude: trigger.latitude,
-                          longitude: trigger.longitude,
-                          field_option_id: field_option_id,
-                        };
-                      }).filter(x => x != null),
+                      caches: caches,
                       plaques: this.state.plaques[game.game_id].filter(plaque =>
                         parseInt(plaque.quest_id) === parseInt(quest.quest_id)
                       ).map(plaque => {
