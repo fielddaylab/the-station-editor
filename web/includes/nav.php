@@ -3,7 +3,7 @@
 function arisCall(func, json, cb) {
   var trySend, handleError;
   var req = new XMLHttpRequest();
-  req.open("POST", "https://fieldday-web.wcer.wisc.edu/station/init/server/json.php/v2." + func, true);
+  req.open("POST", "https://fieldday-web.wcer.wisc.edu/station/server/json.php/v2." + func, true);
   req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
   var jsonString = JSON.stringify(json);
   req.onload = function(){
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
     </ul>
     <ul class="nav-items">
       <li id="nav-login"><a href="/station/init/editor/#">login</a></li>
-      <li id="nav-profile" class="nav-hide"><a href="/station/init/editor/#profile" id="nav-profile-link">profile</a></li>
+      <li id="nav-profile" class="nav-hide"><a href="/station/editor/#profile" id="nav-profile-link">profile</a></li>
     </ul>
     <img class="smily-pin" src="/assets/icons/smily-pin.png">
   </div>

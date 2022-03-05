@@ -1,5 +1,5 @@
 {
-  "name": "siftr",
+  "name": "the-station-editor",
   "description": "Explore and analyze your world through photos.",
   "version": "3.0.0",
   "devDependencies": {
@@ -7,10 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fielddaylab/siftr"
-  },
-  "scripts": {
-    "start": "webpack"
+    "url": "https://github.com/fielddaylab/the-station-editor"
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
