@@ -1,0 +1,239 @@
+#the-container {
+  flex: 1;
+  display: flex;
+  overflow-y: hidden;
+}
+
+.topDiv {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+#the-content {
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  font-size: 13px;
+  line-height: 24px;
+  letter-spacing: 1px;
+}
+
+#the-logo {
+  height: 30px;
+  margin: 7px 13px;
+}
+
+#the-mobile-logo {
+  height: 40px;
+  background-color: white;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.create-step-tab {
+  margin: 10px 15px;
+  border-bottom: 2px solid rgba(0,0,0,0);
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.create-step-tab-selected {
+  border-left: 5px solid #73CECE;
+  margin-left: 0;
+  padding-left: 10px;
+}
+
+.newPrevButton, .newNextButton {
+  color: #ffffff;
+}
+
+.unlink {
+  color: white;
+}
+
+.loginForm {
+  text-align: center;
+}
+
+.settings {
+  text-align: left;
+}
+
+.settings-save {
+  background-color: rgb(154,245,226);
+  padding: 8px 20px;
+  display: inline-block;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.para-account-picture {
+  text-align: center;
+}
+
+.settings {
+  input[type=text], input[type=password] {
+    border: none;
+    border-bottom: 1px solid gray;
+  }
+  h3 {
+    text-align: left;
+    font-size: 19px;
+    font-weight: normal;
+  }
+  h4 {
+    text-align: left;
+    margin-bottom: 0;
+    color: gray;
+    font-weight: normal;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+}
+
+.login-button {
+  background-color: rgb(51,191,224);
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: center;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.new-siftr-para {
+  text-align: center;
+  padding: 25px;
+}
+
+.new-siftr-button {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.bottom-step-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  box-shadow: 0 6px 44px rgba(0, 0, 0, 0.16);
+  text-decoration:none;
+  z-index: 100;
+  a {
+    border-radius: 4px;
+    background: #23C9A4;
+    color: #ffffff;
+    padding:10px;
+    text-decoration:none;
+    &:first-child{
+      background: #C9C0B8;
+      color:black;
+    }
+    &:hover {
+      background-color: #0BB08B;
+      text-decoration:none !important;
+      div {
+        text-decoration:none !important;
+      }
+    }
+  }
+}
+
+.newStepBox {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.newStep1 h3 {
+  text-align: center;
+}
+
+.newStep1, .newStep2, .newStep4, .newStep5 {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.new-siftr-title {
+  padding: 0;
+  margin: 8px;
+  font-size: 24px;
+}
+
+.create-cancel {
+  padding: 2px 8px;
+  border: 1px solid #979797;
+  border-radius: 3px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 15px;
+  &:hover {
+    text-decoration:none;
+    background:#efefef;
+  }
+}
+
+.deleterow {
+  padding:5px 10px;
+  display:inline-block;
+  background: #F4F4F4;
+  border-radius:2px;
+  vertical-align:middle;
+  margin-left:10px;
+  color:#B8AEAE;
+  &:hover {
+    background: #F3583A;
+    color:#fff;
+  }
+}
+
+.new-category-button .login-button {
+  margin-top: 30px;
+}
+
+.siftr-icon-area {
+  width: 100%;
+  background-color: #eee;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.siftr-icon-filled {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 200px;
+}
+
+.siftr-icon-empty {
+  padding: 30px;
+}
+
+.siftr-icon-gray-circle {
+  background-color: #ccc;
+  height: 80px;
+  width: 80px;
+  border-radius: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.full-width-input {
+  width: 100%;
+}
+
+.full-width-textarea {
+  width: 100%;
+  height: 105px;
+}

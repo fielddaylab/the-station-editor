@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/fielddaylab/siftr"
   },
+  "scripts": {
+    "start": "webpack"
+  },
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
@@ -20,6 +23,7 @@
     "markdown": "^0.5.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "webpack": "^4.42.1"
+    "webpack": "^4.42.1",
+    "sass": "^1.49.9"
   }
 }

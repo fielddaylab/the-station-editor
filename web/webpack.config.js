@@ -2,9 +2,9 @@ const path = require('path');
 
 module.exports = [{
   mode: 'development',
-  entry: './editor-react/js/main.js',
+  entry: './editor/js/main.js',
   output: {
-    path: path.resolve(__dirname, "editor-react"),
+    path: path.resolve(__dirname, "editor"),
     filename: 'webpack_out.js',
   },
   module: {

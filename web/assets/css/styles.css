@@ -9922,7 +9922,7 @@ a:hover {
 }
 
 p {
-  font-size: calc($font-size-sm +.1);
+  font-size: 0.975rem;
   line-height: 23px;
 }
 
