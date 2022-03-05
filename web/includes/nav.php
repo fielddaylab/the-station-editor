@@ -3,7 +3,7 @@
 function arisCall(func, json, cb) {
   var trySend, handleError;
   var req = new XMLHttpRequest();
-  req.open("POST", "https://fieldday-web.wcer.wisc.edu/stemports/server/json.php/v2." + func, true);
+  req.open("POST", "https://fieldday-web.wcer.wisc.edu/station/init/server/json.php/v2." + func, true);
   req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
   var jsonString = JSON.stringify(json);
   req.onload = function(){
@@ -15,7 +15,7 @@ function arisCall(func, json, cb) {
     }
   };
   req.onerror = function(){
-    return handleError("Could not connect to Siftr");
+    return handleError("Could not connect to Station");
   };
   var tries = 3;
   trySend = function(){
@@ -23,9 +23,9 @@ function arisCall(func, json, cb) {
       return req.send(jsonString);
     } else {
       return cb({
-        error: "Could not connect to Siftr",
+        error: "Could not connect to Station",
         errorMore:
-          "Make sure you can connect to siftr.org and arisgames.org."
+          "Make sure you can connect to fieldday-web.wcer.wisc.edu/station"
       });
     }
   };
@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
     <ul class="nav-items" id="stemports-breadcrumbs">
     </ul>
     <ul class="nav-items">
-      <li id="nav-login"><a href="/stemports/siftr/editor-react/#">login</a></li>
-      <li id="nav-profile" class="nav-hide"><a href="/stemports/siftr/editor-react/#profile" id="nav-profile-link">profile</a></li>
+      <li id="nav-login"><a href="/station/init/editor/#">login</a></li>
+      <li id="nav-profile" class="nav-hide"><a href="/station/init/editor/#profile" id="nav-profile-link">profile</a></li>
     </ul>
     <img class="smily-pin" src="/assets/icons/smily-pin.png">
   </div>
