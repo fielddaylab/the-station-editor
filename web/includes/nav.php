@@ -25,7 +25,7 @@ function arisCall(func, json, cb) {
       return cb({
         error: "Could not connect to Station",
         errorMore:
-          "Make sure you can connect to 143.244.170.226"
+          "Make sure you can connect to the station server (Usually at ./server)"
       });
     }
   };
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
     <ul class="nav-items" id="stemports-breadcrumbs">
     </ul>
     <ul class="nav-items">
-      <li id="nav-login"><a href="/station/editor/#">login</a></li>
+      <li id="nav-login"><a href="./editor/#">login</a></li>
       <li id="nav-profile" class="nav-hide"><a href="/editor/#profile" id="nav-profile-link">profile</a></li>
     </ul>
     <img class="smily-pin" src="/assets/icons/smily-pin.png">
