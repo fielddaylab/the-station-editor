@@ -784,7 +784,7 @@ const App = createClass({
         breadcrumbs.push(this.state.edit_game.name);
       }
     }
-    document.getElementById('stemports-breadcrumbs').innerHTML = breadcrumbs.join(' &gt; ');
+    document.getElementById('station-breadcrumbs').innerHTML = breadcrumbs.join(' &gt; ');
 
     var navBarActions;
     navBarActions = () => {
@@ -1421,7 +1421,7 @@ const App = createClass({
             case 'signup':
               return child('div.loginForm', () => {
                 child('p', () => {
-                  raw('Create a new STEMports account');
+                  raw('Create a new Station account');
                 });
                 child('p', () => {
                   var ref1;
@@ -1527,7 +1527,7 @@ const App = createClass({
             default:
               return child('div.loginForm', () => {
                 child('p', () => {
-                  raw('Login with a STEMports account');
+                  raw('Login with a Station account');
                 });
                 child('p', () => {
                   var ref1;
@@ -1619,7 +1619,7 @@ const App = createClass({
               }
             });
             child('h1', () => {
-              raw('Congrats! Your Stemports station has been created.');
+              raw('Congrats! Your Station has been created.');
             });
           });
         });
@@ -1642,7 +1642,7 @@ const App = createClass({
               }
             });
             child('h1', () => {
-              raw('Congrats! Your Stemports quest has been created.');
+              raw('Congrats! Your Station quest has been created.');
             });
           });
         });
