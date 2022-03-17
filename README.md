@@ -1,4 +1,4 @@
-# Siftr
+# Station
 
 A [Field Day](http://fielddaylab.org) experiment.
 
