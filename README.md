@@ -12,3 +12,6 @@ and [Tina Mailhot-Roberge](http://vervex.ca/) ([CC BY-SA 3.0](https://creativeco
 3. Set the server URL in web/shared/aris.js
 4. `make` inside the `web` folder to build
 5. `make deploy` to deploy over rsync
+
+Defualt values will assume that the server code exists in the parrent folder of where the editor is deployed.
+Modify `Web/includes/nav.php` and `Web/shared/aris.js` and change the relitive link to `../server` to an absolute link to change this.
