@@ -1,4 +1,6 @@
-# Station
+# Station Editor
+Compatible with Chrome. 
+Image upload does NOT work with Safari.
 
 A [Field Day](http://fielddaylab.org) experiment.
 
