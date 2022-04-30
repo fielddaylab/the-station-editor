@@ -950,31 +950,31 @@ const App = createClass({
               logout: this.logout
             });
           };
-          const tutorialFloating = () => {
-            child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
-              child('div', {
-                style: {
-                  position: 'fixed',
-                  bottom: 10,
-                  left: 10,
-                  border: '2px solid #847a82',
-                  borderRadius: 3,
-                  padding: 20,
-                  backgroundColor: '#1a9e81',
-                  fontWeight: 'bold',
-                  fontSize: 18,
-                  fontFamily: 'Varela Round, sans-serif',
-                  color: 'white',
-                },
-              }, () => {
-                raw('Tutorial');
-              });
-            });
-          };
+          // const tutorialFloating = () => {
+          //   child('a', {href: 'https://mmsa.org/stemports/questauthor/', target: '_blank'}, () => {
+          //     child('div', {
+          //       style: {
+          //         position: 'fixed',
+          //         bottom: 10,
+          //         left: 10,
+          //         border: '2px solid #847a82',
+          //         borderRadius: 3,
+          //         padding: 20,
+          //         backgroundColor: '#1a9e81',
+          //         fontWeight: 'bold',
+          //         fontSize: 18,
+          //         fontFamily: 'Varela Round, sans-serif',
+          //         color: 'white',
+          //       },
+          //     }, () => {
+          //       raw('Tutorial');
+          //     });
+          //   });
+          // };
           switch (this.state.screen) {
             case 'profile':
               innerNav();
-              tutorialFloating();
+              // tutorialFloating();
               return child(ProfileSettings, {
                 aris: this.props.aris,
                 auth: this.state.auth,
@@ -1012,7 +1012,7 @@ const App = createClass({
               });
             case 'account':
               innerNav();
-              tutorialFloating();
+              // tutorialFloating();
               return child(AccountSettings, {
                 aris: this.props.aris,
                 auth: this.state.auth,
@@ -1157,7 +1157,7 @@ const App = createClass({
             default:
               return child('div', () => {
                 innerNav();
-                tutorialFloating();
+                // tutorialFloating();
                 child(SiftrList, {
                   updateStateGame: this.updateStateGame,
                   aris: this.props.aris,

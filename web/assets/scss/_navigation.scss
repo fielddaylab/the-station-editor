@@ -53,6 +53,16 @@
           letter-spacing:3px;
           color:$blue;
         }
+        // .tutorial{
+        //   border: '2px solid #847a82';
+        //   border-radius: 3;
+        //   padding: 5;
+        //   background-color: '#1a9e81';
+        //   font-weight: 'bold';
+        //   font-size: 14px;
+        //   font-family: 'Varela Round, sans-serif';
+        //   color: 'white';
+        // }
         &:last-child a, &:nth-last-child(2) a {
           border-right:none;
         }
