@@ -9988,16 +9988,6 @@ p {
   display: block;
   margin-top: 20vh;
 }
-.main-nav .nav-contents .tutorial {
-  border: "2px solid #847a82";
-  border-radius: 3;
-  padding: 20;
-  background-color: "#1a9e81";
-  font-weight: "bold";
-  font-size: 18;
-  font-family: "Varela Round, sans-serif";
-  color: "white";
-}
 .main-nav .nav-contents.nav-open {
   transform: translateX(0vw);
   opacity: 1;
