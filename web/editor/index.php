@@ -166,7 +166,7 @@
 
 <div id="top-level-container">
 
-<?php $path .= "../includes/nav.php";  include_once($path); ?>
+<?php $path = "../includes/nav.php";  include_once($path); ?>
 
 <div id="the-container">
 </div>
