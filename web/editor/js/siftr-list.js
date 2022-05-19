@@ -41,10 +41,7 @@ export const SiftrList = createClass({
           child('div.siftr-entry-right', () => {
             var colors, i, percent, points, rgb, tag, tags;
             child('div.siftr-entry-title-buttons', () => {
-              child('a.siftr-entry-title', {
-                href: `${SIFTR_URL}${game.siftr_url || game.game_id}`,
-                target: '_blank'
-              }, () => {
+              child('div.siftr-entry-title', () => {
                 raw(game.name);
               });
               child('span', () => {
