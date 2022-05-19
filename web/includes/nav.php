@@ -76,7 +76,8 @@ document.addEventListener('DOMContentLoaded', updateSiftrNav);
     </ul>
     <ul class="nav-items">
       <li>
-        <a class='tutorial' href="https://mmsa.org/stemports/editor/" targrt='_blank'>Tutorial</a>
+        <!-- <a class="tutorial" href="https://mmsa.org/stemports/editor/" targrt="_blank">Tutorial</a> -->
+        <a href="#" onclick='window.open("https://mmsa.org/stemports/editor/");return false;'>Tutorial</a>
       </li>
       <li id="nav-login"><a href="./editor/#">login</a></li>
       <li id="nav-profile" class="nav-hide"><a href="/editor/#profile" id="nav-profile-link">profile</a></li>

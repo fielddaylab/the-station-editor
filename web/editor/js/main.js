@@ -904,7 +904,7 @@ const App = createClass({
             });
             return navBarActions();
           });
-          tutorialLink();
+          // tutorialLink();
         } else if ((ref2 = this.state.screen) === 'edit' || ref2 === 'map' || ref2 === 'form') {
           child('div.nav-bar-line', () => {
             child('div', () => {
@@ -929,7 +929,7 @@ const App = createClass({
             });
             return navBarActions();
           });
-          tutorialLink();
+          // tutorialLink();
         }
       });
       child('div.nav-bar.mobile-nav-bar', () => {
